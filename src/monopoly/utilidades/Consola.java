@@ -24,10 +24,16 @@ public class Consola {
 
     public static void print(String msg, Estilo... estilos) {
         String codigoAnsi = "";
+
         for (int i = 0; i < estilos.length; i++) {
-            codigoAnsi += Integer.toString(estilos[i].valor) + (i == estilos.length - 1? "m" : ";");
+            codigoAnsi += Integer.toString(estilos[i].valor);
+
+            if (i != estilos.length - 1) {
+                codigoAnsi += ";";
+            }
         }
-        System.out.print(BEGIN + codigoAnsi + msg + END);
+
+        System.out.print(BEGIN + codigoAnsi + 'm' + msg + END);
     }
 
     public static void println(String msg, Estilo... estilos) {
