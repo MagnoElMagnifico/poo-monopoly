@@ -1,6 +1,7 @@
 package monopoly;
 
 import java.util.Scanner;
+import monopoly.utilidades.Consola;
 
 /**
  * Clase principal del juego del Monopoly.
@@ -17,14 +18,13 @@ public class Monopoly {
 
     /**
      * Inicia la consola del juego del Monopoly.
-     *
-     * Muestra el Prompt ("&> ") y permite al usuario escribir un comando.
+     * Muestra el Prompt ("$>") y permite al usuario escribir un comando.
      */
     public void iniciarConsola() {
         while(true) {
             System.out.print("$> ");
             String input = scanner.nextLine();
-            System.out.println("\"" + input + "\"");
+            Consola.println(input, Consola.Estilo.Negrita, Consola.Estilo.FuenteRojo);
         }
     }
 }
