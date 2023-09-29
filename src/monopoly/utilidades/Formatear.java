@@ -90,4 +90,27 @@ public class Formatear {
         return "%s%sm%s%s".formatted(BEGIN, codigoAnsi, msg, END);
     }
     */
+
+    /** Convierte el long a String y lo formatea separando las centenas con espacios */
+    public static String num(long n) {
+        String numStr = Long.toString(n);
+
+        // Si es un numero de 3 o menos cifras no hay que hacer nada más
+        if (numStr.length() <= 3) {
+            return numStr;
+        }
+
+        // Empezamos tomando los últimos tres dígitos
+        String resultado = numStr.substring(numStr.length() - 3);
+
+        for (int i = numStr.length() - 3; i > 0; i -= 3) {
+            // Y se sigue tomando grupos de 3 en 3
+            // Salvo cuando se llega al principio, que se recoge lo que quede
+            String grupo = numStr.substring(Math.max(0, i-3), i);
+            // Se añade al resultado con un espacio
+            resultado = "%s %s".formatted(grupo, resultado);
+        }
+
+        return resultado;
+    }
 }
