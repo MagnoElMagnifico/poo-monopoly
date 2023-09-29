@@ -3,6 +3,26 @@
 Juego del Monopoly (con algunas modificaciones) para la clase de Programación
 Orientada a Objetos implementado en Java.
 
+# Comandos
+
+## Comandos sin argumentos
+
+- `jugador`
+- `lanzar dados`
+- `acabar turno`
+- `salir carcel`
+- `ver tablero`
+
+## Comandos con argumentos
+
+- `crear jugador <nombre> <tipo> [<avatar>]`
+- `comprar <casilla>`
+
+## Comandos con subcomandos
+
+- `listar { jugadores | avatares | enventa }`
+- `describir { jugador <jugador> | <casilla> }`
+
 # Estructura del proyecto
 
 > Todo el código fuente se almacena en la carpeta `src`.
