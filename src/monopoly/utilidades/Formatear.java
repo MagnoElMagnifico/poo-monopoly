@@ -35,10 +35,15 @@ public class Formatear {
 
     /** Función de ayuda para generar el código ANSI de todos los estilos dados */
     private static String getCodigoAnsi(Estilo... estilos) {
+        if (estilos.length == 0) {
+            return "";
+        }
+
         String codigo = "";
         for (int i = 0; i < estilos.length - 1; i++) {
             codigo = "%s%s;".formatted(codigo, estilos[i].ordinal());
         }
+
         return "%s%s".formatted(codigo, estilos[estilos.length - 1].ordinal());
     }
 
