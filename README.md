@@ -12,15 +12,12 @@ Orientada a Objetos implementado en Java.
 - `acabar turno`
 - `salir carcel`
 - `ver tablero`
+- `listar { jugadores | avatares | enventa }`
 
 ## Comandos con argumentos
 
 - `crear jugador <nombre> <tipo> [<avatar>]`
 - `comprar <casilla>`
-
-## Comandos con subcomandos
-
-- `listar { jugadores | avatares | enventa }`
 - `describir { jugador <jugador> | <casilla> }`
 
 # Estructura del proyecto
