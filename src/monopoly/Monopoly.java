@@ -1,7 +1,9 @@
 package monopoly;
 
 import java.util.Scanner;
-import monopoly.utilidades.Consola;
+import monopoly.utilidades.Formatear;
+import monopoly.utilidades.Formatear.Color;
+import monopoly.utilidades.Formatear.Estilo;
 
 /**
  * Clase principal del juego del Monopoly.
@@ -24,7 +26,7 @@ public class Monopoly {
         while(true) {
             System.out.print("$> ");
             String input = scanner.nextLine();
-            Consola.println(input, Consola.Estilo.Negrita, Consola.Estilo.FuenteRojo);
+            System.out.println(Formatear.con(input, Color.Rojo, Estilo.Negrita));
         }
     }
 }
