@@ -1,5 +1,8 @@
+import monopoly.Monopoly;
+
 public class Main {
     public static void main(String args[]) {
-        System.out.println("Hola Mundo");
+        Monopoly juego = new Monopoly();
+        juego.iniciarConsola();
     }
 }
