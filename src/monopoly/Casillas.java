@@ -1,5 +1,9 @@
 package monopoly;
 
+/**
+ *
+ *
+ */
 public class Casillas {
     private String nombre, Propietario;
     private String Tipo;
