@@ -1,9 +1,15 @@
 package monopoly;
 
+
+import monopoly.utilidades.Formatear;
+import monopoly.utilidades.Formatear.Color;
+import monopoly.utilidades.Formatear.Estilo;
+
+
 /**
  * Clase para Almacenar informacion de las casillas
  *
- * @autor Gabriel otero Pombo
+ * Gabriel otero Pombo
  */
 public class Casillas {
     //Atributos
@@ -55,7 +61,7 @@ public class Casillas {
         this.valorPista=0;
     }
 
-    /**Constructor para solares*/
+    /**Constructor para solares de forma manual*/
     public Casillas(String nombre,int alquiler, int alquilerCasa, int alquilerHotel, int alquilerPiscina, int alquilerPista, int precio,
                     int hipoteca, int valorCasa, int valorHotel, int valorPiscina, int valorPista, int grupo){
         this.tipo=0;
@@ -68,7 +74,7 @@ public class Casillas {
         }
         this.nombre=new String(nombre);
         this.propietario=new String("Banco");
-        this.jugadores=new String("");
+        this.jugadores=new String("    ");
         if(alquiler>0) {
             this.alquiler = alquiler;
         }
@@ -148,14 +154,70 @@ public class Casillas {
         }
     }
 
-    /**Constructor para transporte y servicios*/
-    public Casillas(String nombre, int alquiler, int precio, int tipo){
+    /**Constructor para generar las casillas segun reglas del juego*/
+    public Casillas(String nombre, int precio, int tipo, int grupo){
+        if(precio<0 || tipo<-1 || tipo>5 || grupo<0 || grupo>8){
+            System.out.println("Error al asignar valores\n");
+        }
+        switch(tipo){
+            case 0:
+                this.tipo = 0;
+                this.grupo = grupo;
+                this.nombre = new String(nombre);
+                this.propietario = new String("Banca");
+                this.jugadores = new String("    ");
+                this.alquiler = (int) (0.1*precio);
+                this.alquilerCasa = 5*precio;
+                this.alquilerHotel = 70*precio;
+                this.alquilerPiscina = 25*precio;
+                this.alquilerPista = 25*precio;
+                this.precio = precio;
+                this.hipoteca = (int) (0.5*precio);
+                this.valorCasa = (int) (0.6*precio);
+                this.valorHotel = (int) (0.6*precio);
+                this.valorPiscina = (int) (0.4*precio);
+                this.valorPista = (int) (1.25*precio);
+            case 1:
+                this.tipo = 1;
+                this.grupo = 0;
+                this.nombre = new String(nombre);
+                this.propietario = new String("Banca");
+                this.jugadores = new String("    ");
+                this.alquiler =precio;
+                this.alquilerCasa = 0;
+                this.alquilerHotel = 0;
+                this.alquilerPiscina = 0;
+                this.alquilerPista = 0;
+                this.precio = precio;
+                this.hipoteca = (int) (0.5*precio);
+                this.valorCasa = 0;
+                this.valorHotel = 0;
+                this.valorPiscina = 0;
+                this.valorPista = 0;
+            case 2:
+                this.tipo = 2;
+                this.grupo = 0;
+                this.nombre = new String(nombre);
+                this.propietario = new String("Banca");
+                this.jugadores = new String("    ");
+                this.alquiler = (int) (precio/200);
+                this.alquilerCasa = 0;
+                this.alquilerHotel = 0;
+                this.alquilerPiscina = 0;
+                this.alquilerPista = 0;
+                this.precio = (int) (0.75*precio);
+                this.hipoteca = (int) (0.5*this.precio);
+                this.valorCasa = 0;
+                this.valorHotel = 0;
+                this.valorPiscina = 0;
+                this.valorPista = 0;
+        }
         if(tipo==1) {
             this.tipo = 1;
             this.grupo = 0;
             this.nombre = new String(nombre);
             this.propietario = new String("Banca");
-            this.jugadores = new String("");
+            this.jugadores = new String("    ");
             if (alquiler > 0) {
                 this.alquiler = alquiler;
             }
@@ -185,7 +247,7 @@ public class Casillas {
             this.grupo=0;
             this.nombre=new String(nombre);
             this.propietario=new String("Banca");
-            this.jugadores=new String("");
+            this.jugadores=new String("    ");
             if(alquiler>0) {
                 this.alquiler = alquiler;
             }
@@ -218,7 +280,7 @@ public class Casillas {
         this.grupo=0;
         this.nombre=new String(nombre);
         this.propietario=new String("Banca");
-        this.jugadores=new String("");
+        this.jugadores=new String("    ");
         this.alquiler=0;
         this.alquilerCasa=0;
         this.alquilerHotel=0;
@@ -233,13 +295,13 @@ public class Casillas {
     }
 
     /** Contructor para los impuestos y las casillas especiales*/
-    public Casillas(String nombre, int alquiler, int tipo){
+    public Casillas(String nombre, int alquiler, int tipo,long hola){
         if(tipo==4) {
             this.tipo = 4;
             this.grupo = 0;
             this.nombre = new String(nombre);
             this.propietario = new String("Banca");
-            this.jugadores = new String("");
+            this.jugadores = new String("    ");
             if (alquiler > 0) {
                 this.alquiler = alquiler;
             }
@@ -262,7 +324,7 @@ public class Casillas {
             this.grupo = 0;
             this.nombre = new String(nombre);
             this.propietario = new String("Banca");
-            this.jugadores = new String("");
+            this.jugadores = new String("    ");
             if (alquiler >= 0) {
                 this.alquiler = alquiler;
             }
@@ -479,6 +541,101 @@ public class Casillas {
     }
 
     // Otros Metodos
+    /**Para pasa de int a nombres de tipos de casilla solares, transporte servicio suerte impueto y especial */
+    public String tipoString(){
+        switch(tipo){
+            case 0:
+                return "Solar";
+            case 1:
+                return "Transporte";
+            case 2:
+                return "Servicio";
+            case 3:
+                return "Suerte/Comunidad";
+            case 4:
+                return "impusto";
+            case 5:
+                return "Especial";
+        }
+        return"Error";
+    }
 
+    /**Para pasar de int a nombres de grupo normal Azul cian ...*/
+    public String grupoString(){
+        switch(grupo){
+            case 1:
+                return "Marron";
+            case 2:
+                return "Cian";
+            case 3:
+                return "Naranja";
+            case 4:
+                return "Magenta";
+            case 5:
+                return "Rojo";
+            case 6:
+                return "Amarillo";
+            case 7:
+                return "Verde";
+            case 8:
+                return "Azul";
 
+        }
+        return "Error";
+    }
+
+/**Implementacion del metodo toString para imprimir para el tablero*/
+    public String toString(){
+        switch(grupo){
+            case 0:
+                return Formatear.con(nombre+jugadores+"|", Color.Defecto, Estilo.Subrayado);
+            case 1:
+                return Formatear.con(nombre+jugadores+"|", Color.Negro, Estilo.Subrayado);
+            case 2:
+                return Formatear.con(nombre+jugadores+"|", Color.Cian, Estilo.Subrayado);
+            case 3:
+                return Formatear.con(nombre+jugadores+"|", Color.Blanco, Estilo.Subrayado);
+            case 4:
+                return Formatear.con(nombre+jugadores+"|", Color.Magenta, Estilo.Subrayado);
+            case 5:
+                return Formatear.con(nombre+jugadores+"|", Color.Rojo, Estilo.Subrayado);
+            case 6:
+                return Formatear.con(nombre+jugadores+"|", Color.Amarillo, Estilo.Subrayado);
+            case 7:
+                return Formatear.con(nombre+jugadores+"|", Color.Verde, Estilo.Subrayado);
+            case 8:
+                return Formatear.con(nombre+jugadores+"|", Color.Azul, Estilo.Subrayado);
+        }
+        return "Sin casilla";
+    }
+
+    /** Funcion para pasar los los datos de la casilla asignados al comando describir */
+    public String pasarDatos(){
+        switch(tipo){
+            case 0:
+                return """
+                        {
+                            tipo: %s
+                            grupo: %s
+                            propietario: %s
+                            valor: %d
+                            alquiler: %d
+                            valor hotel: %d
+                            valor casa: %d
+                            valor piscina: %d
+                            valor pista de deporte: %d
+                            alquiler una casa: %d
+                            alquiler dos casas: %d
+                            alquiler tres casas: %d
+                            alquiler cuatro casas: %d
+                            alquiler hotel: %d
+                            alquiler piscina: %d
+                            alquiler pista de deporte: %d
+                            
+                        }
+                        """.formatted(tipoString(),grupoString(),propietario,precio,alquiler,valorCasa,valorHotel,valorPiscina,
+                        valorPista,alquilerCasa);
+        }
+        return "Error";
+    }
 }
