@@ -14,14 +14,10 @@ public class Formatear {
     private static final String INICIO = "\u001b[";
     /** Código ANSI de reseteo */
     private static final String FIN = "\u001b[0m";
-    /** Se le suma a la posición del enumerado Color para obtener el color de la fuente */
-    private static final int OFFSET_FUENTE = 30;
-    /** Se le suma a la posición del enumerado Color para obtener el color del fondo */
-    private static final int OFFSET_FONDO = 40;
 
     /** Colores soportados */
     public enum Color {
-        Negro, Rojo, Verde, Amarillo, Azul, Magenta, Cian, Blanco, Set, Defecto
+        Negro, Rojo, Verde, Amarillo, Azul, Magenta, Cian, Blanco
     }
 
     /**
@@ -47,49 +43,34 @@ public class Formatear {
         return "%s%s".formatted(codigo, estilos[estilos.length - 1].ordinal());
     }
 
-    /** Formatea un mensaje con un color de fuente, color de fondo y unos estilo dados */
-    public static String con(String msg, Color fuente, Color fondo, Estilo... estilos) {
-        return "%s%s;%s;%sm%s%s".formatted(INICIO, Formatear.getCodigoAnsi(estilos),
-                fuente.ordinal() + OFFSET_FUENTE, fondo.ordinal() + OFFSET_FONDO, msg, FIN);
+    /**
+     * Formatea un mensaje con un código de color de fuente, código de color de fondo y unos estilo dados
+     * @param msg     Mensaje a formatear
+     * @param fuente  Código de color de la fuente (número entero sin signo, 0 a 255)
+     * @param fondo   Código de color del fondo (número entero sin signo, 0 a 255)
+     * @return La cadena formateada
+     * @see <a href="https://user-images.githubusercontent.com/995050/47952855-ecb12480-df75-11e8-89d4-ac26c50e80b9.png">Codigos de Color</a>
+     */
+    public static String con(String msg, byte fuente, byte fondo, Estilo... estilos) {
+        return "%s%s;38;5;%d;48;5;%dm%s%s".formatted(INICIO, Formatear.getCodigoAnsi(estilos),
+                fuente & 0xFF, fondo & 0xFF, msg, FIN);
     }
 
-    /** Formatea un mensaje con un color de fuente */
-    public static String con(String msg, Color fuente) {
-        return Formatear.con(msg, fuente, Color.Defecto);
+    /** Formatea un mensaje con un código de color de fuente y unos estilos dados */
+    public static String con(String msg, byte fuente, Estilo... estilos) {
+        return "%s%s;38;5;%dm%s%s".formatted(INICIO, Formatear.getCodigoAnsi(estilos),
+                fuente & 0xFF, msg, FIN);
+    }
+
+    /** Formatea un mensaje con un color de fuente y fondo, más unos estilos */
+    public static String con(String msg, Color fuente, Color fondo, Estilo... estilos) {
+        return Formatear.con(msg, (byte) fuente.ordinal(), (byte) fondo.ordinal(), estilos);
     }
 
     /** Formatea un mensaje con un color de fuente y unos estilos dados */
     public static String con(String msg, Color fuente, Estilo... estilos) {
-        return Formatear.con(msg, fuente, Color.Defecto, estilos);
+        return Formatear.con(msg, (byte) fuente.ordinal(), estilos);
     }
-
-    // TODO: Preguntar si esto se puede hacer
-    /*
-    public enum Estilo {
-        Ninguno(0), Negrita(1), Clarito(2), Cursiva(3), Subrayado(4), Parpadeo(5), Tachado(9),
-        FuenteDefecto(39), FuenteNegro(30), FuenteRojo(31), FuenteVerde(32), FuenteAmarillo(33), FuenteAzul(34), FuenteMagenta(35), FuenteCyan(36), FuenteBlanco(37),
-        FondoDefecto(49), FondoNegro(40), FondoRojo(41), FondoVerde(42), FondoAmarillo(43), FondoAzul(44), FondoMagenta(45), FondoCyan(46), FondoBlanco(47);
-
-        private final int valor;
-        private Estilo(int valor) {
-            this.valor = valor;
-        }
-    }
-
-    public static String colorear(String msg, Estilo... estilos) {
-        String codigoAnsi = "";
-
-        for (int i = 0; i < estilos.length; i++) {
-            codigoAnsi += Integer.toString(estilos[i].valor);
-
-            if (i != estilos.length - 1) {
-                codigoAnsi += ";";
-            }
-        }
-
-        return "%s%sm%s%s".formatted(BEGIN, codigoAnsi, msg, END);
-    }
-    */
 
     /** Convierte el long a String y lo formatea separando las centenas con espacios */
     public static String num(long n) {
