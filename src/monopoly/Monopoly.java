@@ -52,7 +52,7 @@ public class Monopoly {
 
         // Ver: https://docs.oracle.com/en/java/javase/17/language/switch-expressions.html
         System.out.print(switch (cmdNorm) {
-            case "ayuda", "help" -> this.msgAyuda;
+            case "ayuda", "help" -> MSG_AYUDA;
             case "salir", "quit" -> {
                 System.exit(0);
                 yield ""; // Si no devuelvo un objeto da error
