@@ -14,18 +14,16 @@ import monopoly.utilidades.Formatear.Estilo;
  * @date 25-09-2023
  */
 public class Monopoly {
-    private String msgAyuda;
-    private Scanner scanner;
-    private Dado dado;
+    private static final String MSG_AYUDA = """
+                        ayuda, help      Muestra esta información de ayuda.
+                        salir, quit      Cierra el programa.
+                """;
+    private final Scanner scanner;
+    private final Dado dado;
 
     public Monopoly() {
         scanner = new Scanner(System.in);
         dado = new Dado();
-
-        msgAyuda = """
-                        ayuda, help      Muestra esta información de ayuda.
-                        salir, quit      Cierra el programa.
-                """;
     }
 
     /**
