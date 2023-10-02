@@ -678,100 +678,88 @@ public class Casillas {
     // Otros Metodos
     /**Para pasa de int a nombres de tipos de casilla solares, transporte servicio suerte impueto y especial */
     public String tipoString(){
-        switch(tipo){
-            case 0:
-                return "Solar";
-            case 1:
-                return "Transporte";
-            case 2:
-                return "Servicio";
-            case 3:
-                return "Suerte/Comunidad";
-            case 4:
-                return "impusto";
-            case 5:
-                return "Especial";
-        }
-        return"Error";
+        return switch (getTipo()) {
+            case 0 -> "Solar";
+            case 1 -> "Transporte";
+            case 2 -> "Servicio";
+            case 3 -> "Suerte/Comunidad";
+            case 4 -> "impusto";
+            case 5 -> "Especial";
+            default -> "Error";
+        };
     }
 
     /**Para pasar de int a nombres de grupo normal Azul cian ...*/
     public String grupoString(){
-        switch(grupo){
-            case 1:
-                return "Marron";
-            case 2:
-                return "Cian";
-            case 3:
-                return "Naranja";
-            case 4:
-                return "Magenta";
-            case 5:
-                return "Rojo";
-            case 6:
-                return "Amarillo";
-            case 7:
-                return "Verde";
-            case 8:
-                return "Azul";
-
-        }
-        return "Error";
+        return switch (getGrupo()) {
+            case 1 -> "Marron";
+            case 2 -> "Cian";
+            case 3 -> "Naranja";
+            case 4 -> "Magenta";
+            case 5 -> "Rojo";
+            case 6 -> "Amarillo";
+            case 7 -> "Verde";
+            case 8 -> "Azul";
+            default -> "Error";
+        };
     }
-
+    public int calcCasa(int i){
+        return switch (i) {
+            case 1 -> 5 * getAlquiler();
+            case 2 -> 15 * getAlquiler();
+            case 3 -> 30 * getAlquiler();
+            case 4 -> 70 * getAlquiler();
+            default -> 0;
+        };
+    }
 /**Implementacion del metodo toString para imprimir para el tablero*/
     public String toString(){
-        switch(grupo){
-            case 0:
-                return Formatear.con(nombre+jugadores+"|", Color.Defecto, Estilo.Subrayado);
-            case 1:
-                return Formatear.con(nombre+jugadores+"|", Color.Negro, Estilo.Subrayado);
-            case 2:
-                return Formatear.con(nombre+jugadores+"|", Color.Cian, Estilo.Subrayado);
-            case 3:
-                return Formatear.con(nombre+jugadores+"|", Color.Blanco, Estilo.Subrayado);
-            case 4:
-                return Formatear.con(nombre+jugadores+"|", Color.Magenta, Estilo.Subrayado);
-            case 5:
-                return Formatear.con(nombre+jugadores+"|", Color.Rojo, Estilo.Subrayado);
-            case 6:
-                return Formatear.con(nombre+jugadores+"|", Color.Amarillo, Estilo.Subrayado);
-            case 7:
-                return Formatear.con(nombre+jugadores+"|", Color.Verde, Estilo.Subrayado);
-            case 8:
-                return Formatear.con(nombre+jugadores+"|", Color.Azul, Estilo.Subrayado);
-        }
-        return "Sin casilla";
+        return switch (grupo) {
+            case 0 -> Formatear.con(nombre + jugadores + "|", Color.Defecto, Estilo.Subrayado);
+            case 1 -> Formatear.con(nombre + jugadores + "|", Color.Negro, Estilo.Subrayado);
+            case 2 -> Formatear.con(nombre + jugadores + "|", Color.Cian, Estilo.Subrayado);
+            case 3 -> Formatear.con(nombre + jugadores + "|", Color.Blanco, Estilo.Subrayado);
+            case 4 -> Formatear.con(nombre + jugadores + "|", Color.Magenta, Estilo.Subrayado);
+            case 5 -> Formatear.con(nombre + jugadores + "|", Color.Rojo, Estilo.Subrayado);
+            case 6 -> Formatear.con(nombre + jugadores + "|", Color.Amarillo, Estilo.Subrayado);
+            case 7 -> Formatear.con(nombre + jugadores + "|", Color.Verde, Estilo.Subrayado);
+            case 8 -> Formatear.con(nombre + jugadores + "|", Color.Azul, Estilo.Subrayado);
+            default -> "Sin casilla";
+        };
     }
 
     /** Funcion para pasar los los datos de la casilla asignados al comando describir */
     public String pasarDatos(){
-        switch(tipo){
-            case 0:
-                return """
-                        {
-                            tipo: %s
-                            grupo: %s
-                            propietario: %s
-                            valor: %d
-                            alquiler: %d
-                            valor hotel: %d
-                            valor casa: %d
-                            valor piscina: %d
-                            valor pista de deporte: %d
-                            alquiler una casa: %d
-                            alquiler dos casas: %d
-                            alquiler tres casas: %d
-                            alquiler cuatro casas: %d
-                            alquiler hotel: %d
-                            alquiler piscina: %d
-                            alquiler pista de deporte: %d
-                            
-                        }
-                        """.formatted(tipoString(),grupoString(),propietario,precio,alquiler,valorCasa,valorHotel,valorPiscina,
-                        valorPista,alquilerCasa);
-        }
-        return "Error";
+        return switch (tipo) {
+            case 0 -> """
+                    {
+                        tipo: %s
+                        grupo: %s
+                        propietario: %s
+                        valor: %d
+                        alquiler: %d
+                        valor hotel: %d
+                        valor casa: %d
+                        valor piscina: %d
+                        valor pista de deporte: %d
+                        alquiler una casa: %d
+                        alquiler dos casas: %d
+                        alquiler tres casas: %d
+                        alquiler hotel: %d
+                        alquiler piscina: %d
+                        alquiler pista de deporte: %d
+                        
+                    }
+                    """.formatted(tipoString(), grupoString(), propietario, precio, alquiler, valorCasa, valorHotel, valorPiscina,
+                    valorPista, alquilerCasa, calcCasa(2), calcCasa(3), alquilerHotel, alquilerPiscina, alquilerPista);
+            case 1, 2 -> """
+                    {
+                        tipo: %s
+                        apagar: %d
+                    }
+                    """.formatted(tipoString(), alquiler);
+            default -> "Error";
+        };
     }
 
 
