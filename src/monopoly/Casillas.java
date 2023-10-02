@@ -165,7 +165,7 @@ public class Casillas {
 
     /**Constructor para generar las casillas segun reglas del juego*/
     public Casillas(String nombre, int precio, int tipo, int grupo){
-        if(precio<0 || tipo<-1 || tipo>5 || grupo<0 || grupo>8){
+        if(precio<0 || tipo<-1 || tipo>5 || grupo<0 || grupo>=8){
             System.out.println("Error al asignar valores\n");
         }
         switch(tipo){
@@ -715,7 +715,7 @@ public class Casillas {
 /**Implementacion del metodo toString para imprimir para el tablero*/
     public String toString(){
         return switch (grupo) {
-            case 0 -> Formatear.con(nombre + jugadores + "|", Color.Defecto, Estilo.Subrayado);
+            case 0 -> Formatear.con(nombre + jugadores + "|", Color.Blanco, Estilo.Subrayado);
             case 1 -> Formatear.con(nombre + jugadores + "|", Color.Negro, Estilo.Subrayado);
             case 2 -> Formatear.con(nombre + jugadores + "|", Color.Cian, Estilo.Subrayado);
             case 3 -> Formatear.con(nombre + jugadores + "|", Color.Blanco, Estilo.Subrayado);
