@@ -1,4 +1,5 @@
 package monopoly;
+
 import java.util.ArrayList;
 
 
@@ -90,7 +91,4 @@ public class Jugador {
         setAvatar(avatar);
         jugador();
     }
-
-
-
 }

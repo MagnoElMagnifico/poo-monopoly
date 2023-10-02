@@ -1,11 +1,8 @@
-package monopoly;
-
+import monopoly.Monopoly;
 
 public class Main {
-    public static void main(String args[]) {
-        Jugador jugador = new Jugador();
-        jugador.crearJugador("Maria",'M');
-
-
+    public static void main(String[] args) {
+        Monopoly juego = new Monopoly();
+        juego.iniciarConsola();
     }
 }
