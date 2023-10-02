@@ -331,6 +331,10 @@ public class Casillas {
             this.valorHotel = 0;
             this.valorPiscina = 0;
             this.valorPista = 0;
+            this.nCasa=0;
+            this.nHotel=0;
+            this.nPiscina=0;
+            this.nPista=0;
         }
         if(tipo==2){
             this.tipo=2;
@@ -361,6 +365,10 @@ public class Casillas {
             this.valorHotel=0;
             this.valorPiscina=0;
             this.valorPista=0;
+            this.nCasa=0;
+            this.nHotel=0;
+            this.nPiscina=0;
+            this.nPista=0;
         }
         if(tipo==3){
             this.tipo=3;
@@ -379,6 +387,10 @@ public class Casillas {
             this.valorHotel=0;
             this.valorPiscina=0;
             this.valorPista=0;
+            this.nCasa=0;
+            this.nHotel=0;
+            this.nPiscina=0;
+            this.nPista=0;
         }
         if(tipo==4) {
             this.tipo = 4;
@@ -402,6 +414,10 @@ public class Casillas {
             this.valorHotel = 0;
             this.valorPiscina = 0;
             this.valorPista = 0;
+            this.nCasa=0;
+            this.nHotel=0;
+            this.nPiscina=0;
+            this.nPista=0;
         }
         if(tipo==5){
             this.tipo = 5;
@@ -425,6 +441,10 @@ public class Casillas {
             this.valorHotel = 0;
             this.valorPiscina = 0;
             this.valorPista = 0;
+            this.nCasa=0;
+            this.nHotel=0;
+            this.nPiscina=0;
+            this.nPista=0;
         }
     }
 
@@ -624,6 +644,37 @@ public class Casillas {
         this.jugadores = jugadores;
     }
 
+    public int getnCasa() {
+        return nCasa;
+    }
+
+    public void setnCasa(int nCasa) {
+        this.nCasa = nCasa;
+    }
+
+    public int getnHotel() {
+        return nHotel;
+    }
+
+    public void setnHotel(int nHotel) {
+        this.nHotel = nHotel;
+    }
+
+    public int getnPiscina() {
+        return nPiscina;
+    }
+
+    public void setnPiscina(int nPiscina) {
+        this.nPiscina = nPiscina;
+    }
+
+    public int getnPista() {
+        return nPista;
+    }
+
+    public void setnPista(int nPista) {
+        this.nPista = nPista;
+    }
     // Otros Metodos
     /**Para pasa de int a nombres de tipos de casilla solares, transporte servicio suerte impueto y especial */
     public String tipoString(){
@@ -722,4 +773,6 @@ public class Casillas {
         }
         return "Error";
     }
+
+
 }
