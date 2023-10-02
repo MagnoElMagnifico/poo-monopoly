@@ -1,5 +1,12 @@
 package monopoly;
 
+/**
+ * Clase que representa un Avatar. Esta es la parte del jugador que está en
+ * el tablero, es decir, está en una casilla concreta.
+ * @author Marcos Granja Grille
+ * @date 2-10-2023
+ * @see monopoly.Jugador
+ */
 public class Avatar {
     /** Tipos de avatares posibles */
     public enum TipoAvatar {
