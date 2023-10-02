@@ -1,20 +1,20 @@
 package monopoly;
 
-
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.Formatear.Estilo;
 
 
 /**
- * Clase para Almacenar informacion de las casillas
+ * Clase para Almacenar información de las casillas
  *
- * Gabriel otero Pombo
+ * @author Gabriel Otero Pombo
  */
-public class Casillas {
-    //Atributos
-    /** Información para el nombre de la casilla y el dueño
-     * en caso de le las casillas especiales propietario = nombre*/
+public class Casilla {
+    /**
+     * Información para el nombre de la casilla y el dueño
+     * en caso de le las casillas especiales propietario = nombre
+     */
     private String nombre, propietario;
     /**
      * identificador del tipo de casilla
@@ -27,217 +27,216 @@ public class Casillas {
      * tipo = 5 especiles(Cárcel, Parking, Salida e Ir a la Cárcel)
      */
     private int tipo;
-    /**Grupo al que pertence un solar, tambien determina el color  va del 1 al 8
+    /**
+     * Grupo al que pertence un solar, tambien determina el color  va del 1 al 8
      * para el resto de casillas su valor sera 0
-     * */
-    private  int grupo;
-    /**Conjunto de valores de los solares los alquileres
+     */
+    private int grupo;
+    /**
+     * Conjunto de valores de los solares los alquileres
      * Para la casilla de impuesto su precio a pagar se guarda en alquiler
      * Para la casilla parking el bote se guarda en precio
      * Para la casilla carcel el precio de salida se guarda en alquiler
-     * */
+     */
     private int precio, hipoteca, valorCasa, valorHotel, valorPiscina, valorPista;
     private int nCasa, nHotel, nPiscina, nPista;
     private int alquiler, alquilerCasa, alquilerHotel, alquilerPiscina, alquilerPista;
-    /** jugadores actuales en la casilla*/
+    /**
+     * jugadores actuales en la casilla
+     */
     private String jugadores;
     //Constructores
-    /**Constructor para la casilla vacia tipo -1*/
-    public Casillas(){
-        this.tipo=-1;
-        this.grupo=0;
-        this.nombre=new String("");
-        this.propietario=new String("");
-        this.jugadores=new String("");
-        this.alquiler=0;
-        this.alquilerCasa=0;
-        this.alquilerHotel=0;
-        this.alquilerPiscina=0;
-        this.alquilerPista=0;
-        this.precio=0;
-        this.hipoteca=0;
-        this.valorCasa=0;
-        this.valorHotel=0;
-        this.valorPiscina=0;
-        this.valorPista=0;
-        this.nCasa=0;
-        this.nHotel=0;
-        this.nPiscina=0;
-        this.nPista=0;
+
+    /**
+     * Constructor para la casilla vacia tipo -1
+     */
+    public Casilla() {
+        this.tipo = -1;
+        this.grupo = 0;
+        this.nombre = "";
+        this.propietario = "";
+        this.jugadores = "";
+        this.alquiler = 0;
+        this.alquilerCasa = 0;
+        this.alquilerHotel = 0;
+        this.alquilerPiscina = 0;
+        this.alquilerPista = 0;
+        this.precio = 0;
+        this.hipoteca = 0;
+        this.valorCasa = 0;
+        this.valorHotel = 0;
+        this.valorPiscina = 0;
+        this.valorPista = 0;
+        this.nCasa = 0;
+        this.nHotel = 0;
+        this.nPiscina = 0;
+        this.nPista = 0;
     }
 
-    /**Constructor para solares de forma manual*/
-    public Casillas(String nombre,int alquiler, int alquilerCasa, int alquilerHotel, int alquilerPiscina, int alquilerPista, int precio,
-                    int hipoteca, int valorCasa, int valorHotel, int valorPiscina, int valorPista, int grupo){
-        this.tipo=0;
-        if(0<grupo && grupo <=8) {
+    /**
+     * Constructor para solares de forma manual
+     */
+    public Casilla(String nombre, int alquiler, int alquilerCasa, int alquilerHotel, int alquilerPiscina, int alquilerPista, int precio,
+                   int hipoteca, int valorCasa, int valorHotel, int valorPiscina, int valorPista, int grupo) {
+        this.tipo = 0;
+        if (0 < grupo && grupo <= 8) {
             this.grupo = grupo;
-        }
-        else{
-            this.grupo=0;
+        } else {
+            this.grupo = 0;
             System.out.println("Grupo no asignado\n");
         }
-        this.nombre=new String(nombre);
-        this.propietario=new String("Banco");
-        this.jugadores=new String("    ");
-        if(alquiler>0) {
+        this.nombre = nombre;
+        this.propietario = "Banco";
+        this.jugadores = "    ";
+        if (alquiler > 0) {
             this.alquiler = alquiler;
-        }
-        else{
-            this.alquiler=0;
+        } else {
+            this.alquiler = 0;
             System.out.println("alquiler no asignado\n");
         }
-        if(alquilerCasa>0) {
+        if (alquilerCasa > 0) {
             this.alquilerCasa = alquilerCasa;
-        }
-        else{
-            this.alquilerCasa=0;
+        } else {
+            this.alquilerCasa = 0;
             System.out.println("alquilerCasa no asignado\n");
         }
-        if(alquilerHotel>0) {
+        if (alquilerHotel > 0) {
             this.alquilerHotel = alquilerHotel;
-        }
-        else{
-            this.alquilerHotel=0;
+        } else {
+            this.alquilerHotel = 0;
             System.out.println("alquilerHotel no asignado\n");
         }
-        if(alquilerPiscina>0) {
+        if (alquilerPiscina > 0) {
             this.alquilerPiscina = alquilerPiscina;
-        }
-        else{
-            this.alquilerPiscina=0;
+        } else {
+            this.alquilerPiscina = 0;
             System.out.println("alquilerPiscina no asignado\n");
         }
-        if(alquilerPista>0) {
+        if (alquilerPista > 0) {
             this.alquilerPista = alquilerPista;
-        }
-        else{
-            this.alquilerPista=0;
+        } else {
+            this.alquilerPista = 0;
             System.out.println("alquilerPista no asignado\n");
         }
-        if(precio>0) {
+        if (precio > 0) {
             this.precio = precio;
-        }
-        else{
-            this.precio=0;
+        } else {
+            this.precio = 0;
             System.out.println("precio no asignado\n");
         }
-        if(hipoteca>0) {
+        if (hipoteca > 0) {
             this.hipoteca = hipoteca;
-        }
-        else{
-            this.hipoteca=0;
+        } else {
+            this.hipoteca = 0;
             System.out.println("Hipoteca no asignado\n");
         }
-        if(valorCasa>0) {
+        if (valorCasa > 0) {
             this.valorCasa = valorCasa;
-        }
-        else{
-            this.valorCasa=0;
+        } else {
+            this.valorCasa = 0;
             System.out.println("ValorCasa no asignado\n");
         }
-        if(valorHotel>0) {
+        if (valorHotel > 0) {
             this.valorHotel = valorHotel;
-        }
-        else{
-            this.valorHotel=0;
+        } else {
+            this.valorHotel = 0;
             System.out.println("ValorHotel no asignado\n");
         }
-        if(valorPiscina>0) {
+        if (valorPiscina > 0) {
             this.valorPiscina = valorPiscina;
-        }
-        else{
-            this.valorPiscina=0;
+        } else {
+            this.valorPiscina = 0;
             System.out.println("ValorPiscina no asignado\n");
         }
-        if(valorPista>0) {
+        if (valorPista > 0) {
             this.valorPista = valorPista;
-        }
-        else{
-            this.valorPista=0;
+        } else {
+            this.valorPista = 0;
             System.out.println("ValorPista no asignado\n");
         }
-        this.nCasa=0;
-        this.nHotel=0;
-        this.nPiscina=0;
-        this.nPista=0;
+        this.nCasa = 0;
+        this.nHotel = 0;
+        this.nPiscina = 0;
+        this.nPista = 0;
     }
 
-    /**Constructor para generar las casillas segun reglas del juego*/
-    public Casillas(String nombre, int precio, int tipo, int grupo){
-        if(precio<0 || tipo<-1 || tipo>5 || grupo<0 || grupo>8){
+    /**
+     * Constructor para generar las casillas segun reglas del juego
+     */
+    public Casilla(String nombre, int precio, int tipo, int grupo) {
+        if (precio < 0 || tipo < -1 || tipo > 5 || grupo < 0 || grupo > 8) {
             System.out.println("Error al asignar valores\n");
         }
-        switch(tipo){
+        switch (tipo) {
             case 0:
                 this.tipo = 0;
                 this.grupo = grupo;
-                this.nombre = new String(nombre);
-                this.propietario = new String("Banca");
-                this.jugadores = new String("    ");
-                this.alquiler = (int) (0.1*precio);
-                this.alquilerCasa = 5*precio;
-                this.alquilerHotel = 70*precio;
-                this.alquilerPiscina = 25*precio;
-                this.alquilerPista = 25*precio;
+                this.nombre = nombre;
+                this.propietario = "Banca";
+                this.jugadores = "    ";
+                this.alquiler = (int) (0.1 * precio);
+                this.alquilerCasa = 5 * precio;
+                this.alquilerHotel = 70 * precio;
+                this.alquilerPiscina = 25 * precio;
+                this.alquilerPista = 25 * precio;
                 this.precio = precio;
-                this.hipoteca = (int) (0.5*precio);
-                this.valorCasa = (int) (0.6*precio);
-                this.valorHotel = (int) (0.6*precio);
-                this.valorPiscina = (int) (0.4*precio);
-                this.valorPista = (int) (1.25*precio);
-                this.nCasa=0;
-                this.nHotel=0;
-                this.nPiscina=0;
-                this.nPista=0;
+                this.hipoteca = (int) (0.5 * precio);
+                this.valorCasa = (int) (0.6 * precio);
+                this.valorHotel = (int) (0.6 * precio);
+                this.valorPiscina = (int) (0.4 * precio);
+                this.valorPista = (int) (1.25 * precio);
+                this.nCasa = 0;
+                this.nHotel = 0;
+                this.nPiscina = 0;
+                this.nPista = 0;
             case 1:
                 this.tipo = 1;
                 this.grupo = 0;
-                this.nombre = new String(nombre);
-                this.propietario = new String("Banca");
-                this.jugadores = new String("    ");
-                this.alquiler =precio;
+                this.nombre = nombre;
+                this.propietario = "Banca";
+                this.jugadores = "    ";
+                this.alquiler = precio;
                 this.alquilerCasa = 0;
                 this.alquilerHotel = 0;
                 this.alquilerPiscina = 0;
                 this.alquilerPista = 0;
                 this.precio = precio;
-                this.hipoteca = (int) (0.5*precio);
+                this.hipoteca = (int) (0.5 * precio);
                 this.valorCasa = 0;
                 this.valorHotel = 0;
                 this.valorPiscina = 0;
                 this.valorPista = 0;
-                this.nCasa=0;
-                this.nHotel=0;
-                this.nPiscina=0;
-                this.nPista=0;
+                this.nCasa = 0;
+                this.nHotel = 0;
+                this.nPiscina = 0;
+                this.nPista = 0;
             case 2:
                 this.tipo = 2;
                 this.grupo = 0;
-                this.nombre = new String(nombre);
-                this.propietario = new String("Banca");
-                this.jugadores = new String("    ");
-                this.alquiler = (int) (precio/200);
+                this.nombre = nombre;
+                this.propietario = "Banca";
+                this.jugadores = "    ";
+                this.alquiler = precio / 200;
                 this.alquilerCasa = 0;
                 this.alquilerHotel = 0;
                 this.alquilerPiscina = 0;
                 this.alquilerPista = 0;
-                this.precio = (int) (0.75*precio);
-                this.hipoteca = (int) (0.5*this.precio);
+                this.precio = (int) (0.75 * precio);
+                this.hipoteca = (int) (0.5 * this.precio);
                 this.valorCasa = 0;
                 this.valorHotel = 0;
                 this.valorPiscina = 0;
                 this.valorPista = 0;
-                this.nCasa=0;
-                this.nHotel=0;
-                this.nPiscina=0;
-                this.nPista=0;
+                this.nCasa = 0;
+                this.nHotel = 0;
+                this.nPiscina = 0;
+                this.nPista = 0;
             case 3:
                 this.tipo = 2;
                 this.grupo = 0;
-                this.nombre = new String(nombre);
-                this.propietario = new String("Banca");
-                this.jugadores = new String("    ");
+                this.nombre = nombre;
+                this.propietario = "Banca";
+                this.jugadores = "    ";
                 this.alquiler = 0;
                 this.alquilerCasa = 0;
                 this.alquilerHotel = 0;
@@ -249,16 +248,16 @@ public class Casillas {
                 this.valorHotel = 0;
                 this.valorPiscina = 0;
                 this.valorPista = 0;
-                this.nCasa=0;
-                this.nHotel=0;
-                this.nPiscina=0;
-                this.nPista=0;
+                this.nCasa = 0;
+                this.nHotel = 0;
+                this.nPiscina = 0;
+                this.nPista = 0;
             case 4:
                 this.tipo = 4;
                 this.grupo = 0;
-                this.nombre = new String(nombre);
-                this.propietario = new String("Banca");
-                this.jugadores = new String("    ");
+                this.nombre = nombre;
+                this.propietario = "Banca";
+                this.jugadores = "    ";
                 this.alquiler = 0;
                 this.alquilerCasa = 0;
                 this.alquilerHotel = 0;
@@ -270,16 +269,16 @@ public class Casillas {
                 this.valorHotel = 0;
                 this.valorPiscina = 0;
                 this.valorPista = 0;
-                this.nCasa=0;
-                this.nHotel=0;
-                this.nPiscina=0;
-                this.nPista=0;
+                this.nCasa = 0;
+                this.nHotel = 0;
+                this.nPiscina = 0;
+                this.nPista = 0;
             case 5:
                 this.tipo = 2;
                 this.grupo = 0;
-                this.nombre = new String(nombre);
-                this.propietario = new String("Banca");
-                this.jugadores = new String("    ");
+                this.nombre = nombre;
+                this.propietario = "Banca";
+                this.jugadores = "    ";
                 this.alquiler = 0;
                 this.alquilerCasa = 0;
                 this.alquilerHotel = 0;
@@ -291,27 +290,28 @@ public class Casillas {
                 this.valorHotel = 0;
                 this.valorPiscina = 0;
                 this.valorPista = 0;
-                this.nCasa=0;
-                this.nHotel=0;
-                this.nPiscina=0;
-                this.nPista=0;
+                this.nCasa = 0;
+                this.nHotel = 0;
+                this.nPiscina = 0;
+                this.nPista = 0;
         }
 
     }
 
 
-    /** Contructor para Asignar valores puestos por el usuario*/
-    public Casillas(int precio, String nombre, int alquiler, int tipo){
-        if(tipo==1) {
+    /**
+     * Contructor para Asignar valores puestos por el usuario
+     */
+    public Casilla(int precio, String nombre, int alquiler, int tipo) {
+        if (tipo == 1) {
             this.tipo = 1;
             this.grupo = 0;
-            this.nombre = new String(nombre);
-            this.propietario = new String("Banca");
-            this.jugadores = new String("    ");
+            this.nombre = nombre;
+            this.propietario = "Banca";
+            this.jugadores = "    ";
             if (alquiler > 0) {
                 this.alquiler = alquiler;
-            }
-            else {
+            } else {
                 this.alquiler = 0;
                 System.out.println("alquiler no asignado\n");
             }
@@ -321,8 +321,7 @@ public class Casillas {
             this.alquilerPista = 0;
             if (precio > 0) {
                 this.precio = precio;
-            }
-            else {
+            } else {
                 this.precio = 0;
                 System.out.println("precio no asignado\n");
             }
@@ -331,77 +330,74 @@ public class Casillas {
             this.valorHotel = 0;
             this.valorPiscina = 0;
             this.valorPista = 0;
-            this.nCasa=0;
-            this.nHotel=0;
-            this.nPiscina=0;
-            this.nPista=0;
+            this.nCasa = 0;
+            this.nHotel = 0;
+            this.nPiscina = 0;
+            this.nPista = 0;
         }
-        if(tipo==2){
-            this.tipo=2;
-            this.grupo=0;
-            this.nombre=new String(nombre);
-            this.propietario=new String("Banca");
-            this.jugadores=new String("    ");
-            if(alquiler>0) {
-                this.alquiler = alquiler;
-            }
-            else{
-                this.alquiler=0;
-                System.out.println("alquiler no asignado\n");
-            }
-            this.alquilerCasa=0;
-            this.alquilerHotel=0;
-            this.alquilerPiscina=0;
-            this.alquilerPista=0;
-            if(precio>0) {
-                this.precio = precio;
-            }
-            else{
-                this.precio=0;
-                System.out.println("precio no asignado\n");
-            }
-            this.hipoteca=0;
-            this.valorCasa=0;
-            this.valorHotel=0;
-            this.valorPiscina=0;
-            this.valorPista=0;
-            this.nCasa=0;
-            this.nHotel=0;
-            this.nPiscina=0;
-            this.nPista=0;
-        }
-        if(tipo==3){
-            this.tipo=3;
-            this.grupo=0;
-            this.nombre=new String(nombre);
-            this.propietario=new String("Banca");
-            this.jugadores=new String("    ");
-            this.alquiler=0;
-            this.alquilerCasa=0;
-            this.alquilerHotel=0;
-            this.alquilerPiscina=0;
-            this.alquilerPista=0;
-            this.precio=0;
-            this.hipoteca=0;
-            this.valorCasa=0;
-            this.valorHotel=0;
-            this.valorPiscina=0;
-            this.valorPista=0;
-            this.nCasa=0;
-            this.nHotel=0;
-            this.nPiscina=0;
-            this.nPista=0;
-        }
-        if(tipo==4) {
-            this.tipo = 4;
+        if (tipo == 2) {
+            this.tipo = 2;
             this.grupo = 0;
-            this.nombre = new String(nombre);
-            this.propietario = new String("Banca");
-            this.jugadores = new String("    ");
+            this.nombre = nombre;
+            this.propietario = "Banca";
+            this.jugadores = "    ";
             if (alquiler > 0) {
                 this.alquiler = alquiler;
+            } else {
+                this.alquiler = 0;
+                System.out.println("alquiler no asignado\n");
             }
-            else {
+            this.alquilerCasa = 0;
+            this.alquilerHotel = 0;
+            this.alquilerPiscina = 0;
+            this.alquilerPista = 0;
+            if (precio > 0) {
+                this.precio = precio;
+            } else {
+                this.precio = 0;
+                System.out.println("precio no asignado\n");
+            }
+            this.hipoteca = 0;
+            this.valorCasa = 0;
+            this.valorHotel = 0;
+            this.valorPiscina = 0;
+            this.valorPista = 0;
+            this.nCasa = 0;
+            this.nHotel = 0;
+            this.nPiscina = 0;
+            this.nPista = 0;
+        }
+        if (tipo == 3) {
+            this.tipo = 3;
+            this.grupo = 0;
+            this.nombre = nombre;
+            this.propietario = "Banca";
+            this.jugadores = "    ";
+            this.alquiler = 0;
+            this.alquilerCasa = 0;
+            this.alquilerHotel = 0;
+            this.alquilerPiscina = 0;
+            this.alquilerPista = 0;
+            this.precio = 0;
+            this.hipoteca = 0;
+            this.valorCasa = 0;
+            this.valorHotel = 0;
+            this.valorPiscina = 0;
+            this.valorPista = 0;
+            this.nCasa = 0;
+            this.nHotel = 0;
+            this.nPiscina = 0;
+            this.nPista = 0;
+        }
+        if (tipo == 4) {
+            this.tipo = 4;
+            this.grupo = 0;
+            this.nombre = nombre;
+            this.propietario = "Banca";
+            this.jugadores = "    ";
+            if (alquiler > 0) {
+                this.alquiler = alquiler;
+            } else {
                 this.alquiler = 0;
                 System.out.println("alquiler no asignado\n");
             }
@@ -414,21 +410,20 @@ public class Casillas {
             this.valorHotel = 0;
             this.valorPiscina = 0;
             this.valorPista = 0;
-            this.nCasa=0;
-            this.nHotel=0;
-            this.nPiscina=0;
-            this.nPista=0;
+            this.nCasa = 0;
+            this.nHotel = 0;
+            this.nPiscina = 0;
+            this.nPista = 0;
         }
-        if(tipo==5){
+        if (tipo == 5) {
             this.tipo = 5;
             this.grupo = 0;
-            this.nombre = new String(nombre);
-            this.propietario = new String("Banca");
-            this.jugadores = new String("    ");
+            this.nombre = nombre;
+            this.propietario = "Banca";
+            this.jugadores = "    ";
             if (alquiler >= 0) {
                 this.alquiler = alquiler;
-            }
-            else {
+            } else {
                 this.alquiler = 0;
                 System.out.println("alquiler no asignado\n");
             }
@@ -441,13 +436,12 @@ public class Casillas {
             this.valorHotel = 0;
             this.valorPiscina = 0;
             this.valorPista = 0;
-            this.nCasa=0;
-            this.nHotel=0;
-            this.nPiscina=0;
-            this.nPista=0;
+            this.nCasa = 0;
+            this.nHotel = 0;
+            this.nPiscina = 0;
+            this.nPista = 0;
         }
     }
-
 
 
     // Metodos de lectura y escritura
@@ -472,10 +466,9 @@ public class Casillas {
     }
 
     public void setTipo(int tipo) {
-        if(tipo<=5 && tipo>=-1) {
+        if (tipo <= 5 && tipo >= -1) {
             this.tipo = tipo;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -485,10 +478,9 @@ public class Casillas {
     }
 
     public void setGrupo(int grupo) {
-        if(grupo<=8 && grupo>=0) {
+        if (grupo <= 8 && grupo >= 0) {
             this.grupo = grupo;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -498,10 +490,9 @@ public class Casillas {
     }
 
     public void setPrecio(int precio) {
-        if(precio>0) {
+        if (precio > 0) {
             this.precio = precio;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -511,10 +502,9 @@ public class Casillas {
     }
 
     public void setHipoteca(int hipoteca) {
-        if(hipoteca>0) {
+        if (hipoteca > 0) {
             this.hipoteca = hipoteca;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -524,10 +514,9 @@ public class Casillas {
     }
 
     public void setValorCasa(int valorCasa) {
-        if(valorCasa>0) {
+        if (valorCasa > 0) {
             this.valorCasa = valorCasa;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -537,10 +526,9 @@ public class Casillas {
     }
 
     public void setValorHotel(int valorHotel) {
-        if(precio>0) {
+        if (precio > 0) {
             this.valorHotel = valorHotel;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -550,10 +538,9 @@ public class Casillas {
     }
 
     public void setValorPiscina(int valorPiscina) {
-        if(valorPiscina>0) {
+        if (valorPiscina > 0) {
             this.valorPiscina = valorPiscina;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -563,10 +550,9 @@ public class Casillas {
     }
 
     public void setValorPista(int valorPista) {
-        if(valorPista>0) {
+        if (valorPista > 0) {
             this.valorPista = valorPista;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -576,10 +562,9 @@ public class Casillas {
     }
 
     public void setAlquiler(int alquiler) {
-        if(alquiler>0) {
+        if (alquiler > 0) {
             this.alquiler = alquiler;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -589,10 +574,9 @@ public class Casillas {
     }
 
     public void setAlquilerCasa(int alquilerCasa) {
-        if(alquilerCasa>0) {
+        if (alquilerCasa > 0) {
             this.alquilerCasa = alquilerCasa;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -602,10 +586,9 @@ public class Casillas {
     }
 
     public void setAlquilerHotel(int alquilerHotel) {
-        if(alquilerHotel>0) {
+        if (alquilerHotel > 0) {
             this.alquilerHotel = alquilerHotel;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -615,10 +598,9 @@ public class Casillas {
     }
 
     public void setAlquilerPiscina(int alquilerPiscina) {
-        if(alquilerPiscina>0) {
+        if (alquilerPiscina > 0) {
             this.alquilerPiscina = alquilerPiscina;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -628,10 +610,9 @@ public class Casillas {
     }
 
     public void setAlquilerPista(int alquilerPista) {
-        if(alquilerPista>0) {
+        if (alquilerPista > 0) {
             this.alquilerPista = alquilerPista;
-        }
-        else{
+        } else {
             System.out.println("Valor no valido\n");
         }
     }
@@ -676,9 +657,12 @@ public class Casillas {
         this.nPista = nPista;
     }
     // Otros Metodos
-    /**Para pasa de int a nombres de tipos de casilla solares, transporte servicio suerte impueto y especial */
-    public String tipoString(){
-        switch(tipo){
+
+    /**
+     * Para pasa de int a nombres de tipos de casilla solares, transporte servicio suerte impueto y especial
+     */
+    public String tipoString() {
+        switch (tipo) {
             case 0:
                 return "Solar";
             case 1:
@@ -692,12 +676,14 @@ public class Casillas {
             case 5:
                 return "Especial";
         }
-        return"Error";
+        return "Error";
     }
 
-    /**Para pasar de int a nombres de grupo normal Azul cian ...*/
-    public String grupoString(){
-        switch(grupo){
+    /**
+     * Para pasar de int a nombres de grupo normal Azul cian ...
+     */
+    public String grupoString() {
+        switch (grupo) {
             case 1:
                 return "Marron";
             case 2:
@@ -719,34 +705,38 @@ public class Casillas {
         return "Error";
     }
 
-/**Implementacion del metodo toString para imprimir para el tablero*/
-    public String toString(){
-        switch(grupo){
+    /**
+     * Implementacion del metodo toString para imprimir para el tablero
+     */
+    public String toString() {
+        switch (grupo) {
             case 0:
-                return Formatear.con(nombre+jugadores+"|", Color.Defecto, Estilo.Subrayado);
+                return Formatear.con(nombre + jugadores + "|", Color.Defecto, Estilo.Subrayado);
             case 1:
-                return Formatear.con(nombre+jugadores+"|", Color.Negro, Estilo.Subrayado);
+                return Formatear.con(nombre + jugadores + "|", Color.Negro, Estilo.Subrayado);
             case 2:
-                return Formatear.con(nombre+jugadores+"|", Color.Cian, Estilo.Subrayado);
+                return Formatear.con(nombre + jugadores + "|", Color.Cian, Estilo.Subrayado);
             case 3:
-                return Formatear.con(nombre+jugadores+"|", Color.Blanco, Estilo.Subrayado);
+                return Formatear.con(nombre + jugadores + "|", Color.Blanco, Estilo.Subrayado);
             case 4:
-                return Formatear.con(nombre+jugadores+"|", Color.Magenta, Estilo.Subrayado);
+                return Formatear.con(nombre + jugadores + "|", Color.Magenta, Estilo.Subrayado);
             case 5:
-                return Formatear.con(nombre+jugadores+"|", Color.Rojo, Estilo.Subrayado);
+                return Formatear.con(nombre + jugadores + "|", Color.Rojo, Estilo.Subrayado);
             case 6:
-                return Formatear.con(nombre+jugadores+"|", Color.Amarillo, Estilo.Subrayado);
+                return Formatear.con(nombre + jugadores + "|", Color.Amarillo, Estilo.Subrayado);
             case 7:
-                return Formatear.con(nombre+jugadores+"|", Color.Verde, Estilo.Subrayado);
+                return Formatear.con(nombre + jugadores + "|", Color.Verde, Estilo.Subrayado);
             case 8:
-                return Formatear.con(nombre+jugadores+"|", Color.Azul, Estilo.Subrayado);
+                return Formatear.con(nombre + jugadores + "|", Color.Azul, Estilo.Subrayado);
         }
         return "Sin casilla";
     }
 
-    /** Funcion para pasar los los datos de la casilla asignados al comando describir */
-    public String pasarDatos(){
-        switch(tipo){
+    /**
+     * Funcion para pasar los los datos de la casilla asignados al comando describir
+     */
+    public String pasarDatos() {
+        switch (tipo) {
             case 0:
                 return """
                         {
@@ -768,8 +758,8 @@ public class Casillas {
                             alquiler pista de deporte: %d
                             
                         }
-                        """.formatted(tipoString(),grupoString(),propietario,precio,alquiler,valorCasa,valorHotel,valorPiscina,
-                        valorPista,alquilerCasa);
+                        """.formatted(tipoString(), grupoString(), propietario, precio, alquiler, valorCasa, valorHotel, valorPiscina,
+                        valorPista, alquilerCasa);
         }
         return "Error";
     }

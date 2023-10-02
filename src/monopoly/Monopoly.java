@@ -1,11 +1,11 @@
 package monopoly;
 
-import java.util.Scanner;
-
 import monopoly.utilidades.Dado;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.Formatear.Estilo;
+
+import java.util.Scanner;
 
 /**
  * Clase principal del juego del Monopoly.
@@ -15,9 +15,9 @@ import monopoly.utilidades.Formatear.Estilo;
  */
 public class Monopoly {
     private static final String MSG_AYUDA = """
-                        ayuda, help      Muestra esta información de ayuda.
-                        salir, quit      Cierra el programa.
-                """;
+                    ayuda, help      Muestra esta información de ayuda.
+                    salir, quit      Cierra el programa.
+            """;
     private final Scanner scanner;
     private final Dado dado;
 
@@ -37,7 +37,9 @@ public class Monopoly {
         }
     }
 
-    /** Procesa el comando dado y realiza las llamadas pertinentes para ejecutarlo */
+    /**
+     * Procesa el comando dado y realiza las llamadas pertinentes para ejecutarlo
+     */
     private void procesarCmd(String cmd) {
         // Ignorar comandos en blanco o con solo espacios
         if (cmd.isBlank()) {

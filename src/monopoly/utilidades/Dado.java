@@ -9,7 +9,7 @@ import java.util.Random;
  * @date 25-09-2023
  */
 public class Dado {
-    private Random rand;
+    private final Random rand;
 
     /**
      * Crea un nuevo Dado.
@@ -20,6 +20,7 @@ public class Dado {
 
     /**
      * Lanza un dado y devuelve el resultado.
+     *
      * @return Número aleatorio del 1 al 6 (ambos incluidos).
      */
     public int lanzar() {
@@ -28,7 +29,7 @@ public class Dado {
 
     /**
      * Lanza dos dados y devuelve el resultado
-     *
+     * <p>
      * Equivalente a Dado.lanzar() + Dado.lanzar()
      *
      * @return Número aleatorio del 2 al 12 (ambos includidos).

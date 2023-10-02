@@ -1,24 +1,28 @@
 package monopoly;
 
-import java.util.ArrayList;
 import monopoly.Avatar.TipoAvatar;
+
+import java.util.ArrayList;
 
 /**
  * Clase que representa un Jugador. Almacena su información sobre su fortuna y propiedades.
  * Además, tiene un Avatar asociado.
+ *
  * @date 2-10-2023
  * @see monopoly.Avatar
- * */
+ */
 public class Jugador {
-    private String nombre;
-    private Avatar avatar;
+    private final String nombre;
+    private final Avatar avatar;
 
-    private int fortuna;
-    private ArrayList<String> propiedades;
-    private ArrayList<String> hipotecas;
-    private ArrayList<String> edificios;
+    private final int fortuna;
+    private final ArrayList<String> propiedades;
+    private final ArrayList<String> hipotecas;
+    private final ArrayList<String> edificios;
 
-    /** Crea un Jugador dado su nombre, tipo de avatar e id */
+    /**
+     * Crea un Jugador dado su nombre, tipo de avatar e id
+     */
     public Jugador(String nombre, TipoAvatar tipo, char id) {
         avatar = new Avatar(tipo, id, this);
         this.nombre = nombre;
