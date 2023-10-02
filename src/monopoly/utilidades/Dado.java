@@ -37,4 +37,11 @@ public class Dado {
     public int lanzar2Dados() {
         return this.lanzar() + this.lanzar();
     }
+
+    /**
+     * Genera una letra mayúscula aleatoria. Útil para generar un ID para un avatar.
+     */
+    public char letraAleatoria() {
+        return (char)(rand.nextInt((int) 'Z' - (int) 'A' + 1) + (int) 'A');
+    }
 }
