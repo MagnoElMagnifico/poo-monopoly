@@ -11,24 +11,22 @@ package monopoly;
 public class Avatar {
     private final TipoAvatar tipo;
     private final char id;
-    private String casilla;
     private final Jugador jugador;
+    private Casilla casilla;
+
     /**
      * Crea un avatar dado su tipo, id y el jugador al que hace referencia
      */
-    public Avatar(TipoAvatar tipo, char id, Jugador jugador) {
+    public Avatar(TipoAvatar tipo, char id, Jugador jugador, Casilla casillaInicial) {
         this.tipo = tipo;
         this.id = id;
-        this.casilla = "inicial";
+        this.casilla = casillaInicial;
         this.jugador = jugador;
     }
 
     /**
      * Mueve el avatar un determinado número de casillas
      */
-    public void mover(int nCasillas) {
-        casilla = "no inicial";
-    }
 
     @Override
     public String toString() {
@@ -50,7 +48,7 @@ public class Avatar {
         return tipo;
     }
 
-    public String getCasilla() {
+    public Casilla getCasilla() {
         return casilla;
     }
 
