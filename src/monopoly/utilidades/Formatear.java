@@ -9,7 +9,6 @@ package monopoly.utilidades;
  * @see <a href="https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences">Códigos ANSI StackOverflow</a>
  */
 public class Formatear {
-    // TODO: Preguntar si hay otra forma de crear constantes
     /**
      * Secuencia de inicio de un código ANSI
      */
@@ -27,12 +26,15 @@ public class Formatear {
             return "";
         }
 
-        String codigo = "";
+        StringBuilder codigo = new StringBuilder();
+
         for (int i = 0; i < estilos.length - 1; i++) {
-            codigo = "%s%s;".formatted(codigo, estilos[i].ordinal());
+            codigo.append(estilos[i].ordinal());
         }
 
-        return "%s%s".formatted(codigo, estilos[estilos.length - 1].ordinal());
+        codigo.append(estilos[estilos.length - 1].ordinal());
+
+        return codigo.toString();
     }
 
     /**
@@ -94,6 +96,15 @@ public class Formatear {
         }
 
         return resultado;
+    }
+
+    /** Formatea un String de forma que */
+    public static String celda(String msg, int tam) {
+        // TODO: handle invalid/negative inputs
+        if (msg.length()+2 > tam) {
+            return " %s. ".formatted(msg.substring(0, tam - 3));
+        }
+        return " %s%s".formatted(msg, " ".repeat(tam - msg.length() - 1));
     }
 
     /**

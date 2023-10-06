@@ -2,6 +2,7 @@ package monopoly;
 import monopoly.utilidades.Dado;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.LectorCasillas;
+import monopoly.utilidades.PintorTablero;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -119,6 +120,11 @@ public class Tablero {
         }
 
         return enVenta;
+    }
+
+    @Override
+    public String toString() {
+        return PintorTablero.pintarTablero(casillas);
     }
 
     public ArrayList<Casilla> getCasillas() {
