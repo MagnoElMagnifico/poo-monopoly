@@ -32,8 +32,7 @@ public class Jugador {
                     nombre: %s
                     avatar: %c
                     fortuna: %s
-                }
-                """.formatted(nombre, avatar.getId(), fortuna);
+                }""".formatted(nombre, avatar.getId(), fortuna);
     }
 
     public String getNombre() {

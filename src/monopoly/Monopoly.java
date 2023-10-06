@@ -118,11 +118,11 @@ public class Monopoly {
      */
     private String cmdCrear(String[] args) {
         if (args.length != 4) {
-            return Formatear.con("Se esperaban 4 parámetros, se recibieron %d".formatted(args.length), Color.Rojo);
+            return Formatear.con("Se esperaban 4 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
         }
 
         if (!args[1].equals("jugador")) {
-            return Formatear.con("\"%s\": Subcomando de crear no válido".formatted(args[1]), Color.Rojo);
+            return Formatear.con("\"%s\": Subcomando de crear no válido\n".formatted(args[1]), Color.Rojo);
         }
 
         String nombre = args[2];
@@ -133,7 +133,7 @@ public class Monopoly {
             case "s", "sombrero" -> tipo = Avatar.TipoAvatar.Sombrero;
             case "p", "pelota"   -> tipo = Avatar.TipoAvatar.Pelota;
             default -> {
-                return Formatear.con("\"%s\": No es un tipo válido de Avatar (prueba con c, e, s, p)".formatted(args[3]), Color.Rojo);
+                return Formatear.con("\"%s\": No es un tipo válido de Avatar (prueba con c, e, s, p)\n".formatted(args[3]), Color.Rojo);
             }
         };
 
