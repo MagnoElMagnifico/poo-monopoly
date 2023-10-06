@@ -31,15 +31,18 @@ public class LectorCasillas {
         Scanner scanner = new Scanner(archivo);
         ArrayList<Casilla> casillas = new ArrayList<>(40);
 
-        int linea = 0;
         while (scanner.hasNextLine()) {
-            linea++;
+            String linea = scanner.nextLine();
+
+            // Ignorar comentarios y lineas en blanco
+            if (linea.isBlank() || linea.stripLeading().startsWith("#")) {
+                continue;
+            }
 
             // Los elementos en la línea se separan por ','
-            Scanner scannerLinea = new Scanner(scanner.nextLine()).useDelimiter("\\s*,\\s*");
+            Scanner scannerLinea = new Scanner(linea).useDelimiter("\\s*,\\s*");
 
             // Se lee el nombre de la casilla
-            assert scannerLinea.hasNext() : "se esperaba el nombre de la casilla, linea %d".formatted(linea);
             String nombre = scannerLinea.next();
 
             // Si el siguiente elemento es un entero, pues es que es una casilla especial
@@ -49,33 +52,36 @@ public class LectorCasillas {
             }
 
             // Se lee el tipo de la propiedad
-            assert scannerLinea.hasNext() : "se esperaba el tipo de propiedad, linea %d".formatted(linea);
-            Propiedad.Tipo tipo = stringATipoPropiedad(scannerLinea.next(), linea);
+            Propiedad.Tipo tipo = stringATipoPropiedad(scannerLinea.next());
 
-            // Finalmente, se leen los dos enteros que faltan
             // Precio inicial de la casilla
-            assert scannerLinea.hasNextInt() : "se esperaba el precio de la propiedad, línea %d".formatted(linea);
             int precio = scannerLinea.nextInt();
 
             // Código de color de la casilla
-            assert scannerLinea.hasNextInt() : "se esperaba el código de color, línea %d".formatted(linea);
             int codigoColor = scannerLinea.nextInt();
 
             casillas.add(new Casilla(nombre, tipo, precio, codigoColor));
         }
 
         scanner.close();
+
+        if (casillas.size() != 40) {
+            System.err.printf("ArchivoCasillas: no hay suficientes casillas, se leyeron %d, se esperaban 40\n", casillas.size());
+            // System.exit(1);
+        }
+
         return casillas;
     }
 
     /** Se convierte un String al tipo de dato enumerado */
-    private static Propiedad.Tipo stringATipoPropiedad(String strTipo, int linea) {
+    private static Propiedad.Tipo stringATipoPropiedad(String strTipo) {
         return switch (strTipo.toLowerCase()) {
             case "solar" -> Propiedad.Tipo.Solar;
             case "servicio" -> Propiedad.Tipo.Servicio;
             case "transporte" -> Propiedad.Tipo.Transporte;
             default -> {
-                assert false : "\"%s\": tipo desconocido, linea %d".formatted(strTipo, linea);
+                System.err.printf("ArchivoCasillas: \"%s\": tipo desconocido", strTipo);
+                System.exit(1);
                 yield null; // Nunca se ejecuta, pero si no se devuelve algo, da error.
             }
         };

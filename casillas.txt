@@ -1,0 +1,10 @@
+# Archivo de configuración de las casillas del tablero
+# Formato:
+#     nombre, tipo, precio, códigoColor,
+#     nombre, códigoColor,
+#     ...
+
+Salida, 1
+Casilla1, solar, 1, 1
+Casilla2, solar, 1, 1
+Casilla3, solar, 1, 1
