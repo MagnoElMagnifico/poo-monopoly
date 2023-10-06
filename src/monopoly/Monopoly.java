@@ -1,6 +1,5 @@
 package monopoly;
 
-import monopoly.utilidades.Dado;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.Formatear.Estilo;
@@ -10,20 +9,37 @@ import java.util.Scanner;
 /**
  * Clase principal del juego del Monopoly.
  *
+ * Se encarga de procesar los comandos y ejecutarlos.
+ *
  * @author Marcos Granja Grille
  * @date 25-09-2023
  */
 public class Monopoly {
     private static final String MSG_AYUDA = """
-                    ayuda, help      Muestra esta información de ayuda.
-                    salir, quit      Cierra el programa.
-            """;
+                %s
+                    ayuda, help                   Muestra esta información de ayuda.
+                    ver tablero, tablero, show    Muestra el tablero del juego.
+                    jugador, turno, player        Muestra el jugador al que le toca jugar.
+                    lanzar, lanzar dados          Lanza 2 dados y mueve el avatar por el tablero.
+                    acabar turno, fin, end        Termina el turno del jugador actual.
+                    salir, quit                   Cierra el programa.
+                    
+                %s
+                    crear jugador <nombre> <tipo>
+                          Crea un jugador dado su nombre y tipo. Este último puede ser uno de los
+                          4 siguientes:
+                              - Coche (alias c)
+                              - Esfinge (alias e)
+                              - Sombrero (alias s)
+                              - Pelota (alias p)
+            """.formatted(Formatear.con("COMANDOS", Color.Rojo, Estilo.Negrita), Formatear.con("COMANDOS CON ARGUMENTOS", Color.Rojo, Estilo.Negrita));
+
     private final Scanner scanner;
-    private final Dado dado;
+    private Tablero tablero;
 
     public Monopoly() {
         scanner = new Scanner(System.in);
-        dado = new Dado();
+        tablero = new Tablero();
     }
 
     /**
@@ -31,6 +47,7 @@ public class Monopoly {
      * Muestra el Prompt ("$>") y permite al usuario escribir un comando.
      */
     public void iniciarConsola() {
+        System.out.printf("Puedes usar el comando \"%s\" para ver las opciones disponibles\n", Formatear.con("ayuda", Color.Verde));
         while (true) {
             System.out.print(Formatear.con("$> ", Color.Verde, Estilo.Negrita));
             this.procesarCmd(scanner.nextLine());
@@ -54,21 +71,26 @@ public class Monopoly {
 
         // Ver: https://docs.oracle.com/en/java/javase/17/language/switch-expressions.html
         System.out.print(switch (cmdNorm) {
-            case "ayuda", "help" -> MSG_AYUDA;
+            // Comandos de manejo del juego
             case "salir", "quit" -> {
                 System.exit(0);
                 yield ""; // Si no devuelvo un objeto da error
             }
-            case "lanzar", "lanzar dados" ->
-                    "Resultado: %s\n".formatted(Formatear.con(Integer.toString(dado.lanzar2Dados()), Color.Azul));
-            // TODO:
-            // case "jugador"
-            // case "acabar turno"
-            // case "salir carcel"
-            // case "ver tablero"
-            // case "listar jugadores"
-            // case "listar avatares"
-            // case "listar enventa"
+            case "ayuda", "help"                  -> MSG_AYUDA;
+
+            // Comandos de las casillas
+            case "ver tablero", "tablero", "show" -> tablero;
+            case "listar casillas"                -> tablero.getCasillas().toString() + '\n';
+            case "listar enventa"                 -> tablero.getEnVenta();
+
+            // Acciones de jugadores
+            case "jugador", "turno", "player"     -> tablero.getJugadorTurno().isEmpty()? "No hay jugadores\n" : tablero.getJugadorTurno().get();
+            case "listar jugadores"               -> tablero.getJugadores().isEmpty()?    "No hay jugadores\n" : tablero.getJugadores().toString() + '\n';
+            case "listar avatares"                -> tablero.getJugadorTurno().isEmpty()? "No hay jugadores\n" : tablero.getAvatares();
+            case "lanzar", "lanzar dados"         -> tablero.getJugadorTurno().isEmpty()? "No hay jugadores\n" : tablero.lanzarDados();
+            case "acabar turno", "fin", "end"     -> tablero.getJugadorTurno().isEmpty()? "No hay jugadores\n" : tablero.acabarTurno();
+            //case "salir carcel"                   -> tablero.salirCarcel();
+
             default -> this.cmdConArgumentos(cmdNorm);
         });
     }
@@ -83,23 +105,39 @@ public class Monopoly {
         String[] args = cmd.split(" ");
         return switch (args[0]) {
             // TODO:
-            // case "crear"
             // case "comprar"
             // case "describir"
 
-            // A modo de prueba:
-            case "format", "formatear" -> {
-                if (args.length != 2) {
-                    yield Formatear.con("Número de argumentos incorrecto: recibí %d, esperaba 2\n".formatted(args.length), Color.Rojo);
-                }
-
-                try {
-                    yield Formatear.num(Long.parseLong(args[1])) + "\n";
-                } catch (NumberFormatException e) {
-                    yield Formatear.con("\"%s\" no es un número válido\n".formatted(args[1]), Color.Rojo);
-                }
-            }
+            case "crear" -> cmdCrear(args);
             default -> Formatear.con("\"%s\": Comando no válido\n".formatted(args[0]), Color.Rojo);
         };
+    }
+
+    /**
+     * Ejecuta el comando crear jugador
+     */
+    private String cmdCrear(String[] args) {
+        if (args.length != 4) {
+            return Formatear.con("Se esperaban 4 parámetros, se recibieron %d".formatted(args.length), Color.Rojo);
+        }
+
+        if (!args[1].equals("jugador")) {
+            return Formatear.con("\"%s\": Subcomando de crear no válido".formatted(args[1]), Color.Rojo);
+        }
+
+        String nombre = args[2];
+        Avatar.TipoAvatar tipo;
+        switch (args[3]) {
+            case "c", "coche"    -> tipo = Avatar.TipoAvatar.Coche;
+            case "e", "esfinge"  -> tipo = Avatar.TipoAvatar.Esfinge;
+            case "s", "sombrero" -> tipo = Avatar.TipoAvatar.Sombrero;
+            case "p", "pelota"   -> tipo = Avatar.TipoAvatar.Pelota;
+            default -> {
+                return Formatear.con("\"%s\": No es un tipo válido de Avatar (prueba con c, e, s, p)".formatted(args[3]), Color.Rojo);
+            }
+        };
+
+        tablero.anadirJugador(nombre, tipo);
+        return "Jugador %s creado con éxito.\n".formatted(Formatear.con(nombre, Color.Verde));
     }
 }
