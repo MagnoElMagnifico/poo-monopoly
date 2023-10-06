@@ -98,10 +98,29 @@ public class Formatear {
         return resultado;
     }
 
-    /** Formatea un String de forma que */
+    /**
+     * Formatea un String de forma que `msg` tiene como máximo
+     * tam-2 caracteres de longitud y está rodeado de espacios.
+     * <p>
+     * Por ejemplo:
+     *
+     * <pre>
+     *     msg = estoesunejemplo
+     *     tam = 10
+     *     resultado -> " estoesu. "
+     *
+     *     msg = hola
+     *     tam = 10
+     *     resultado -> " hola     "
+     * </pre>
+     *
+     * @param msg Mensaje que formatear
+     * @param tam Tamaño del mensaje
+     * @return Mensaje formateado
+     */
     public static String celda(String msg, int tam) {
         // TODO: handle invalid/negative inputs
-        if (msg.length()+2 > tam) {
+        if (msg.length() + 2 > tam) {
             return " %s. ".formatted(msg.substring(0, tam - 3));
         }
         return " %s%s".formatted(msg, " ".repeat(tam - msg.length() - 1));

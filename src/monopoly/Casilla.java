@@ -14,19 +14,25 @@ import java.util.Optional;
  * @see monopoly.Avatar
  */
 public class Casilla {
-    private String nombre;
-    /** Si es una casilla especial, este campo está desactivado */
-    private Optional<Propiedad> propiedad;
-    private int codigoColor;
+    private final String nombre;
+    /**
+     * Si es una casilla especial, este campo está desactivado
+     */
+    private final Optional<Propiedad> propiedad;
+    private final int codigoColor;
 
-    /** Construye una nueva casilla de tipo Propiedad */
+    /**
+     * Construye una nueva casilla de tipo Propiedad
+     */
     public Casilla(String nombre, Propiedad.Tipo tipoPropiedad, int precioInicial, int codigoColor) {
         this.nombre = nombre;
         this.propiedad = Optional.of(new Propiedad(this, tipoPropiedad, precioInicial));
         this.codigoColor = codigoColor;
     }
 
-    /** Construye una nueva casilla de tipo especial */
+    /**
+     * Construye una nueva casilla de tipo especial
+     */
     public Casilla(String nombre, int codigoColor) {
         this.nombre = nombre;
         this.propiedad = Optional.empty();
@@ -40,10 +46,10 @@ public class Casilla {
             propiedadStr = "No";
         } else {
             propiedadStr = """
-            {
-                    tipo: %s
-                    precio inicial: %d
-                }""".formatted(propiedad.get().getTipo(), propiedad.get().getPrecioInicial());
+                    {
+                            tipo: %s
+                            precio inicial: %d
+                        }""".formatted(propiedad.get().getTipo(), propiedad.get().getPrecioInicial());
         }
 
         return """

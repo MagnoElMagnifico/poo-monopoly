@@ -4,34 +4,29 @@ import java.util.Optional;
 
 /**
  * Representa una casilla que se puede comprar por un jugador.
- *
+ * <p>
  * Existen tres tipos:
  *
  * <li>Solares</li>
  * <li>Servicios</li>
  * <li>Transporte</li>
  *
- * @see monopoly.Casilla
- * @see monopoly.Jugador
  * @author Marcos Granja Grille
  * @date 2-10-2023
+ * @see monopoly.Casilla
+ * @see monopoly.Jugador
  */
 public class Propiedad {
-    public enum Tipo {
-        Solar, Servicio, Transporte
-    }
-
-    private Casilla casilla;
-    private Tipo tipo;
-    private int precioInicial;
+    private final Casilla casilla;
+    private final Tipo tipo;
+    private final int precioInicial;
     private Optional<Jugador> propietario;
-
     /**
      * Crea una propiedad
      *
-     * @param casilla        Casilla a la que está asociada
-     * @param tipo           Tipo de casilla: Solar, Servicio o Transporte
-     * @param precioInicial  Precio inicial de la propiedad
+     * @param casilla       Casilla a la que está asociada
+     * @param tipo          Tipo de casilla: Solar, Servicio o Transporte
+     * @param precioInicial Precio inicial de la propiedad
      */
     public Propiedad(Casilla casilla, Tipo tipo, int precioInicial) {
         this.casilla = casilla;
@@ -69,5 +64,9 @@ public class Propiedad {
 
     public void setPropietario(Jugador propietario) {
         this.propietario = Optional.of(propietario);
+    }
+
+    public enum Tipo {
+        Solar, Servicio, Transporte
     }
 }

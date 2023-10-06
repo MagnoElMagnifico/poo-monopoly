@@ -11,14 +11,14 @@ import java.util.Scanner;
 /**
  * Clase de ayuda que lee de un archivo una lista de casillas
  * y crea los objetos acordes.
- *
+ * <p>
  * Formato esperado:
  *
- * <code>
+ * <pre>
  *     nombre, tipo, precio, códigoColor,
  *     nombre, códigoColor,
  *     ...
- * </code>
+ * </pre>
  *
  * @author Marcos Granja Grille
  * @date 2-10-2023
@@ -73,7 +73,9 @@ public class LectorCasillas {
         return casillas;
     }
 
-    /** Se convierte un String al tipo de dato enumerado */
+    /**
+     * Se convierte un String al tipo de dato enumerado
+     */
     private static Propiedad.Tipo stringATipoPropiedad(String strTipo) {
         return switch (strTipo.toLowerCase()) {
             case "solar" -> Propiedad.Tipo.Solar;

@@ -1,4 +1,5 @@
 package monopoly;
+
 import monopoly.utilidades.Dado;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.LectorCasillas;
@@ -16,12 +17,14 @@ import java.util.Optional;
  * @see monopoly.Casilla
  */
 public class Tablero {
-    private ArrayList<Jugador> jugadores;
+    private final ArrayList<Jugador> jugadores;
     private int turno;
     private ArrayList<Casilla> casillas;
-    private Dado dado;
+    private final Dado dado;
 
-    /** Crea un tablero por defecto */
+    /**
+     * Crea un tablero por defecto
+     */
     public Tablero() {
         jugadores = new ArrayList<>();
         turno = 0;
@@ -33,7 +36,7 @@ public class Tablero {
         // dado que el usuario puede modificarlo sin reparos.
         try {
             casillas = LectorCasillas.leerCasillas("casillas.txt");
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             System.err.println(e);
             System.exit(1);
         }
@@ -42,7 +45,9 @@ public class Tablero {
         dado = new Dado();
     }
 
-    /** Función de ayuda que comprueba si un ID de avatar es único */
+    /**
+     * Función de ayuda que comprueba si un ID de avatar es único
+     */
     private boolean comprobarAvatarId(char id) {
         for (Jugador jugador : jugadores) {
             if (jugador.getAvatar().getId() == id) {
@@ -52,7 +57,9 @@ public class Tablero {
         return true;
     }
 
-    /** Función de ayuda que genera un ID para el avatar aleatoriamente */
+    /**
+     * Función de ayuda que genera un ID para el avatar aleatoriamente
+     */
     private char generarAvatarId() {
         char posibleId;
         do {
@@ -61,29 +68,39 @@ public class Tablero {
         return posibleId;
     }
 
-    /** Añade un jugador dado su nombre y tipo de avatar */
+    /**
+     * Añade un jugador dado su nombre y tipo de avatar
+     */
     public void anadirJugador(String nombre, Avatar.TipoAvatar tipo) {
         jugadores.add(new Jugador(nombre, tipo, generarAvatarId(), casillas.get(0)));
     }
 
-    /** Obtiene el jugador de turno. Si no hay jugadores devuelve `Optional.empty()` */
+    /**
+     * Obtiene el jugador de turno. Si no hay jugadores devuelve `Optional.empty()`
+     */
     public Optional<Jugador> getJugadorTurno() {
-        return jugadores.isEmpty()? Optional.empty() : Optional.of(jugadores.get(turno));
+        return jugadores.isEmpty() ? Optional.empty() : Optional.of(jugadores.get(turno));
     }
 
-    /** Mueve el jugador un determinado número de casillas */
+    /**
+     * Mueve el jugador un determinado número de casillas
+     */
     public String moverJugador(int nCasillas) {
         // TODO
         // TODO: tener en cuenta el tipo de avatar
         return "";
     }
 
-    /** Lanza 2 dados y mueve el jugador con el turno actual a la casilla que le toca */
+    /**
+     * Lanza 2 dados y mueve el jugador con el turno actual a la casilla que le toca
+     */
     public String lanzarDados() {
         return moverJugador(dado.lanzar2Dados());
     }
 
-    /** Termina el turno del jugador actual y calcula el siguiente */
+    /**
+     * Termina el turno del jugador actual y calcula el siguiente
+     */
     public String acabarTurno() {
         if (jugadores.isEmpty()) {
             return "No hay jugadores\n";
@@ -96,7 +113,9 @@ public class Tablero {
                 """.formatted(Formatear.con(getJugadorTurno().orElseThrow().getNombre(), Formatear.Color.Azul));
     }
 
-    /** Obtiene los avatares de los jugadores */
+    /**
+     * Obtiene los avatares de los jugadores
+     */
     public ArrayList<Avatar> getAvatares() {
         ArrayList<Avatar> avatares = new ArrayList<>(jugadores.size());
 
@@ -108,7 +127,9 @@ public class Tablero {
         return avatares;
     }
 
-    /** Obtiene las casillas que actualmente están en venta */
+    /**
+     * Obtiene las casillas que actualmente están en venta
+     */
     public ArrayList<Casilla> getEnVenta() {
         ArrayList<Casilla> enVenta = new ArrayList<>(casillas.size());
 

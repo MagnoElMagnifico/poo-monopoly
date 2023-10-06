@@ -3,7 +3,8 @@ package monopoly.utilidades;
 import java.util.Random;
 
 /**
- * Clase de ayuda para simular el lanzamiento de un dado.
+ * Clase de ayuda para simular el lanzamiento de un dado y
+ * otras operaciones con números aleatorios.
  *
  * @author Marcos Granja Grille
  * @date 25-09-2023
@@ -28,9 +29,9 @@ public class Dado {
     }
 
     /**
-     * Lanza dos dados y devuelve el resultado
+     * Lanza dos dados y devuelve el resultado.
      * <p>
-     * Equivalente a Dado.lanzar() + Dado.lanzar()
+     * Equivalente a <code>Dado.lanzar() + Dado.lanzar()</code>.
      *
      * @return Número aleatorio del 2 al 12 (ambos includidos).
      */
@@ -42,6 +43,6 @@ public class Dado {
      * Genera una letra mayúscula aleatoria. Útil para generar un ID para un avatar.
      */
     public char letraAleatoria() {
-        return (char)(rand.nextInt((int) 'Z' - (int) 'A' + 1) + (int) 'A');
+        return (char) (rand.nextInt((int) 'Z' - (int) 'A' + 1) + (int) 'A');
     }
 }

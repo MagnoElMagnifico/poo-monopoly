@@ -12,7 +12,7 @@ public class Avatar {
     private final TipoAvatar tipo;
     private final char id;
     private final Jugador jugador;
-    private Casilla casilla;
+    private final Casilla casilla;
 
     /**
      * Crea un avatar dado su tipo, id y el jugador al que hace referencia
@@ -23,10 +23,6 @@ public class Avatar {
         this.casilla = casillaInicial;
         this.jugador = jugador;
     }
-
-    /**
-     * Mueve el avatar un determinado número de casillas
-     */
 
     @Override
     public String toString() {

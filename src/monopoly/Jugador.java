@@ -2,8 +2,6 @@ package monopoly;
 
 import monopoly.Avatar.TipoAvatar;
 
-import java.util.ArrayList;
-
 /**
  * Clase que representa un Jugador. Almacena su información sobre su fortuna y propiedades.
  * Además, tiene un Avatar asociado.
