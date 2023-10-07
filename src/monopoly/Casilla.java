@@ -1,5 +1,6 @@
 package monopoly;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 /**
@@ -20,6 +21,7 @@ public class Casilla {
      */
     private final Optional<Propiedad> propiedad;
     private final int codigoColor;
+    private ArrayList<Avatar> avatares;
 
     /**
      * Construye una nueva casilla de tipo Propiedad
@@ -28,6 +30,7 @@ public class Casilla {
         this.nombre = nombre;
         this.propiedad = Optional.of(new Propiedad(this, tipoPropiedad, precioInicial));
         this.codigoColor = codigoColor;
+        this.avatares = new ArrayList<>();
     }
 
     /**
@@ -37,6 +40,7 @@ public class Casilla {
         this.nombre = nombre;
         this.propiedad = Optional.empty();
         this.codigoColor = codigoColor;
+        this.avatares = new ArrayList<>();
     }
 
     @Override
@@ -56,7 +60,8 @@ public class Casilla {
                 {
                     nombre: %s
                     propiedad: %s
-                }""".formatted(nombre, propiedadStr);
+                    jugadores: %s
+                }""".formatted(nombre, propiedadStr, avatares);
     }
 
     public String getNombre() {
@@ -69,5 +74,17 @@ public class Casilla {
 
     public Optional<Propiedad> getPropiedad() {
         return propiedad;
+    }
+
+    public ArrayList<Avatar> getAvatares() {
+        return avatares;
+    }
+
+    public void anadirAvatar(Avatar avatar) {
+        avatares.add(avatar);
+    }
+
+    public void quitarAvatar(Avatar avatar) {
+        avatares.remove(avatar);
     }
 }
