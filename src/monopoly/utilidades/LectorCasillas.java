@@ -34,7 +34,7 @@ public class LectorCasillas {
         while (scanner.hasNextLine()) {
             String linea = scanner.nextLine();
 
-            // Ignorar comentarios y lineas en blanco
+            // Ignorar comentarios y líneas en blanco
             if (linea.isBlank() || linea.stripLeading().startsWith("#")) {
                 continue;
             }
@@ -65,9 +65,9 @@ public class LectorCasillas {
 
         scanner.close();
 
-        if (casillas.size() != 40) {
-            System.err.printf("ArchivoCasillas: no hay suficientes casillas, se leyeron %d, se esperaban 40\n", casillas.size());
-            // System.exit(1);
+        if (casillas.size() % 4 == 0) {
+            System.err.printf("ArchivoCasillas: en número de casillas debe ser múltiplo de 4, se leyeron %d\n", casillas.size());
+            System.exit(1);
         }
 
         return casillas;
