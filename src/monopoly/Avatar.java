@@ -12,7 +12,7 @@ public class Avatar {
     private final TipoAvatar tipo;
     private final char id;
     private final Jugador jugador;
-    private final Casilla casilla;
+    private Casilla casilla;
 
     /**
      * Crea un avatar dado su tipo, id y el jugador al que hace referencia
@@ -21,6 +21,7 @@ public class Avatar {
         this.tipo = tipo;
         this.id = id;
         this.casilla = casillaInicial;
+        casillaInicial.anadirAvatar(this);
         this.jugador = jugador;
     }
 
@@ -46,6 +47,10 @@ public class Avatar {
 
     public Casilla getCasilla() {
         return casilla;
+    }
+
+    public void setCasilla(Casilla casilla) {
+        this.casilla = casilla;
     }
 
     public Jugador getJugador() {

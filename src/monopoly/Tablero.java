@@ -86,9 +86,21 @@ public class Tablero {
      * Mueve el jugador un determinado número de casillas
      */
     public String moverJugador(int nCasillas) {
-        // TODO
+        if (getJugadorTurno().isEmpty()) {
+            return "No hay jugadores\n";
+        }
+
+        Avatar avatar = getJugadorTurno().get().getAvatar();
+        Casilla actualCasilla = avatar.getCasilla();
+        int nActual = casillas.indexOf(actualCasilla);
         // TODO: tener en cuenta el tipo de avatar
-        return "";
+        Casilla nuevaCasilla = casillas.get((nActual + nCasillas) % casillas.size());
+
+        avatar.setCasilla(nuevaCasilla);
+        nuevaCasilla.anadirAvatar(avatar);
+        actualCasilla.quitarAvatar(avatar);
+
+        return "El jugador %s avanzó %d posiciones. Ahora se encuentra en %s\n".formatted(avatar.getJugador().getNombre(), nCasillas, nuevaCasilla.getNombre());
     }
 
     /**
