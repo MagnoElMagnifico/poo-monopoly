@@ -65,7 +65,7 @@ public class LectorCasillas {
 
         scanner.close();
 
-        if (casillas.size() % 4 == 0) {
+        if (casillas.size() % 4 != 0) {
             System.err.printf("ArchivoCasillas: en número de casillas debe ser múltiplo de 4, se leyeron %d\n", casillas.size());
             System.exit(1);
         }
