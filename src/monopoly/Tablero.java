@@ -2,6 +2,7 @@ package monopoly;
 
 import monopoly.utilidades.Dado;
 import monopoly.utilidades.Formatear;
+import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.LectorCasillas;
 import monopoly.utilidades.PintorTablero;
 
@@ -87,7 +88,7 @@ public class Tablero {
      */
     public String moverJugador(int nCasillas) {
         if (getJugadorTurno().isEmpty()) {
-            return "No hay jugadores\n";
+            return Formatear.con("No hay jugadores\n", Color.Rojo);
         }
 
         Avatar avatar = getJugadorTurno().get().getAvatar();
@@ -100,7 +101,10 @@ public class Tablero {
         nuevaCasilla.anadirAvatar(avatar);
         actualCasilla.quitarAvatar(avatar);
 
-        return "El jugador %s avanzó %d posiciones. Ahora se encuentra en %s\n".formatted(avatar.getJugador().getNombre(), nCasillas, nuevaCasilla.getNombre());
+        return """
+               El jugador %s avanzó %d posiciones.
+               Ahora se encuentra en %s.
+               """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul), nCasillas, Formatear.con(nuevaCasilla.getNombre(), Color.Cian));
     }
 
     /**
@@ -115,7 +119,7 @@ public class Tablero {
      */
     public String acabarTurno() {
         if (jugadores.isEmpty()) {
-            return "No hay jugadores\n";
+            return Formatear.con("No hay jugadores\n", Color.Rojo);
         }
 
         turno = (turno + 1) % jugadores.size();

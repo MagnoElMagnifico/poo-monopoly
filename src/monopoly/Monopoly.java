@@ -78,23 +78,19 @@ public class Monopoly {
             }
             case "ayuda", "help" -> MSG_AYUDA;
 
-            // Comandos de las casillas
+            // Comandos de información
             case "ver tablero", "tablero", "show" -> tablero;
             case "listar casillas" -> tablero.getCasillas().toString() + '\n';
-            case "listar enventa" -> tablero.getEnVenta();
+            case "listar enventa" -> tablero.getEnVenta().toString() + '\n';
+            case "listar jugadores" -> tablero.getJugadores().toString() + '\n';
+            case "listar avatares" -> tablero.getAvatares().toString() + '\n';
 
             // Acciones de jugadores
             case "jugador", "turno", "player" ->
-                    tablero.getJugadorTurno().isEmpty() ? "No hay jugadores\n" : tablero.getJugadorTurno().get();
-            case "listar jugadores" ->
-                    tablero.getJugadores().isEmpty() ? "No hay jugadores\n" : tablero.getJugadores().toString() + '\n';
-            case "listar avatares" ->
-                    tablero.getJugadorTurno().isEmpty() ? "No hay jugadores\n" : tablero.getAvatares();
-            case "lanzar", "lanzar dados" ->
-                    tablero.getJugadorTurno().isEmpty() ? "No hay jugadores\n" : tablero.lanzarDados();
-            case "acabar turno", "fin", "end" ->
-                    tablero.getJugadorTurno().isEmpty() ? "No hay jugadores\n" : tablero.acabarTurno();
-            //case "salir carcel"                   -> tablero.salirCarcel();
+                    tablero.getJugadorTurno().isEmpty() ? Formatear.con("No hay jugadores\n", Color.Rojo) : tablero.getJugadorTurno().get();
+            case "lanzar", "lanzar dados" -> tablero.lanzarDados();
+            case "acabar turno", "fin", "end" -> tablero.acabarTurno();
+            //case "salir carcel" -> tablero.salirCarcel();
 
             default -> this.cmdConArgumentos(cmdNorm);
         });
@@ -112,6 +108,8 @@ public class Monopoly {
             // TODO:
             // case "comprar"
             // case "describir"
+            // mover n: (debug) mueve el avatar un número de posiciones
+            // exec archivo: (debug) ejecuta los comandos almacenados en el archivo
 
             case "crear" -> cmdCrear(args);
             default -> Formatear.con("\"%s\": Comando no válido\n".formatted(args[0]), Color.Rojo);
