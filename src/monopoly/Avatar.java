@@ -33,8 +33,7 @@ public class Avatar {
                     tipo: %s,
                     casilla: %s
                     jugador: %s
-                }
-                """.formatted(id, tipo, casilla, jugador.getNombre());
+                }""".formatted(id, tipo, casilla.getNombre(), jugador.getNombre());
     }
 
     public char getId() {
