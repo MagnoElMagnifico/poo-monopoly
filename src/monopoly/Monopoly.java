@@ -20,10 +20,10 @@ public class Monopoly {
                     ayuda, help                   Muestra esta información de ayuda.
                     ver tablero, tablero, show    Muestra el tablero del juego.
                     jugador, turno, player        Muestra el jugador al que le toca jugar.
-                    lanzar, lanzar dados          Lanza 2 dados y mueve el avatar por el tablero.
+                    lanzar, lanzar dados          El jugador actual lanza 2 dados y mueve su avatar.
                     acabar turno, fin, end        Termina el turno del jugador actual.
                     salir, quit                   Cierra el programa.
-                    
+
                 %s
                     crear jugador <nombre> <tipo>
                           Crea un jugador dado su nombre y tipo. Este último puede ser uno de los
@@ -32,7 +32,40 @@ public class Monopoly {
                               - Esfinge (alias e)
                               - Sombrero (alias s)
                               - Pelota (alias p)
-            """.formatted(Formatear.con("COMANDOS", Color.Rojo, Estilo.Negrita), Formatear.con("COMANDOS CON ARGUMENTOS", Color.Rojo, Estilo.Negrita));
+
+                    listar <casillas | enventa | jugadores | avatares>
+                          Muestra información sobre las Casillas, la propiedades EnVenta, Jugadores
+                          del juego y sus Avatares.
+
+                    describir <nombre-casilla>
+                          Muestra información sobre una casilla en concreto.
+
+                    comprar <nombre-propiedad>
+                          Permite permite al jugador actual comprar una propiedad.
+
+                          NOTA: solo se puede comprar la propiedad en la que está su avatar y si no
+                          tiene dueño.
+
+                %s
+                    Solo para probar el funcionamiento del juego.
+
+                    exec <archivo>
+                           Permite ejecutar un archivo que contiene un comando por línea.
+                    
+                    mover <n | nombre-casilla>
+                           Mueve el jugador actual un número determinado de casillas, sin necesidad
+                           de lanzar el dado.
+
+                           Alternativamente se puede mover a la casilla dada.
+
+                %s
+                    - Los comandos no distinguen mayúsculas de minúsculas: "AyUda" es lo mismo que "ayuda".
+                    - Se ignoran los espacios en blanco no necesarios: "lanzar     dados" es lo
+                      mismo que "lanzar dados".
+            """.formatted(Formatear.con("COMANDOS", Color.Rojo, Estilo.Negrita),
+                          Formatear.con("COMANDOS CON ARGUMENTOS", Color.Rojo, Estilo.Negrita),
+                          Formatear.con("COMANDOS DEBUG", Color.Rojo, Estilo.Negrita),
+                          Formatear.con("NOTAS", Color.Rojo, Estilo.Negrita));
 
     private final Scanner scanner;
     private final Tablero tablero;
