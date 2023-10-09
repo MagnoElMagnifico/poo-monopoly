@@ -19,6 +19,7 @@ import java.util.Optional;
  */
 public class Tablero {
     private final ArrayList<Jugador> jugadores;
+    private Jugador banca;
     private int turno;
     private ArrayList<Casilla> casillas;
     private final Dado dado;
@@ -42,7 +43,8 @@ public class Tablero {
             System.exit(1);
         }
 
-        // TODO: Agregar el jugador de la banca
+        banca=new Jugador();
+
         dado = new Dado();
     }
 
@@ -151,7 +153,7 @@ public class Tablero {
 
         for (Casilla casilla : casillas) {
             // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-            if (casilla.getPropiedad().isPresent() && casilla.getPropiedad().get().getPropietario().isEmpty()) {
+            if (casilla.getPropiedad().getPropietario()==banca) {
                 enVenta.add(casilla);
             }
         }

@@ -17,6 +17,14 @@ public class Jugador {
     /**
      * Crea un Jugador dado su nombre, tipo de avatar e id
      */
+
+
+    public Jugador(){
+        this.nombre="Banca";
+        this.avatar=null;
+        this.fortuna=0;
+
+    }
     public Jugador(String nombre, TipoAvatar tipo, char id, Casilla casillaInicial) {
         avatar = new Avatar(tipo, id, this, casillaInicial);
         this.nombre = nombre;
