@@ -20,6 +20,20 @@ Orientada a Objetos implementado en Java.
 - `comprar <casilla>`
 - `describir { jugador <jugador> | <casilla> }`
 
+# Formato
+
+La clase `utilidades.Formatear` permite formatear `String`s de diferentes formas:
+
+- Añadir colores y estilos (método `con`)
+- Limitar a un tamaño (método `celda`)
+- Separar un número para indicar miles (método `num`)
+
+Se usarán los siguientes colores para indicar resultados de comandos:
+
+- Rojo: un error ha ocurrido
+- Verde: todo ha sido exitoso
+- Azul: información
+
 # Estructura del proyecto
 
 > Todo el código fuente se almacena en la carpeta `src`.
