@@ -9,45 +9,40 @@ package monopoly.utilidades;
  * @see <a href="https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences">Códigos ANSI StackOverflow</a>
  */
 public class Formatear {
-    // TODO: Preguntar si hay otra forma de crear constantes
-    /** Secuencia de inicio de un código ANSI */
+    /**
+     * Secuencia de inicio de un código ANSI
+     */
     private static final String INICIO = "\u001b[";
-    /** Código ANSI de reseteo */
+    /**
+     * Código ANSI de reseteo
+     */
     private static final String FIN = "\u001b[0m";
 
-    /** Colores soportados */
-    public enum Color {
-        Negro, Rojo, Verde, Amarillo, Azul, Magenta, Cian, Blanco
-    }
-
     /**
-     * Estilos soportados
-     * <hr>
-     * NOTA: Puede que algunos no estén soportados por algunas terminales.
+     * Función de ayuda para generar el código ANSI de todos los estilos dados
      */
-    public enum Estilo {
-        Normal, Negrita, Claro, Cursiva, Subrayado, ParpadeoLento, ParpadeoRapido, Invertir, Esconder
-    }
-
-    /** Función de ayuda para generar el código ANSI de todos los estilos dados */
     private static String getCodigoAnsi(Estilo... estilos) {
         if (estilos.length == 0) {
             return "";
         }
 
-        String codigo = "";
+        StringBuilder codigo = new StringBuilder();
+
         for (int i = 0; i < estilos.length - 1; i++) {
-            codigo = "%s%s;".formatted(codigo, estilos[i].ordinal());
+            codigo.append(estilos[i].ordinal());
         }
 
-        return "%s%s".formatted(codigo, estilos[estilos.length - 1].ordinal());
+        codigo.append(estilos[estilos.length - 1].ordinal());
+
+        return codigo.toString();
     }
 
     /**
      * Formatea un mensaje con un código de color de fuente, código de color de fondo y unos estilo dados
-     * @param msg     Mensaje a formatear
-     * @param fuente  Código de color de la fuente (número entero sin signo, 0 a 255)
-     * @param fondo   Código de color del fondo (número entero sin signo, 0 a 255)
+     *
+     * @param msg    Mensaje a formatear
+     * @param fuente Código de color de la fuente (número entero sin signo, 0 a 255)
+     * @param fondo  Código de color del fondo (número entero sin signo, 0 a 255)
      * @return La cadena formateada
      * @see <a href="https://user-images.githubusercontent.com/995050/47952855-ecb12480-df75-11e8-89d4-ac26c50e80b9.png">Codigos de Color</a>
      */
@@ -56,23 +51,31 @@ public class Formatear {
                 fuente & 0xFF, fondo & 0xFF, msg, FIN);
     }
 
-    /** Formatea un mensaje con un código de color de fuente y unos estilos dados */
+    /**
+     * Formatea un mensaje con un código de color de fuente y unos estilos dados
+     */
     public static String con(String msg, byte fuente, Estilo... estilos) {
         return "%s%s;38;5;%dm%s%s".formatted(INICIO, Formatear.getCodigoAnsi(estilos),
                 fuente & 0xFF, msg, FIN);
     }
 
-    /** Formatea un mensaje con un color de fuente y fondo, más unos estilos */
+    /**
+     * Formatea un mensaje con un color de fuente y fondo, más unos estilos
+     */
     public static String con(String msg, Color fuente, Color fondo, Estilo... estilos) {
         return Formatear.con(msg, (byte) fuente.ordinal(), (byte) fondo.ordinal(), estilos);
     }
 
-    /** Formatea un mensaje con un color de fuente y unos estilos dados */
+    /**
+     * Formatea un mensaje con un color de fuente y unos estilos dados
+     */
     public static String con(String msg, Color fuente, Estilo... estilos) {
         return Formatear.con(msg, (byte) fuente.ordinal(), estilos);
     }
 
-    /** Convierte el long a String y lo formatea separando las centenas con espacios */
+    /**
+     * Convierte el long a String y lo formatea separando las centenas con espacios
+     */
     public static String num(long n) {
         String numStr = Long.toString(n);
 
@@ -87,11 +90,55 @@ public class Formatear {
         for (int i = numStr.length() - 3; i > 0; i -= 3) {
             // Y se sigue tomando grupos de 3 en 3
             // Salvo cuando se llega al principio, que se recoge lo que quede
-            String grupo = numStr.substring(Math.max(0, i-3), i);
+            String grupo = numStr.substring(Math.max(0, i - 3), i);
             // Se añade al resultado con un espacio
             resultado = "%s %s".formatted(grupo, resultado);
         }
 
         return resultado;
+    }
+
+    /**
+     * Formatea un String de forma que `msg` tiene como máximo
+     * tam-2 caracteres de longitud y está rodeado de espacios.
+     * <p>
+     * Por ejemplo:
+     *
+     * <pre>
+     *     msg = estoesunejemplo
+     *     tam = 10
+     *     resultado -> " estoesu. "
+     *
+     *     msg = hola
+     *     tam = 10
+     *     resultado -> " hola     "
+     * </pre>
+     *
+     * @param msg Mensaje que formatear
+     * @param tam Tamaño del mensaje
+     * @return Mensaje formateado
+     */
+    public static String celda(String msg, int tam) {
+        // TODO: handle invalid/negative inputs
+        if (msg.length() + 2 > tam) {
+            return " %s. ".formatted(msg.substring(0, tam - 3));
+        }
+        return " %s%s".formatted(msg, " ".repeat(tam - msg.length() - 1));
+    }
+
+    /**
+     * Colores soportados
+     */
+    public enum Color {
+        Negro, Rojo, Verde, Amarillo, Azul, Magenta, Cian, Blanco
+    }
+
+    /**
+     * Estilos soportados
+     * <hr>
+     * NOTA: Puede que algunos no estén soportados por algunas terminales.
+     */
+    public enum Estilo {
+        Normal, Negrita, Claro, Cursiva, Subrayado, ParpadeoLento, ParpadeoRapido, Invertir, Esconder
     }
 }

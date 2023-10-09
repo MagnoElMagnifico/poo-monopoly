@@ -1,100 +1,175 @@
 package monopoly;
 
+import monopoly.utilidades.Dado;
+import monopoly.utilidades.Formatear;
+import monopoly.utilidades.Formatear.Color;
+import monopoly.utilidades.LectorCasillas;
+import monopoly.utilidades.PintorTablero;
+
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import monopoly.Casillas;
-import monopoly.Jugador;
+import java.util.Optional;
 
+/**
+ * Clase que representa el tablero del juego.
+ * Contiene a los jugadores y a las casillas. Tira el dado y gestiona el turno actual.
+ *
+ * @see monopoly.Jugador
+ * @see monopoly.Casilla
+ */
 public class Tablero {
-    /** Lista de las 40 casillas */
-    ArrayList<Casillas>  casilla;
-    /** Lista de los jugadores*/
-    ArrayList<Jugador> jugadores;
+    private final ArrayList<Jugador> jugadores;
+    private int turno;
+    private ArrayList<Casilla> casillas;
+    private final Dado dado;
 
-    //Contructores
-    /**Constructor para la clase tablero vacia*/
-    public Tablero(){
-        casilla =new ArrayList<Casillas>(40);
-        jugadores = new ArrayList<Jugador>(4);
+    /**
+     * Crea un tablero por defecto
+     */
+    public Tablero() {
+        jugadores = new ArrayList<>();
+        turno = 0;
+
+        // En lugar de añadir con código las casillas, se leen de
+        // un archivo de configuración.
+        //
+        // NOTA: Esto es potencialmente un problema de seguridad,
+        // dado que el usuario puede modificarlo sin reparos.
+        try {
+            casillas = LectorCasillas.leerCasillas("casillas.txt");
+        } catch (FileNotFoundException e) {
+            System.err.println(e);
+            System.exit(1);
+        }
+
+        // TODO: Agregar el jugador de la banca
+        dado = new Dado();
     }
 
-    /**Contructor para el tablero bajo normas monopoloy*/
-    public Tablero(int precioInit){
-        int grupo,precio, i=1,salida=0;
-        precio=precioInit;
-        String nombre;
-        casilla =new ArrayList<Casillas>(40);
-        for(grupo=1;grupo<=8;grupo++){
-            if(grupo==1 || grupo==8){
-                for(int k=0;k<2;k++) {
-                    nombre = new String("Solar" + i);
-                    Casillas solar = new Casillas(nombre, precio/2, 0, grupo);
-                    casilla.add(solar);
-                    i +=1;
-                }
+    /**
+     * Función de ayuda que comprueba si un ID de avatar es único
+     */
+    private boolean comprobarAvatarId(char id) {
+        for (Jugador jugador : jugadores) {
+            if (jugador.getAvatar().getId() == id) {
+                return false;
             }
-            else {
-                for (int k = 0; k < 3; k++) {
-                    nombre = new String("Solar" + i);
-                    Casillas solar = new Casillas(nombre, precio/3, 0, grupo);
-                    casilla.add(solar);
-                    i +=1;
-                }
-
-            }
-            salida+=precio;
-            precio =(int) (1.3*precio);
         }
-        //salida = (int) (salida/22);
-        for(int k=0;k<4;k++){
-            nombre=new String("Transporte"+(char) k);
-            Casillas solar = new Casillas(nombre, salida, 1, grupo);
-            casilla.add(solar);
-        }
-        nombre=new String("Servivio Electricidad");
-        Casillas servicio1 = new Casillas(nombre,(int) ((int) salida*0.75), 2, grupo);
-        casilla.add(servicio1);
-        nombre=new String("Servivio agua");
-        Casillas solar = new Casillas(nombre,(int) ((int) salida*0.75), 2, grupo);
-        casilla.add(solar);
-        for(int k=0;k<6;k++){
-
-            if(k<3){
-                nombre=new String("Suerte");
-                Casillas suerte = new Casillas(nombre,0, 3, grupo);
-                casilla.add(suerte);
-            }
-            else if (k<6) {
-                nombre=new String("Caja comunidad");
-                Casillas suerte = new Casillas(nombre,0, 3, grupo);
-                casilla.add(suerte);
-            }
-
-        }
-        nombre=new String("Impuesto1");
-        Casillas imp1 = new Casillas(nombre,(int) (salida *0.5), 4, grupo);
-        casilla.add(imp1);
-        nombre=new String("Impuesto2");
-        Casillas imp2 = new Casillas(nombre,salida, 4, grupo);
-        casilla.add(imp2);
-        nombre=new String("Carcel");
-        Casillas carcel = new Casillas(nombre,salida, 5, grupo);
-        casilla.add(carcel);
-        nombre=new String("Parking");
-        Casillas parking = new Casillas(nombre,salida, 5, grupo);
-        casilla.add(parking);
-        nombre=new String("Ir a la carcel");
-        Casillas ircarcel = new Casillas(nombre,salida, 5, grupo);
-        casilla.add(ircarcel);
-        nombre=new String("Salida");
-        Casillas start = new Casillas(nombre,salida, 5, grupo);
-        casilla.add(start);
-
-
+        return true;
     }
 
+    /**
+     * Función de ayuda que genera un ID para el avatar aleatoriamente
+     */
+    private char generarAvatarId() {
+        char posibleId;
+        do {
+            posibleId = dado.letraAleatoria();
+        } while (!comprobarAvatarId(posibleId));
+        return posibleId;
+    }
 
-    //Getters y setters
+    /**
+     * Añade un jugador dado su nombre y tipo de avatar
+     */
+    public void anadirJugador(String nombre, Avatar.TipoAvatar tipo) {
+        jugadores.add(new Jugador(nombre, tipo, generarAvatarId(), casillas.get(0)));
+    }
 
+    /**
+     * Obtiene el jugador de turno. Si no hay jugadores devuelve `Optional.empty()`
+     */
+    public Optional<Jugador> getJugadorTurno() {
+        return jugadores.isEmpty() ? Optional.empty() : Optional.of(jugadores.get(turno));
+    }
 
-    //Otros metodos
+    /**
+     * Mueve el jugador un determinado número de casillas
+     */
+    public String moverJugador(int nCasillas) {
+        if (getJugadorTurno().isEmpty()) {
+            return Formatear.con("No hay jugadores\n", Color.Rojo);
+        }
+
+        Avatar avatar = getJugadorTurno().get().getAvatar();
+        Casilla actualCasilla = avatar.getCasilla();
+        int nActual = casillas.indexOf(actualCasilla);
+        // TODO: tener en cuenta el tipo de avatar
+        Casilla nuevaCasilla = casillas.get((nActual + nCasillas) % casillas.size());
+
+        avatar.setCasilla(nuevaCasilla);
+        nuevaCasilla.anadirAvatar(avatar);
+        actualCasilla.quitarAvatar(avatar);
+
+        return """
+               El jugador %s avanzó %d posiciones.
+               Ahora se encuentra en %s.
+               """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul), nCasillas, Formatear.con(nuevaCasilla.getNombre(), Color.Cian));
+    }
+
+    /**
+     * Lanza 2 dados y mueve el jugador con el turno actual a la casilla que le toca
+     */
+    public String lanzarDados() {
+        return moverJugador(dado.lanzar2Dados());
+    }
+
+    /**
+     * Termina el turno del jugador actual y calcula el siguiente
+     */
+    public String acabarTurno() {
+        if (jugadores.isEmpty()) {
+            return Formatear.con("No hay jugadores\n", Color.Rojo);
+        }
+
+        turno = (turno + 1) % jugadores.size();
+        return """
+                Se ha cambiado el turno.
+                Ahora le toca a %s.
+                """.formatted(Formatear.con(getJugadorTurno().orElseThrow().getNombre(), Formatear.Color.Azul));
+    }
+
+    /**
+     * Obtiene los avatares de los jugadores
+     */
+    public ArrayList<Avatar> getAvatares() {
+        ArrayList<Avatar> avatares = new ArrayList<>(jugadores.size());
+
+        // NOTA: si `jugadores` está vacío, esto no se ejecuta y se devuelve un ArrayList vacío
+        for (Jugador jugador : jugadores) {
+            avatares.add(jugador.getAvatar());
+        }
+
+        return avatares;
+    }
+
+    /**
+     * Obtiene las casillas que actualmente están en venta
+     */
+    public ArrayList<Casilla> getEnVenta() {
+        ArrayList<Casilla> enVenta = new ArrayList<>(casillas.size());
+
+        for (Casilla casilla : casillas) {
+            // Si la casilla se puede comprar y no tiene dueño, es que está en venta
+            if (casilla.getPropiedad().isPresent() && casilla.getPropiedad().get().getPropietario().isEmpty()) {
+                enVenta.add(casilla);
+            }
+        }
+
+        return enVenta;
+    }
+
+    @Override
+    public String toString() {
+        return PintorTablero.pintarTablero(casillas);
+    }
+
+    public ArrayList<Casilla> getCasillas() {
+        return casillas;
+    }
+
+    public ArrayList<Jugador> getJugadores() {
+        return jugadores;
+    }
+
 }

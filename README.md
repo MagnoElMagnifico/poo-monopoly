@@ -24,6 +24,8 @@ Orientada a Objetos implementado en Java.
 
 > Todo el código fuente se almacena en la carpeta `src`.
 
+![](diseño-clases.png)
+
 Definidas en el paquete `monopoly`:
 
 - **Monopoly**: Crea el tablero y se encarga de procesar y ejecutar los
@@ -39,14 +41,20 @@ Definidas en el paquete `monopoly`:
   - Pelota
   - Banca (especial)
 
-- **Casilla**: Representa una casilla del tablero y una propiedad (si aplica).
-  - Solar (propiedad)
-  - Transporte (propiedad)
-  - Servicio (propiedad)
-  - Impuestos
-  - Suerte
-  - Comunidad
-  - Especiales: Carcel, Parking, Salida, IrACarcel
+- **Casilla** (x40): Representa una casilla del tablero y una propiedad (si aplica).
+  - Solar (x22) (propiedad, pertenece a un grupo)
+  - Transporte (x4) (propiedad, grupo propio)
+    - Puerto
+    - Aeropuerto
+    - Ferrocarril
+    - Nave espacial
+  - Servicio (x4) (propiedad, grupo propio)
+    - Telecomunicaciones
+    - Eléctrico
+  - Impuestos (x2)
+  - Suerte (x3)
+  - Comunidad (x3)
+  - Especiales (x4): Carcel, Parking, Salida, IrACarcel (cada una de las esquinas)
 
 - **Edificacion**: Modificaciones que se puede aplicar a los solares.
   - Casa
