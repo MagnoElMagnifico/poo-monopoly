@@ -22,10 +22,11 @@ public class Tablero {
         int grupo,precio, i=1,salida=0;
         precio=precioInit;
         String nombre;
+        casilla =new ArrayList<Casillas>(40);
         for(grupo=1;grupo<=8;grupo++){
             if(grupo==1 || grupo==8){
                 for(int k=0;k<2;k++) {
-                    nombre = new String("Solar" + (char) i);
+                    nombre = new String("Solar" + i);
                     Casillas solar = new Casillas(nombre, precio/2, 0, grupo);
                     casilla.add(solar);
                     i +=1;
@@ -33,7 +34,7 @@ public class Tablero {
             }
             else {
                 for (int k = 0; k < 3; k++) {
-                    nombre = new String("Solar" + (char) i);
+                    nombre = new String("Solar" + i);
                     Casillas solar = new Casillas(nombre, precio/3, 0, grupo);
                     casilla.add(solar);
                     i +=1;
@@ -43,7 +44,7 @@ public class Tablero {
             salida+=precio;
             precio =(int) (1.3*precio);
         }
-        salida = (int) (salida/22);
+        //salida = (int) (salida/22);
         for(int k=0;k<4;k++){
             nombre=new String("Transporte"+(char) k);
             Casillas solar = new Casillas(nombre, salida, 1, grupo);
@@ -70,7 +71,7 @@ public class Tablero {
 
         }
         nombre=new String("Impuesto1");
-        Casillas imp1 = new Casillas(nombre,(int) ((int) salida*0.5), 4, grupo);
+        Casillas imp1 = new Casillas(nombre,(int) (salida *0.5), 4, grupo);
         casilla.add(imp1);
         nombre=new String("Impuesto2");
         Casillas imp2 = new Casillas(nombre,salida, 4, grupo);
