@@ -136,7 +136,7 @@ public class Monopoly {
 
             // Acciones de jugadores
             case "jugador", "turno", "player" ->
-                    tablero.getJugadorTurno().isEmpty() ? Formatear.con("No hay jugadores\n", Color.Rojo) : tablero.getJugadorTurno().get().toString();
+                    tablero.getJugadorTurno() == null ? Formatear.con("No hay jugadores\n", Color.Rojo) : tablero.getJugadorTurno().toString();
             case "lanzar", "lanzar dados" -> tablero.lanzarDados();
             case "acabar turno", "fin", "end" -> tablero.acabarTurno();
             //case "salir carcel" -> tablero.salirCarcel();

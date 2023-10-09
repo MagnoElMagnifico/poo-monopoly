@@ -8,7 +8,6 @@ import monopoly.utilidades.PintorTablero;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Optional;
 
 /**
  * Clase que representa el tablero del juego.
@@ -77,21 +76,21 @@ public class Tablero {
     }
 
     /**
-     * Obtiene el jugador de turno. Si no hay jugadores devuelve `Optional.empty()`
+     * Obtiene el jugador de turno. Si no hay jugadores devuelve `null`
      */
-    public Optional<Jugador> getJugadorTurno() {
-        return jugadores.isEmpty() ? Optional.empty() : Optional.of(jugadores.get(turno));
+    public Jugador getJugadorTurno() {
+        return jugadores.isEmpty() ? null : jugadores.get(turno);
     }
 
     /**
      * Mueve el jugador un determinado número de casillas
      */
     public String moverJugador(int nCasillas) {
-        if (getJugadorTurno().isEmpty()) {
+        if (getJugadorTurno() == null) {
             return Formatear.con("No hay jugadores\n", Color.Rojo);
         }
 
-        Avatar avatar = getJugadorTurno().get().getAvatar();
+        Avatar avatar = getJugadorTurno().getAvatar();
         Casilla actualCasilla = avatar.getCasilla();
         int nActual = casillas.indexOf(actualCasilla);
         // TODO: tener en cuenta el tipo de avatar
@@ -126,7 +125,7 @@ public class Tablero {
         return """
                 Se ha cambiado el turno.
                 Ahora le toca a %s.
-                """.formatted(Formatear.con(getJugadorTurno().orElseThrow().getNombre(), Formatear.Color.Azul));
+                """.formatted(Formatear.con(getJugadorTurno().getNombre(), Formatear.Color.Azul));
     }
 
     /**
@@ -151,7 +150,7 @@ public class Tablero {
 
         for (Casilla casilla : casillas) {
             // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-            if (casilla.getPropiedad().isPresent() && casilla.getPropiedad().get().getPropietario().isEmpty()) {
+            if (casilla.isPropiedad() && casilla.getPropiedad().getPropietario().isEmpty()) {
                 enVenta.add(casilla);
             }
         }
