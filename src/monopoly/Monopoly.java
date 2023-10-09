@@ -145,6 +145,7 @@ public class Monopoly {
             // exec archivo: (debug) ejecuta los comandos almacenados en el archivo
 
             case "crear" -> cmdCrear(args);
+            case "describir" ->
             default -> Formatear.con("\"%s\": Comando no válido\n".formatted(args[0]), Color.Rojo);
         };
     }

@@ -20,7 +20,6 @@ public class Calculadora {
 
     public int pagarAlquiler(Propiedad solar){
         //TODO: añadir propiedades cuando sean computables
-
         return solar.getAlquiler();
     }
 
@@ -41,6 +40,7 @@ public class Calculadora {
                         alquiler piscina: %d
                         alquiler pista de deporte: %d
                 """.formatted(solar.getCasilla().getNombre(),solar.getPropietario(),solar.getPrecio(),solar.getAlquiler(),
-                solar.getPrecio()*)
+                (int)(solar.getPrecio()*0.6),(int)(solar.getPrecio()*0.6),(int)(solar.getPrecio()*0.4),(int)(solar.getPrecio()*1.25),
+                solar.getPrecio()*5, solar.getPrecio()*15,solar.getPrecio()*30,solar.getPrecio()*70,solar.getPrecio()*25,solar.getPrecio()*25);
     }
 }
