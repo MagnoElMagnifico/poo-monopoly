@@ -4,6 +4,8 @@ import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.Formatear.Estilo;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 /**
@@ -62,6 +64,7 @@ public class Monopoly {
                     - Los comandos no distinguen mayúsculas de minúsculas: "AyUda" es lo mismo que "ayuda".
                     - Se ignoran los espacios en blanco no necesarios: "lanzar     dados" es lo
                       mismo que "lanzar dados".
+                    - Lo que empiece por el caracter '#' se considerará un comentario, lo que se ignorará.
             """.formatted(Formatear.con("COMANDOS", Color.Rojo, Estilo.Negrita),
                           Formatear.con("COMANDOS CON ARGUMENTOS", Color.Rojo, Estilo.Negrita),
                           Formatear.con("COMANDOS DEBUG", Color.Rojo, Estilo.Negrita),
@@ -75,6 +78,19 @@ public class Monopoly {
         tablero = new Tablero();
     }
 
+    public void iniciarConsola(String[] args) {
+        if (args.length > 1) {
+            System.err.println("Demasiados parámetros. Se esperaba 0 o 1");
+            System.exit(1);
+        }
+
+        if (args.length == 1) {
+            System.out.println(ejecutarArchivo(args[0]));
+        }
+
+        iniciarConsola();
+    }
+
     /**
      * Inicia la consola del juego del Monopoly.
      * Muestra el Prompt ("$>") y permite al usuario escribir un comando.
@@ -83,17 +99,17 @@ public class Monopoly {
         System.out.printf("Puedes usar el comando \"%s\" para ver las opciones disponibles\n", Formatear.con("ayuda", Color.Verde));
         while (true) {
             System.out.print(Formatear.con("$> ", Color.Verde, Estilo.Negrita));
-            this.procesarCmd(scanner.nextLine());
+            System.out.print(this.procesarCmd(scanner.nextLine()));
         }
     }
 
     /**
      * Procesa el comando dado y realiza las llamadas pertinentes para ejecutarlo
      */
-    private void procesarCmd(String cmd) {
+    private String procesarCmd(String cmd) {
         // Ignorar comandos en blanco o con solo espacios
-        if (cmd.isBlank()) {
-            return;
+        if (cmd.isBlank() || cmd.stripLeading().startsWith("#")) {
+            return "\n";
         }
 
         // Normalizar:
@@ -103,7 +119,7 @@ public class Monopoly {
         String cmdNorm = cmd.strip().replaceAll(" +", " ").toLowerCase();
 
         // Ver: https://docs.oracle.com/en/java/javase/17/language/switch-expressions.html
-        System.out.print(switch (cmdNorm) {
+        return switch (cmdNorm) {
             // Comandos de manejo del juego
             case "salir", "quit" -> {
                 System.exit(0);
@@ -112,7 +128,7 @@ public class Monopoly {
             case "ayuda", "help" -> MSG_AYUDA;
 
             // Comandos de información
-            case "ver tablero", "tablero", "show" -> tablero;
+            case "ver tablero", "tablero", "show" -> tablero.toString();
             case "listar casillas" -> tablero.getCasillas().toString() + '\n';
             case "listar enventa" -> tablero.getEnVenta().toString() + '\n';
             case "listar jugadores" -> tablero.getJugadores().toString() + '\n';
@@ -120,13 +136,13 @@ public class Monopoly {
 
             // Acciones de jugadores
             case "jugador", "turno", "player" ->
-                    tablero.getJugadorTurno().isEmpty() ? Formatear.con("No hay jugadores\n", Color.Rojo) : tablero.getJugadorTurno().get();
+                    tablero.getJugadorTurno().isEmpty() ? Formatear.con("No hay jugadores\n", Color.Rojo) : tablero.getJugadorTurno().get().toString();
             case "lanzar", "lanzar dados" -> tablero.lanzarDados();
             case "acabar turno", "fin", "end" -> tablero.acabarTurno();
             //case "salir carcel" -> tablero.salirCarcel();
 
             default -> this.cmdConArgumentos(cmdNorm);
-        });
+        };
     }
 
     /**
@@ -145,6 +161,13 @@ public class Monopoly {
             // exec archivo: (debug) ejecuta los comandos almacenados en el archivo
 
             case "crear" -> cmdCrear(args);
+            case "exec" -> {
+                if (args.length != 2) {
+                    yield Formatear.con("Se esperaba 1 parámetro, se recibieron %d\n".formatted(args.length), Color.Rojo);
+                }
+
+                yield ejecutarArchivo(args[1]);
+            }
             default -> Formatear.con("\"%s\": Comando no válido\n".formatted(args[0]), Color.Rojo);
         };
     }
@@ -175,5 +198,24 @@ public class Monopoly {
 
         tablero.anadirJugador(nombre, tipo);
         return "Jugador %s creado con éxito.\n".formatted(Formatear.con(nombre, Color.Verde));
+    }
+
+    private String ejecutarArchivo(String nombreArchivo) {
+        File archivo = new File(nombreArchivo);
+        Scanner scanner;
+
+        try {
+            scanner = new Scanner(archivo);
+        } catch (FileNotFoundException e) {
+            return Formatear.con("\"%s\": no se ha encontrado\n".formatted(nombreArchivo), Color.Rojo);
+        }
+
+        StringBuilder salida = new StringBuilder();
+
+        while (scanner.hasNextLine()) {
+            salida.append(procesarCmd(scanner.nextLine()));
+        }
+
+        return salida.toString();
     }
 }
