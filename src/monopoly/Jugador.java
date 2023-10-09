@@ -1,94 +1,47 @@
 package monopoly;
 
-import java.util.ArrayList;
+import monopoly.Avatar.TipoAvatar;
 
-
+/**
+ * Clase que representa un Jugador. Almacena su información sobre su fortuna y propiedades.
+ * Además, tiene un Avatar asociado.
+ *
+ * @date 2-10-2023
+ * @see monopoly.Avatar
+ */
 public class Jugador {
-    private String nombre;
-    private char avatar;
-    private byte turno;
-    private int fortuna;
-    private ArrayList<String> propiedades;
-    private ArrayList<String> hipotecas;
-    private ArrayList<String> edificios;
+    private final String nombre;
+    private final Avatar avatar;
+    private final int fortuna;
+
+    /**
+     * Crea un Jugador dado su nombre, tipo de avatar e id
+     */
+    public Jugador(String nombre, TipoAvatar tipo, char id, Casilla casillaInicial) {
+        avatar = new Avatar(tipo, id, this, casillaInicial);
+        this.nombre = nombre;
+        fortuna = 0;
+    }
+
+    @Override
+    public String toString() {
+        return """
+                {
+                    nombre: %s
+                    avatar: %c
+                    fortuna: %s
+                }""".formatted(nombre, avatar.getId(), fortuna);
+    }
 
     public String getNombre() {
         return nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public char getAvatar() {
+    public Avatar getAvatar() {
         return avatar;
-    }
-
-    public void setAvatar(char avatar) {
-        this.avatar = avatar;
-    }
-
-    public byte getTurno() {
-        return turno;
-    }
-
-    public void setTurno(byte turno) {
-        this.turno = turno;
     }
 
     public int getFortuna() {
         return fortuna;
-    }
-
-    public void setFortuna(int fortuna) {
-        this.fortuna = fortuna;
-    }
-
-    public ArrayList<String> getPropiedades() {
-        return propiedades;
-    }
-
-    public void setPropiedades(ArrayList<String> propiedades) {
-        this.propiedades = propiedades;
-    }
-
-    public ArrayList<String> getHipotecas() {
-        return hipotecas;
-    }
-
-    public void setHipotecas(ArrayList<String> hipotecas) {
-        this.hipotecas = hipotecas;
-    }
-
-    public ArrayList<String> getEdificios() {
-        return edificios;
-    }
-
-    public void setEdificios(ArrayList<String> edificios) {
-        this.edificios = edificios;
-    }
-
-    /*
-    @Override
-    public String toString() {
-        return "{\n" +
-                "nombre: " + nombre + ",\n" +
-                "avatar: " + avatar + "\n" +
-                "}";
-    }
-
-    public void jugador() {
-        System.out.println(toString());
-    }*/
-    public void jugador(){
-        System.out.println("nombre: " + getNombre() + ",");
-        System.out.println("avatar: " + getAvatar() + ",");
-    }
-
-
-    public void crearJugador(String nombre, char avatar){
-        setNombre(nombre);
-        setAvatar(avatar);
-        jugador();
     }
 }

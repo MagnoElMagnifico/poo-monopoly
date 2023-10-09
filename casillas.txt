@@ -1,0 +1,46 @@
+# Archivo de configuración de las casillas del tablero
+# Formato:
+#     nombre, tipo, precio, códigoColor,
+#     nombre, códigoColor,
+#     ...
+
+Casilla1, solar, 1, 10
+Casilla2, solar, 1, 200
+Casilla3, solar, 1, 10
+Casilla4, solar, 1, 10
+Casilla5, solar, 1, 10
+Casilla6, solar, 1, 10
+Casilla7, solar, 1, 10
+Casilla8, solar, 1, 10
+Casilla9, solar, 1, 10
+Casilla10, solar, 1, 10
+Casilla11, solar, 1, 10
+Casilla12, solar, 1, 10
+Casilla13, solar, 1, 10
+Casilla14, solar, 1, 10
+Casilla15, solar, 1, 10
+Casilla16, solar, 1, 10
+Casilla17, solar, 1, 10
+Casilla18, solar, 1, 10
+Casilla19, solar, 1, 10
+Casilla20, solar, 1, 10
+Casilla21, solar, 1, 10
+Casilla22, solar, 1, 10
+Casilla23, solar, 1, 10
+Casilla24, solar, 1, 10
+Casilla25, solar, 1, 10
+Casilla26, solar, 1, 10
+Casilla27, solar, 1, 10
+Casilla28, solar, 1, 10
+Casilla29, solar, 1, 10
+Casilla30, solar, 1, 10
+Casilla31, solar, 1, 10
+Casilla32, solar, 1, 10
+Casilla33, solar, 1, 10
+Casilla34, solar, 1, 10
+Casilla35, solar, 1, 10
+Casilla36, solar, 1, 10
+Casilla37, solar, 1, 10
+Casilla38, solar, 1, 10
+Casilla39, solar, 1, 10
+Casilla40, solar, 1, 10
