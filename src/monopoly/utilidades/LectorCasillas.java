@@ -1,7 +1,8 @@
 package monopoly.utilidades;
 
 import monopoly.Casilla;
-import monopoly.Propiedad;
+import monopoly.Grupo;
+import monopoly.Propiedad.Tipo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,61 +27,69 @@ import java.util.Scanner;
  * @see monopoly.Tablero
  */
 public class LectorCasillas {
-    public static ArrayList<Casilla> leerCasillas(String path) throws FileNotFoundException {
+    public static ArrayList<Casilla> leerCasillas(String path) {
         File archivo = new File(path);
-        Scanner scanner = new Scanner(archivo);
+        Scanner scanner = null;
+
+        try {
+            scanner = new Scanner(archivo);
+        } catch (FileNotFoundException e) {
+            System.err.println("[FATAL] No se ha encontrado el archivo de configuración de las casillas");
+            System.exit(1);
+        }
+
+        ArrayList<Grupo> grupos = new ArrayList<>(8);
         ArrayList<Casilla> casillas = new ArrayList<>(40);
 
-        while (scanner.hasNextLine()) {
+        for (int nLinea = 1; scanner.hasNextLine(); nLinea++) {
             String linea = scanner.nextLine();
 
-            // Ignorar comentarios y líneas en blanco
+            // Se ignoran los comentarios y líneas en blanco
             if (linea.isBlank() || linea.stripLeading().startsWith("#")) {
                 continue;
             }
 
-            // Los elementos en la línea se separan por ','
-            Scanner scannerLinea = new Scanner(linea).useDelimiter("\\s*,\\s*");
+            // Se quitan los espacios y se separa por las comas
+            String[] campos = linea.strip().replaceAll(" +", "").split(",");
 
-            // Se lee el nombre de la casilla
-            String nombre = scannerLinea.next();
+            if (campos[0].startsWith("grupo:")) {
+                // Declaración de un Grupo:
+                // Se quita la etiqueta del grupo, son 6 caracteres
+                String nombre = campos[0].substring(6);
+                int codigoColor =  Integer.parseInt(campos[1]);
 
-            // Si el siguiente elemento es un entero, pues es que es una casilla especial
-            if (scannerLinea.hasNextInt()) {
-                casillas.add(new Casilla(nombre, scannerLinea.nextInt()));
-                continue;
+                // El número de grupo es la posición en este Array
+                grupos.add(new Grupo(grupos.size(), nombre, codigoColor));
+
+            } else {
+                // Declaración de una Casilla Propiedad:
+                int nGrupo = Integer.parseInt(campos[1]);
+
+                if (nGrupo > grupos.size()) {
+                    System.err.printf("[FATAL] Número de grupo inválido en la línea %d, se obtuvo %d\n", nLinea, nGrupo);
+                    System.exit(1);
+                }
+
+                if (campos.length == 3) {
+                    casillas.add(new Casilla(grupos.get(nGrupo), campos[0], stringATipoPropiedad(campos[2])));
+                } else {
+                    casillas.add(new Casilla(grupos.get(nGrupo), campos[0]));
+                }
             }
-
-            // Se lee el tipo de la propiedad
-            Propiedad.Tipo tipo = stringATipoPropiedad(scannerLinea.next());
-
-            // Precio inicial de la casilla
-            int precio = scannerLinea.nextInt();
-
-            // Código de color de la casilla
-            int codigoColor = scannerLinea.nextInt();
-
-            casillas.add(new Casilla(nombre, tipo, precio, codigoColor));
         }
 
         scanner.close();
-
-        if (casillas.size() % 4 != 0) {
-            System.err.printf("ArchivoCasillas: en número de casillas debe ser múltiplo de 4, se leyeron %d\n", casillas.size());
-            System.exit(1);
-        }
-
         return casillas;
     }
 
     /**
      * Se convierte un String al tipo de dato enumerado
      */
-    private static Propiedad.Tipo stringATipoPropiedad(String strTipo) {
+    private static Tipo stringATipoPropiedad(String strTipo) {
         return switch (strTipo.toLowerCase()) {
-            case "solar" -> Propiedad.Tipo.Solar;
-            case "servicio" -> Propiedad.Tipo.Servicio;
-            case "transporte" -> Propiedad.Tipo.Transporte;
+            case "solar" -> Tipo.Solar;
+            case "servicio" -> Tipo.Servicio;
+            case "transporte" -> Tipo.Transporte;
             default -> {
                 System.err.printf("ArchivoCasillas: \"%s\": tipo desconocido", strTipo);
                 System.exit(1);

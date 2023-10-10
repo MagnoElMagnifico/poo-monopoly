@@ -35,7 +35,7 @@ public class PintorTablero {
      */
     private static void pintarCelda(StringBuilder dst, Casilla c) {
         dst.append(VERT);
-        dst.append(Formatear.con(Formatear.celda(c.getNombre(), TAM_TEXTO), (byte) c.getCodigoColor()));
+        dst.append(Formatear.con(Formatear.celda(c.getNombre(), TAM_TEXTO), (byte) c.getGrupo().getCodigoColor()));
 
         for (Avatar a : c.getAvatares()) {
             // TODO: saber si es el jugador actual para mostrarlo en un estilo diferente

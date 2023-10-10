@@ -34,12 +34,7 @@ public class Tablero {
         //
         // NOTA: Esto es potencialmente un problema de seguridad,
         // dado que el usuario puede modificarlo sin reparos.
-        try {
-            casillas = LectorCasillas.leerCasillas("casillas.txt");
-        } catch (FileNotFoundException e) {
-            System.err.println(e);
-            System.exit(1);
-        }
+        casillas = LectorCasillas.leerCasillas("casillas.txt");
 
         // TODO: Agregar el jugador de la banca
         dado = new Dado();

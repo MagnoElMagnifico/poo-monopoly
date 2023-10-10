@@ -19,26 +19,26 @@ public class Casilla {
      * Si es una casilla especial, este campo está desactivado
      */
     private final Propiedad propiedad;
-    private final int codigoColor;
+    private final Grupo grupo;
     private ArrayList<Avatar> avatares;
 
     /**
      * Construye una nueva casilla de tipo Propiedad
      */
-    public Casilla(String nombre, Propiedad.Tipo tipoPropiedad, int precioInicial, int codigoColor) {
+    public Casilla(Grupo grupo, String nombre, Propiedad.Tipo tipoPropiedad) {
         this.nombre = nombre;
-        this.propiedad = new Propiedad(this, tipoPropiedad, precioInicial);
-        this.codigoColor = codigoColor;
+        this.propiedad = new Propiedad(this, tipoPropiedad, 0); // TODO
+        this.grupo = grupo;
         this.avatares = new ArrayList<>();
     }
 
     /**
      * Construye una nueva casilla de tipo especial
      */
-    public Casilla(String nombre, int codigoColor) {
+    public Casilla(Grupo grupo, String nombre) {
         this.nombre = nombre;
         this.propiedad = null;
-        this.codigoColor = codigoColor;
+        this.grupo = grupo;
         this.avatares = new ArrayList<>();
     }
 
@@ -73,8 +73,8 @@ public class Casilla {
         return nombre;
     }
 
-    public int getCodigoColor() {
-        return codigoColor;
+    public Grupo getGrupo() {
+        return grupo;
     }
 
     public Propiedad getPropiedad() {
