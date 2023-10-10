@@ -6,7 +6,6 @@ import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.LectorCasillas;
 import monopoly.utilidades.PintorTablero;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 /**
@@ -97,8 +96,11 @@ public class Tablero {
 
         return """
                El jugador %s avanzó %d posiciones.
-               Ahora se encuentra en %s.
-               """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul), nCasillas, Formatear.con(nuevaCasilla.getNombre(), Color.Cian));
+               Ahora se encuentra en %s, %s.
+               """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul),
+                             nCasillas,
+                             Formatear.con(nuevaCasilla.getNombre(), (byte) nuevaCasilla.getGrupo().getCodigoColor()),
+                             Formatear.con(nuevaCasilla.getGrupo().getNombre(), (byte) nuevaCasilla.getGrupo().getCodigoColor()));
     }
 
     /**
@@ -155,7 +157,7 @@ public class Tablero {
 
     @Override
     public String toString() {
-        return PintorTablero.pintarTablero(casillas);
+        return PintorTablero.pintarTablero(this);
     }
 
     public ArrayList<Casilla> getCasillas() {

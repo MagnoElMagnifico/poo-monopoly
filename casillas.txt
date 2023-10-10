@@ -1,14 +1,14 @@
 # Las casillas de transporte conectan dos grupos en el mismo lado
 # Salida, Cárcel, Párking, IrCárcel están en las esquinas
 
-grupo: Especial, 16
-grupo: Carta, 184
+grupo: Especial, 231
+grupo: Carta, 231
 grupo: Transporte, 50
 grupo: Servicio, 46
 
 Salida, 0
 
-grupo: Polonia, 231
+grupo: Polonia, 200
 Varsovia, 4, solar
 Telecomunicaciones, 3, servicio
 Lodz,     4, solar

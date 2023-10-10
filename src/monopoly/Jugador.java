@@ -33,6 +33,12 @@ public class Jugador {
                 }""".formatted(nombre, avatar.getId(), fortuna);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        // Dos jugadores son iguales si sus avatares tienen el mismo ID
+        return obj instanceof Jugador && ((Jugador) obj).getAvatar().getId() == this.getAvatar().getId();
+    }
+
     public String getNombre() {
         return nombre;
     }
