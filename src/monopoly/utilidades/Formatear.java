@@ -1,5 +1,7 @@
 package monopoly.utilidades;
 
+import monopoly.Casilla;
+
 /**
  * Clase de ayuda para imprimir por Consola con colores y diferentes formatos.
  *
@@ -124,6 +126,14 @@ public class Formatear {
             return " %s. ".formatted(msg.substring(0, tam - 3));
         }
         return " %s%s".formatted(msg, " ".repeat(tam - msg.length() - 1));
+    }
+
+    public static String casillaNombre(Casilla c) {
+        if (!c.isPropiedad()) {
+            return Formatear.con(c.getNombre(), (byte) c.getGrupo().getCodigoColor());
+        }
+
+        return Formatear.con("%s, %s".formatted(c.getNombre(), c.getGrupo().getNombre()), (byte) c.getGrupo().getCodigoColor());
     }
 
     /**

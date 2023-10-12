@@ -21,6 +21,7 @@ public class Monopoly {
                 %s
                     ayuda, help                   Muestra esta información de ayuda.
                     ver tablero, tablero, show    Muestra el tablero del juego.
+                    iniciar, start                Inicia la partida. Ya no se podrán añadir jugadores.
                     jugador, turno, player        Muestra el jugador al que le toca jugar.
                     lanzar, lanzar dados          El jugador actual lanza 2 dados y mueve su avatar.
                     acabar turno, fin, end        Termina el turno del jugador actual.
@@ -109,7 +110,7 @@ public class Monopoly {
     private String procesarCmd(String cmd) {
         // Ignorar comandos en blanco o con solo espacios
         if (cmd.isBlank() || cmd.stripLeading().startsWith("#")) {
-            return "\n";
+            return "";
         }
 
         // Normalizar:
@@ -126,6 +127,7 @@ public class Monopoly {
                 yield ""; // Si no devuelvo un objeto da error
             }
             case "ayuda", "help" -> MSG_AYUDA;
+            case "iniciar", "start" -> tablero.iniciar();
 
             // Comandos de información
             case "ver tablero", "tablero", "show" -> tablero.toString();
@@ -157,10 +159,19 @@ public class Monopoly {
             // TODO:
             // case "comprar"
             // case "describir"
-            // mover n: (debug) mueve el avatar un número de posiciones
-            // exec archivo: (debug) ejecuta los comandos almacenados en el archivo
 
             case "crear" -> cmdCrear(args);
+            case "mover" -> {
+                if (args.length == 2) {
+                    yield tablero.moverJugador(Integer.parseInt(args[1]));
+                }
+
+                if (args.length == 3) {
+                    yield tablero.moverJugador(Integer.parseInt(args[1]) + Integer.parseInt(args[2]));
+                }
+
+                yield Formatear.con("Se esperaba 1 o 2 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+            }
             case "exec" -> {
                 if (args.length != 2) {
                     yield Formatear.con("Se esperaba 1 parámetro, se recibieron %d\n".formatted(args.length), Color.Rojo);
@@ -184,7 +195,10 @@ public class Monopoly {
             return Formatear.con("\"%s\": Subcomando de crear no válido\n".formatted(args[1]), Color.Rojo);
         }
 
-        String nombre = args[2];
+        // Como se pasa todo a minúsculas, los nombres quedan mal
+        // Con esto se pasa a mayúsculas la primera letra
+        String nombre = args[2].substring(0, 1).toUpperCase() + args[2].substring(1);
+
         Avatar.TipoAvatar tipo;
         switch (args[3]) {
             case "c", "coche" -> tipo = Avatar.TipoAvatar.Coche;
@@ -196,9 +210,7 @@ public class Monopoly {
             }
         }
 
-        char avatar = tablero.anadirJugador(nombre, tipo);
-        return "El jugador %s con avatar %s se ha creado con éxito.\n"
-                .formatted(Formatear.con(nombre, Color.Verde), Formatear.con(Character.toString(avatar), Color.Verde));
+        return tablero.anadirJugador(nombre, tipo);
     }
 
     private String ejecutarArchivo(String nombreArchivo) {

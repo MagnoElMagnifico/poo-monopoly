@@ -17,7 +17,7 @@ import java.util.ArrayList;
  */
 public class PintorTablero {
     private static final int TAM_TEXTO = 12;
-    private static final int TAM_AVATAR = 3;
+    private static final int TAM_AVATAR = 4;
     private static final int TAM_CELDA = TAM_TEXTO + TAM_AVATAR;
     private static final char ESQ_NO  = '┏'; // \u250F
     private static final char ESQ_NE  = '┓'; // \u2513
