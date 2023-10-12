@@ -32,6 +32,7 @@ public class Formatear {
 
         for (int i = 0; i < estilos.length - 1; i++) {
             codigo.append(estilos[i].ordinal());
+            codigo.append(';');
         }
 
         codigo.append(estilos[estilos.length - 1].ordinal());
