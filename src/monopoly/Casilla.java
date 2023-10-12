@@ -1,6 +1,7 @@
 package monopoly;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * La clase Casilla representa una casilla del tablero, que pueden ser de dos tipos:
@@ -92,4 +93,12 @@ public class Casilla {
     public void quitarAvatar(Avatar avatar) {
         avatares.remove(avatar);
     }
+
+
+
+
+
+
+
+
 }

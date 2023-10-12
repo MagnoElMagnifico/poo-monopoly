@@ -5,6 +5,7 @@ import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.LectorCasillas;
 import monopoly.utilidades.PintorTablero;
+import monopoly.Calculadora;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -172,6 +173,15 @@ public class Tablero {
 
     public ArrayList<Jugador> getJugadores() {
         return jugadores;
+    }
+
+    public String describirCasilla(String nombre){
+        Casilla c=new Casilla(nombre,1);
+        if(!casillas.contains(c)) return "No existe la casilla";
+        else {
+            Calculadora cal = new Calculadora();
+            return cal.valoresPropiedad(casillas.get(casillas.lastIndexOf(c)).getPropiedad());
+        }
     }
 
 }

@@ -23,7 +23,7 @@ public class Calculadora {
         return solar.getAlquiler();
     }
 
-    public String valorespropiedad(Propiedad solar){
+    public String valoresPropiedad(Propiedad solar){
         return """
                         Nombre:%s
                         propietario: %s

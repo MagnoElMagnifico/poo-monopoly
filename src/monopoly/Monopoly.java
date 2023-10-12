@@ -4,6 +4,7 @@ import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.Formatear.Estilo;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -145,7 +146,7 @@ public class Monopoly {
             // exec archivo: (debug) ejecuta los comandos almacenados en el archivo
 
             case "crear" -> cmdCrear(args);
-            case "describir" ->
+            case "describir" -> cmdDescribir(args);
             default -> Formatear.con("\"%s\": Comando no válido\n".formatted(args[0]), Color.Rojo);
         };
     }
@@ -176,5 +177,18 @@ public class Monopoly {
 
         tablero.anadirJugador(nombre, tipo);
         return "Jugador %s creado con éxito.\n".formatted(Formatear.con(nombre, Color.Verde));
+    }
+
+    /**
+     * Ejecuta el comando de decribir
+     * **/
+    private String cmdDescribir(String[] args){
+        if (args.length != 2) {
+            return Formatear.con("Se esperaban 2 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+        }
+
+        return tablero.describirCasilla(args[1]);
+
+
     }
 }
