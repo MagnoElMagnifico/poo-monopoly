@@ -17,10 +17,19 @@ import java.util.ArrayList;
  */
 public class Tablero {
     private final ArrayList<Jugador> jugadores;
-    private int turno;
-    private ArrayList<Casilla> casillas;
     private final Dado dado;
+    /**
+     * Casillas del tablero
+     */
+    private final ArrayList<Casilla> casillas;
+    private int turno;
+    /**
+     * True si la partida ha comenzado: ya no se pueden añadir más jugadores
+     */
     private boolean jugando;
+    /**
+     * True si ya se lanzaron dados en el turno actual: solo se puede lanzar una vez
+     */
     private boolean yaLanzoDados;
 
     /**
@@ -132,33 +141,33 @@ public class Tablero {
         actualCasilla.quitarAvatar(avatar);
 
         return """
-               %s con avatar %s, avanza %d posiciones.
-               Avanza desde %s hasta %s.
-               """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul),
-                             Formatear.con(Character.toString(avatar.getId()), Color.Azul),
-                             nCasillas,
-                             Formatear.casillaNombre(actualCasilla),
-                             Formatear.casillaNombre(nuevaCasilla));
-     }
+                %s con avatar %s, avanza %d posiciones.
+                Avanza desde %s hasta %s.
+                """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul),
+                Formatear.con(Character.toString(avatar.getId()), Color.Azul),
+                nCasillas,
+                Formatear.casillaNombre(actualCasilla),
+                Formatear.casillaNombre(nuevaCasilla));
+    }
 
-     /**
-      * Lanza 2 dados y mueve el jugador con el turno actual a la casilla que le toca
-      */
-     public String lanzarDados() {
-         return moverJugador(dado.lanzar2Dados());
-     }
+    /**
+     * Lanza 2 dados y mueve el jugador con el turno actual a la casilla que le toca
+     */
+    public String lanzarDados() {
+        return moverJugador(dado.lanzar2Dados());
+    }
 
-     /**
-      * Termina el turno del jugador actual y calcula el siguiente
-      */
-     public String acabarTurno() {
-         if (!jugando) {
-             return Formatear.con("No se ha iniciado la partida\n", Color.Rojo);
-         }
+    /**
+     * Termina el turno del jugador actual y calcula el siguiente
+     */
+    public String acabarTurno() {
+        if (!jugando) {
+            return Formatear.con("No se ha iniciado la partida\n", Color.Rojo);
+        }
 
-         yaLanzoDados = false;
-         turno = (turno + 1) % jugadores.size();
-         return """
+        yaLanzoDados = false;
+        turno = (turno + 1) % jugadores.size();
+        return """
                 Se ha cambiado el turno.
                 Ahora le toca a %s.
                 """.formatted(Formatear.con(getJugadorTurno().getNombre(), Formatear.Color.Azul));

@@ -21,6 +21,7 @@ public class Propiedad {
     private final Tipo tipo;
     private final int precioInicial;
     private Optional<Jugador> propietario;
+
     /**
      * Crea una propiedad
      *
@@ -66,6 +67,9 @@ public class Propiedad {
         this.propietario = Optional.of(propietario);
     }
 
+    /**
+     * Tipos de propiedades
+     */
     public enum Tipo {
         Solar, Servicio, Transporte
     }

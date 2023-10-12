@@ -27,6 +27,13 @@ import java.util.Scanner;
  * @see monopoly.Tablero
  */
 public class LectorCasillas {
+
+    /**
+     * Lee el archivo dada su dirección.
+     *
+     * @param path Dirección del achivo a leer.
+     * @return La lista de casillas contenida en el archivo
+     */
     public static ArrayList<Casilla> leerCasillas(String path) {
         File archivo = new File(path);
         Scanner scanner = null;
@@ -38,7 +45,9 @@ public class LectorCasillas {
             System.exit(1);
         }
 
-        ArrayList<Grupo> grupos = new ArrayList<>(8);
+        // Hay 8 grupos de solares, 1 de transporte,
+        // 1 de servicios, 1 de carta y 1 de casillas especiales.
+        ArrayList<Grupo> grupos = new ArrayList<>(12);
         ArrayList<Casilla> casillas = new ArrayList<>(40);
 
         for (int nLinea = 1; scanner.hasNextLine(); nLinea++) {
@@ -56,7 +65,7 @@ public class LectorCasillas {
                 // Declaración de un Grupo:
                 // Se quita la etiqueta del grupo, son 6 caracteres
                 String nombre = campos[0].substring(6);
-                int codigoColor =  Integer.parseInt(campos[1]);
+                int codigoColor = Integer.parseInt(campos[1]);
 
                 // El número de grupo es la posición en este Array
                 grupos.add(new Grupo(grupos.size(), nombre, codigoColor));

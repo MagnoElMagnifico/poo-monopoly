@@ -20,7 +20,7 @@ public class Casilla {
      */
     private final Propiedad propiedad;
     private final Grupo grupo;
-    private ArrayList<Avatar> avatares;
+    private final ArrayList<Avatar> avatares;
 
     /**
      * Construye una nueva casilla de tipo Propiedad
@@ -63,7 +63,6 @@ public class Casilla {
                 }""".formatted(nombre, propiedadStr, avatares);
     }
 
-    // TODO: esto se puede usar?
     @Override
     public boolean equals(Object obj) {
         return obj instanceof Casilla && ((Casilla) obj).getNombre().equals(this.nombre);

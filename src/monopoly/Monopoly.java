@@ -17,6 +17,9 @@ import java.util.Scanner;
  * @date 25-09-2023
  */
 public class Monopoly {
+    /**
+     * Resultado del comando de ayuda
+     */
     private static final String MSG_AYUDA = """
                 %s
                     ayuda, help                   Muestra esta información de ayuda.
@@ -67,9 +70,9 @@ public class Monopoly {
                       mismo que "lanzar dados".
                     - Lo que empiece por el caracter '#' se considerará un comentario, lo que se ignorará.
             """.formatted(Formatear.con("COMANDOS", Color.Rojo, Estilo.Negrita),
-                          Formatear.con("COMANDOS CON ARGUMENTOS", Color.Rojo, Estilo.Negrita),
-                          Formatear.con("COMANDOS DEBUG", Color.Rojo, Estilo.Negrita),
-                          Formatear.con("NOTAS", Color.Rojo, Estilo.Negrita));
+            Formatear.con("COMANDOS CON ARGUMENTOS", Color.Rojo, Estilo.Negrita),
+            Formatear.con("COMANDOS DEBUG", Color.Rojo, Estilo.Negrita),
+            Formatear.con("NOTAS", Color.Rojo, Estilo.Negrita));
 
     private final Scanner scanner;
     private final Tablero tablero;
@@ -79,16 +82,23 @@ public class Monopoly {
         tablero = new Tablero();
     }
 
+    /**
+     * Inicia la consola del juego del Monopoly.
+     * <p>
+     * En los parámetros de línea de comandos se espera
+     * un archivo de comandos para ejecutar. Si los parámetros
+     * no son correctos, el programa termina.
+     * <p>
+     * Muestra el Prompt ("$>") y permite al usuario escribir un comando.
+     */
     public void iniciarConsola(String[] args) {
         if (args.length > 1) {
             System.err.println("Demasiados parámetros. Se esperaba 0 o 1");
             System.exit(1);
         }
 
-        if (args.length == 1) {
-            System.out.println(ejecutarArchivo(args[0]));
-        }
-
+        // Se ejecuta el archivo y se inicia la consola
+        System.out.println(ejecutarArchivo(args[0]));
         iniciarConsola();
     }
 
@@ -141,7 +151,7 @@ public class Monopoly {
                     tablero.getJugadorTurno() == null ? Formatear.con("No hay jugadores\n", Color.Rojo) : tablero.getJugadorTurno().toString() + '\n';
             case "lanzar", "lanzar dados" -> tablero.lanzarDados();
             case "acabar turno", "fin", "end" -> tablero.acabarTurno();
-            //case "salir carcel" -> tablero.salirCarcel();
+            // TODO: case "salir carcel" -> tablero.salirCarcel();
 
             default -> this.cmdConArgumentos(cmdNorm);
         };
@@ -196,7 +206,7 @@ public class Monopoly {
         }
 
         // Como se pasa todo a minúsculas, los nombres quedan mal
-        // Con esto se pasa a mayúsculas la primera letra
+        // Con esto se pasa a mayúscula la primera letra
         String nombre = args[2].substring(0, 1).toUpperCase() + args[2].substring(1);
 
         Avatar.TipoAvatar tipo;
@@ -214,6 +224,7 @@ public class Monopoly {
     }
 
     private String ejecutarArchivo(String nombreArchivo) {
+        // Se abre el archivo a ejecutar
         File archivo = new File(nombreArchivo);
         Scanner scanner;
 
@@ -223,8 +234,10 @@ public class Monopoly {
             return Formatear.con("\"%s\": no se ha encontrado\n".formatted(nombreArchivo), Color.Rojo);
         }
 
+        // String para almacenar la salida del comando
         StringBuilder salida = new StringBuilder();
 
+        // Se procesa línea a línea, ejecutando cada comando
         while (scanner.hasNextLine()) {
             salida.append(procesarCmd(scanner.nextLine()));
         }
