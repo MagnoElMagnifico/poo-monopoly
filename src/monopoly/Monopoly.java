@@ -196,8 +196,9 @@ public class Monopoly {
             }
         }
 
-        tablero.anadirJugador(nombre, tipo);
-        return "Jugador %s creado con éxito.\n".formatted(Formatear.con(nombre, Color.Verde));
+        char avatar = tablero.anadirJugador(nombre, tipo);
+        return "El jugador %s con avatar %s se ha creado con éxito.\n"
+                .formatted(Formatear.con(nombre, Color.Verde), Formatear.con(Character.toString(avatar), Color.Verde));
     }
 
     private String ejecutarArchivo(String nombreArchivo) {

@@ -65,8 +65,10 @@ public class Tablero {
     /**
      * Añade un jugador dado su nombre y tipo de avatar
      */
-    public void anadirJugador(String nombre, Avatar.TipoAvatar tipo) {
-        jugadores.add(new Jugador(nombre, tipo, generarAvatarId(), casillas.get(0)));
+    public char anadirJugador(String nombre, Avatar.TipoAvatar tipo) {
+        char avatar = generarAvatarId();
+        jugadores.add(new Jugador(nombre, tipo, avatar, casillas.get(0)));
+        return avatar;
     }
 
     /**
@@ -84,10 +86,12 @@ public class Tablero {
             return Formatear.con("No hay jugadores\n", Color.Rojo);
         }
 
+        // TODO: tener en cuenta el tipo de avatar
+        // TODO: cobrar el alquiler y otras acciones de casilla
+
         Avatar avatar = getJugadorTurno().getAvatar();
         Casilla actualCasilla = avatar.getCasilla();
         int nActual = casillas.indexOf(actualCasilla);
-        // TODO: tener en cuenta el tipo de avatar
         Casilla nuevaCasilla = casillas.get((nActual + nCasillas) % casillas.size());
 
         avatar.setCasilla(nuevaCasilla);
@@ -95,31 +99,34 @@ public class Tablero {
         actualCasilla.quitarAvatar(avatar);
 
         return """
-               El jugador %s avanzó %d posiciones.
-               Ahora se encuentra en %s, %s.
+               %s con avatar %s, avanza %d posiciones.
+               Avanza desde %s, %s hasta %s, %s.
                """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul),
+                             Formatear.con(Character.toString(avatar.getId()), Color.Azul),
                              nCasillas,
-                             Formatear.con(nuevaCasilla.getNombre(), (byte) nuevaCasilla.getGrupo().getCodigoColor()),
-                             Formatear.con(nuevaCasilla.getGrupo().getNombre(), (byte) nuevaCasilla.getGrupo().getCodigoColor()));
-    }
+                             Formatear.con(actualCasilla.getNombre(),            (byte) actualCasilla.getGrupo().getCodigoColor()),
+                             Formatear.con(actualCasilla.getGrupo().getNombre(), (byte) actualCasilla.getGrupo().getCodigoColor()),
+                             Formatear.con(nuevaCasilla.getNombre(),             (byte) nuevaCasilla.getGrupo().getCodigoColor()),
+                             Formatear.con(nuevaCasilla.getGrupo().getNombre(),  (byte) nuevaCasilla.getGrupo().getCodigoColor()));
+     }
 
-    /**
-     * Lanza 2 dados y mueve el jugador con el turno actual a la casilla que le toca
-     */
-    public String lanzarDados() {
-        return moverJugador(dado.lanzar2Dados());
-    }
+     /**
+      * Lanza 2 dados y mueve el jugador con el turno actual a la casilla que le toca
+      */
+     public String lanzarDados() {
+         return moverJugador(dado.lanzar2Dados());
+     }
 
-    /**
-     * Termina el turno del jugador actual y calcula el siguiente
-     */
-    public String acabarTurno() {
-        if (jugadores.isEmpty()) {
-            return Formatear.con("No hay jugadores\n", Color.Rojo);
-        }
+     /**
+      * Termina el turno del jugador actual y calcula el siguiente
+      */
+     public String acabarTurno() {
+         if (jugadores.isEmpty()) {
+             return Formatear.con("No hay jugadores\n", Color.Rojo);
+         }
 
-        turno = (turno + 1) % jugadores.size();
-        return """
+         turno = (turno + 1) % jugadores.size();
+         return """
                 Se ha cambiado el turno.
                 Ahora le toca a %s.
                 """.formatted(Formatear.con(getJugadorTurno().getNombre(), Formatear.Color.Azul));
