@@ -67,7 +67,7 @@ public class Casilla {
     // TODO: esto se puede usar?
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Casilla && ((Casilla) obj).getNombre().equals(this.nombre);
+        return obj instanceof Casilla && ((Casilla) obj).getNombre().equalsIgnoreCase(this.nombre);
     }
 
     public String getNombre() {

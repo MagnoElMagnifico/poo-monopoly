@@ -183,12 +183,15 @@ public class Monopoly {
      * Ejecuta el comando de decribir
      * **/
     private String cmdDescribir(String[] args){
-        if (args.length != 2) {
-            return Formatear.con("Se esperaban 2 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+        if (args.length == 2) {
+            return tablero.describirCasilla(args[1]);
         }
-
-        return tablero.describirCasilla(args[1]);
-
+        if (args.length == 3){
+            if (args[1].equals("jugador")) return null;
+            if (args[1].equals("avatar")) return null;
+            else return Formatear.con("Argumento invalido, se recibio %s\n".formatted(args[1]),Color.Rojo);
+        }
+        else return Formatear.con("Se esperaban 2 o 3 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
 
     }
 }

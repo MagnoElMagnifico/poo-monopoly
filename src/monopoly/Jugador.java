@@ -12,7 +12,7 @@ import monopoly.Avatar.TipoAvatar;
 public class Jugador {
     private final String nombre;
     private final Avatar avatar;
-    private final int fortuna;
+    private int fortuna;
 
     /**
      * Crea un Jugador dado su nombre, tipo de avatar e id
@@ -52,4 +52,9 @@ public class Jugador {
     public int getFortuna() {
         return fortuna;
     }
+
+    public void setFortuna(int fortuna){
+        this.fortuna=fortuna;
+    }
 }
+

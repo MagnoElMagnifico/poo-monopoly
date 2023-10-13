@@ -6,24 +6,28 @@ import monopoly.Jugador;
 import monopoly.Propiedad;
 public class Calculadora {
     //Variables
-
+    private static Jugador banca;
 
 
     //Contructores
-
+    public Calculadora(Jugador banca) {
+        this.banca =banca;
+    }
 
     // Get y set
 
-
-
     // Otros metodos
 
-    public int pagarAlquiler(Propiedad solar){
-        //TODO: añadir propiedades cuando sean computables
-        return solar.getAlquiler();
-    }
 
-    public String valoresPropiedad(Propiedad solar){
+    public static String pagarAlquiler(Propiedad solar, Jugador jugador){
+        if(solar.getPropietario()==banca) return " ";
+        if(solar.getPropietario()==jugador) return " ";
+        else{
+            jugador.setFortuna(jugador.getFortuna()-solar.getAlquiler());
+            return "se han pagado %d de alquiler".formatted(solar.getAlquiler());
+        }
+    }
+    public static String valoresPropiedad(Propiedad solar){
         return """
                         Nombre:%s
                         propietario: %s

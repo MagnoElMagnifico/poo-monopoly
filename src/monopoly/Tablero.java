@@ -21,6 +21,7 @@ import java.util.Optional;
 public class Tablero {
     private final ArrayList<Jugador> jugadores;
     private Jugador banca;
+    private Calculadora calc;
     private int turno;
     private ArrayList<Casilla> casillas;
     private final Dado dado;
@@ -47,6 +48,8 @@ public class Tablero {
         banca=new Jugador();
 
         dado = new Dado();
+
+        calc =new Calculadora(banca);
     }
 
     /**
@@ -103,6 +106,7 @@ public class Tablero {
         avatar.setCasilla(nuevaCasilla);
         nuevaCasilla.anadirAvatar(avatar);
         actualCasilla.quitarAvatar(avatar);
+        Calculadora.pagarAlquiler(nuevaCasilla.getPropiedad(),jugadores.get(turno));
 
         return """
                El jugador %s avanzó %d posiciones.
@@ -177,10 +181,9 @@ public class Tablero {
 
     public String describirCasilla(String nombre){
         Casilla c=new Casilla(nombre,1);
-        if(!casillas.contains(c)) return "No existe la casilla";
+        if(!casillas.contains(c)) return "No existe la casilla\n";
         else {
-            Calculadora cal = new Calculadora();
-            return cal.valoresPropiedad(casillas.get(casillas.lastIndexOf(c)).getPropiedad());
+            return Calculadora.valoresPropiedad(casillas.get(casillas.lastIndexOf(c)).getPropiedad());
         }
     }
 
