@@ -78,8 +78,12 @@ public class Tablero {
     /**
      * Añade un jugador dado su nombre y tipo de avatar
      */
-    public void anadirJugador(String nombre, Avatar.TipoAvatar tipo) {
+    public String anadirJugador(String nombre, Avatar.TipoAvatar tipo) {
         jugadores.add(new Jugador(nombre, tipo, generarAvatarId(), casillas.get(0)));
+        return """
+                Jugador: %s
+                Avatar: %s
+                """.formatted(nombre,jugadores.get(jugadores.size()-1).getAvatar().getId());
     }
 
     /**
