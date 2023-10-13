@@ -23,7 +23,7 @@ public class PintorTablero {
     /**
      * Espacio dedicado para los avatares que ocupan la casilla
      */
-    private static final int TAM_AVATAR = 4;
+    private static final int TAM_AVATAR = 7;
     /**
      * Tamaño total de la celda
      */
