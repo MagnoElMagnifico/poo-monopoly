@@ -1,7 +1,7 @@
 package monopoly.utilidades;
 
-import monopoly.Avatar;
-import monopoly.Casilla;
+import monopoly.jugador.Avatar;
+import monopoly.casillas.Casilla;
 import monopoly.Tablero;
 import monopoly.utilidades.Formatear.Estilo;
 
@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * @author Marcos Granja Grille
  * @date 6-10-2023
  * @see monopoly.Tablero
- * @see monopoly.Casilla
+ * @see Casilla
  */
 public class PintorTablero {
     /**

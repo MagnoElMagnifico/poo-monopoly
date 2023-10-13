@@ -1,5 +1,6 @@
 package monopoly;
 
+import monopoly.jugador.Avatar;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.Formatear.Estilo;

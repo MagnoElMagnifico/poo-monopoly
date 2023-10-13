@@ -1,4 +1,6 @@
-package monopoly;
+package monopoly.casillas;
+
+import monopoly.casillas.Casilla;
 
 /**
  * Representa un grupo lógico de casillas.

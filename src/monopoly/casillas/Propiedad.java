@@ -1,4 +1,6 @@
-package monopoly;
+package monopoly.casillas;
+
+import monopoly.jugador.Jugador;
 
 import java.util.Optional;
 
@@ -13,8 +15,8 @@ import java.util.Optional;
  *
  * @author Marcos Granja Grille
  * @date 2-10-2023
- * @see monopoly.Casilla
- * @see monopoly.Jugador
+ * @see Casilla
+ * @see Jugador
  */
 public class Propiedad {
     private final Casilla casilla;

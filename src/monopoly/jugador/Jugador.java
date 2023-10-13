@@ -1,13 +1,14 @@
-package monopoly;
+package monopoly.jugador;
 
-import monopoly.Avatar.TipoAvatar;
+import monopoly.jugador.Avatar.TipoAvatar;
+import monopoly.casillas.Casilla;
 
 /**
  * Clase que representa un Jugador. Almacena su información sobre su fortuna y propiedades.
  * Además, tiene un Avatar asociado.
  *
  * @date 2-10-2023
- * @see monopoly.Avatar
+ * @see Avatar
  */
 public class Jugador {
     private final String nombre;

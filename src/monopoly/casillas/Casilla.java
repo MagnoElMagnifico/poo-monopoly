@@ -1,4 +1,6 @@
-package monopoly;
+package monopoly.casillas;
+
+import monopoly.jugador.Avatar;
 
 import java.util.ArrayList;
 
@@ -10,8 +12,8 @@ import java.util.ArrayList;
  *
  * <p> Además, sabe si hay un avatar sobre la casilla (útil para dibujar el tablero).
  *
- * @see monopoly.Propiedad
- * @see monopoly.Avatar
+ * @see Propiedad
+ * @see Avatar
  */
 public class Casilla {
     private final String nombre;

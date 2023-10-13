@@ -1,5 +1,8 @@
 package monopoly;
 
+import monopoly.casillas.Casilla;
+import monopoly.jugador.Avatar;
+import monopoly.jugador.Jugador;
 import monopoly.utilidades.Dado;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
@@ -12,8 +15,8 @@ import java.util.ArrayList;
  * Clase que representa el tablero del juego.
  * Contiene a los jugadores y a las casillas. Tira el dado y gestiona el turno actual.
  *
- * @see monopoly.Jugador
- * @see monopoly.Casilla
+ * @see Jugador
+ * @see Casilla
  */
 public class Tablero {
     private final ArrayList<Jugador> jugadores;

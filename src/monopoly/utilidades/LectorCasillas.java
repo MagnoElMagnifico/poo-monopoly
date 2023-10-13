@@ -1,8 +1,8 @@
 package monopoly.utilidades;
 
-import monopoly.Casilla;
-import monopoly.Grupo;
-import monopoly.Propiedad.Tipo;
+import monopoly.casillas.Casilla;
+import monopoly.casillas.Grupo;
+import monopoly.casillas.Propiedad.Tipo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,7 +23,7 @@ import java.util.Scanner;
  *
  * @author Marcos Granja Grille
  * @date 2-10-2023
- * @see monopoly.Casilla
+ * @see Casilla
  * @see monopoly.Tablero
  */
 public class LectorCasillas {

@@ -1,6 +1,6 @@
 package monopoly.utilidades;
 
-import monopoly.Casilla;
+import monopoly.casillas.Casilla;
 
 /**
  * Clase de ayuda para imprimir por Consola con colores y diferentes formatos.

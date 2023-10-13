@@ -1,4 +1,6 @@
-package monopoly;
+package monopoly.jugador;
+
+import monopoly.casillas.Casilla;
 
 /**
  * Clase que representa un Avatar. Esta es la parte del jugador que está en
@@ -6,7 +8,7 @@ package monopoly;
  *
  * @author Marcos Granja Grille
  * @date 2-10-2023
- * @see monopoly.Jugador
+ * @see Jugador
  */
 public class Avatar {
     private final TipoAvatar tipo;
