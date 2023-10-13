@@ -99,7 +99,10 @@ public class Monopoly {
         }
 
         // Se ejecuta el archivo y se inicia la consola
-        System.out.println(ejecutarArchivo(args[0]));
+        if (args.length == 1) {
+            System.out.println(ejecutarArchivo(args[0]));
+        }
+
         iniciarConsola();
     }
 
