@@ -59,7 +59,7 @@ public class PintorTablero {
             };
         }
 
-        dst.append(Formatear.con(Formatear.celda(c.getNombre(), TAM_TEXTO), (byte) c.getGrupo().codigoColor(), estilo));
+        dst.append(Formatear.con(Formatear.celda(c.getNombre(), TAM_TEXTO), (byte) c.getGrupo().getCodigoColor(), estilo));
 
         for (int i = 0; i < TAM_AVATAR; i++) {
             if (i < c.getAvatares().size()) {

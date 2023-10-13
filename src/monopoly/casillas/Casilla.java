@@ -63,7 +63,7 @@ public class Casilla {
                     grupo: %s
                     propiedad: %s
                     jugadores: %s
-                }""".formatted(nombre, grupo.nombre(), propiedadStr, avatares);
+                }""".formatted(nombre, grupo.getNombre(), propiedadStr, avatares);
     }
 
     @Override

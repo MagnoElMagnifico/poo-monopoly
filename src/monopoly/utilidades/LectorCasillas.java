@@ -79,11 +79,12 @@ public class LectorCasillas {
                     System.exit(1);
                 }
 
-                if (campos.length == 3) {
-                    casillas.add(new Casilla(grupos.get(nGrupo), campos[0], stringATipoPropiedad(campos[2])));
-                } else {
-                    casillas.add(new Casilla(grupos.get(nGrupo), campos[0]));
-                }
+                Casilla c = campos.length == 3?
+                        new Casilla(grupos.get(nGrupo), campos[0], stringATipoPropiedad(campos[2])) :
+                        new Casilla(grupos.get(nGrupo), campos[0]);
+
+                casillas.add(c);
+                grupos.get(nGrupo).anadirCasilla(c);
             }
         }
 
