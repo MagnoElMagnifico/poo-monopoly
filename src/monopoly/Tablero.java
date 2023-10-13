@@ -106,12 +106,12 @@ public class Tablero {
         avatar.setCasilla(nuevaCasilla);
         nuevaCasilla.anadirAvatar(avatar);
         actualCasilla.quitarAvatar(avatar);
-        Calculadora.pagarAlquiler(nuevaCasilla.getPropiedad(),jugadores.get(turno));
-
+        String s = calc.pagarAlquiler(nuevaCasilla.getPropiedad(), jugadores.get(turno));
         return """
                El jugador %s avanzó %d posiciones.
                Ahora se encuentra en %s.
-               """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul), nCasillas, Formatear.con(nuevaCasilla.getNombre(), Color.Cian));
+               %s
+               """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul), nCasillas, Formatear.con(nuevaCasilla.getNombre(), Color.Cian),Formatear.con(s,Color.Azul));
     }
 
     /**

@@ -19,7 +19,7 @@ public class Calculadora {
     // Otros metodos
 
 
-    public static String pagarAlquiler(Propiedad solar, Jugador jugador){
+    public String pagarAlquiler(Propiedad solar, Jugador jugador){
         if(solar.getPropietario()==banca) return " ";
         if(solar.getPropietario()==jugador) return " ";
         else{
