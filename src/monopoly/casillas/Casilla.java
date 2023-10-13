@@ -60,9 +60,10 @@ public class Casilla {
         return """
                 {
                     nombre: %s
+                    grupo: %s
                     propiedad: %s
                     jugadores: %s
-                }""".formatted(nombre, propiedadStr, avatares);
+                }""".formatted(nombre, grupo.nombre(), propiedadStr, avatares);
     }
 
     @Override
