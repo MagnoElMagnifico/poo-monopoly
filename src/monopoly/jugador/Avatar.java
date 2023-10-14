@@ -38,6 +38,11 @@ public class Avatar {
                 }""".formatted(id, tipo, casilla.getNombre(), jugador.getNombre());
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Avatar && ((Avatar) obj).getId() == this.id;
+    }
+
     public char getId() {
         return id;
     }
