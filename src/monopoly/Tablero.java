@@ -185,7 +185,7 @@ public class Tablero {
 
     public String describirCasilla(String nombre){
         Casilla c=new Casilla(nombre,1);
-        if(!casillas.contains(c)) return "No existe la casilla\n";
+        if(!casillas.contains(c)) return "No es una casilla\n";
         else {
             return Calculadora.valoresPropiedad(casillas.get(casillas.lastIndexOf(c)).getPropiedad());
         }
@@ -198,7 +198,15 @@ public class Tablero {
                 return jugador.toString();
             }
         }
-        return "No existe el avatar %s".formatted(Formatear.con(String.valueOf(id),Color.Rojo));
+        return "No existe el avatar %s\n".formatted(Formatear.con(String.valueOf(id),Color.Rojo));
+    }
+
+    public String describirJugador(String nombre){
+        Jugador j=new Jugador(nombre);
+        if(jugadores.contains(j)){
+            return jugadores.get(jugadores.indexOf(j)).toString();
+        }
+        else return "El jugador no existe ";
     }
 
 }

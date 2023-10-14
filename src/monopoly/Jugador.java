@@ -2,6 +2,8 @@ package monopoly;
 
 import monopoly.Avatar.TipoAvatar;
 
+import java.util.ArrayList;
+
 /**
  * Clase que representa un Jugador. Almacena su información sobre su fortuna y propiedades.
  * Además, tiene un Avatar asociado.
@@ -13,6 +15,7 @@ public class Jugador {
     private final String nombre;
     private final Avatar avatar;
     private int fortuna;
+
 
     /**
      * Crea un Jugador dado su nombre, tipo de avatar e id
@@ -31,6 +34,11 @@ public class Jugador {
         fortuna = 0;
     }
 
+    public Jugador(String nombre){
+        avatar=null;
+        this.nombre=nombre;
+        fortuna=0;
+    }
     @Override
     public String toString() {
         return """
@@ -39,6 +47,11 @@ public class Jugador {
                     avatar: %c
                     fortuna: %s
                 }""".formatted(nombre, avatar.getId(), fortuna);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Jugador && ((Jugador) obj).nombre.equalsIgnoreCase(this.nombre);
     }
 
     public String getNombre() {
@@ -56,5 +69,8 @@ public class Jugador {
     public void setFortuna(int fortuna){
         this.fortuna=fortuna;
     }
+
+
+
 }
 

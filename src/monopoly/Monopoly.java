@@ -187,7 +187,7 @@ public class Monopoly {
             return tablero.describirCasilla(args[1]);
         }
         if (args.length == 3){
-            if (args[1].equals("jugador")) return null;
+            if (args[1].equals("jugador")) return tablero.describirJugador(args[2]);
             if (args[1].equals("avatar")) return tablero.describirAvatar(args[2]);
             else return Formatear.con("Argumento invalido, se recibio %s\n".formatted(args[1]),Color.Rojo);
         }
