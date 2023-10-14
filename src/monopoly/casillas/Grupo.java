@@ -1,7 +1,5 @@
 package monopoly.casillas;
 
-import monopoly.casillas.Casilla;
-
 import java.util.ArrayList;
 
 /**
