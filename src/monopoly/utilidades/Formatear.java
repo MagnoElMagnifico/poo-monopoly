@@ -142,10 +142,10 @@ public class Formatear {
      */
     public static String casillaNombre(Casilla c) {
         if (!c.isPropiedad()) {
-            return Formatear.con(c.getNombre(), (byte) c.getGrupo().codigoColor());
+            return Formatear.con(c.getNombre(), (byte) c.getGrupo().getCodigoColor());
         }
 
-        return Formatear.con("%s, %s".formatted(c.getNombre(), c.getGrupo().nombre()), (byte) c.getGrupo().codigoColor());
+        return Formatear.con("%s, %s".formatted(c.getNombre(), c.getGrupo().getNombre()), (byte) c.getGrupo().getCodigoColor());
     }
 
     /**
