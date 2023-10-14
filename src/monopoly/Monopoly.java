@@ -144,7 +144,7 @@ public class Monopoly {
             // case "describir"
             // mover n: (debug) mueve el avatar un número de posiciones
             // exec archivo: (debug) ejecuta los comandos almacenados en el archivo
-
+            case "comprar" -> cmdComprar(args);
             case "crear" -> cmdCrear(args);
             case "describir" -> cmdDescribir(args);
             default -> Formatear.con("\"%s\": Comando no válido\n".formatted(args[0]), Color.Rojo);
@@ -193,5 +193,12 @@ public class Monopoly {
         }
         else return Formatear.con("Se esperaban 2 o 3 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
 
+    }
+
+    private String cmdComprar(String[] args){
+        if (args.length != 2){
+            return "Se esperaban 2 se recieberon %d\n".formatted((args.length),Color.Rojo);
+        }
+        return tablero.comprar(args[1]);
     }
 }
