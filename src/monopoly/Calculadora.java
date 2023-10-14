@@ -21,8 +21,16 @@ public class Calculadora {
     // Get y set
 
     // Otros metodos
+    public String comprar(Propiedad solar, Jugador jugador){
+        if(solar.getPrecio()< jugador.getFortuna()){
+            solar.setPropietario(jugador);
+            jugador.setFortuna(jugador.getFortuna()-solar.getPrecio());
+            jugador.getPropiedades().add(solar);
+            return "El jugador %s ha comprado la casillla %s por %d".formatted(jugador.getNombre(),solar.getCasilla().getNombre(),solar.getPrecio());
+        }
 
-
+        return "No tienes suficiente dinero";
+    }
     public String pagarAlquiler(Propiedad solar, Jugador jugador){
         if(solar.getPropietario()==banca) return " ";
         if(solar.getPropietario()==jugador) return " ";

@@ -212,15 +212,16 @@ public class Tablero {
     public String comprar(String nombre){
         Casilla c=new Casilla(nombre,1);
         if(!casillas.contains(c)) return "No Existe la casilla\n";
+        if(casillas.get(casillas.indexOf(c)).getPropiedad()==null) return "No es una propiedad\n";
         if(!casillas.get(casillas.indexOf(c)).getAvatares().isEmpty()){
             for(Avatar avatar : casillas.get(casillas.indexOf(c)).getAvatares()){
                 if (avatar == jugadores.get(turno).getAvatar()){
-                    return "Se puede compar";
+                    return calc.comprar(casillas.get(casillas.indexOf(c)).getPropiedad(),jugadores.get(turno));
                 }
             }
 
         }
-        return "No puedes comprar una propiedad en la que no estas";
+        return "No puedes comprar una propiedad en la que no estas\n";
     }
 
 }

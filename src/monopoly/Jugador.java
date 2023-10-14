@@ -15,6 +15,7 @@ public class Jugador {
     private final String nombre;
     private final Avatar avatar;
     private int fortuna;
+    private ArrayList<Propiedad> propiedades;
 
 
     /**
@@ -26,18 +27,21 @@ public class Jugador {
         this.nombre="Banca";
         this.avatar=null;
         this.fortuna=0;
+        this.propiedades=new ArrayList<Propiedad>(28);
 
     }
     public Jugador(String nombre, TipoAvatar tipo, char id, Casilla casillaInicial) {
         avatar = new Avatar(tipo, id, this, casillaInicial);
         this.nombre = nombre;
-        fortuna = 0;
+        fortuna = 200;
+        this.propiedades=new ArrayList<Propiedad>();
     }
 
     public Jugador(String nombre){
         avatar=null;
         this.nombre=nombre;
         fortuna=0;
+        this.propiedades=null;
     }
     @Override
     public String toString() {
@@ -46,7 +50,8 @@ public class Jugador {
                     nombre: %s
                     avatar: %c
                     fortuna: %s
-                }""".formatted(nombre, avatar.getId(), fortuna);
+                    Propiedades: %s
+                }""".formatted(nombre, avatar.getId(), fortuna,propiedades);
     }
 
     @Override
@@ -70,7 +75,9 @@ public class Jugador {
         this.fortuna=fortuna;
     }
 
-
+    public ArrayList<Propiedad> getPropiedades(){
+        return this.propiedades;
+    }
 
 }
 
