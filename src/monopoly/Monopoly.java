@@ -188,7 +188,7 @@ public class Monopoly {
         }
         if (args.length == 3){
             if (args[1].equals("jugador")) return null;
-            if (args[1].equals("avatar")) return null;
+            if (args[1].equals("avatar")) return tablero.describirAvatar(args[2]);
             else return Formatear.con("Argumento invalido, se recibio %s\n".formatted(args[1]),Color.Rojo);
         }
         else return Formatear.con("Se esperaban 2 o 3 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);

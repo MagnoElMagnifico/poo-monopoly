@@ -191,4 +191,14 @@ public class Tablero {
         }
     }
 
+    public String describirAvatar(String id){
+        Avatar a =new Avatar(id.charAt(0));
+        for(Jugador jugador : jugadores){
+            if(jugador.getAvatar().equals(a)){
+                return jugador.toString();
+            }
+        }
+        return "No existe el avatar %s".formatted(Formatear.con(String.valueOf(id),Color.Rojo));
+    }
+
 }

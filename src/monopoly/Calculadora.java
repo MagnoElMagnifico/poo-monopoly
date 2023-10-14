@@ -14,13 +14,17 @@ public class Calculadora {
         this.banca =banca;
     }
 
+    public Jugador getBanca() {
+        return banca;
+    }
+
     // Get y set
 
     // Otros metodos
 
 
     public String pagarAlquiler(Propiedad solar, Jugador jugador){
-        if(solar.getPropietario()==null) return " ";
+        if(solar.getPropietario()==banca) return " ";
         if(solar.getPropietario()==jugador) return " ";
         else{
             jugador.setFortuna(jugador.getFortuna()-solar.getAlquiler());
