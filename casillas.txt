@@ -38,7 +38,7 @@ Barcelona, 6, solar
 Impuestos, 0
 Madrid, 6, solar
 
-Párking, 0
+Parking, 0
 
 grupo: Francia, 27
 París, 7, solar
