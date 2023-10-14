@@ -46,8 +46,8 @@ public class LectorCasillas {
         }
 
         // Hay 8 grupos de solares, 1 de transporte,
-        // 1 de servicios, 1 de carta y 1 de casillas especiales.
-        ArrayList<Grupo> grupos = new ArrayList<>(12);
+        // 1 de servicios y 1 de casillas especiales.
+        ArrayList<Grupo> grupos = new ArrayList<>(11);
         ArrayList<Casilla> casillas = new ArrayList<>(40);
 
         for (int nLinea = 1; scanner.hasNextLine(); nLinea++) {
