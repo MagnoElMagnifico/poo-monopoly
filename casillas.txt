@@ -35,7 +35,7 @@ Suerte, 0
 
 grupo: España, 226
 Barcelona, 6, solar
-Impuestos, 0
+Impuesto1, 0
 Madrid, 6, solar
 
 Parking, 0
@@ -47,7 +47,7 @@ Suerte, 0
 Lyon, 7, solar
 
 Aeropuerto, 1, transporte
-Impuestos, 0
+Impuesto2, 0
 
 grupo: Alemania, 208
 Berlín, 8, solar

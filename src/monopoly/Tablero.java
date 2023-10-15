@@ -2,8 +2,8 @@ package monopoly;
 
 import monopoly.casillas.Casilla;
 import monopoly.casillas.Propiedad;
-import monopoly.jugador.Avatar;
-import monopoly.jugador.Jugador;
+import monopoly.jugadores.Avatar;
+import monopoly.jugadores.Jugador;
 import monopoly.utilidades.Dado;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
@@ -20,9 +20,9 @@ import java.util.ArrayList;
  * @see Casilla
  */
 public class Tablero {
-    // Objetos de ayuda
     private final Dado dado;
     private final Calculadora calculadora;
+    private final Jugador banca;
 
     private final ArrayList<Jugador> jugadores;
     /**
@@ -45,10 +45,12 @@ public class Tablero {
     public Tablero() {
         // Entre 2 y 6 jugadores
         jugadores = new ArrayList<>(6);
+        dado = new Dado();
         turno = 0;
         jugando = false;
         yaLanzoDados = false;
 
+        banca = new Jugador();
         // En lugar de añadir con código las casillas, se leen de
         // un archivo de configuración.
         //
@@ -56,14 +58,7 @@ public class Tablero {
         // dado que el usuario puede modificarlo sin reparos.
         casillas = LectorCasillas.leerCasillas("casillas.txt");
         // Creación de la calculadora
-        calculadora = new Calculadora(casillas);
-        // Ahora hay que asignar los precios a cada casilla
-        for (Casilla c : casillas) {
-            c.setPrecio(calculadora.calcularPrecio(c));
-        }
-
-        // TODO: Agregar el jugador de la banca
-        dado = new Dado();
+        calculadora = new Calculadora(casillas, banca);
     }
 
     public String iniciar() {
@@ -115,7 +110,7 @@ public class Tablero {
         }
 
         char avatar = generarAvatarId();
-        jugadores.add(new Jugador(nombre, tipo, avatar, casillas.get(0)));
+        jugadores.add(new Jugador(nombre, tipo, avatar, casillas.get(0), calculadora.calcularFortuna()));
 
         return "El jugador %s con avatar %s se ha creado con éxito.\n"
                 .formatted(Formatear.con(nombre, Color.Verde), Formatear.con(Character.toString(avatar), Color.Verde));
@@ -131,7 +126,7 @@ public class Tablero {
     /**
      * Mueve el jugador un determinado número de casillas
      */
-    public String moverJugador(int nCasillas) {
+    public String moverJugador(int n1, int n2) {
         if (!jugando) {
             return Formatear.con("No se ha iniciado la partida\n", Color.Rojo);
         }
@@ -148,7 +143,7 @@ public class Tablero {
         Avatar avatar = getJugadorTurno().getAvatar();
         Casilla actualCasilla = avatar.getCasilla();
         int nActual = casillas.indexOf(actualCasilla);
-        Casilla nuevaCasilla = casillas.get((nActual + nCasillas) % casillas.size());
+        Casilla nuevaCasilla = casillas.get((nActual + n1 + n2) % casillas.size());
 
         // Quitar el avatar de la casilla actual y añadirlo a la nueva
         avatar.setCasilla(nuevaCasilla);
@@ -160,20 +155,23 @@ public class Tablero {
                 Avanza desde %s hasta %s.
                 %s
                 """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul),
-                Formatear.con(Character.toString(avatar.getId()), Color.Azul),
-                nCasillas,
-                Formatear.casillaNombre(actualCasilla),
-                Formatear.casillaNombre(nuevaCasilla),
-                accionCasilla(actualCasilla));
+                              Formatear.con(Character.toString(avatar.getId()), Color.Azul),
+                              n1 + n2,
+                              Formatear.casillaNombre(actualCasilla),
+                              Formatear.casillaNombre(nuevaCasilla),
+                              accionCasilla(actualCasilla));
     }
 
     public String accionCasilla(Casilla casilla) {
+        // String s = calc.pagarAlquiler(nuevaCasilla.getPropiedad(), jugadores.get(turno));
+
         // Si es una propiedad y tiene dueño, se debe cobrar un alquiler
         if (casilla.isPropiedad() && casilla.getPropiedad().getPropietario() != null) {
             int cantidad = 10; // TODO: calcular cantidad
             getJugadorTurno().cobrar(cantidad);
             return "Se ha cobrado";
         }
+
         return "TODO";
     }
 
@@ -181,7 +179,7 @@ public class Tablero {
      * Lanza 2 dados y mueve el jugador con el turno actual a la casilla que le toca
      */
     public String lanzarDados() {
-        return moverJugador(dado.lanzar2Dados());
+        return moverJugador(dado.lanzar(), dado.lanzar());
     }
 
     /**
@@ -222,7 +220,7 @@ public class Tablero {
 
         for (Casilla casilla : casillas) {
             // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-            if (casilla.isPropiedad() && casilla.getPropiedad().getPropietario() == null) {
+            if (casilla.isPropiedad() && (casilla.getPropiedad().getPropietario() == null || casilla.getPropiedad().getPropietario() == banca)) {
                 enVenta.add(casilla.getPropiedad());
             }
         }
@@ -243,4 +241,56 @@ public class Tablero {
         return jugadores;
     }
 
+    public String describirCasilla(String nombre) {
+        Casilla c = new Casilla(null, nombre);
+
+        if(!casillas.contains(c)) {
+            return Formatear.con("No es una casilla\n", Color.Rojo);
+        }
+
+        return casillas.get(casillas.indexOf(c)).toString() + '\n';
+    }
+
+    public String describirJugador(String nombre) {
+        StringBuilder resultado = new StringBuilder();
+
+        for (Jugador j : jugadores) {
+            if (j.getNombre().equalsIgnoreCase(nombre)) {
+                resultado.append(j);
+            }
+        }
+
+        return resultado.isEmpty()?
+            Formatear.con("El jugador \"%s\" no existe\n".formatted(nombre), Color.Rojo) :
+            resultado.toString() + '\n';
+    }
+
+    public String describirAvatar(char id) {
+        for(Jugador jugador : jugadores){
+            Avatar a = jugador.getAvatar();
+            if(a.getId() == Character.toUpperCase(id)) {
+                return a.toString() + '\n';
+            }
+        }
+
+        return Formatear.con("No existe el avatar \"%s\"\n".formatted(id), Color.Rojo);
+    }
+
+    public String comprar(String nombre) {
+        Casilla c = new Casilla(null, nombre);
+        Jugador j = getJugadorTurno();
+
+        if(!j.getAvatar().getCasilla().equals(c)) {
+            return Formatear.con("No se puede comprar otra casilla que no sea la actual\n", Color.Rojo);
+        }
+
+        // Ahora nos referimos siempre a la casilla donde está el avatar
+        c = j.getAvatar().getCasilla();
+
+        if (!c.isPropiedad()) {
+            return Formatear.con("No se puede comprar la casilla \"%s\"\n".formatted(c.getNombre()), Color.Rojo);
+        }
+
+        return calculadora.comprar(c.getPropiedad(), j);
+    }
 }

@@ -1,6 +1,6 @@
 package monopoly.utilidades;
 
-import monopoly.jugador.Avatar;
+import monopoly.jugadores.Avatar;
 import monopoly.casillas.Casilla;
 import monopoly.Tablero;
 import monopoly.utilidades.Formatear.Estilo;

@@ -61,6 +61,11 @@ public class LectorCasillas {
             // Se quitan los espacios y se separa por las comas
             String[] campos = linea.strip().replaceAll(" +", "").split(",");
 
+            if (campos.length < 2) {
+                System.err.printf("[FATAL] Número de campos incorrecto en la línea %d\n", nLinea);
+                System.exit(1);
+            }
+
             if (campos[0].startsWith("grupo:")) {
                 // Declaración de un Grupo:
                 // Se quita la etiqueta del grupo, son 6 caracteres

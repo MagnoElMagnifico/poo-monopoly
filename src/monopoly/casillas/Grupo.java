@@ -67,7 +67,7 @@ public class Grupo {
     }
 
     public int getNumeroSolar() {
-        return numero < 4? 0 : numero - 4;
+        return numero < 4? 0 : numero - 3;
     }
 
     public String getNombre() {

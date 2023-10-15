@@ -1,6 +1,6 @@
 package monopoly.casillas;
 
-import monopoly.jugador.Avatar;
+import monopoly.jugadores.Avatar;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 
@@ -25,7 +25,14 @@ public class Casilla {
     private final Propiedad propiedad;
     private final Grupo grupo;
     private final ArrayList<Avatar> avatares;
-    private int precio;
+    /**
+     * Esta variable se usa para almacenar:
+     *     - el bote del Parking,
+     *     - la fianza de la Cárcel
+     *     - el dinero a pagar en los impuestos
+     * En otros casos, se almacena la información necesaria en propiedad.
+     */
+    private long dinero;
 
     /**
      * Construye una nueva casilla de tipo Propiedad
@@ -35,7 +42,7 @@ public class Casilla {
         this.propiedad = new Propiedad(this, tipoPropiedad);
         this.grupo = grupo;
         this.avatares = new ArrayList<>();
-        this.precio = -1; // Todavía no se le ha asignado un precio
+        this.dinero = -1; // Todavía no se le ha asignado un precio
     }
 
     /**
@@ -46,41 +53,41 @@ public class Casilla {
         this.propiedad = null;
         this.grupo = grupo;
         this.avatares = new ArrayList<>();
-        this.precio = -1; // Todavía no se le ha asignado un precio
+        this.dinero = -1; // Todavía no se le ha asignado un precio
     }
 
     // Comando describir
     @Override
     public String toString() {
         if (!isPropiedad()) {
-            return switch (grupo.getNombre()) {
+            return switch (nombre) {
                 case "Salida" -> """
                         %s: Casilla de inicio del juego.
                         Cada vez que un jugador pase por esta casilla recibirá %s.
-                        """.formatted(Formatear.casillaNombre(this), Formatear.num(precio));
+                        """.formatted(Formatear.casillaNombre(this), Formatear.num(dinero));
                 case "IrCárcel" -> """
                         %s: Si un jugador cae en esta casilla, se le enviará directamente
                         a la casilla Cárcel.
                         """.formatted(Formatear.casillaNombre(this));
                 case "Comunidad", "Suerte" -> """
-                        %s: Si un jugador cae en esta casilla, TODO
+                        %s
                         """.formatted(Formatear.casillaNombre(this));
-                case "Impuesto" -> """
+                case "Impuesto1", "Impuesto2" -> """
                         {
                             nombre: %s
                             importe: %s
-                        }""".formatted(Formatear.casillaNombre(this), Formatear.num(precio));
+                        }""".formatted(Formatear.casillaNombre(this), Formatear.num(dinero));
                 case "Parking" -> """
                         {
                             nombre: %s
                             bote: %s
-                        }""".formatted(Formatear.casillaNombre(this), Formatear.num(precio));
+                        }""".formatted(Formatear.casillaNombre(this), Formatear.num(dinero));
                 case "Cárcel" -> """
                         {
                             nombre: %s
                             fianza: %s
-                        }""".formatted(Formatear.casillaNombre(this), Formatear.num(precio));
-                default -> Formatear.con("ERROR: hay un nombre de grupo no soportado en el archivo de configuración de las casillas", Color.Rojo);
+                        }""".formatted(Formatear.casillaNombre(this), Formatear.num(dinero));
+                default -> Formatear.con("ERROR: hay un nombre de casilla especial no soportado en el archivo de configuración de las casillas", Color.Rojo);
             };
         }
 
@@ -89,7 +96,7 @@ public class Casilla {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Casilla && ((Casilla) obj).getNombre().equals(this.nombre);
+        return obj instanceof Casilla && ((Casilla) obj).getNombre().equalsIgnoreCase(this.nombre);
     }
 
     public String getNombre() {
@@ -112,13 +119,17 @@ public class Casilla {
         return avatares;
     }
 
-    public int getPrecio() {
-        return precio;
+    public long getPrecio() {
+        return dinero;
     }
 
-    public void setPrecio(int precio) {
+    public void setPrecio(long precio) {
+        if (isPropiedad()) {
+            propiedad.setPrecio(precio);
+        }
+
         if (precio > 0) {
-            this.precio = precio;
+            this.dinero = precio;
         }
         // TODO: lanzar un error en caso contrario
     }

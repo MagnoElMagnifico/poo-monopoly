@@ -1,4 +1,4 @@
-package monopoly.jugador;
+package monopoly.jugadores;
 
 import monopoly.casillas.Casilla;
 
@@ -25,6 +25,16 @@ public class Avatar {
         this.casilla = casillaInicial;
         casillaInicial.anadirAvatar(this);
         this.jugador = jugador;
+    }
+
+    /**
+     * Crear un avatar temporal dado su ID. Útil para el comando `describir`.
+     */
+    public Avatar(char id) {
+        this.tipo = null;
+        this.id = id;
+        this.casilla = null;
+        this.jugador = null;
     }
 
     @Override

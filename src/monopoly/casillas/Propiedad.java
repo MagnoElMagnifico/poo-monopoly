@@ -1,6 +1,8 @@
 package monopoly.casillas;
 
-import monopoly.jugador.Jugador;
+import monopoly.Calculadora;
+import monopoly.jugadores.Jugador;
+import monopoly.utilidades.Formatear;
 
 /**
  * Representa una casilla que se puede comprar por un jugador.
@@ -19,11 +21,9 @@ import monopoly.jugador.Jugador;
 public class Propiedad {
     private final Casilla casilla;
     private final Tipo tipo;
+    private long precio;
+    private long alquiler;
     private Jugador propietario;
-
-    // ???
-    private int precio;
-    private int alquiler;
 
     /**
      * Crea una propiedad
@@ -35,6 +35,8 @@ public class Propiedad {
         this.casilla = casilla;
         this.tipo = tipo;
         this.propietario = null;
+        this.precio = -1; // Marcar como todavía no establecido
+        this.alquiler = -1; // Marcar como todavía no establecido
     }
 
     // Para el comando listar enventa
@@ -42,30 +44,28 @@ public class Propiedad {
     public String toString() {
         // TODO?: obtener el resto de información con la calculadora
 
-        String grupoSolar = "";
-
         // Solo tiene sentido mostrar el nombre del grupo si es un solar
         // Mostrar también precio de las edificaciones
         if (tipo == Tipo.Solar) {
-            grupoSolar = "grupo: %s".formatted(casilla.getGrupo().getNombre())
             return """
                     {
                         nombre: %s
                         tipo: Solar
                         grupo: %s
-                        propietario: %s
-                        
-                        valor: %s
+                        precio: %s
                         alquiler: %s
-                    }""";
+                        propietario: %s
+                    }""".formatted(casilla.getNombre(), casilla.getGrupo().getNombre(), Formatear.num(precio), Formatear.num(alquiler), propietario == null ? "-" : propietario.getNombre());
         }
 
         return """
                 {
                     nombre: %s
                     tipo: %s
+                    precio: %s
+                    alquiler: %s
                     propietario: %s
-                %s%s}""".formatted(casilla.getNombre(), tipo, propietario.getNombre());
+                }""".formatted(casilla.getNombre(), tipo, Formatear.num(precio), Formatear.num(alquiler), propietario == null? "-" : propietario.getNombre());
     }
 
     @Override
@@ -79,6 +79,23 @@ public class Propiedad {
 
     public Tipo getTipo() {
         return tipo;
+    }
+
+    public long getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(long precio) {
+        if (precio > 0) {
+            this.precio = precio;
+            this.alquiler = Calculadora.calcularAlquiler(this);
+        }
+
+        // TODO: lanzar un error en caso contrario
+    }
+
+    public long getAlquiler() {
+        return alquiler;
     }
 
     public Jugador getPropietario() {
