@@ -4,6 +4,7 @@ import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.Formatear.Estilo;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -143,8 +144,9 @@ public class Monopoly {
             // case "describir"
             // mover n: (debug) mueve el avatar un número de posiciones
             // exec archivo: (debug) ejecuta los comandos almacenados en el archivo
-
+            case "comprar" -> cmdComprar(args);
             case "crear" -> cmdCrear(args);
+            case "describir" -> cmdDescribir(args);
             default -> Formatear.con("\"%s\": Comando no válido\n".formatted(args[0]), Color.Rojo);
         };
     }
@@ -173,7 +175,30 @@ public class Monopoly {
             }
         }
 
-        tablero.anadirJugador(nombre, tipo);
-        return "Jugador %s creado con éxito.\n".formatted(Formatear.con(nombre, Color.Verde));
+        String s =tablero.anadirJugador(nombre, tipo);
+        return "Jugador %s creado con éxito.\n%s".formatted(Formatear.con(nombre, Color.Verde),s);
+    }
+
+    /**
+     * Ejecuta el comando de decribir
+     * **/
+    private String cmdDescribir(String[] args){
+        if (args.length == 2) {
+            return tablero.describirCasilla(args[1]);
+        }
+        if (args.length == 3){
+            if (args[1].equals("jugador")) return tablero.describirJugador(args[2]);
+            if (args[1].equals("avatar")) return tablero.describirAvatar(args[2]);
+            else return Formatear.con("Argumento invalido, se recibio %s\n".formatted(args[1]),Color.Rojo);
+        }
+        else return Formatear.con("Se esperaban 2 o 3 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+
+    }
+
+    private String cmdComprar(String[] args){
+        if (args.length != 2){
+            return "Se esperaban 2 se recieberon %d\n".formatted((args.length),Color.Rojo);
+        }
+        return tablero.comprar(args[1]);
     }
 }

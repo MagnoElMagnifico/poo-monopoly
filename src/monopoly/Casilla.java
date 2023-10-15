@@ -1,7 +1,7 @@
 package monopoly;
 
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.Objects;
 
 /**
  * La clase Casilla representa una casilla del tablero, que pueden ser de dos tipos:
@@ -19,7 +19,7 @@ public class Casilla {
     /**
      * Si es una casilla especial, este campo está desactivado
      */
-    private final Optional<Propiedad> propiedad;
+    private final Propiedad propiedad;
     private final int codigoColor;
     private ArrayList<Avatar> avatares;
 
@@ -28,7 +28,7 @@ public class Casilla {
      */
     public Casilla(String nombre, Propiedad.Tipo tipoPropiedad, int precioInicial, int codigoColor) {
         this.nombre = nombre;
-        this.propiedad = Optional.of(new Propiedad(this, tipoPropiedad, precioInicial));
+        this.propiedad = new Propiedad(this, tipoPropiedad, precioInicial);
         this.codigoColor = codigoColor;
         this.avatares = new ArrayList<>();
     }
@@ -38,7 +38,7 @@ public class Casilla {
      */
     public Casilla(String nombre, int codigoColor) {
         this.nombre = nombre;
-        this.propiedad = Optional.empty();
+        this.propiedad = null;
         this.codigoColor = codigoColor;
         this.avatares = new ArrayList<>();
     }
@@ -46,14 +46,14 @@ public class Casilla {
     @Override
     public String toString() {
         String propiedadStr;
-        if (propiedad.isEmpty()) {
+        if (propiedad==null) {
             propiedadStr = "No";
         } else {
             propiedadStr = """
                     {
                             tipo: %s
                             precio inicial: %d
-                        }""".formatted(propiedad.get().getTipo(), propiedad.get().getPrecioInicial());
+                        }""".formatted(propiedad.getTipo(), propiedad.getPrecio());
         }
 
         return """
@@ -67,7 +67,7 @@ public class Casilla {
     // TODO: esto se puede usar?
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Casilla && ((Casilla) obj).getNombre().equals(this.nombre);
+        return obj instanceof Casilla && ((Casilla) obj).getNombre().equalsIgnoreCase(this.nombre);
     }
 
     public String getNombre() {
@@ -78,7 +78,7 @@ public class Casilla {
         return codigoColor;
     }
 
-    public Optional<Propiedad> getPropiedad() {
+    public Propiedad getPropiedad() {
         return propiedad;
     }
 
@@ -93,4 +93,12 @@ public class Casilla {
     public void quitarAvatar(Avatar avatar) {
         avatares.remove(avatar);
     }
+
+
+
+
+
+
+
+
 }

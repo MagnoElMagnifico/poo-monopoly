@@ -25,6 +25,12 @@ public class Avatar {
         this.jugador = jugador;
     }
 
+    public Avatar(char id){
+        this.tipo=null;
+        this.id=id;
+        this.jugador =null;
+        this.casilla=null;
+    }
     @Override
     public String toString() {
         return """
@@ -36,6 +42,10 @@ public class Avatar {
                 }""".formatted(id, tipo, casilla.getNombre(), jugador.getNombre());
     }
 
+    public boolean equals(Object obj) {
+        return obj instanceof Avatar && String.valueOf(((Avatar) obj).getId()).equalsIgnoreCase(String.valueOf(this.getId()));
+
+    }
     public char getId() {
         return id;
     }

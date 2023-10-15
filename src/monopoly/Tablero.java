@@ -5,6 +5,7 @@ import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.LectorCasillas;
 import monopoly.utilidades.PintorTablero;
+import monopoly.Calculadora;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ import java.util.Optional;
  */
 public class Tablero {
     private final ArrayList<Jugador> jugadores;
+    private Jugador banca;
+    private Calculadora calc;
     private int turno;
     private ArrayList<Casilla> casillas;
     private final Dado dado;
@@ -42,8 +45,11 @@ public class Tablero {
             System.exit(1);
         }
 
-        // TODO: Agregar el jugador de la banca
+        banca=new Jugador();
+
         dado = new Dado();
+
+        calc =new Calculadora(banca);
     }
 
     /**
@@ -72,8 +78,12 @@ public class Tablero {
     /**
      * Añade un jugador dado su nombre y tipo de avatar
      */
-    public void anadirJugador(String nombre, Avatar.TipoAvatar tipo) {
+    public String anadirJugador(String nombre, Avatar.TipoAvatar tipo) {
         jugadores.add(new Jugador(nombre, tipo, generarAvatarId(), casillas.get(0)));
+        return """
+                Jugador: %s
+                Avatar: %s
+                """.formatted(nombre,jugadores.get(jugadores.size()-1).getAvatar().getId());
     }
 
     /**
@@ -100,11 +110,12 @@ public class Tablero {
         avatar.setCasilla(nuevaCasilla);
         nuevaCasilla.anadirAvatar(avatar);
         actualCasilla.quitarAvatar(avatar);
-
+        String s = calc.pagarAlquiler(nuevaCasilla.getPropiedad(), jugadores.get(turno));
         return """
                El jugador %s avanzó %d posiciones.
                Ahora se encuentra en %s.
-               """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul), nCasillas, Formatear.con(nuevaCasilla.getNombre(), Color.Cian));
+               %s
+               """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul), nCasillas, Formatear.con(nuevaCasilla.getNombre(), Color.Cian),Formatear.con(s,Color.Azul));
     }
 
     /**
@@ -151,7 +162,7 @@ public class Tablero {
 
         for (Casilla casilla : casillas) {
             // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-            if (casilla.getPropiedad().isPresent() && casilla.getPropiedad().get().getPropietario().isEmpty()) {
+            if (casilla.getPropiedad().getPropietario()==banca) {
                 enVenta.add(casilla);
             }
         }
@@ -170,6 +181,47 @@ public class Tablero {
 
     public ArrayList<Jugador> getJugadores() {
         return jugadores;
+    }
+
+    public String describirCasilla(String nombre){
+        Casilla c=new Casilla(nombre,1);
+        if(!casillas.contains(c)) return "No es una casilla\n";
+        else {
+            return Calculadora.valoresPropiedad(casillas.get(casillas.lastIndexOf(c)).getPropiedad());
+        }
+    }
+
+    public String describirAvatar(String id){
+        Avatar a =new Avatar(id.charAt(0));
+        for(Jugador jugador : jugadores){
+            if(jugador.getAvatar().equals(a)){
+                return jugador.toString();
+            }
+        }
+        return "No existe el avatar %s\n".formatted(Formatear.con(String.valueOf(id),Color.Rojo));
+    }
+
+    public String describirJugador(String nombre){
+        Jugador j=new Jugador(nombre);
+        if(jugadores.contains(j)){
+            return jugadores.get(jugadores.indexOf(j)).toString();
+        }
+        else return "El jugador no existe ";
+    }
+
+    public String comprar(String nombre){
+        Casilla c=new Casilla(nombre,1);
+        if(!casillas.contains(c)) return "No Existe la casilla\n";
+        if(casillas.get(casillas.indexOf(c)).getPropiedad()==null) return "No es una propiedad\n";
+        if(!casillas.get(casillas.indexOf(c)).getAvatares().isEmpty()){
+            for(Avatar avatar : casillas.get(casillas.indexOf(c)).getAvatares()){
+                if (avatar == jugadores.get(turno).getAvatar()){
+                    return calc.comprar(casillas.get(casillas.indexOf(c)).getPropiedad(),jugadores.get(turno));
+                }
+            }
+
+        }
+        return "No puedes comprar una propiedad en la que no estas\n";
     }
 
 }

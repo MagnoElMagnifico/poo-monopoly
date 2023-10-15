@@ -19,8 +19,9 @@ import java.util.Optional;
 public class Propiedad {
     private final Casilla casilla;
     private final Tipo tipo;
-    private final int precioInicial;
-    private Optional<Jugador> propietario;
+    private int precio;
+    private int alquiler;
+    private Jugador propietario;
     /**
      * Crea una propiedad
      *
@@ -31,8 +32,9 @@ public class Propiedad {
     public Propiedad(Casilla casilla, Tipo tipo, int precioInicial) {
         this.casilla = casilla;
         this.tipo = tipo;
-        this.precioInicial = precioInicial;
-        this.propietario = Optional.empty();
+        this.precio = precioInicial;
+        this.alquiler= (int) (precio*0.1);
+        this.propietario = null;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class Propiedad {
                         tipo: %s
                         precio inicial: %d
                     }
-                """.formatted(casilla.getNombre(), tipo, precioInicial);
+                """.formatted(casilla.getNombre(), tipo, precio);
     }
 
     public Casilla getCasilla() {
@@ -54,16 +56,27 @@ public class Propiedad {
         return tipo;
     }
 
-    public int getPrecioInicial() {
-        return precioInicial;
+    public int getPrecio() {
+        return precio;
     }
 
-    public Optional<Jugador> getPropietario() {
+    public void setAlquiler(int alquiler) {
+        this.alquiler = alquiler;
+    }
+
+    public int getAlquiler() {
+        return alquiler;
+    }
+
+    public void serPrecio(int precio){
+        this.precio=precio;
+    }
+    public Jugador getPropietario() {
         return propietario;
     }
 
     public void setPropietario(Jugador propietario) {
-        this.propietario = Optional.of(propietario);
+        this.propietario = propietario;
     }
 
     public enum Tipo {
