@@ -1,7 +1,10 @@
-package monopoly.casillas;
+package monopoly;
 
 import java.util.ArrayList;
 
+import monopoly.casillas.Casilla;
+import monopoly.casillas.Grupo;
+import monopoly.casillas.Propiedad;
 import monopoly.casillas.Propiedad.Tipo;
 
 public class Calculadora {
@@ -26,6 +29,15 @@ public class Calculadora {
 
     public int calcularAbonoSalida() {
         return sumaSolares / nSolares;
+    }
+
+    public int calcularPrecio(Casilla c) {
+        if (c.isPropiedad()) {
+            return calcularPrecio(c.getPropiedad());
+        }
+
+        // TODO
+        return 0;
     }
 
     public int calcularPrecio(Propiedad p) {

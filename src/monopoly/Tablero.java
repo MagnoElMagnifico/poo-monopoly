@@ -1,6 +1,7 @@
 package monopoly;
 
 import monopoly.casillas.Casilla;
+import monopoly.casillas.Propiedad;
 import monopoly.jugador.Avatar;
 import monopoly.jugador.Jugador;
 import monopoly.utilidades.Dado;
@@ -19,8 +20,11 @@ import java.util.ArrayList;
  * @see Casilla
  */
 public class Tablero {
-    private final ArrayList<Jugador> jugadores;
+    // Objetos de ayuda
     private final Dado dado;
+    private final Calculadora calculadora;
+
+    private final ArrayList<Jugador> jugadores;
     /**
      * Casillas del tablero
      */
@@ -51,6 +55,12 @@ public class Tablero {
         // NOTA: Esto es potencialmente un problema de seguridad,
         // dado que el usuario puede modificarlo sin reparos.
         casillas = LectorCasillas.leerCasillas("casillas.txt");
+        // Creación de la calculadora
+        calculadora = new Calculadora(casillas);
+        // Ahora hay que asignar los precios a cada casilla
+        for (Casilla c : casillas) {
+            c.setPrecio(calculadora.calcularPrecio(c));
+        }
 
         // TODO: Agregar el jugador de la banca
         dado = new Dado();
@@ -134,11 +144,13 @@ public class Tablero {
         // TODO: tener en cuenta el tipo de avatar
         // TODO: cobrar el alquiler y otras acciones de casilla
 
+        // Calcular la casilla siguiente
         Avatar avatar = getJugadorTurno().getAvatar();
         Casilla actualCasilla = avatar.getCasilla();
         int nActual = casillas.indexOf(actualCasilla);
         Casilla nuevaCasilla = casillas.get((nActual + nCasillas) % casillas.size());
 
+        // Quitar el avatar de la casilla actual y añadirlo a la nueva
         avatar.setCasilla(nuevaCasilla);
         nuevaCasilla.anadirAvatar(avatar);
         actualCasilla.quitarAvatar(avatar);
@@ -146,11 +158,23 @@ public class Tablero {
         return """
                 %s con avatar %s, avanza %d posiciones.
                 Avanza desde %s hasta %s.
+                %s
                 """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul),
                 Formatear.con(Character.toString(avatar.getId()), Color.Azul),
                 nCasillas,
                 Formatear.casillaNombre(actualCasilla),
-                Formatear.casillaNombre(nuevaCasilla));
+                Formatear.casillaNombre(nuevaCasilla),
+                accionCasilla(actualCasilla));
+    }
+
+    public String accionCasilla(Casilla casilla) {
+        // Si es una propiedad y tiene dueño, se debe cobrar un alquiler
+        if (casilla.isPropiedad() && casilla.getPropiedad().getPropietario() != null) {
+            int cantidad = 10; // TODO: calcular cantidad
+            getJugadorTurno().cobrar(cantidad);
+            return "Se ha cobrado";
+        }
+        return "TODO";
     }
 
     /**
@@ -193,13 +217,13 @@ public class Tablero {
     /**
      * Obtiene las casillas que actualmente están en venta
      */
-    public ArrayList<Casilla> getEnVenta() {
-        ArrayList<Casilla> enVenta = new ArrayList<>(casillas.size());
+    public ArrayList<Propiedad> getEnVenta() {
+        ArrayList<Propiedad> enVenta = new ArrayList<>(casillas.size());
 
         for (Casilla casilla : casillas) {
             // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-            if (casilla.isPropiedad() && casilla.getPropiedad().getPropietario().isEmpty()) {
-                enVenta.add(casilla);
+            if (casilla.isPropiedad() && casilla.getPropiedad().getPropietario() == null) {
+                enVenta.add(casilla.getPropiedad());
             }
         }
 

@@ -2,8 +2,6 @@ package monopoly.casillas;
 
 import monopoly.jugador.Jugador;
 
-import java.util.Optional;
-
 /**
  * Representa una casilla que se puede comprar por un jugador.
  * <p>
@@ -21,32 +19,58 @@ import java.util.Optional;
 public class Propiedad {
     private final Casilla casilla;
     private final Tipo tipo;
-    private final int precioInicial;
-    private Optional<Jugador> propietario;
+    private Jugador propietario;
+
+    // ???
+    private int precio;
+    private int alquiler;
 
     /**
      * Crea una propiedad
      *
      * @param casilla       Casilla a la que está asociada
      * @param tipo          Tipo de casilla: Solar, Servicio o Transporte
-     * @param precioInicial Precio inicial de la propiedad
      */
-    public Propiedad(Casilla casilla, Tipo tipo, int precioInicial) {
+    public Propiedad(Casilla casilla, Tipo tipo) {
         this.casilla = casilla;
         this.tipo = tipo;
-        this.precioInicial = precioInicial;
-        this.propietario = Optional.empty();
+        this.propietario = null;
+    }
+
+    // Para el comando listar enventa
+    @Override
+    public String toString() {
+        // TODO?: obtener el resto de información con la calculadora
+
+        String grupoSolar = "";
+
+        // Solo tiene sentido mostrar el nombre del grupo si es un solar
+        // Mostrar también precio de las edificaciones
+        if (tipo == Tipo.Solar) {
+            grupoSolar = "grupo: %s".formatted(casilla.getGrupo().getNombre())
+            return """
+                    {
+                        nombre: %s
+                        tipo: Solar
+                        grupo: %s
+                        propietario: %s
+                        
+                        valor: %s
+                        alquiler: %s
+                    }""";
+        }
+
+        return """
+                {
+                    nombre: %s
+                    tipo: %s
+                    propietario: %s
+                %s%s}""".formatted(casilla.getNombre(), tipo, propietario.getNombre());
     }
 
     @Override
-    public String toString() {
-        return """
-                    {
-                        nombre: %s
-                        tipo: %s
-                        precio inicial: %d
-                    }
-                """.formatted(casilla.getNombre(), tipo, precioInicial);
+    public boolean equals(Object obj) {
+        return obj instanceof Propiedad && ((Propiedad) obj).getCasilla() == this.casilla;
     }
 
     public Casilla getCasilla() {
@@ -57,22 +81,18 @@ public class Propiedad {
         return tipo;
     }
 
-    public int getPrecioInicial() {
-        return precioInicial;
-    }
-
-    public Optional<Jugador> getPropietario() {
+    public Jugador getPropietario() {
         return propietario;
     }
 
     public void setPropietario(Jugador propietario) {
-        this.propietario = Optional.of(propietario);
+        this.propietario = propietario;
     }
 
     /**
      * Tipos de propiedades
      */
     public enum Tipo {
-        Solar, Servicio, Transporte
+        Transporte, Servicio, Solar
     }
 }
