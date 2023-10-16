@@ -19,3 +19,8 @@ comprar miskolc
 end
 mover 6 6
 mover 1 2
+comprar Madrid
+end
+mover 1 1
+mover 3 3
+comprar Puerto
