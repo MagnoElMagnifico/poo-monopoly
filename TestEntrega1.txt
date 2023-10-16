@@ -68,3 +68,4 @@ mover 1 2
 comprar Basilea
 end
 mover 2 3
+comprar NaveEspacial
