@@ -1,46 +1,72 @@
-# Archivo de configuración de las casillas del tablero
-# Formato:
-#     nombre, tipo, precio, códigoColor,
-#     nombre, códigoColor,
-#     ...
+# Las casillas de transporte conectan dos grupos en el mismo lado
+# Salida, Cárcel, Párking, IrCárcel están en las esquinas
 
-Casilla1, solar, 1, 10
-Casilla2, solar, 1, 200
-Casilla3, solar, 1, 10
-Casilla4, solar, 1, 10
-Casilla5, solar, 1, 10
-Casilla6, solar, 1, 10
-Casilla7, solar, 1, 10
-Casilla8, solar, 1, 10
-Casilla9, solar, 1, 10
-Casilla10, solar, 1, 10
-Casilla11, solar, 1, 10
-Casilla12, solar, 1, 10
-Casilla13, solar, 1, 10
-Casilla14, solar, 1, 10
-Casilla15, solar, 1, 10
-Casilla16, solar, 1, 10
-Casilla17, solar, 1, 10
-Casilla18, solar, 1, 10
-Casilla19, solar, 1, 10
-Casilla20, solar, 1, 10
-Casilla21, solar, 1, 10
-Casilla22, solar, 1, 10
-Casilla23, solar, 1, 10
-Casilla24, solar, 1, 10
-Casilla25, solar, 1, 10
-Casilla26, solar, 1, 10
-Casilla27, solar, 1, 10
-Casilla28, solar, 1, 10
-Casilla29, solar, 1, 10
-Casilla30, solar, 1, 10
-Casilla31, solar, 1, 10
-Casilla32, solar, 1, 10
-Casilla33, solar, 1, 10
-Casilla34, solar, 1, 10
-Casilla35, solar, 1, 10
-Casilla36, solar, 1, 10
-Casilla37, solar, 1, 10
-Casilla38, solar, 1, 10
-Casilla39, solar, 1, 10
-Casilla40, solar, 1, 10
+# Las casillas especiales tienen número 0
+grupo: Especial, 231
+grupo: Transporte, 50
+grupo: Servicio, 46
+
+Salida, 0
+
+grupo: Polonia, 200
+Varsovia, 3, solar
+Telecomunicaciones, 2, servicio
+Lodz, 3, solar
+Cracovia, 3, solar
+
+Tren, 1, transporte
+
+grupo: Hungría, 57
+Budapest, 4, solar
+Suerte, 0
+Debrecen, 4, solar
+Miskolc, 4, solar
+
+IrCárcel, 0
+
+grupo: Italia, 48
+Florencia, 5, solar
+Roma, 5, solar
+Comunidad, 0
+Nápoles, 5, solar
+
+Puerto, 1, transporte
+Suerte, 0
+
+grupo: España, 226
+Barcelona, 6, solar
+Impuesto1, 0
+Madrid, 6, solar
+
+Parking, 0
+
+grupo: Francia, 27
+París, 7, solar
+Marsella, 7, solar
+Suerte, 0
+Lyon, 7, solar
+
+Aeropuerto, 1, transporte
+Impuesto2, 0
+
+grupo: Alemania, 208
+Berlín, 8, solar
+Comunidad, 0
+Hamburgo, 8, solar
+
+Cárcel, 0
+
+grupo: Noruega, 11
+Oslo, 9, solar
+Bergen, 9, solar
+Electricidad, 2, servicio
+Stavanger, 9, solar
+
+# Andøya Rocket Range (Noruega)
+Nave Espacial, 1, transporte
+
+grupo: Suiza, 1
+Zurich, 10, solar
+Comunidad, 0
+Ginebra, 10, solar
+Basilea, 10, solar

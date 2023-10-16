@@ -10,39 +10,49 @@ import java.util.Random;
  * @date 25-09-2023
  */
 public class Dado {
-    private final Random rand;
+    private final int dado1;
+    private final int dado2;
 
     /**
-     * Crea un nuevo Dado.
+     * Crea un nuevo Dado aleatorio.
      */
     public Dado() {
-        rand = new Random();
+        Random rand = new Random();
+        dado1 = rand.nextInt(6) + 1;
+        dado2 = rand.nextInt(6) + 1;
     }
 
     /**
-     * Lanza un dado y devuelve el resultado.
-     *
-     * @return Número aleatorio del 1 al 6 (ambos incluidos).
+     * Crea un nuevo dado trucado con los valores dados.
      */
-    public int lanzar() {
-        return rand.nextInt(6) + 1;
+    public Dado(int v1, int v2) {
+        dado1 = v1;
+        dado2 = v2;
     }
 
-    /**
-     * Lanza dos dados y devuelve el resultado.
-     * <p>
-     * Equivalente a <code>Dado.lanzar() + Dado.lanzar()</code>.
-     *
-     * @return Número aleatorio del 2 al 12 (ambos includidos).
-     */
-    public int lanzar2Dados() {
-        return this.lanzar() + this.lanzar();
+    @Override
+    public String toString() {
+        return "(%d: %d, %d)".formatted(dado1 + dado2, dado1, dado2);
     }
 
-    /**
-     * Genera una letra mayúscula aleatoria. Útil para generar un ID para un avatar.
-     */
-    public char letraAleatoria() {
-        return (char) (rand.nextInt((int) 'Z' - (int) 'A' + 1) + (int) 'A');
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Dado && ((Dado) obj).dado1 == dado1 && ((Dado) obj).dado2 == dado2;
+    }
+
+    public int getDado1() {
+        return dado1;
+    }
+
+    public int getDado2() {
+        return dado2;
+    }
+
+    public int getValor() {
+        return dado1 + dado2;
+    }
+
+    public boolean isDoble() {
+        return dado1 == dado2;
     }
 }

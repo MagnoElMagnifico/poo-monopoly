@@ -1,5 +1,7 @@
 package monopoly.utilidades;
 
+import monopoly.casillas.Casilla;
+
 /**
  * Clase de ayuda para imprimir por Consola con colores y diferentes formatos.
  *
@@ -28,8 +30,10 @@ public class Formatear {
 
         StringBuilder codigo = new StringBuilder();
 
+        // Los códigos se separan con ';'
         for (int i = 0; i < estilos.length - 1; i++) {
             codigo.append(estilos[i].ordinal());
+            codigo.append(';');
         }
 
         codigo.append(estilos[estilos.length - 1].ordinal());
@@ -88,7 +92,7 @@ public class Formatear {
         String resultado = numStr.substring(numStr.length() - 3);
 
         for (int i = numStr.length() - 3; i > 0; i -= 3) {
-            // Y se sigue tomando grupos de 3 en 3
+            // Y se sigue tomando grupos de 3 en 3.
             // Salvo cuando se llega al principio, que se recoge lo que quede
             String grupo = numStr.substring(Math.max(0, i - 3), i);
             // Se añade al resultado con un espacio
@@ -124,6 +128,24 @@ public class Formatear {
             return " %s. ".formatted(msg.substring(0, tam - 3));
         }
         return " %s%s".formatted(msg, " ".repeat(tam - msg.length() - 1));
+    }
+
+    /**
+     * Formatea el nombre de una casilla.
+     * <p>
+     * Incluye el nombre de la misma, el nombre del grupo
+     * si no es una casilla especial; y se le aplican los
+     * colores de su grupo.
+     *
+     * @param c Casilla de la que formatear su nombre
+     * @return El nombre de la casilla formateada.
+     */
+    public static String casillaNombre(Casilla c) {
+        if (!c.isPropiedad()) {
+            return Formatear.con(c.getNombre(), (byte) c.getGrupo().getCodigoColor());
+        }
+
+        return Formatear.con("%s, %s".formatted(c.getNombre(), c.getGrupo().getNombre()), (byte) c.getGrupo().getCodigoColor());
     }
 
     /**
