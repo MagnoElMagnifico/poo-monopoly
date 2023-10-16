@@ -89,6 +89,12 @@ public class Monopoly {
         tablero = new Tablero();
     }
 
+    public Monopoly(String[] args) {
+        scanner = new Scanner(System.in);
+        tablero = new Tablero();
+        iniciarConsola(args);
+    }
+
     /**
      * Inicia la consola del juego del Monopoly.
      * <p>
