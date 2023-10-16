@@ -149,7 +149,7 @@ public class Tablero {
             if (dado.isDoble()) {
                 accionAdicional += "Dados dobles! El jugador puede salir de %s\n".formatted(Formatear.casillaNombre(actualCasilla));
                 avatar.salirCarcel();
-            } else if (avatar.getEstanciasCarcel() > 3) {
+            } else if (avatar.getEstanciasCarcel() >= 3) {
                 return """
                         %s con avatar %s no ha sacado dados dobles %s.
                         Ahora debe pagar obligatoriamente la fianza.
@@ -247,6 +247,7 @@ public class Tablero {
         avatar.getCasilla().quitarAvatar(avatar);
         avatar.setCasilla(nuevaCasilla);
         nuevaCasilla.anadirAvatar(avatar);
+        nLanzamientos=0;
 
         return "El avatar se coloca en la Cárcel\n";
     }
