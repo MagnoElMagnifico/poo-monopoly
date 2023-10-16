@@ -15,6 +15,8 @@ public class Avatar {
     private final char id;
     private final Jugador jugador;
     private Casilla casilla;
+    private int estanciasCarcel;
+    private boolean estarEncerrado;
 
     /**
      * Crea un avatar dado su tipo, id y el jugador al que hace referencia
@@ -25,6 +27,8 @@ public class Avatar {
         this.casilla = casillaInicial;
         casillaInicial.anadirAvatar(this);
         this.jugador = jugador;
+        this.estanciasCarcel = 0;
+        this.estarEncerrado = false;
     }
 
     /**
@@ -35,6 +39,8 @@ public class Avatar {
         this.id = id;
         this.casilla = null;
         this.jugador = null;
+        this.estanciasCarcel = 0;
+        this.estarEncerrado = false;
     }
 
     @Override
@@ -71,6 +77,31 @@ public class Avatar {
 
     public Jugador getJugador() {
         return jugador;
+    }
+
+    public void irCarcel() {
+        estarEncerrado = true;
+        estanciasCarcel = 0;
+    }
+
+    public int getEstanciasCarcel() {
+        return estanciasCarcel;
+    }
+
+    public void seguirEnCarcel() {
+        if (estarEncerrado) {
+            estanciasCarcel++;
+        }
+        // TODO: Error, no se puede seguir en la Cárcel si no estabas dentro inicialmente
+    }
+
+    public void salirCarcel() {
+        estanciasCarcel = 0;
+        estarEncerrado = false;
+    }
+
+    public boolean isEstarEncerrado() {
+        return estarEncerrado;
     }
 
     /**

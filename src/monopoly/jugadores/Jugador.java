@@ -19,6 +19,7 @@ public class Jugador {
     private final String nombre;
     private final Avatar avatar;
     private long fortuna;
+    private long gastos;
     private ArrayList<Propiedad> propiedades;
 
     /**
@@ -28,6 +29,7 @@ public class Jugador {
         this.nombre = "Banca";
         this.avatar = null;
         this.fortuna = 0;
+        this.gastos = 0;
         this.propiedades = new ArrayList<>(28);
     }
 
@@ -38,18 +40,16 @@ public class Jugador {
         this.avatar = new Avatar(tipo, id, this, casillaInicial);
         this.nombre = nombre;
         this.fortuna = fortuna;
+        this.gastos = 0;
         this.propiedades = new ArrayList<>();
     }
 
-    @Override
-    public String toString() {
-        if (avatar == null) {
-            return "Jugador Especial: Banca\n";
-        }
-
+    private String listaPropiedades() {
         StringBuilder propiedadesStr = new StringBuilder();
+
         propiedadesStr.append('[');
         Iterator<Propiedad> iter = propiedades.iterator();
+
         while (iter.hasNext()) {
             Casilla c = iter.next().getCasilla();
             propiedadesStr.append(Formatear.con(c.getNombre(), (byte) c.getGrupo().getCodigoColor()));
@@ -58,17 +58,38 @@ public class Jugador {
                 propiedadesStr.append(", ");
             }
         }
+
         propiedadesStr.append(']');
+
+        return propiedadesStr.toString();
+    }
+
+    @Override
+    public String toString() {
+        if (avatar == null) {
+            return "Jugador Especial: Banca\n";
+        }
 
         return """
                 {
                     nombre: %s
                     avatar: %c
                     fortuna: %s
+                    gastos: %s
                     propiedades: %s
-                }""".formatted(nombre, avatar.getId(), Formatear.num(fortuna), propiedadesStr);
+                }""".formatted(nombre, avatar.getId(), Formatear.num(fortuna), Formatear.num(gastos), listaPropiedades());
         // TODO: hipotecas
         // TODO: edificios
+    }
+
+    public String describirTransaccion() {
+        return """
+                {
+                    fortuna: %s
+                    gastos: %s
+                    propiedades: %s
+                }
+                """.formatted(Formatear.num(fortuna), Formatear.num(gastos), listaPropiedades());
     }
 
     @Override
@@ -82,6 +103,7 @@ public class Jugador {
     public void cobrar(long cantidad) {
         if (cantidad > 0 && cantidad >= fortuna) {
             fortuna -= cantidad;
+            gastos += cantidad;
         }
         // TODO: lanzar error de lo contrario
         // TODO: lanzar error en caso de que no tenga suficientes fondos
@@ -107,6 +129,10 @@ public class Jugador {
 
     public long getFortuna() {
         return fortuna;
+    }
+
+    public long getGastos() {
+        return gastos;
     }
 
     public ArrayList<Propiedad> getPropiedades() {

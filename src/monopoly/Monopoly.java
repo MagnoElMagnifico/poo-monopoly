@@ -1,6 +1,7 @@
 package monopoly;
 
 import monopoly.jugadores.Avatar;
+import monopoly.utilidades.Dado;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 import monopoly.utilidades.Formatear.Estilo;
@@ -29,6 +30,7 @@ public class Monopoly {
                     jugador, turno, player        Muestra el jugador al que le toca jugar.
                     lanzar, lanzar dados          El jugador actual lanza 2 dados y mueve su avatar.
                     acabar turno, fin, end        Termina el turno del jugador actual.
+                    salir carcel                  Saca el jugador actual de la cárcel pagando la fianza.
                     salir, quit                   Cierra el programa.
 
                 %s
@@ -87,12 +89,6 @@ public class Monopoly {
     public Monopoly() {
         scanner = new Scanner(System.in);
         tablero = new Tablero();
-    }
-
-    public Monopoly(String[] args) {
-        scanner = new Scanner(System.in);
-        tablero = new Tablero();
-        iniciarConsola(args);
     }
 
     /**
@@ -190,9 +186,9 @@ public class Monopoly {
             // Acciones de jugadores
             case "jugador", "turno", "player" ->
                     tablero.getJugadorTurno() == null ? Formatear.con("No hay jugadores\n", Color.Rojo) : tablero.getJugadorTurno().toString() + '\n';
-            case "lanzar", "lanzar dados" -> tablero.lanzarDados();
-            case "acabar turno", "fin", "end" -> tablero.acabarTurno();
-            // TODO: case "salir carcel" -> tablero.salirCarcel();
+            case "lanzar", "lanzar dados" -> tablero.moverJugador(new Dado()) + tablero;
+            case "acabar turno", "fin", "end" -> tablero.acabarTurno() + tablero.getJugadorTurno().describirTransaccion() + tablero;
+            case "salir carcel" -> tablero.salirCarcel() + tablero.getJugadorTurno().describirTransaccion() + tablero;
 
             default -> this.cmdConArgumentos(cmdNorm);
         };
@@ -208,7 +204,7 @@ public class Monopoly {
         String[] args = cmd.split(" ");
         return switch (args[0]) {
             case "crear" -> cmdCrear(args);
-            case "comprar" -> cmdComprar(args);
+            case "comprar" -> cmdComprar(args) + tablero.getJugadorTurno().describirTransaccion();
             case "describir" -> cmdDescribir(args);
             case "mover" -> cmdMover(args);
             case "exec" -> cmdExec(args);
@@ -281,7 +277,7 @@ public class Monopoly {
      */
     private String cmdMover(String[] args) {
         if (args.length == 3) {
-            return tablero.moverJugador(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+            return tablero.moverJugador(new Dado(Integer.parseInt(args[1]), Integer.parseInt(args[2])));
         }
 
         return Formatear.con("Se esperaban 2 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);

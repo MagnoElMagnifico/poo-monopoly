@@ -11,6 +11,7 @@ import monopoly.utilidades.LectorCasillas;
 import monopoly.utilidades.PintorTablero;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Clase que representa el tablero del juego.
@@ -20,9 +21,10 @@ import java.util.ArrayList;
  * @see Casilla
  */
 public class Tablero {
-    private final Dado dado;
     private final Calculadora calculadora;
     private final Jugador banca;
+    private int nLanzamientos;
+    private int nDoblesSeguidos;
 
     private final ArrayList<Jugador> jugadores;
     /**
@@ -34,10 +36,6 @@ public class Tablero {
      * True si la partida ha comenzado: ya no se pueden añadir más jugadores
      */
     private boolean jugando;
-    /**
-     * True si ya se lanzaron dados en el turno actual: solo se puede lanzar una vez
-     */
-    private boolean yaLanzoDados;
 
     /**
      * Crea un tablero por defecto
@@ -45,10 +43,10 @@ public class Tablero {
     public Tablero() {
         // Entre 2 y 6 jugadores
         jugadores = new ArrayList<>(6);
-        dado = new Dado();
         turno = 0;
+        nLanzamientos = 1;
+        nDoblesSeguidos = 0;
         jugando = false;
-        yaLanzoDados = false;
 
         banca = new Jugador();
         // En lugar de añadir con código las casillas, se leen de
@@ -91,8 +89,9 @@ public class Tablero {
      */
     private char generarAvatarId() {
         char posibleId;
+        Random rand = new Random();
         do {
-            posibleId = dado.letraAleatoria();
+            posibleId = (char) (rand.nextInt((int) 'Z' - (int) 'A' + 1) + (int) 'A');
         } while (!comprobarAvatarId(posibleId));
         return posibleId;
     }
@@ -126,24 +125,66 @@ public class Tablero {
     /**
      * Mueve el jugador un determinado número de casillas
      */
-    public String moverJugador(int n1, int n2) {
+    public String moverJugador(Dado dado) {
         if (!jugando) {
             return Formatear.con("No se ha iniciado la partida\n", Color.Rojo);
         }
 
-        if (yaLanzoDados) {
+        if (nLanzamientos <= 0) {
             return Formatear.con("No se puede lanzar dos veces en el mismo turno\n", Color.Rojo);
         }
-        yaLanzoDados = true;
+        nLanzamientos--;
 
         // TODO: tener en cuenta el tipo de avatar
-        // TODO: cobrar el alquiler y otras acciones de casilla
 
         // Calcular la casilla siguiente
-        Avatar avatar = getJugadorTurno().getAvatar();
+        Jugador jugador = getJugadorTurno();
+        Avatar avatar = jugador.getAvatar();
         Casilla actualCasilla = avatar.getCasilla();
+
+        String accionAdicional = "";
+        if (avatar.isEstarEncerrado()) {
+            avatar.seguirEnCarcel();
+
+            if (dado.isDoble()) {
+                accionAdicional += "Dados dobles! El jugador puede salir de %s\n".formatted(Formatear.casillaNombre(actualCasilla));
+                avatar.salirCarcel();
+            } else if (avatar.getEstanciasCarcel() > 3) {
+                return """
+                        %s con avatar %s no ha sacado dados dobles %s.
+                        Ahora debe pagar obligatoriamente la fianza.
+                        %s""".formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.con(Character.toString(avatar.getId()), Color.Azul), dado, salirCarcel());
+            } else {
+                return """
+                        %s con avatar %s no ha sacado dados dobles %s.
+                        Puede pagar la fianza o permanecer encerrado.
+                        """.formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.con(Character.toString(avatar.getId()), Color.Azul), dado);
+            }
+        } else if (dado.isDoble()) {
+            accionAdicional += "Dados dobles! El jugador puede lanzar otra vez\n";
+            nLanzamientos++;
+            nDoblesSeguidos++;
+            if (nDoblesSeguidos >= 3) {
+                return """
+                        %s con avatar %s ha sacado %s.
+                        Ya son 3 veces seguidas sacando dados dobles.
+                        %s es arrestado por tener tanta suerte.
+                        %s""".formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.con(Character.toString(avatar.getId()), Color.Azul), dado, jugador.getNombre(), irCarcel());
+            }
+        }
+
         int nActual = casillas.indexOf(actualCasilla);
-        Casilla nuevaCasilla = casillas.get((nActual + n1 + n2) % casillas.size());
+
+        int nNuevo = nActual + dado.getValor();
+        if (nNuevo >= casillas.size()) {
+            nNuevo -= casillas.size();
+
+            accionAdicional += "Como el avatar pasa por la casilla de Salida, %s recibe %s\n"
+                    .formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.num(calculadora.calcularAbonoSalida()));
+            jugador.ingresar(calculadora.calcularAbonoSalida());
+        }
+
+        Casilla nuevaCasilla = casillas.get(nNuevo);
 
         // Quitar el avatar de la casilla actual y añadirlo a la nueva
         avatar.setCasilla(nuevaCasilla);
@@ -151,35 +192,78 @@ public class Tablero {
         actualCasilla.quitarAvatar(avatar);
 
         return """
-                %s con avatar %s, avanza %d posiciones.
+                %s con avatar %s, avanza %s posiciones.
                 Avanza desde %s hasta %s.
-                %s
-                """.formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul),
+                %s%s""".formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul),
                               Formatear.con(Character.toString(avatar.getId()), Color.Azul),
-                              n1 + n2,
+                              dado,
                               Formatear.casillaNombre(actualCasilla),
                               Formatear.casillaNombre(nuevaCasilla),
-                              accionCasilla(actualCasilla));
+                              accionCasilla(nuevaCasilla, dado), accionAdicional);
     }
 
-    public String accionCasilla(Casilla casilla) {
-        // String s = calc.pagarAlquiler(nuevaCasilla.getPropiedad(), jugadores.get(turno));
-
-        // Si es una propiedad y tiene dueño, se debe cobrar un alquiler
-        if (casilla.isPropiedad() && casilla.getPropiedad().getPropietario() != null) {
-            int cantidad = 10; // TODO: calcular cantidad
-            getJugadorTurno().cobrar(cantidad);
-            return "Se ha cobrado";
+    public String accionCasilla(Casilla casilla, Dado dado) {
+        if (casilla.isPropiedad()) {
+            return calculadora.pagarAlquiler(casilla.getPropiedad(), getJugadorTurno(), dado);
         }
 
-        return "TODO";
+        return switch (casilla.getNombre()) {
+            case "IrCárcel" -> irCarcel();
+            case "Comunidad" -> "* Acción de Carta de Comunidad *\n";
+            case "Suerte" -> "* Acción de Carta de Suerte *\n";
+            case "Parking" -> {
+                Jugador jugador = getJugadorTurno();
+                long bote = banca.getFortuna();
+                jugador.ingresar(bote);
+                banca.cobrar(bote); // Poner a 0 el bote
+                yield "El jugador recibe el bote de la banca: %s\n".formatted(Formatear.num(bote));
+
+            }
+            case "Impuesto1", "Impuesto2" -> {
+                Jugador jugador = getJugadorTurno();
+                long importe = casilla.getPrecio();
+
+                if (importe > jugador.getFortuna()) {
+                    yield Formatear.con("El jugador no tiene suficientes fondos para pagar el alquiler\n", Color.Rojo);
+                }
+
+                jugador.cobrar(importe);
+                banca.ingresar(importe);
+
+                yield "Se han pagado %s de impuestos a la banca.\n".formatted(Formatear.num(importe));
+            }
+            case "Cárcel" -> "El jugador está solo de visita.\n";
+            default -> "";
+        };
     }
 
-    /**
-     * Lanza 2 dados y mueve el jugador con el turno actual a la casilla que le toca
-     */
-    public String lanzarDados() {
-        return moverJugador(dado.lanzar(), dado.lanzar());
+    public String irCarcel() {
+        Jugador jugador = getJugadorTurno();
+        Avatar avatar = jugador.getAvatar();
+
+        avatar.irCarcel();
+
+        Casilla nuevaCasilla = casillas.get(casillas.indexOf(new Casilla(null, "Cárcel")));
+        avatar.getCasilla().quitarAvatar(avatar);
+        avatar.setCasilla(nuevaCasilla);
+        nuevaCasilla.anadirAvatar(avatar);
+
+        return "El avatar se coloca en la Cárcel\n";
+    }
+
+    public String salirCarcel() {
+        Jugador jugador = getJugadorTurno();
+        Avatar avatar = jugador.getAvatar();
+
+        if (!avatar.isEstarEncerrado()) {
+            return Formatear.con("El jugador %s no está en la Cárcel".formatted(jugador.getNombre()), Color.Rojo);
+        }
+
+        long importe = avatar.getCasilla().getPrecio();
+        avatar.salirCarcel();
+        jugador.cobrar(importe);
+
+        return "El jugador %s paga %s para salir de la cárcel\n".formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.num(importe));
     }
 
     /**
@@ -190,8 +274,14 @@ public class Tablero {
             return Formatear.con("No se ha iniciado la partida\n", Color.Rojo);
         }
 
-        yaLanzoDados = false;
+        if (nLanzamientos > 0) {
+            return Formatear.con("Al jugador %s le quedan %d tiros\n".formatted(getJugadorTurno().getNombre(), nLanzamientos), Color.Rojo);
+        }
+
+        nDoblesSeguidos = 0;
+        nLanzamientos = 1;
         turno = (turno + 1) % jugadores.size();
+
         return """
                 Se ha cambiado el turno.
                 Ahora le toca a %s.

@@ -8,13 +8,14 @@ import monopoly.casillas.Casilla;
 import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
 import monopoly.casillas.Propiedad.Tipo;
+import monopoly.utilidades.Dado;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 
 public class Calculadora {
     public static final long PRECIO_GRUPO1 = 100000;
-    private int sumaSolares;
-    private int nSolares;
+    private long sumaSolares;
+    private long nSolares;
     private Jugador banca;
 
     public Calculadora(ArrayList<Casilla> casillas, Jugador banca) {
@@ -27,6 +28,7 @@ public class Calculadora {
                 // Asignar propiedades a la Banca
                 Propiedad p = c.getPropiedad();
                 banca.anadirPropiedad(p);
+                p.setPropietario(banca);
 
                 // Contar los solares y su precio total
                 if (p.getTipo() == Tipo.Solar) {
@@ -101,12 +103,26 @@ public class Calculadora {
                 .formatted(jugador.getNombre(), Formatear.casillaNombre(solar.getCasilla()), Formatear.num(solar.getPrecio()));
     }
 
-    public String pagarAlquiler(Propiedad solar, Jugador jugador){
-        if (solar.getPropietario() == banca) return "";
-        if (solar.getPropietario() == jugador) return "";
+    public String pagarAlquiler(Propiedad p, Jugador jugador, Dado dado){
+        if (p.getPropietario() == banca) return "";
+        if (p.getPropietario() == jugador) return "";
 
-        jugador.cobrar(solar.getAlquiler());
-        return "Se han pagado %s de alquiler".formatted(Formatear.num(solar.getAlquiler()));
+        // TODO: comprobar si está hipotecado
+        // TODO: precio servicios y transportes incrementado
+
+        long importe = switch (p.getTipo()) {
+            case Solar, Transporte -> p.getAlquiler(); // TODO: Tranporte con monopolio
+            case Servicio -> p.getAlquiler() * dado.getValor() * 4;
+        };
+
+        if (importe > jugador.getFortuna()) {
+            return Formatear.con("El jugador no tiene suficientes fondos para pagar el alquiler\n", Color.Rojo);
+        }
+
+        jugador.cobrar(importe);
+        p.getPropietario().ingresar(importe);
+        return "Se han pagado %s de alquiler a %s\n"
+                .formatted(Formatear.num(p.getAlquiler()), Formatear.con(p.getPropietario().getNombre(), Color.Azul));
     }
 
     /*

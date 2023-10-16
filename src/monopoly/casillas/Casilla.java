@@ -81,7 +81,7 @@ public class Casilla {
                         {
                             nombre: %s
                             bote: %s
-                        }""".formatted(Formatear.casillaNombre(this), Formatear.num(dinero));
+                        }""".formatted(Formatear.casillaNombre(this), Formatear.num(dinero)); // TODO: fortuna banca?
                 case "Cárcel" -> """
                         {
                             nombre: %s
