@@ -96,6 +96,22 @@ public class Calculadora {
 
     /** Hace que el jugador compre la propiedad a la banca */
     public String comprar(Propiedad solar, Jugador jugador) {
+        // Comprobar que el jugador no haya comprado ya la casilla
+        if (jugador.getPropiedades().contains(solar)) {
+            return Formatear.con("El jugador %s ya ha comprado la casilla %s.\n".formatted(jugador.getNombre(), solar.getCasilla().getNombre()), Color.Rojo);
+        }
+
+        // Comprobar que no sea propiedad de otro jugador
+        if (solar.getPropietario() != banca) {
+            return """
+                   %s
+                   %s pertenece a %s
+                   """.formatted(Formatear.con("No se pueden comprar propiedades de otro jugador\n", Color.Rojo),
+                                 Formatear.casillaNombre(solar.getCasilla()),
+                                 Formatear.con(jugador.getNombre(), Color.Azul));
+        }
+
+        // Comprobar que el jugador tiene fortuna suficiente
         if (solar.getPrecio() > jugador.getFortuna()) {
             return Formatear.con("%s no dispone de suficiente dinero para comprar %s\n"
                     .formatted(jugador.getNombre(), solar.getCasilla().getNombre()), Color.Rojo);
