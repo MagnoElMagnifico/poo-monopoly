@@ -1,22 +1,32 @@
 package monopoly;
 
-import monopoly.jugadores.Jugador;
-
-import java.util.ArrayList;
-
 import monopoly.casillas.Casilla;
 import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
-import monopoly.casillas.Propiedad.Tipo;
+import monopoly.casillas.Propiedad.TipoPropiedad;
+import monopoly.jugadores.Jugador;
 import monopoly.utilidades.Dado;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
 
+import java.util.ArrayList;
+
+/**
+ * Clase encargada de poner los precios iniciales de
+ * cada propiedad, calcular la fortuna de los jugadores,
+ * el alquiler, etc.
+ * <p>
+ * Además, se encarga de realizar la operación de compra
+ * y de pago del alquiler.
+ *
+ * @see Propiedad
+ * @see Jugador
+ */
 public class Calculadora {
     public static final long PRECIO_GRUPO1 = 100000;
     private long sumaSolares;
     private long nSolares;
-    private Jugador banca;
+    private final Jugador banca;
 
     public Calculadora(ArrayList<Casilla> casillas, Jugador banca) {
         this.banca = banca;
@@ -31,7 +41,7 @@ public class Calculadora {
                 p.setPropietario(banca);
 
                 // Contar los solares y su precio total
-                if (p.getTipo() == Tipo.Solar) {
+                if (p.getTipo() == TipoPropiedad.Solar) {
                     sumaSolares += calcularPrecio(c.getPropiedad());
                     nSolares++;
                 }
@@ -44,8 +54,8 @@ public class Calculadora {
         }
     }
 
-    public long calcularFortunaInicial() {
-        return sumaSolares / 3;
+    public static long calcularAlquiler(Propiedad p) {
+        return p.getPrecio() / 10;
     }
 
     public long calcularAbonoSalida() {
@@ -70,26 +80,23 @@ public class Calculadora {
             default -> -1;
         };
     }
+    // TODO: calcularPrecio(Edificacion)
+    // TODO: calcularHipoteca(Propiedad)
 
     public long calcularPrecio(Propiedad p) {
         Grupo g = p.getCasilla().getGrupo();
-        long precioGrupo =  switch (p.getTipo()) {
-            case Solar -> (long)(0.3 * g.getNumeroSolar() * PRECIO_GRUPO1 + PRECIO_GRUPO1);
+        long precioGrupo = switch (p.getTipo()) {
+            case Solar -> (long) (0.3 * g.getNumeroSolar() * PRECIO_GRUPO1 + PRECIO_GRUPO1);
             case Transporte -> calcularAbonoSalida();
-            case Servicio -> (long)(0.75 * calcularAbonoSalida());
+            case Servicio -> (long) (0.75 * calcularAbonoSalida());
         };
 
         return precioGrupo / g.getNumeroCasillas();
     }
-    // TODO: calcularPrecio(Edificacion)
-    // TODO: calcularHipoteca(Propiedad)
 
-    public static long calcularAlquiler(Propiedad p) {
-        return p.getPrecio() / 10;
-    }
-
-    public String comprar(Propiedad solar, Jugador jugador){
-        if(solar.getPrecio() > jugador.getFortuna()) {
+    /** Hace que el jugador compre la propiedad a la banca */
+    public String comprar(Propiedad solar, Jugador jugador) {
+        if (solar.getPrecio() > jugador.getFortuna()) {
             return Formatear.con("%s no dispone de suficiente dinero para comprar %s\n"
                     .formatted(jugador.getNombre(), solar.getCasilla().getNombre()), Color.Rojo);
         }
@@ -103,7 +110,11 @@ public class Calculadora {
                 .formatted(jugador.getNombre(), Formatear.casillaNombre(solar.getCasilla()), Formatear.num(solar.getPrecio()));
     }
 
-    public String pagarAlquiler(Propiedad p, Jugador jugador, Dado dado){
+    /**
+     * Hace que el jugador page el alquiler correspondiente
+     * al dueño de la casilla en donde se encuentra
+     */
+    public String pagarAlquiler(Propiedad p, Jugador jugador, Dado dado) {
         if (p.getPropietario() == banca) return "";
         if (p.getPropietario() == jugador) return "";
 

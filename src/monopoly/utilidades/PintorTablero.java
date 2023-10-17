@@ -1,8 +1,8 @@
 package monopoly.utilidades;
 
-import monopoly.jugadores.Avatar;
-import monopoly.casillas.Casilla;
 import monopoly.Tablero;
+import monopoly.casillas.Casilla;
+import monopoly.jugadores.Avatar;
 import monopoly.utilidades.Formatear.Estilo;
 
 import java.util.ArrayList;
@@ -16,17 +16,11 @@ import java.util.ArrayList;
  * @see Casilla
  */
 public class PintorTablero {
-    /**
-     * Espacio dedicado para el nombre de la casilla dentro de la celda
-     */
+    /** Espacio dedicado para el nombre de la casilla dentro de la celda */
     private static final int TAM_TEXTO = 12;
-    /**
-     * Espacio dedicado para los avatares que ocupan la casilla
-     */
+    /** Espacio dedicado para los avatares que ocupan la casilla */
     private static final int TAM_AVATAR = 7;
-    /**
-     * Tamaño total de la celda
-     */
+    /** Tamaño total de la celda */
     private static final int TAM_CELDA = TAM_TEXTO + TAM_AVATAR;
 
     // Bordes del tablero
@@ -176,9 +170,7 @@ public class PintorTablero {
         return tableroStr.toString();
     }
 
-    /**
-     * Construye un separador horizontal del tablero.
-     */
+    /** Construye un separador horizontal del tablero. */
     private static String construirSeparador(int fila, int TAM_LINEA, int N_LADO) {
         StringBuilder separador = new StringBuilder(TAM_LINEA);
 

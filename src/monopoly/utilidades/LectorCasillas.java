@@ -2,7 +2,7 @@ package monopoly.utilidades;
 
 import monopoly.casillas.Casilla;
 import monopoly.casillas.Grupo;
-import monopoly.casillas.Propiedad.Tipo;
+import monopoly.casillas.Propiedad.TipoPropiedad;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -70,7 +70,7 @@ public class LectorCasillas {
                 // Declaración de un Grupo:
                 // Se quita la etiqueta del grupo, son 6 caracteres
                 String nombre = campos[0].substring(6);
-                int codigoColor = Integer.parseInt(campos[1]);
+                byte codigoColor = Byte.parseByte(campos[1]);
 
                 // El número de grupo es la posición en este Array
                 grupos.add(new Grupo(grupos.size(), nombre, codigoColor));
@@ -84,7 +84,7 @@ public class LectorCasillas {
                     System.exit(1);
                 }
 
-                Casilla c = campos.length == 3?
+                Casilla c = campos.length == 3 ?
                         new Casilla(grupos.get(nGrupo), campos[0], stringATipoPropiedad(campos[2])) :
                         new Casilla(grupos.get(nGrupo), campos[0]);
 
@@ -97,14 +97,12 @@ public class LectorCasillas {
         return casillas;
     }
 
-    /**
-     * Se convierte un String al tipo de dato enumerado
-     */
-    private static Tipo stringATipoPropiedad(String strTipo) {
+    /** Se convierte un String al tipo de dato enumerado */
+    private static TipoPropiedad stringATipoPropiedad(String strTipo) {
         return switch (strTipo.toLowerCase()) {
-            case "solar" -> Tipo.Solar;
-            case "servicio" -> Tipo.Servicio;
-            case "transporte" -> Tipo.Transporte;
+            case "solar" -> TipoPropiedad.Solar;
+            case "servicio" -> TipoPropiedad.Servicio;
+            case "transporte" -> TipoPropiedad.Transporte;
             default -> {
                 System.err.printf("ArchivoCasillas: \"%s\": tipo desconocido", strTipo);
                 System.exit(1);

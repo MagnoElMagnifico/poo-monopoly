@@ -187,7 +187,8 @@ public class Monopoly {
             case "jugador", "turno", "player" ->
                     tablero.getJugadorTurno() == null ? Formatear.con("No hay jugadores\n", Color.Rojo) : tablero.getJugadorTurno().toString() + '\n';
             case "lanzar", "lanzar dados" -> tablero.moverJugador(new Dado()) + tablero;
-            case "acabar turno", "fin", "end" -> tablero.acabarTurno() + tablero.getJugadorTurno().describirTransaccion() + tablero;
+            case "acabar turno", "fin", "end" ->
+                    tablero.acabarTurno() + tablero.getJugadorTurno().describirTransaccion() + tablero;
             case "salir carcel" -> tablero.salirCarcel() + tablero.getJugadorTurno().describirTransaccion() + tablero;
 
             default -> this.cmdConArgumentos(cmdNorm);
@@ -245,12 +246,12 @@ public class Monopoly {
     /**
      * Ejecuta el comando de describir
      */
-    private String cmdDescribir(String[] args){
+    private String cmdDescribir(String[] args) {
         if (args.length == 2) {
             return tablero.describirCasilla(args[1]);
         }
 
-        if (args.length == 3){
+        if (args.length == 3) {
             return switch (args[1]) {
                 case "jugador" -> tablero.describirJugador(args[2]);
                 case "avatar" -> tablero.describirAvatar(args[2].charAt(0));
@@ -264,8 +265,8 @@ public class Monopoly {
     /**
      * Ejecuta el comando de comprar
      */
-    private String cmdComprar(String[] args){
-        if (args.length != 2){
+    private String cmdComprar(String[] args) {
+        if (args.length != 2) {
             return Formatear.con("Se esperaban 2 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
         }
 

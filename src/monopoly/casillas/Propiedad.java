@@ -19,53 +19,47 @@ import monopoly.utilidades.Formatear;
  * @see Jugador
  */
 public class Propiedad {
+    /** Tipos de propiedades */
+    public enum TipoPropiedad {
+        Transporte, Servicio, Solar
+    }
+
     private final Casilla casilla;
-    private final Tipo tipo;
+    private final TipoPropiedad tipo;
     private long precio;
     private long alquiler;
     private Jugador propietario;
 
     /**
-     * Crea una propiedad
+     * Crea una propiedad.
      *
-     * @param casilla       Casilla a la que está asociada
-     * @param tipo          Tipo de casilla: Solar, Servicio o Transporte
+     * @param casilla Casilla a la que está asociada
+     * @param tipo    Tipo de casilla: Solar, Servicio o Transporte
      */
-    public Propiedad(Casilla casilla, Tipo tipo) {
+    public Propiedad(Casilla casilla, TipoPropiedad tipo) {
         this.casilla = casilla;
         this.tipo = tipo;
         this.propietario = null;
-        this.precio = -1; // Marcar como todavía no establecido
+        this.precio = -1;   // Marcar como todavía no establecido
         this.alquiler = -1; // Marcar como todavía no establecido
     }
 
     // Para el comando listar enventa
     @Override
     public String toString() {
-        // TODO?: obtener el resto de información con la calculadora
-
-        // Solo tiene sentido mostrar el nombre del grupo si es un solar
-        // Mostrar también precio de las edificaciones
-        if (tipo == Tipo.Solar) {
-            return """
-                    {
-                        nombre: %s
-                        tipo: Solar
-                        grupo: %s
-                        precio: %s
-                        alquiler: %s
-                        propietario: %s
-                    }""".formatted(casilla.getNombre(), casilla.getGrupo().getNombre(), Formatear.num(precio), Formatear.num(alquiler), propietario == null ? "-" : propietario.getNombre());
-        }
-
         return """
-                {
-                    nombre: %s
-                    tipo: %s
-                    precio: %s
-                    alquiler: %s
-                    propietario: %s
-                }""".formatted(casilla.getNombre(), tipo, Formatear.num(precio), Formatear.num(alquiler), propietario == null? "-" : propietario.getNombre());
+               {
+                   nombre: %s
+                   tipo: %s%s
+                   precio; %s
+                   alquiler: %s
+                   propietario: %s
+               }""".formatted(casilla.getNombre(),
+                              tipo,
+                              tipo == TipoPropiedad.Solar? "" : '\n' + casilla.getGrupo().getNombre(),
+                              Formatear.num(precio),
+                              Formatear.num(alquiler),
+                              propietario == null ? "-" : propietario.getNombre());
     }
 
     @Override
@@ -77,7 +71,7 @@ public class Propiedad {
         return casilla;
     }
 
-    public Tipo getTipo() {
+    public TipoPropiedad getTipo() {
         return tipo;
     }
 
@@ -104,12 +98,5 @@ public class Propiedad {
 
     public void setPropietario(Jugador propietario) {
         this.propietario = propietario;
-    }
-
-    /**
-     * Tipos de propiedades
-     */
-    public enum Tipo {
-        Transporte, Servicio, Solar
     }
 }
