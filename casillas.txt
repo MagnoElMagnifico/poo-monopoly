@@ -18,7 +18,7 @@ Tren, 1, transporte
 
 grupo: Hungría, 57
 Budapest, 4, solar
-Suerte, 0
+Suerte1, 0
 Debrecen, 4, solar
 Miskolc, 4, solar
 
@@ -27,11 +27,11 @@ IrCárcel, 0
 grupo: Italia, 48
 Florencia, 5, solar
 Roma, 5, solar
-Comunidad, 0
+Comunidad1, 0
 Nápoles, 5, solar
 
 Puerto, 1, transporte
-Suerte, 0
+Suerte2, 0
 
 grupo: España, 226
 Barcelona, 6, solar
@@ -43,7 +43,7 @@ Parking, 0
 grupo: Francia, 27
 París, 7, solar
 Marsella, 7, solar
-Suerte, 0
+Suerte3, 0
 Lyon, 7, solar
 
 Aeropuerto, 1, transporte
@@ -51,7 +51,7 @@ Impuesto2, 0
 
 grupo: Alemania, 208
 Berlín, 8, solar
-Comunidad, 0
+Comunidad2, 0
 Hamburgo, 8, solar
 
 Cárcel, 0
@@ -67,6 +67,6 @@ Nave Espacial, 1, transporte
 
 grupo: Suiza, 1
 Zurich, 10, solar
-Comunidad, 0
+Comunidad3, 0
 Ginebra, 10, solar
 Basilea, 10, solar

@@ -101,7 +101,7 @@ public class Jugador {
      * Cobra al jugador una cantidad de dinero
      */
     public void cobrar(long cantidad) {
-        if (cantidad > 0 && cantidad >= fortuna) {
+        if (cantidad > 0 && cantidad <= fortuna) {
             fortuna -= cantidad;
             gastos += cantidad;
         }
