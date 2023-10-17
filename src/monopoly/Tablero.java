@@ -130,7 +130,7 @@ public class Tablero {
         }
 
         if (nLanzamientos <= 0) {
-            return Formatear.con("No se puede lanzar dos veces en el mismo turno\n", Color.Rojo);
+            return Formatear.con("No se puede lanzar más veces. El jugador debe terminar su turno.\n", Color.Rojo);
         }
         nLanzamientos--;
 
