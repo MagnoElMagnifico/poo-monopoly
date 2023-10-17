@@ -1,8 +1,8 @@
 package monopoly.jugadores;
 
+import monopoly.casillas.Casilla;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar.TipoAvatar;
-import monopoly.casillas.Casilla;
 import monopoly.utilidades.Formatear;
 
 import java.util.ArrayList;
@@ -20,11 +20,9 @@ public class Jugador {
     private final Avatar avatar;
     private long fortuna;
     private long gastos;
-    private ArrayList<Propiedad> propiedades;
+    private final ArrayList<Propiedad> propiedades;
 
-    /**
-     * Crea el jugador especial Banca
-     */
+    /** Crea el jugador especial Banca */
     public Jugador() {
         this.nombre = "Banca";
         this.avatar = null;
@@ -33,9 +31,7 @@ public class Jugador {
         this.propiedades = new ArrayList<>(28);
     }
 
-    /**
-     * Crea un Jugador dado su nombre, tipo de avatar e id
-     */
+    /** Crea un Jugador dado su nombre, tipo de avatar e id */
     public Jugador(String nombre, TipoAvatar tipo, char id, Casilla casillaInicial, long fortuna) {
         this.avatar = new Avatar(tipo, id, this, casillaInicial);
         this.nombre = nombre;
@@ -44,6 +40,7 @@ public class Jugador {
         this.propiedades = new ArrayList<>();
     }
 
+    /** Función de ayuda para listar los nombres de las propiedades en un String */
     private String listaPropiedades() {
         StringBuilder propiedadesStr = new StringBuilder();
 
@@ -94,12 +91,14 @@ public class Jugador {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Jugador && ((Jugador) obj).getAvatar() == avatar;
+        if (this == obj) {
+            return true;
+        }
+
+        return obj instanceof Jugador && ((Jugador) obj).getAvatar().equals(avatar);
     }
 
-    /**
-     * Cobra al jugador una cantidad de dinero
-     */
+    /** Cobra al jugador una cantidad de dinero */
     public void cobrar(long cantidad) {
         if (cantidad > 0 && cantidad <= fortuna) {
             fortuna -= cantidad;
@@ -109,9 +108,7 @@ public class Jugador {
         // TODO: lanzar error en caso de que no tenga suficientes fondos
     }
 
-    /**
-     * Ingresa una cantidad de dinero al jugador
-     */
+    /** Ingresa una cantidad de dinero al jugador */
     public void ingresar(long cantidad) {
         if (cantidad > 0) {
             fortuna += cantidad;

@@ -23,14 +23,13 @@ import java.util.Random;
 public class Tablero {
     private final Calculadora calculadora;
     private final Jugador banca;
-    private int nLanzamientos;
-    private int nDoblesSeguidos;
-
     private final ArrayList<Jugador> jugadores;
     /**
      * Casillas del tablero
      */
     private final ArrayList<Casilla> casillas;
+    private int nLanzamientos;
+    private int nDoblesSeguidos;
     private int turno;
     /**
      * True si la partida ha comenzado: ya no se pueden añadir más jugadores
@@ -131,7 +130,7 @@ public class Tablero {
         }
 
         if (nLanzamientos <= 0) {
-            return Formatear.con("No se puede lanzar dos veces en el mismo turno\n", Color.Rojo);
+            return Formatear.con("No se puede lanzar más veces. El jugador debe terminar su turno.\n", Color.Rojo);
         }
         nLanzamientos--;
 
@@ -195,11 +194,11 @@ public class Tablero {
                 %s con avatar %s, avanza %s posiciones.
                 Avanza desde %s hasta %s.
                 %s%s""".formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul),
-                              Formatear.con(Character.toString(avatar.getId()), Color.Azul),
-                              dado,
-                              Formatear.casillaNombre(actualCasilla),
-                              Formatear.casillaNombre(nuevaCasilla),
-                              accionCasilla(nuevaCasilla, dado), accionAdicional);
+                Formatear.con(Character.toString(avatar.getId()), Color.Azul),
+                dado,
+                Formatear.casillaNombre(actualCasilla),
+                Formatear.casillaNombre(nuevaCasilla),
+                accionCasilla(nuevaCasilla, dado), accionAdicional);
     }
 
     public String accionCasilla(Casilla casilla, Dado dado) {
@@ -335,7 +334,7 @@ public class Tablero {
     public String describirCasilla(String nombre) {
         Casilla c = new Casilla(null, nombre);
 
-        if(!casillas.contains(c)) {
+        if (!casillas.contains(c)) {
             return Formatear.con("No es una casilla\n", Color.Rojo);
         }
 
@@ -351,15 +350,15 @@ public class Tablero {
             }
         }
 
-        return resultado.isEmpty()?
-            Formatear.con("El jugador \"%s\" no existe\n".formatted(nombre), Color.Rojo) :
-            resultado.toString() + '\n';
+        return resultado.isEmpty() ?
+                Formatear.con("El jugador \"%s\" no existe\n".formatted(nombre), Color.Rojo) :
+                resultado.toString() + '\n';
     }
 
     public String describirAvatar(char id) {
-        for(Jugador jugador : jugadores){
+        for (Jugador jugador : jugadores) {
             Avatar a = jugador.getAvatar();
-            if(a.getId() == Character.toUpperCase(id)) {
+            if (a.getId() == Character.toUpperCase(id)) {
                 return a.toString() + '\n';
             }
         }
@@ -371,7 +370,7 @@ public class Tablero {
         Casilla c = new Casilla(null, nombre);
         Jugador j = getJugadorTurno();
 
-        if(!j.getAvatar().getCasilla().equals(c)) {
+        if (!j.getAvatar().getCasilla().equals(c)) {
             return Formatear.con("No se puede comprar otra casilla que no sea la actual\n", Color.Rojo);
         }
 

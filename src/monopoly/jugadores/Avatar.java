@@ -11,16 +11,21 @@ import monopoly.casillas.Casilla;
  * @see Jugador
  */
 public class Avatar {
+    /** Tipos de avatares posibles */
+    public enum TipoAvatar {
+        Coche, Esfinge, Sombrero, Pelota
+    }
+
     private final TipoAvatar tipo;
     private final char id;
     private final Jugador jugador;
     private Casilla casilla;
-    private int estanciasCarcel;
+    /** Determina si el avatar está en la Cárcel o no */
     private boolean estarEncerrado;
+    /** Número de turnos que se han pasado en la Cárcel */
+    private int estanciasCarcel;
 
-    /**
-     * Crea un avatar dado su tipo, id y el jugador al que hace referencia
-     */
+    /** Crea un avatar dado su tipo, id y el jugador al que hace referencia */
     public Avatar(TipoAvatar tipo, char id, Jugador jugador, Casilla casillaInicial) {
         this.tipo = tipo;
         this.id = id;
@@ -31,9 +36,7 @@ public class Avatar {
         this.estarEncerrado = false;
     }
 
-    /**
-     * Crear un avatar temporal dado su ID. Útil para el comando `describir`.
-     */
+    /** Crear un avatar temporal dado su ID. Útil para el comando `describir`. */
     public Avatar(char id) {
         this.tipo = null;
         this.id = id;
@@ -56,6 +59,11 @@ public class Avatar {
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        // Aquí se puede usar == dado que char es primitivo
         return obj instanceof Avatar && ((Avatar) obj).getId() == this.id;
     }
 
@@ -79,6 +87,7 @@ public class Avatar {
         return jugador;
     }
 
+    /** Pone el Avatar en el estado encerrado */
     public void irCarcel() {
         estarEncerrado = true;
         estanciasCarcel = 0;
@@ -88,6 +97,7 @@ public class Avatar {
         return estanciasCarcel;
     }
 
+    /** Se notifica al Avatar de que pasa otro turno en la Cárcel */
     public void seguirEnCarcel() {
         if (estarEncerrado) {
             estanciasCarcel++;
@@ -95,6 +105,7 @@ public class Avatar {
         // TODO: Error, no se puede seguir en la Cárcel si no estabas dentro inicialmente
     }
 
+    /** Saca el Avatar del estado encerrado */
     public void salirCarcel() {
         estanciasCarcel = 0;
         estarEncerrado = false;
@@ -102,12 +113,5 @@ public class Avatar {
 
     public boolean isEstarEncerrado() {
         return estarEncerrado;
-    }
-
-    /**
-     * Tipos de avatares posibles
-     */
-    public enum TipoAvatar {
-        Coche, Esfinge, Sombrero, Pelota
     }
 }

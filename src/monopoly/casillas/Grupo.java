@@ -13,12 +13,22 @@ import java.util.Iterator;
  * @see Casilla
  */
 public class Grupo {
+    /**
+     * Este es un identificador único del grupo, dado por el orden de
+     * declaración en el archivo de configuración de las casillas.
+     * <p>
+     * Idealmente, tienen esta forma:
+     * <li> 0: Casillas especiales (Cárcel, Parking, IrCárcel, Impuestos...)
+     * <li> 1: Transportes
+     * <li> 2: Servicios
+     * <li> El resto: solares.
+     */
     private final int numero;
     private final String nombre;
-    private final int codigoColor;
-    private ArrayList<Casilla> casillas;
+    private final byte codigoColor;
+    private final ArrayList<Casilla> casillas;
 
-    public Grupo(int numero, String nombre, int codigoColor) {
+    public Grupo(int numero, String nombre, byte codigoColor) {
         this.numero = numero;
         this.nombre = nombre;
         this.codigoColor = codigoColor;
@@ -51,10 +61,14 @@ public class Grupo {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Grupo && ((Grupo) obj).getNombre().equals(nombre);
+        if (this == obj) {
+            return true;
+        }
+
+        return obj instanceof Grupo && ((Grupo) obj).nombre.equals(this.nombre);
     }
 
-    public void anadirCasilla(Casilla casilla)  {
+    public void anadirCasilla(Casilla casilla) {
         casillas.add(casilla);
     }
 
@@ -66,15 +80,16 @@ public class Grupo {
         return numero;
     }
 
+    /** Devuelve el número de solar del grupo */
     public int getNumeroSolar() {
-        return numero < 4? 0 : numero - 3;
+        return numero < 3 ? 0 : numero - 3;
     }
 
     public String getNombre() {
         return nombre;
     }
 
-    public int getCodigoColor() {
+    public byte getCodigoColor() {
         return codigoColor;
     }
 
