@@ -69,3 +69,38 @@ comprar Basilea
 end
 mover 2 3
 comprar NaveEspacial
+end
+mover 3 2
+end
+mover 6 6
+mover 3 4
+end
+mover 4 4
+mover 1 1
+mover 1 2
+comprar Roma
+end
+mover 3 2
+end
+mover 3 3
+comprar Varsovia
+mover 2 3
+comprar Budapest
+end
+mover 1 2
+comprar Hamburgo
+end
+mover 5 4
+comprar París
+end
+mover 2 3
+comprar Tren
+end
+mover 4 4
+comprar Nápoles
+mover 2 3
+end
+mover 6 6
+mover 5 2
+comprar Debrecen
+end
