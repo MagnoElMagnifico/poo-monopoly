@@ -208,8 +208,8 @@ public class Tablero {
 
         return switch (casilla.getNombre()) {
             case "IrCárcel" -> irCarcel();
-            case "Comunidad" -> "* Acción de Carta de Comunidad *\n";
-            case "Suerte" -> "* Acción de Carta de Suerte *\n";
+            case "Comunidad1", "Comunidad2", "Comunidad3" -> "* Acción de Carta de Comunidad *\n";
+            case "Suerte1", "Suerte2", "Suerte3" -> "* Acción de Carta de Suerte *\n";
             case "Parking" -> {
                 Jugador jugador = getJugadorTurno();
                 long bote = banca.getFortuna();
