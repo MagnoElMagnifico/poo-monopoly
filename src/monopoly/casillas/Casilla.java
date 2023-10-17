@@ -64,7 +64,7 @@ public class Casilla {
                         %s: Si un jugador cae en esta casilla, se le enviará directamente
                         a la casilla Cárcel.
                         """.formatted(Formatear.casillaNombre(this));
-                case "Comunidad", "Suerte" -> """
+                case "Comunidad1", "Comunidad2", "Comunidad3", "Suerte1", "Suerte2", "Suerte3" -> """
                         %s
                         """.formatted(Formatear.casillaNombre(this));
                 case "Impuesto1", "Impuesto2" -> """
