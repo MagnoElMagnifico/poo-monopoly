@@ -70,7 +70,7 @@ public class LectorCasillas {
                 // Declaración de un Grupo:
                 // Se quita la etiqueta del grupo, son 6 caracteres
                 String nombre = campos[0].substring(6);
-                byte codigoColor = Byte.parseByte(campos[1]);
+                byte codigoColor = (byte) Integer.parseInt(campos[1]);
 
                 // El número de grupo es la posición en este Array
                 grupos.add(new Grupo(grupos.size(), nombre, codigoColor));
