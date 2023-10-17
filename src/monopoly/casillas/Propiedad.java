@@ -64,7 +64,11 @@ public class Propiedad {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Propiedad && ((Propiedad) obj).getCasilla() == this.casilla;
+        if (this == obj) {
+            return true;
+        }
+
+        return obj instanceof Propiedad && ((Propiedad) obj).getCasilla().equals(this.casilla);
     }
 
     public Casilla getCasilla() {

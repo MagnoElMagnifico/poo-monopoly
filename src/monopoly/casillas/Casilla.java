@@ -92,7 +92,11 @@ public class Casilla {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Casilla && ((Casilla) obj).getNombre().equalsIgnoreCase(this.nombre);
+        if (this == obj) {
+            return true;
+        }
+
+        return obj instanceof Casilla && ((Casilla) obj).nombre.equalsIgnoreCase(this.nombre);
     }
 
     public String getNombre() {

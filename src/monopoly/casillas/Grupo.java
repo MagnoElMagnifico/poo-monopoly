@@ -61,7 +61,11 @@ public class Grupo {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Grupo && ((Grupo) obj).getNombre().equals(nombre);
+        if (this == obj) {
+            return true;
+        }
+
+        return obj instanceof Grupo && ((Grupo) obj).nombre.equals(this.nombre);
     }
 
     public void anadirCasilla(Casilla casilla) {

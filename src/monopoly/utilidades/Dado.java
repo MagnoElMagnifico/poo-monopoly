@@ -33,6 +33,10 @@ public class Dado {
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
         return obj instanceof Dado && ((Dado) obj).dado1 == dado1 && ((Dado) obj).dado2 == dado2;
     }
 

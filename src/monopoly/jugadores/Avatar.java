@@ -59,6 +59,11 @@ public class Avatar {
 
     @Override
     public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        // Aquí se puede usar == dado que char es primitivo
         return obj instanceof Avatar && ((Avatar) obj).getId() == this.id;
     }
 

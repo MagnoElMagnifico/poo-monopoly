@@ -91,7 +91,11 @@ public class Jugador {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Jugador && ((Jugador) obj).getAvatar() == avatar;
+        if (this == obj) {
+            return true;
+        }
+
+        return obj instanceof Jugador && ((Jugador) obj).getAvatar().equals(avatar);
     }
 
     /** Cobra al jugador una cantidad de dinero */
