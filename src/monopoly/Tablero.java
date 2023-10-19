@@ -178,8 +178,10 @@ public class Tablero {
         if (nNuevo >= casillas.size()) {
             nNuevo -= casillas.size();
 
-            accionAdicional += "Como el avatar pasa por la casilla de Salida, %s recibe %s\n"
-                    .formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.num(calculadora.calcularAbonoSalida()));
+            jugador.anadirVuelta();
+
+            accionAdicional += "Como el avatar pasa por la casilla de Salida, %s recibe %s\n%s"
+                    .formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.num(calculadora.calcularAbonoSalida()),calculadora.aumentarPrecio(casillas,jugadores));
             jugador.ingresar(calculadora.calcularAbonoSalida());
         }
 
