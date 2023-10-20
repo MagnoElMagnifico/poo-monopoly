@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * @see Jugador
  */
 public class Calculadora {
-    public static final long PRECIO_GRUPO1 = 100000;
+    public static final long PRECIO_GRUPO1 = 1_000_000;
     private long sumaSolares;
     private long nSolares;
     private final Jugador banca;
