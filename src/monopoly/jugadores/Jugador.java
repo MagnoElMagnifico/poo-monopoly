@@ -21,6 +21,7 @@ public class Jugador {
     private long fortuna;
     private long gastos;
     private final ArrayList<Propiedad> propiedades;
+    private int vueltas;
 
     /** Crea el jugador especial Banca */
     public Jugador() {
@@ -29,6 +30,7 @@ public class Jugador {
         this.fortuna = 0;
         this.gastos = 0;
         this.propiedades = new ArrayList<>(28);
+        this.vueltas=0;
     }
 
     /** Crea un Jugador dado su nombre, tipo de avatar e id */
@@ -38,6 +40,7 @@ public class Jugador {
         this.fortuna = fortuna;
         this.gastos = 0;
         this.propiedades = new ArrayList<>();
+        this.vueltas=0;
     }
 
     /** Función de ayuda para listar los nombres de las propiedades en un String */
@@ -135,11 +138,19 @@ public class Jugador {
         return propiedades;
     }
 
+    public int getVueltas() { return vueltas; }
     public void anadirPropiedad(Propiedad p) {
         propiedades.add(p);
     }
 
     public void quitarPropiedad(Propiedad p) {
         propiedades.remove(p);
+    }
+
+    public void anadirVuelta() {
+        this.vueltas++;
+    }
+    public void resetVuelta(){
+        this.vueltas=0;
     }
 }
