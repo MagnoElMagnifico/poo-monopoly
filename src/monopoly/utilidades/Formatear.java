@@ -89,17 +89,18 @@ public class Formatear {
         }
 
         // Empezamos tomando los últimos tres dígitos
-        String resultado = numStr.substring(numStr.length() - 3);
+        StringBuilder resultado = new StringBuilder(4 * numStr.length() / 3);
+        resultado.append(numStr.substring(numStr.length() - 3));
 
+        // Y se sigue tomando grupos de 3 en 3.
         for (int i = numStr.length() - 3; i > 0; i -= 3) {
-            // Y se sigue tomando grupos de 3 en 3.
+            // Se añade al inicio con un espacio
             // Salvo cuando se llega al principio, que se recoge lo que quede
-            String grupo = numStr.substring(Math.max(0, i - 3), i);
-            // Se añade al resultado con un espacio
-            resultado = "%s %s".formatted(grupo, resultado);
+            resultado.insert(0, ' ');
+            resultado.insert(0, numStr.substring(Math.max(0, i - 3), i));
         }
 
-        return resultado;
+        return resultado.toString();
     }
 
     /**
@@ -142,9 +143,9 @@ public class Formatear {
      */
     public static String casillaNombre(Casilla c) {
         if (!c.isPropiedad()) {
-            return Formatear.con(c.getNombre(), (byte) c.getGrupo().getCodigoColor());
+            return Formatear.con(c.getNombre(), c.getGrupo().getCodigoColor());
         }
 
-        return Formatear.con("%s, %s".formatted(c.getNombre(), c.getGrupo().getNombre()), (byte) c.getGrupo().getCodigoColor());
+        return Formatear.con("%s, %s".formatted(c.getNombre(), c.getGrupo().getNombre()), c.getGrupo().getCodigoColor());
     }
 }
