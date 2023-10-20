@@ -43,7 +43,7 @@ public class Grupo {
         casillasStr.append('[');
 
         while (iter.hasNext()) {
-            casillasStr.append(Formatear.con(iter.next().getNombre(), (byte) codigoColor));
+            casillasStr.append(Formatear.con(iter.next().getNombre(), codigoColor));
 
             if (iter.hasNext()) {
                 casillasStr.append(", ");
@@ -56,7 +56,7 @@ public class Grupo {
                     nombre: %s
                     número: %d
                     casillas: %s
-                }""".formatted(Formatear.con(nombre, (byte) codigoColor), numero, casillasStr);
+                }""".formatted(Formatear.con(nombre, codigoColor), numero, casillasStr);
     }
 
     @Override
@@ -80,7 +80,9 @@ public class Grupo {
         return numero;
     }
 
-    /** Devuelve el número de solar del grupo */
+    /**
+     * Devuelve el número de solar del grupo
+     */
     public int getNumeroSolar() {
         return numero < 3 ? 0 : numero - 3;
     }

@@ -16,25 +16,33 @@ import java.util.ArrayList;
  * @see Casilla
  */
 public class PintorTablero {
-    /** Espacio dedicado para el nombre de la casilla dentro de la celda */
+    /**
+     * Espacio dedicado para el nombre de la casilla dentro de la celda
+     */
     private static final int TAM_TEXTO = 12;
-    /** Espacio dedicado para los avatares que ocupan la casilla */
+    /**
+     * Espacio dedicado para los avatares que ocupan la casilla
+     */
     private static final int TAM_AVATAR = 7;
-    /** Tamaño total de la celda */
+    /**
+     * Tamaño total de la celda
+     */
     private static final int TAM_CELDA = TAM_TEXTO + TAM_AVATAR;
 
     // Bordes del tablero
+    // @formatter:off
     private static final char ESQ_NO = '┏'; // \u250F
     private static final char ESQ_NE = '┓'; // \u2513
     private static final char ESQ_SO = '┗'; // \u2517
     private static final char ESQ_SE = '┛'; // \u251B
-    private static final char HOR = '━'; // \u2501
-    private static final char VERT = '┃'; // \u2503
-    private static final char DER = '┣'; // \u2523
-    private static final char IZQ = '┫'; // \u252B
-    private static final char ABAJO = '┳'; // \u2533
+    private static final char HOR    = '━'; // \u2501
+    private static final char VERT   = '┃'; // \u2503
+    private static final char DER    = '┣'; // \u2523
+    private static final char IZQ    = '┫'; // \u252B
+    private static final char ABAJO  = '┳'; // \u2533
     private static final char ARRIBA = '┻'; // \u253B
-    private static final char INTER = '╋'; // \u254B
+    private static final char INTER  = '╋'; // \u254B
+    // @formatter:on
 
     /**
      * Función privada de ayuda que añade a <code>dst</code> el
@@ -53,7 +61,7 @@ public class PintorTablero {
             };
         }
 
-        dst.append(Formatear.con(Formatear.celda(c.getNombre(), TAM_TEXTO), (byte) c.getGrupo().getCodigoColor(), estilo));
+        dst.append(Formatear.con(Formatear.celda(c.getNombre(), TAM_TEXTO), c.getGrupo().getCodigoColor(), estilo));
 
         for (int i = 0; i < TAM_AVATAR; i++) {
             if (i < c.getAvatares().size()) {
@@ -170,7 +178,9 @@ public class PintorTablero {
         return tableroStr.toString();
     }
 
-    /** Construye un separador horizontal del tablero. */
+    /**
+     * Construye un separador horizontal del tablero.
+     */
     private static String construirSeparador(int fila, int TAM_LINEA, int N_LADO) {
         StringBuilder separador = new StringBuilder(TAM_LINEA);
 
