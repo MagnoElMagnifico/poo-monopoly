@@ -92,6 +92,9 @@ public class Propiedad {
         // TODO: lanzar un error en caso contrario
     }
 
+    public void aumentarPrecio() {
+        this.precio= (long) (this.precio*1.05);
+    }
     public long getAlquiler() {
         return alquiler;
     }

@@ -152,6 +152,27 @@ public class Calculadora {
                 .formatted(Formatear.num(p.getAlquiler()), Formatear.con(p.getPropietario().getNombre(), Color.Azul));
     }
 
+    /**
+     * Aumenta el precio de todos los solares que
+     * aún no se han vendido al cabo de 4 vueltas.
+     */
+    public String aumentarPrecio(ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores){
+        for(Jugador jugador : jugadores){
+            if(jugador.getVueltas()<4) return "";
+        }
+
+        for (Casilla casilla : casillas) {
+            // Si la casilla se puede comprar y no tiene dueño, es que está en venta
+            if (casilla.isPropiedad() && (casilla.getPropiedad().getPropietario() == null || casilla.getPropiedad().getPropietario() == banca)) {
+                casilla.getPropiedad().aumentarPrecio();
+            }
+        }
+        for(Jugador jugador: jugadores) {
+            jugador.resetVuelta();
+        }
+
+        return "Se ha aumentado el precio de todas las casillas en venta\n";
+    }
     /*
     No es para esta entrega:
     public static String valoresPropiedad(Propiedad solar){
