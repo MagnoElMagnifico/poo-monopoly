@@ -18,32 +18,35 @@ import java.util.Iterator;
 public class Jugador {
     private final String nombre;
     private final Avatar avatar;
+    private final ArrayList<Propiedad> propiedades;
     private long fortuna;
     private long gastos;
-    private final ArrayList<Propiedad> propiedades;
-    private int vueltas;
 
-    /** Crea el jugador especial Banca */
+    /**
+     * Crea el jugador especial Banca
+     */
     public Jugador() {
         this.nombre = "Banca";
         this.avatar = null;
         this.fortuna = 0;
         this.gastos = 0;
         this.propiedades = new ArrayList<>(28);
-        this.vueltas=0;
     }
 
-    /** Crea un Jugador dado su nombre, tipo de avatar e id */
+    /**
+     * Crea un Jugador dado su nombre, tipo de avatar e id
+     */
     public Jugador(String nombre, TipoAvatar tipo, char id, Casilla casillaInicial, long fortuna) {
         this.avatar = new Avatar(tipo, id, this, casillaInicial);
         this.nombre = nombre;
         this.fortuna = fortuna;
         this.gastos = 0;
         this.propiedades = new ArrayList<>();
-        this.vueltas=0;
     }
 
-    /** Función de ayuda para listar los nombres de las propiedades en un String */
+    /**
+     * Función de ayuda para listar los nombres de las propiedades en un String
+     */
     private String listaPropiedades() {
         StringBuilder propiedadesStr = new StringBuilder();
 
@@ -52,7 +55,7 @@ public class Jugador {
 
         while (iter.hasNext()) {
             Casilla c = iter.next().getCasilla();
-            propiedadesStr.append(Formatear.con(c.getNombre(), (byte) c.getGrupo().getCodigoColor()));
+            propiedadesStr.append(Formatear.con(c.getNombre(), c.getGrupo().getCodigoColor()));
 
             if (iter.hasNext()) {
                 propiedadesStr.append(", ");
@@ -101,17 +104,20 @@ public class Jugador {
         return obj instanceof Jugador && ((Jugador) obj).getAvatar().equals(avatar);
     }
 
-    /** Cobra al jugador una cantidad de dinero */
+    /**
+     * Cobra al jugador una cantidad de dinero
+     */
     public void cobrar(long cantidad) {
         if (cantidad > 0 && cantidad <= fortuna) {
             fortuna -= cantidad;
             gastos += cantidad;
         }
         // TODO: lanzar error de lo contrario
-        // TODO: lanzar error en caso de que no tenga suficientes fondos
     }
 
-    /** Ingresa una cantidad de dinero al jugador */
+    /**
+     * Ingresa una cantidad de dinero al jugador
+     */
     public void ingresar(long cantidad) {
         if (cantidad > 0) {
             fortuna += cantidad;
@@ -139,19 +145,11 @@ public class Jugador {
         return propiedades;
     }
 
-    public int getVueltas() { return vueltas; }
     public void anadirPropiedad(Propiedad p) {
         propiedades.add(p);
     }
 
     public void quitarPropiedad(Propiedad p) {
         propiedades.remove(p);
-    }
-
-    public void anadirVuelta() {
-        this.vueltas++;
-    }
-    public void resetVuelta(){
-        this.vueltas=0;
     }
 }

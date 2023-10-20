@@ -19,17 +19,11 @@ import monopoly.utilidades.Formatear;
  * @see Jugador
  */
 public class Propiedad {
-    /** Tipos de propiedades */
-    public enum TipoPropiedad {
-        Transporte, Servicio, Solar
-    }
-
     private final Casilla casilla;
     private final TipoPropiedad tipo;
     private long precio;
     private long alquiler;
     private Jugador propietario;
-
     /**
      * Crea una propiedad.
      *
@@ -47,19 +41,21 @@ public class Propiedad {
     // Para el comando listar enventa
     @Override
     public String toString() {
+        // @formatter:off
         return """
                {
                    nombre: %s
                    tipo: %s%s
-                   precio; %s
+                   precio: %s
                    alquiler: %s
                    propietario: %s
                }""".formatted(casilla.getNombre(),
                               tipo,
-                              tipo == TipoPropiedad.Solar? "" : '\n' + casilla.getGrupo().getNombre(),
+                              tipo == TipoPropiedad.Solar? "\n    grupo: " + casilla.getGrupo().getNombre() : "",
                               Formatear.num(precio),
                               Formatear.num(alquiler),
                               propietario == null ? "-" : propietario.getNombre());
+        // @formatter:on
     }
 
     @Override
@@ -92,9 +88,6 @@ public class Propiedad {
         // TODO: lanzar un error en caso contrario
     }
 
-    public void aumentarPrecio() {
-        this.precio= (long) (this.precio*1.05);
-    }
     public long getAlquiler() {
         return alquiler;
     }
@@ -105,5 +98,12 @@ public class Propiedad {
 
     public void setPropietario(Jugador propietario) {
         this.propietario = propietario;
+    }
+
+    /**
+     * Tipos de propiedades
+     */
+    public enum TipoPropiedad {
+        Transporte, Servicio, Solar
     }
 }

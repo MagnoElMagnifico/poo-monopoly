@@ -19,7 +19,9 @@ import java.util.ArrayList;
  */
 public class Casilla {
     private final String nombre;
-    /** Si es una casilla especial, este campo está a `null`. */
+    /**
+     * Si es una casilla especial, este campo está a `null`.
+     */
     private final Propiedad propiedad;
     private final Grupo grupo;
     private final ArrayList<Avatar> avatares;
@@ -29,12 +31,14 @@ public class Casilla {
      * <li> el bote del Parking,
      * <li> a fianza de la Cárcel
      * <li> el dinero a pagar en los impuestos
-     *
+     * <p>
      * En otros casos, se almacena la información necesaria en propiedad.
      */
     private long dinero;
 
-    /** Construye una nueva casilla de tipo Propiedad */
+    /**
+     * Construye una nueva casilla de tipo Propiedad
+     */
     public Casilla(Grupo grupo, String nombre, Propiedad.TipoPropiedad tipoPropiedad) {
         this.nombre = nombre;
         this.propiedad = new Propiedad(this, tipoPropiedad);
@@ -43,7 +47,9 @@ public class Casilla {
         this.dinero = -1; // Todavía no se le ha asignado un precio
     }
 
-    /** Construye una nueva casilla de tipo especial */
+    /**
+     * Construye una nueva casilla de tipo especial
+     */
     public Casilla(Grupo grupo, String nombre) {
         this.nombre = nombre;
         this.propiedad = null;

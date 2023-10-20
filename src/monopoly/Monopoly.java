@@ -19,9 +19,8 @@ import java.util.Scanner;
  * @date 25-09-2023
  */
 public class Monopoly {
-    /**
-     * Resultado del comando de ayuda
-     */
+    // @formatter:off
+    /** Resultado del comando de ayuda */
     private static final String MSG_AYUDA = """
                 %s
                     ayuda, help                   Muestra esta información de ayuda.
@@ -67,11 +66,9 @@ public class Monopoly {
                     exec <archivo>
                            Permite ejecutar un archivo que contiene un comando por línea.
                     
-                    mover <n | nombre-casilla>
-                           Mueve el jugador actual un número determinado de casillas, sin necesidad
-                           de lanzar el dado.
-
-                           Alternativamente se puede mover a la casilla dada.
+                    mover <n1> <n2>
+                           Simula una tirada de un dado. Si desea moverse un determinado número de casillas,
+                           use n2 = 0.
 
                 %s
                     - Los comandos no distinguen mayúsculas de minúsculas: "AyUda" es lo mismo que "ayuda".
@@ -79,9 +76,10 @@ public class Monopoly {
                       mismo que "lanzar dados".
                     - Lo que empiece por el caracter '#' se considerará un comentario, lo que se ignorará.
             """.formatted(Formatear.con("COMANDOS", Color.Rojo, Estilo.Negrita),
-            Formatear.con("COMANDOS CON ARGUMENTOS", Color.Rojo, Estilo.Negrita),
-            Formatear.con("COMANDOS DEBUG", Color.Rojo, Estilo.Negrita),
-            Formatear.con("NOTAS", Color.Rojo, Estilo.Negrita));
+                          Formatear.con("COMANDOS CON ARGUMENTOS", Color.Rojo, Estilo.Negrita),
+                          Formatear.con("COMANDOS DEBUG", Color.Rojo, Estilo.Negrita),
+                          Formatear.con("NOTAS", Color.Rojo, Estilo.Negrita));
+    // @formatter:on
 
     private final Scanner scanner;
     private final Tablero tablero;
@@ -202,15 +200,17 @@ public class Monopoly {
      * @return String con el resultado del comando.
      */
     private String cmdConArgumentos(String cmd) {
+        // @formatter:off
         String[] args = cmd.split(" ");
         return switch (args[0]) {
-            case "crear" -> cmdCrear(args);
-            case "comprar" -> cmdComprar(args) + tablero.getJugadorTurno().describirTransaccion();
+            case "crear"     -> cmdCrear(args);
+            case "comprar"   -> cmdComprar(args) + tablero.getJugadorTurno().describirTransaccion();
             case "describir" -> cmdDescribir(args);
-            case "mover" -> cmdMover(args);
-            case "exec" -> cmdExec(args);
-            default -> Formatear.con("\"%s\": Comando no válido\n".formatted(args[0]), Color.Rojo);
+            case "mover"     -> cmdMover(args);
+            case "exec"      -> cmdExec(args);
+            default          -> Formatear.con("\"%s\": Comando no válido\n".formatted(args[0]), Color.Rojo);
         };
+        // @formatter:on
     }
 
     /**
@@ -229,16 +229,18 @@ public class Monopoly {
         // Con esto se pasa a mayúscula la primera letra
         String nombre = args[2].substring(0, 1).toUpperCase() + args[2].substring(1);
 
+        // @formatter:off
         Avatar.TipoAvatar tipo;
         switch (args[3]) {
-            case "c", "coche" -> tipo = Avatar.TipoAvatar.Coche;
-            case "e", "esfinge" -> tipo = Avatar.TipoAvatar.Esfinge;
+            case "c", "coche"    -> tipo = Avatar.TipoAvatar.Coche;
+            case "e", "esfinge"  -> tipo = Avatar.TipoAvatar.Esfinge;
             case "s", "sombrero" -> tipo = Avatar.TipoAvatar.Sombrero;
-            case "p", "pelota" -> tipo = Avatar.TipoAvatar.Pelota;
+            case "p", "pelota"   -> tipo = Avatar.TipoAvatar.Pelota;
             default -> {
                 return Formatear.con("\"%s\": No es un tipo válido de Avatar (prueba con c, e, s, p)\n".formatted(args[3]), Color.Rojo);
             }
         }
+        // @formatter:on
 
         return tablero.anadirJugador(nombre, tipo);
     }

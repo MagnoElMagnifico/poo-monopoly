@@ -97,7 +97,9 @@ public class LectorCasillas {
         return casillas;
     }
 
-    /** Se convierte un String al tipo de dato enumerado */
+    /**
+     * Se convierte un String al tipo de dato enumerado
+     */
     private static TipoPropiedad stringATipoPropiedad(String strTipo) {
         return switch (strTipo.toLowerCase()) {
             case "solar" -> TipoPropiedad.Solar;

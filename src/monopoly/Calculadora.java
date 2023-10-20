@@ -23,10 +23,10 @@ import java.util.ArrayList;
  * @see Jugador
  */
 public class Calculadora {
-    public static final long PRECIO_GRUPO1 = 100000;
+    public static final long PRECIO_GRUPO1 = 1_000_000;
+    private final Jugador banca;
     private long sumaSolares;
     private long nSolares;
-    private final Jugador banca;
 
     public Calculadora(ArrayList<Casilla> casillas, Jugador banca) {
         this.banca = banca;
@@ -71,30 +71,38 @@ public class Calculadora {
             return calcularPrecio(c.getPropiedad());
         }
 
+        // @formatter:off
         return switch (c.getNombre()) {
-            case "Salida" -> calcularAbonoSalida(); // Cantidad que recibe al pasar por Salida
+            case "Salida"    -> calcularAbonoSalida();     // Cantidad que recibe al pasar por Salida
             case "Impuesto1" -> calcularAbonoSalida();
             case "Impuesto2" -> calcularAbonoSalida() / 2;
-            case "Parking" -> banca.getFortuna(); // La fortuna de la banca representa este bote
-            case "Cárcel" -> calcularAbonoSalida() / 4;
-            default -> -1;
+            case "Parking"   -> banca.getFortuna();        // La fortuna de la banca representa este bote
+            case "Cárcel"    -> calcularAbonoSalida() / 4;
+            default          -> -1;
         };
+        // @formatter:on
     }
+
     // TODO: calcularPrecio(Edificacion)
     // TODO: calcularHipoteca(Propiedad)
 
     public long calcularPrecio(Propiedad p) {
         Grupo g = p.getCasilla().getGrupo();
+
+        // @formatter:off
         long precioGrupo = switch (p.getTipo()) {
-            case Solar -> (long) (0.3 * g.getNumeroSolar() * PRECIO_GRUPO1 + PRECIO_GRUPO1);
+            case Solar      -> (long) (0.3 * g.getNumeroSolar() * PRECIO_GRUPO1 + PRECIO_GRUPO1);
             case Transporte -> calcularAbonoSalida();
-            case Servicio -> (long) (0.75 * calcularAbonoSalida());
+            case Servicio   -> (long) (0.75 * calcularAbonoSalida());
         };
+        // @formatter:on
 
         return precioGrupo / g.getNumeroCasillas();
     }
 
-    /** Hace que el jugador compre la propiedad a la banca */
+    /**
+     * Hace que el jugador compre la propiedad a la banca
+     */
     public String comprar(Propiedad solar, Jugador jugador) {
         // Comprobar que el jugador no haya comprado ya la casilla
         if (jugador.getPropiedades().contains(solar)) {
@@ -103,12 +111,14 @@ public class Calculadora {
 
         // Comprobar que no sea propiedad de otro jugador
         if (solar.getPropietario() != banca) {
+            // @formatter:off
             return """
                    %s
                    %s pertenece a %s
                    """.formatted(Formatear.con("No se pueden comprar propiedades de otro jugador\n", Color.Rojo),
                                  Formatear.casillaNombre(solar.getCasilla()),
                                  Formatear.con(jugador.getNombre(), Color.Azul));
+            // @formatter:on
         }
 
         // Comprobar que el jugador tiene fortuna suficiente
@@ -156,23 +166,28 @@ public class Calculadora {
      * Aumenta el precio de todos los solares que
      * aún no se han vendido al cabo de 4 vueltas.
      */
-    public String aumentarPrecio(ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores){
-        for(Jugador jugador : jugadores){
-            if(jugador.getVueltas()<4) return "";
+    public String aumentarPrecio(ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores) {
+        for (Jugador jugador : jugadores) {
+            if (jugador.getAvatar().getVueltas() < 4) {
+                return "";
+            }
         }
 
         for (Casilla casilla : casillas) {
             // Si la casilla se puede comprar y no tiene dueño, es que está en venta
             if (casilla.isPropiedad() && (casilla.getPropiedad().getPropietario() == null || casilla.getPropiedad().getPropietario() == banca)) {
-                casilla.getPropiedad().aumentarPrecio();
+                Propiedad p = casilla.getPropiedad();
+                p.setPrecio((long) (p.getPrecio() * 1.05));
             }
         }
-        for(Jugador jugador: jugadores) {
-            jugador.resetVuelta();
+
+        for (Jugador jugador : jugadores) {
+            jugador.getAvatar().resetVuelta();
         }
 
         return "Se ha aumentado el precio de todas las casillas en venta\n";
     }
+
     /*
     No es para esta entrega:
     public static String valoresPropiedad(Propiedad solar){

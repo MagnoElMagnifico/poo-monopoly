@@ -110,8 +110,11 @@ public class Tablero {
         char avatar = generarAvatarId();
         jugadores.add(new Jugador(nombre, tipo, avatar, casillas.get(0), calculadora.calcularFortuna()));
 
+        // @formatter:off
         return "El jugador %s con avatar %s se ha creado con éxito.\n"
-                .formatted(Formatear.con(nombre, Color.Verde), Formatear.con(Character.toString(avatar), Color.Verde));
+                .formatted(Formatear.con(nombre, Color.Verde),
+                           Formatear.con(Character.toString(avatar), Color.Verde));
+        // @formatter:on
     }
 
     /**
@@ -149,26 +152,40 @@ public class Tablero {
                 accionAdicional += "Dados dobles! El jugador puede salir de %s\n".formatted(Formatear.casillaNombre(actualCasilla));
                 avatar.salirCarcel();
             } else if (avatar.getEstanciasCarcel() >= 3) {
+                // @formatter:off
                 return """
                         %s con avatar %s no ha sacado dados dobles %s.
                         Ahora debe pagar obligatoriamente la fianza.
-                        %s""".formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.con(Character.toString(avatar.getId()), Color.Azul), dado, salirCarcel());
+                        %s""".formatted(Formatear.con(jugador.getNombre(), Color.Azul),
+                                        Formatear.con(Character.toString(avatar.getId()), Color.Azul),
+                                        dado, salirCarcel());
+                // @formatter:on
             } else {
+                // @formatter:off
                 return """
                         %s con avatar %s no ha sacado dados dobles %s.
                         Puede pagar la fianza o permanecer encerrado.
-                        """.formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.con(Character.toString(avatar.getId()), Color.Azul), dado);
+                        """.formatted(Formatear.con(jugador.getNombre(), Color.Azul),
+                                      Formatear.con(Character.toString(avatar.getId()), Color.Azul),
+                                      dado);
+                // @formatter:on
             }
         } else if (dado.isDoble()) {
             accionAdicional += "Dados dobles! El jugador puede lanzar otra vez\n";
             nLanzamientos++;
             nDoblesSeguidos++;
             if (nDoblesSeguidos >= 3) {
+                // @formatter:off
                 return """
                         %s con avatar %s ha sacado %s.
                         Ya son 3 veces seguidas sacando dados dobles.
                         %s es arrestado por tener tanta suerte.
-                        %s""".formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.con(Character.toString(avatar.getId()), Color.Azul), dado, jugador.getNombre(), irCarcel());
+                        %s""".formatted(Formatear.con(jugador.getNombre(), Color.Azul),
+                                        Formatear.con(Character.toString(avatar.getId()), Color.Azul),
+                                        dado,
+                                        jugador.getNombre(),
+                                        irCarcel());
+                // @formatter:on
             }
         }
 
@@ -178,11 +195,15 @@ public class Tablero {
         if (nNuevo >= casillas.size()) {
             nNuevo -= casillas.size();
 
-            jugador.anadirVuelta();
-
-            accionAdicional += "Como el avatar pasa por la casilla de Salida, %s recibe %s\n%s"
-                    .formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.num(calculadora.calcularAbonoSalida()),calculadora.aumentarPrecio(casillas,jugadores));
+            avatar.anadirVuelta();
             jugador.ingresar(calculadora.calcularAbonoSalida());
+
+            // @formatter:off
+            accionAdicional += "Como el avatar pasa por la casilla de Salida, %s recibe %s\n%s"
+                    .formatted(Formatear.con(jugador.getNombre(), Color.Azul),
+                               Formatear.num(calculadora.calcularAbonoSalida()),
+                               calculadora.aumentarPrecio(casillas,jugadores));
+            // @formatter:on
         }
 
         Casilla nuevaCasilla = casillas.get(nNuevo);
@@ -192,15 +213,17 @@ public class Tablero {
         nuevaCasilla.anadirAvatar(avatar);
         actualCasilla.quitarAvatar(avatar);
 
+        // @formatter:off
         return """
                 %s con avatar %s, avanza %s posiciones.
                 Avanza desde %s hasta %s.
                 %s%s""".formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul),
-                Formatear.con(Character.toString(avatar.getId()), Color.Azul),
-                dado,
-                Formatear.casillaNombre(actualCasilla),
-                Formatear.casillaNombre(nuevaCasilla),
-                accionCasilla(nuevaCasilla, dado), accionAdicional);
+                                  Formatear.con(Character.toString(avatar.getId()), Color.Azul),
+                                  dado,
+                                  Formatear.casillaNombre(actualCasilla),
+                                  Formatear.casillaNombre(nuevaCasilla),
+                                  accionCasilla(nuevaCasilla, dado), accionAdicional);
+        // @formatter:on
     }
 
     public String accionCasilla(Casilla casilla, Dado dado) {
@@ -214,12 +237,15 @@ public class Tablero {
             case "Suerte1", "Suerte2", "Suerte3" -> "* Acción de Carta de Suerte *\n";
             case "Parking" -> {
                 Jugador jugador = getJugadorTurno();
+
                 long bote = banca.getFortuna();
                 jugador.ingresar(bote);
                 banca.cobrar(bote); // Poner a 0 el bote
+
                 yield "El jugador recibe el bote de la banca: %s\n".formatted(Formatear.num(bote));
 
             }
+
             case "Impuesto1", "Impuesto2" -> {
                 Jugador jugador = getJugadorTurno();
                 long importe = casilla.getPrecio();
@@ -233,6 +259,7 @@ public class Tablero {
 
                 yield "Se han pagado %s de impuestos a la banca.\n".formatted(Formatear.num(importe));
             }
+
             case "Cárcel" -> "El jugador está solo de visita.\n";
             default -> "";
         };
@@ -248,7 +275,7 @@ public class Tablero {
         avatar.getCasilla().quitarAvatar(avatar);
         avatar.setCasilla(nuevaCasilla);
         nuevaCasilla.anadirAvatar(avatar);
-        nLanzamientos=0;
+        nLanzamientos = 0;
 
         return "El avatar se coloca en la Cárcel\n";
     }

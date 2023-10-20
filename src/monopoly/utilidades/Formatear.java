@@ -11,26 +11,18 @@ import monopoly.casillas.Casilla;
  * @see <a href="https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences">Códigos ANSI StackOverflow</a>
  */
 public class Formatear {
-    /** Colores soportados */
-    public enum Color {
-        Negro, Rojo, Verde, Amarillo, Azul, Magenta, Cian, Blanco
-    }
-
     /**
-     * Estilos soportados
-     * <hr>
-     * NOTA: Puede que algunos no estén soportados por algunas terminales.
+     * Secuencia de inicio de un código ANSI
      */
-    public enum Estilo {
-        Normal, Negrita, Claro, Cursiva, Subrayado, ParpadeoLento, ParpadeoRapido, Invertir, Esconder
-    }
-
-    /** Secuencia de inicio de un código ANSI */
     private static final String INICIO = "\u001b[";
-    /** Código ANSI de reseteo */
+    /**
+     * Código ANSI de reseteo
+     */
     private static final String FIN = "\u001b[0m";
 
-    /** Función de ayuda para generar el código ANSI de todos los estilos dados */
+    /**
+     * Función de ayuda para generar el código ANSI de todos los estilos dados
+     */
     private static String getCodigoAnsi(Estilo... estilos) {
         if (estilos.length == 0) {
             return "";
@@ -63,23 +55,31 @@ public class Formatear {
                 fuente & 0xFF, fondo & 0xFF, msg, FIN);
     }
 
-    /** Formatea un mensaje con un código de color de fuente y unos estilos dados */
+    /**
+     * Formatea un mensaje con un código de color de fuente y unos estilos dados
+     */
     public static String con(String msg, byte fuente, Estilo... estilos) {
         return "%s%s;38;5;%dm%s%s".formatted(INICIO, Formatear.getCodigoAnsi(estilos),
                 fuente & 0xFF, msg, FIN);
     }
 
-    /** Formatea un mensaje con un color de fuente y fondo, más unos estilos */
+    /**
+     * Formatea un mensaje con un color de fuente y fondo, más unos estilos
+     */
     public static String con(String msg, Color fuente, Color fondo, Estilo... estilos) {
         return Formatear.con(msg, (byte) fuente.ordinal(), (byte) fondo.ordinal(), estilos);
     }
 
-    /** Formatea un mensaje con un color de fuente y unos estilos dados */
+    /**
+     * Formatea un mensaje con un color de fuente y unos estilos dados
+     */
     public static String con(String msg, Color fuente, Estilo... estilos) {
         return Formatear.con(msg, (byte) fuente.ordinal(), estilos);
     }
 
-    /** Convierte el long a String y lo formatea separando las centenas con espacios */
+    /**
+     * Convierte el long a String y lo formatea separando las centenas con espacios
+     */
     public static String num(long n) {
         String numStr = Long.toString(n);
 
@@ -89,17 +89,18 @@ public class Formatear {
         }
 
         // Empezamos tomando los últimos tres dígitos
-        String resultado = numStr.substring(numStr.length() - 3);
+        StringBuilder resultado = new StringBuilder(4 * numStr.length() / 3);
+        resultado.append(numStr.substring(numStr.length() - 3));
 
+        // Y se sigue tomando grupos de 3 en 3.
         for (int i = numStr.length() - 3; i > 0; i -= 3) {
-            // Y se sigue tomando grupos de 3 en 3.
+            // Se añade al inicio con un espacio
             // Salvo cuando se llega al principio, que se recoge lo que quede
-            String grupo = numStr.substring(Math.max(0, i - 3), i);
-            // Se añade al resultado con un espacio
-            resultado = "%s %s".formatted(grupo, resultado);
+            resultado.insert(0, ' ');
+            resultado.insert(0, numStr.substring(Math.max(0, i - 3), i));
         }
 
-        return resultado;
+        return resultado.toString();
     }
 
     /**
@@ -142,9 +143,25 @@ public class Formatear {
      */
     public static String casillaNombre(Casilla c) {
         if (!c.isPropiedad()) {
-            return Formatear.con(c.getNombre(), (byte) c.getGrupo().getCodigoColor());
+            return Formatear.con(c.getNombre(), c.getGrupo().getCodigoColor());
         }
 
-        return Formatear.con("%s, %s".formatted(c.getNombre(), c.getGrupo().getNombre()), (byte) c.getGrupo().getCodigoColor());
+        return Formatear.con("%s, %s".formatted(c.getNombre(), c.getGrupo().getNombre()), c.getGrupo().getCodigoColor());
+    }
+
+    /**
+     * Colores soportados
+     */
+    public enum Color {
+        Negro, Rojo, Verde, Amarillo, Azul, Magenta, Cian, Blanco
+    }
+
+    /**
+     * Estilos soportados
+     * <hr>
+     * NOTA: Puede que algunos no estén soportados por algunas terminales.
+     */
+    public enum Estilo {
+        Normal, Negrita, Claro, Cursiva, Subrayado, ParpadeoLento, ParpadeoRapido, Invertir, Esconder
     }
 }
