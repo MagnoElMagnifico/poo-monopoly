@@ -105,7 +105,6 @@ public class Jugador {
             gastos += cantidad;
         }
         // TODO: lanzar error de lo contrario
-        // TODO: lanzar error en caso de que no tenga suficientes fondos
     }
 
     /** Ingresa una cantidad de dinero al jugador */
