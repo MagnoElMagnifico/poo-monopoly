@@ -66,11 +66,9 @@ public class Monopoly {
                     exec <archivo>
                            Permite ejecutar un archivo que contiene un comando por línea.
                     
-                    mover <n | nombre-casilla>
-                           Mueve el jugador actual un número determinado de casillas, sin necesidad
-                           de lanzar el dado.
-
-                           Alternativamente se puede mover a la casilla dada.
+                    mover <n1> <n2>
+                           Simula una tirada de un dado. Si desea moverse un determinado número de casillas,
+                           use n2 = 0.
 
                 %s
                     - Los comandos no distinguen mayúsculas de minúsculas: "AyUda" es lo mismo que "ayuda".
