@@ -169,21 +169,23 @@ public class Monopoly {
             // Comandos de manejo del juego
             case "salir", "quit" -> {
                 System.exit(0);
-                yield ""; // Si no devuelvo un objeto da error
+                yield null; // Si no devuelvo un objeto da error
             }
             case "ayuda", "help" -> MSG_AYUDA;
             case "iniciar", "start" -> tablero.iniciar();
 
             // Comandos de información
+            // @formatter:off
             case "ver tablero", "tablero", "show" -> tablero.toString();
-            case "listar casillas" -> tablero.getCasillas().toString() + '\n';
-            case "listar enventa" -> tablero.getEnVenta().toString() + '\n';
+            case "listar casillas"  -> tablero.getCasillas().toString()  + '\n';
+            case "listar enventa"   -> tablero.getEnVenta().toString()   + '\n';
             case "listar jugadores" -> tablero.getJugadores().toString() + '\n';
-            case "listar avatares" -> tablero.getAvatares().toString() + '\n';
+            case "listar avatares"  -> tablero.getAvatares().toString()  + '\n';
+            // @formatter:on
 
             // Acciones de jugadores
             case "jugador", "turno", "player" ->
-                    tablero.getJugadorTurno() == null ? Formatear.con("No hay jugadores\n", Color.Rojo) : tablero.getJugadorTurno().toString() + '\n';
+                    tablero.getJugadorTurno() == null ? Formatear.error("No hay jugadores\n") : tablero.getJugadorTurno().toString() + '\n';
             case "lanzar", "lanzar dados" -> tablero.moverJugador(new Dado()) + tablero;
             case "acabar turno", "fin", "end" ->
                     tablero.acabarTurno() + tablero.getJugadorTurno().describirTransaccion() + tablero;
@@ -208,7 +210,7 @@ public class Monopoly {
             case "describir" -> cmdDescribir(args);
             case "mover"     -> cmdMover(args);
             case "exec"      -> cmdExec(args);
-            default          -> Formatear.con("\"%s\": Comando no válido\n".formatted(args[0]), Color.Rojo);
+            default          -> Formatear.error("\"%s\": Comando no válido\n".formatted(args[0]));
         };
         // @formatter:on
     }
@@ -218,11 +220,11 @@ public class Monopoly {
      */
     private String cmdCrear(String[] args) {
         if (args.length != 4) {
-            return Formatear.con("Se esperaban 4 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+            return Formatear.error("Se esperaban 4 parámetros, se recibieron %d\n".formatted(args.length));
         }
 
         if (!args[1].equals("jugador")) {
-            return Formatear.con("\"%s\": Subcomando de crear no válido\n".formatted(args[1]), Color.Rojo);
+            return Formatear.error("\"%s\": Subcomando de crear no válido\n".formatted(args[1]));
         }
 
         // Como se pasa todo a minúsculas, los nombres quedan mal
@@ -237,7 +239,7 @@ public class Monopoly {
             case "s", "sombrero" -> tipo = Avatar.TipoAvatar.Sombrero;
             case "p", "pelota"   -> tipo = Avatar.TipoAvatar.Pelota;
             default -> {
-                return Formatear.con("\"%s\": No es un tipo válido de Avatar (prueba con c, e, s, p)\n".formatted(args[3]), Color.Rojo);
+                return Formatear.error("\"%s\": No es un tipo válido de Avatar (prueba con c, e, s, p)\n".formatted(args[3]));
             }
         }
         // @formatter:on
@@ -257,11 +259,11 @@ public class Monopoly {
             return switch (args[1]) {
                 case "jugador" -> tablero.describirJugador(args[2]);
                 case "avatar" -> tablero.describirAvatar(args[2].charAt(0));
-                default -> Formatear.con("\"%s\": Argumento inválido\n".formatted(args[1]), Color.Rojo);
+                default -> Formatear.error("\"%s\": Argumento inválido\n".formatted(args[1]));
             };
         }
 
-        return Formatear.con("Se esperaban 2 o 3 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+        return Formatear.error("Se esperaban 2 o 3 parámetros, se recibieron %d\n".formatted(args.length));
     }
 
     /**
@@ -269,7 +271,7 @@ public class Monopoly {
      */
     private String cmdComprar(String[] args) {
         if (args.length != 2) {
-            return Formatear.con("Se esperaban 2 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+            return Formatear.error("Se esperaban 2 parámetros, se recibieron %d\n".formatted(args.length));
         }
 
         return tablero.comprar(args[1]);
@@ -279,11 +281,11 @@ public class Monopoly {
      * Ejecuta el comando de mover
      */
     private String cmdMover(String[] args) {
-        if (args.length == 3) {
-            return tablero.moverJugador(new Dado(Integer.parseInt(args[1]), Integer.parseInt(args[2])));
+        if (args.length != 3) {
+            return Formatear.error("Se esperaban 2 parámetros, se recibieron %d\n".formatted(args.length));
         }
 
-        return Formatear.con("Se esperaban 2 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+        return tablero.moverJugador(new Dado(Integer.parseInt(args[1]), Integer.parseInt(args[2])));
     }
 
     /**
@@ -291,7 +293,7 @@ public class Monopoly {
      */
     private String cmdExec(String[] args) {
         if (args.length != 2) {
-            return Formatear.con("Se esperaba 1 parámetro, se recibieron %d\n".formatted(args.length), Color.Rojo);
+            return Formatear.error("Se esperaba 1 parámetro, se recibieron %d\n".formatted(args.length));
         }
 
         return ejecutarArchivo(args[1]);

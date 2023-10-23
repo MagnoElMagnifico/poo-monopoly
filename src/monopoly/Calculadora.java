@@ -106,7 +106,7 @@ public class Calculadora {
     public String comprar(Propiedad solar, Jugador jugador) {
         // Comprobar que el jugador no haya comprado ya la casilla
         if (jugador.getPropiedades().contains(solar)) {
-            return Formatear.con("El jugador %s ya ha comprado la casilla %s.\n".formatted(jugador.getNombre(), solar.getCasilla().getNombre()), Color.Rojo);
+            return Formatear.error("El jugador %s ya ha comprado la casilla %s.\n".formatted(jugador.getNombre(), solar.getCasilla().getNombre()));
         }
 
         // Comprobar que no sea propiedad de otro jugador
@@ -115,7 +115,7 @@ public class Calculadora {
             return """
                    %s
                    %s pertenece a %s
-                   """.formatted(Formatear.con("No se pueden comprar propiedades de otro jugador\n", Color.Rojo),
+                   """.formatted(Formatear.error("No se pueden comprar propiedades de otro jugador\n"),
                                  Formatear.casillaNombre(solar.getCasilla()),
                                  Formatear.con(jugador.getNombre(), Color.Azul));
             // @formatter:on
@@ -123,8 +123,8 @@ public class Calculadora {
 
         // Comprobar que el jugador tiene fortuna suficiente
         if (solar.getPrecio() > jugador.getFortuna()) {
-            return Formatear.con("%s no dispone de suficiente dinero para comprar %s\n"
-                    .formatted(jugador.getNombre(), solar.getCasilla().getNombre()), Color.Rojo);
+            return Formatear.error("%s no dispone de suficiente dinero para comprar %s\n"
+                    .formatted(jugador.getNombre(), solar.getCasilla().getNombre()));
         }
 
         jugador.cobrar(solar.getPrecio());
@@ -153,7 +153,7 @@ public class Calculadora {
         };
 
         if (importe > jugador.getFortuna()) {
-            return Formatear.con("El jugador no tiene suficientes fondos para pagar el alquiler\n", Color.Rojo);
+            return Formatear.error("El jugador no tiene suficientes fondos para pagar el alquiler\n");
         }
 
         jugador.cobrar(importe);

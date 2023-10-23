@@ -64,17 +64,14 @@ public class Formatear {
     }
 
     /**
-     * Formatea un mensaje con un color de fuente y fondo, más unos estilos
-     */
-    public static String con(String msg, Color fuente, Color fondo, Estilo... estilos) {
-        return Formatear.con(msg, (byte) fuente.ordinal(), (byte) fondo.ordinal(), estilos);
-    }
-
-    /**
      * Formatea un mensaje con un color de fuente y unos estilos dados
      */
     public static String con(String msg, Color fuente, Estilo... estilos) {
         return Formatear.con(msg, (byte) fuente.ordinal(), estilos);
+    }
+
+    public static String error(String msg) {
+        return Formatear.con(msg, Color.Rojo);
     }
 
     /**

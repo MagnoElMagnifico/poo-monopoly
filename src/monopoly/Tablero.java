@@ -60,11 +60,11 @@ public class Tablero {
 
     public String iniciar() {
         if (jugando) {
-            return Formatear.con("La partida ya está iniciada\n", Color.Rojo);
+            return Formatear.error("La partida ya está iniciada\n");
         }
 
         if (jugadores.size() < 2) {
-            return Formatear.con("No hay suficientes jugadores para empezar (mínimo 2)\n", Color.Rojo);
+            return Formatear.error("No hay suficientes jugadores para empezar (mínimo 2)\n");
         }
 
         jugando = true;
@@ -100,11 +100,11 @@ public class Tablero {
      */
     public String anadirJugador(String nombre, Avatar.TipoAvatar tipo) {
         if (jugando) {
-            return Formatear.con("No se pueden añadir jugadores en mitad de una partida\n", Color.Rojo);
+            return Formatear.error("No se pueden añadir jugadores en mitad de una partida\n");
         }
 
         if (jugadores.size() >= 6) {
-            return Formatear.con("El máximo de jugadores es 6\n", Color.Rojo);
+            return Formatear.error("El máximo de jugadores es 6\n");
         }
 
         char avatar = generarAvatarId();
@@ -129,11 +129,11 @@ public class Tablero {
      */
     public String moverJugador(Dado dado) {
         if (!jugando) {
-            return Formatear.con("No se ha iniciado la partida\n", Color.Rojo);
+            return Formatear.error("No se ha iniciado la partida\n");
         }
 
         if (nLanzamientos <= 0) {
-            return Formatear.con("No se puede lanzar más veces. El jugador debe terminar su turno.\n", Color.Rojo);
+            return Formatear.error("No se puede lanzar más veces. El jugador debe terminar su turno.\n");
         }
         nLanzamientos--;
 
@@ -285,7 +285,7 @@ public class Tablero {
         Avatar avatar = jugador.getAvatar();
 
         if (!avatar.isEstarEncerrado()) {
-            return Formatear.con("El jugador %s no está en la Cárcel".formatted(jugador.getNombre()), Color.Rojo);
+            return Formatear.error("El jugador %s no está en la Cárcel".formatted(jugador.getNombre()));
         }
 
         long importe = avatar.getCasilla().getPrecio();
@@ -300,11 +300,11 @@ public class Tablero {
      */
     public String acabarTurno() {
         if (!jugando) {
-            return Formatear.con("No se ha iniciado la partida\n", Color.Rojo);
+            return Formatear.error("No se ha iniciado la partida\n");
         }
 
         if (nLanzamientos > 0) {
-            return Formatear.con("Al jugador %s le quedan %d tiros\n".formatted(getJugadorTurno().getNombre(), nLanzamientos), Color.Rojo);
+            return Formatear.error("Al jugador %s le quedan %d tiros\n".formatted(getJugadorTurno().getNombre(), nLanzamientos));
         }
 
         nDoblesSeguidos = 0;
@@ -364,7 +364,7 @@ public class Tablero {
         Casilla c = new Casilla(null, nombre);
 
         if (!casillas.contains(c)) {
-            return Formatear.con("No es una casilla\n", Color.Rojo);
+            return Formatear.error("No es una casilla\n");
         }
 
         return casillas.get(casillas.indexOf(c)).toString() + '\n';
@@ -380,7 +380,7 @@ public class Tablero {
         }
 
         return resultado.isEmpty() ?
-                Formatear.con("El jugador \"%s\" no existe\n".formatted(nombre), Color.Rojo) :
+                Formatear.error("El jugador \"%s\" no existe\n".formatted(nombre)) :
                 resultado.toString() + '\n';
     }
 
@@ -392,7 +392,7 @@ public class Tablero {
             }
         }
 
-        return Formatear.con("No existe el avatar \"%s\"\n".formatted(id), Color.Rojo);
+        return Formatear.error("No existe el avatar \"%s\"\n".formatted(id));
     }
 
     public String comprar(String nombre) {
@@ -400,14 +400,14 @@ public class Tablero {
         Jugador j = getJugadorTurno();
 
         if (!j.getAvatar().getCasilla().equals(c)) {
-            return Formatear.con("No se puede comprar otra casilla que no sea la actual\n", Color.Rojo);
+            return Formatear.error("No se puede comprar otra casilla que no sea la actual\n");
         }
 
         // Ahora nos referimos siempre a la casilla donde está el avatar
         c = j.getAvatar().getCasilla();
 
         if (!c.isPropiedad()) {
-            return Formatear.con("No se puede comprar la casilla \"%s\"\n".formatted(c.getNombre()), Color.Rojo);
+            return Formatear.error("No se puede comprar la casilla \"%s\"\n".formatted(c.getNombre()));
         }
 
         return calculadora.comprar(c.getPropiedad(), j);

@@ -5,7 +5,7 @@ import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar.TipoAvatar;
 import monopoly.utilidades.Formatear;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -18,7 +18,7 @@ import java.util.Iterator;
 public class Jugador {
     private final String nombre;
     private final Avatar avatar;
-    private final ArrayList<Propiedad> propiedades;
+    private final HashSet<Propiedad> propiedades;
     private long fortuna;
     private long gastos;
 
@@ -30,7 +30,7 @@ public class Jugador {
         this.avatar = null;
         this.fortuna = 0;
         this.gastos = 0;
-        this.propiedades = new ArrayList<>(28);
+        this.propiedades = new HashSet<>(28);
     }
 
     /**
@@ -41,7 +41,7 @@ public class Jugador {
         this.nombre = nombre;
         this.fortuna = fortuna;
         this.gastos = 0;
-        this.propiedades = new ArrayList<>();
+        this.propiedades = new HashSet<>();
     }
 
     /**
@@ -141,7 +141,7 @@ public class Jugador {
         return gastos;
     }
 
-    public ArrayList<Propiedad> getPropiedades() {
+    public HashSet<Propiedad> getPropiedades() {
         return propiedades;
     }
 
