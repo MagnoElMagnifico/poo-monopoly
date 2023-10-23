@@ -188,6 +188,7 @@ public class Monopoly {
             case "acabar turno", "fin", "end" ->
                     tablero.acabarTurno() + tablero.getJugadorTurno().describirTransaccion() + tablero;
             case "salir carcel" -> tablero.salirCarcel() + tablero.getJugadorTurno().describirTransaccion() + tablero;
+            case "cambiar modo" -> tablero.cambiarModo();
 
             default -> this.cmdConArgumentos(cmdNorm);
         };

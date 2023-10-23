@@ -188,82 +188,9 @@ public class Tablero {
                 // @formatter:on
             }
         }
-
-        int nActual = casillas.indexOf(actualCasilla);
-
-        int nNuevo = nActual + dado.getValor();
-        if (nNuevo >= casillas.size()) {
-            nNuevo -= casillas.size();
-
-            avatar.anadirVuelta();
-            jugador.ingresar(calculadora.calcularAbonoSalida());
-
-            // @formatter:off
-            accionAdicional += "Como el avatar pasa por la casilla de Salida, %s recibe %s\n%s"
-                    .formatted(Formatear.con(jugador.getNombre(), Color.Azul),
-                               Formatear.num(calculadora.calcularAbonoSalida()),
-                               calculadora.aumentarPrecio(casillas,jugadores));
-            // @formatter:on
-        }
-
-        Casilla nuevaCasilla = casillas.get(nNuevo);
-
-        // Quitar el avatar de la casilla actual y añadirlo a la nueva
-        avatar.setCasilla(nuevaCasilla);
-        nuevaCasilla.anadirAvatar(avatar);
-        actualCasilla.quitarAvatar(avatar);
-
-        // @formatter:off
-        return """
-                %s con avatar %s, avanza %s posiciones.
-                Avanza desde %s hasta %s.
-                %s%s""".formatted(Formatear.con(avatar.getJugador().getNombre(), Color.Azul),
-                                  Formatear.con(Character.toString(avatar.getId()), Color.Azul),
-                                  dado,
-                                  Formatear.casillaNombre(actualCasilla),
-                                  Formatear.casillaNombre(nuevaCasilla),
-                                  accionCasilla(nuevaCasilla, dado), accionAdicional);
-        // @formatter:on
+        return accionAdicional + avatar.mover(casillas,dado,calculadora,jugadores,banca);
     }
 
-    public String accionCasilla(Casilla casilla, Dado dado) {
-        if (casilla.isPropiedad()) {
-            return calculadora.pagarAlquiler(casilla.getPropiedad(), getJugadorTurno(), dado);
-        }
-
-        return switch (casilla.getNombre()) {
-            case "IrCárcel" -> irCarcel();
-            case "Comunidad1", "Comunidad2", "Comunidad3" -> "* Acción de Carta de Comunidad *\n";
-            case "Suerte1", "Suerte2", "Suerte3" -> "* Acción de Carta de Suerte *\n";
-            case "Parking" -> {
-                Jugador jugador = getJugadorTurno();
-
-                long bote = banca.getFortuna();
-                jugador.ingresar(bote);
-                banca.cobrar(bote); // Poner a 0 el bote
-
-                yield "El jugador recibe el bote de la banca: %s\n".formatted(Formatear.num(bote));
-
-            }
-
-            case "Impuesto1", "Impuesto2" -> {
-                Jugador jugador = getJugadorTurno();
-                long importe = casilla.getPrecio();
-
-                if (importe > jugador.getFortuna()) {
-                    yield Formatear.con("El jugador no tiene suficientes fondos para pagar el alquiler\n", Color.Rojo);
-                }
-
-                jugador.cobrar(importe);
-                banca.ingresar(importe);
-
-                yield "Se han pagado %s de impuestos a la banca.\n".formatted(Formatear.num(importe));
-            }
-
-            case "Cárcel" -> "El jugador está solo de visita.\n";
-            default -> "";
-        };
-    }
 
     public String irCarcel() {
         Jugador jugador = getJugadorTurno();
@@ -412,4 +339,11 @@ public class Tablero {
 
         return calculadora.comprar(c.getPropiedad(), j);
     }
+
+    public String cambiarModo(){
+        getJugadorTurno().getAvatar().setMovimientoEspecial();
+        return "A partir de ahora el %s, de tipo %s, se moverá de modo avanzado".formatted(Formatear.con(Character.toString(getJugadorTurno().getAvatar().getId()), Color.Azul),
+                getJugadorTurno().getAvatar().getTipo());
+    }
+
 }
