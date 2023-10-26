@@ -191,15 +191,12 @@ public class Avatar {
                     Formatear.casillaNombre(nuevaCasilla),
                     accionCasilla(nuevaCasilla, dado, calculadora, banca, casillas), accionAdicional);
         }
-        switch(this.tipo){
-            case Coche: break;
-            case Pelota: break;
-            case Esfinge: break;
-            case Sombrero: break;
-        }
-        return accionAdicional;
+        else return moverEspecial();
     }
 
+    private String moverEspecial(){
+        return "";
+    }
     private String accionCasilla(Casilla casilla, Dado dado, Calculadora calculadora, Jugador banca,ArrayList<Casilla> casillas) {
         if (casilla.isPropiedad()) {
             return calculadora.pagarAlquiler(casilla.getPropiedad(), this.jugador, dado);
