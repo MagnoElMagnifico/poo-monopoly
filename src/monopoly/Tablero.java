@@ -7,7 +7,7 @@ import monopoly.jugadores.Jugador;
 import monopoly.utilidades.Dado;
 import monopoly.utilidades.Formatear;
 import monopoly.utilidades.Formatear.Color;
-import monopoly.utilidades.LectorCasillas;
+import monopoly.utilidades.Lector;
 import monopoly.utilidades.PintorTablero;
 
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class Tablero {
         //
         // NOTA: Esto es potencialmente un problema de seguridad,
         // dado que el usuario puede modificarlo sin reparos.
-        casillas = LectorCasillas.leerCasillas("casillas.txt");
+        casillas = Lector.leerCasillas("casillas.txt");
         // Creación de la calculadora
         calculadora = new Calculadora(casillas, banca);
     }
@@ -265,6 +265,7 @@ public class Tablero {
         };
     }
 
+    // TODO: accionCasilla de IrCarcel
     public String irCarcel() {
         Jugador jugador = getJugadorTurno();
         Avatar avatar = jugador.getAvatar();
@@ -280,6 +281,7 @@ public class Tablero {
         return "El avatar se coloca en la Cárcel\n";
     }
 
+    // TODO: accionCasilla de Carcel
     public String salirCarcel() {
         Jugador jugador = getJugadorTurno();
         Avatar avatar = jugador.getAvatar();
