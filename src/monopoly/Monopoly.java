@@ -135,7 +135,7 @@ public class Monopoly {
         try {
             scanner = new Scanner(archivo);
         } catch (FileNotFoundException e) {
-            return Formatear.con("\"%s\": no se ha encontrado\n".formatted(nombreArchivo), Color.Rojo);
+            return Formatear.error("\"%s\": no se ha encontrado\n".formatted(nombreArchivo));
         }
 
         // String para almacenar la salida del comando
