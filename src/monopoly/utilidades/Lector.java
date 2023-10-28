@@ -21,12 +21,40 @@ import java.util.Scanner;
  *     ...
  * </pre>
  *
+ * También se usa para leer el nombre y descripción de las
+ * Cartas de Comunidad y Suerte.
+ * <p>
+ * Formato:
+ *
+ * <pre>
+ *     Suerte:<num>:descripción
+ *     Comunidad:<num>: descripción
+ *     ...
+ * </pre>
+ *
  * @author Marcos Granja Grille
  * @date 2-10-2023
  * @see Casilla
  * @see monopoly.Tablero
  */
-public class LectorCasillas {
+public class Lector {
+
+    private static Scanner abrirArchivo(String path) {
+        Scanner scanner = null;
+
+        try {
+            scanner = new Scanner(new File(path));
+        } catch (FileNotFoundException e) {
+            System.err.printf("[FATAL] No se ha encontrado el archivo de configuración \"%s\": %s\n", path, e);
+            System.exit(1);
+        }
+
+        return scanner;
+    }
+
+    private static boolean ignorarLinea(String linea) {
+        return linea.isBlank() || linea.stripLeading().startsWith("#");
+    }
 
     /**
      * Lee el archivo dada su dirección.
@@ -35,15 +63,7 @@ public class LectorCasillas {
      * @return La lista de casillas contenida en el archivo
      */
     public static ArrayList<Casilla> leerCasillas(String path) {
-        File archivo = new File(path);
-        Scanner scanner = null;
-
-        try {
-            scanner = new Scanner(archivo);
-        } catch (FileNotFoundException e) {
-            System.err.println("[FATAL] No se ha encontrado el archivo de configuración de las casillas");
-            System.exit(1);
-        }
+        Scanner scanner = abrirArchivo(path);
 
         // Hay 8 grupos de solares, 1 de transporte,
         // 1 de servicios y 1 de casillas especiales.
@@ -54,7 +74,7 @@ public class LectorCasillas {
             String linea = scanner.nextLine();
 
             // Se ignoran los comentarios y líneas en blanco
-            if (linea.isBlank() || linea.stripLeading().startsWith("#")) {
+            if (ignorarLinea(linea)) {
                 continue;
             }
 
@@ -62,7 +82,7 @@ public class LectorCasillas {
             String[] campos = linea.strip().replaceAll(" +", "").split(",");
 
             if (campos.length < 2) {
-                System.err.printf("[FATAL] Número de campos incorrecto en la línea %d\n", nLinea);
+                System.err.printf("[FATAL] ArchivoCasillas línea %d: Número de campos incorrecto\n", nLinea);
                 System.exit(1);
             }
 
@@ -80,7 +100,7 @@ public class LectorCasillas {
                 int nGrupo = Integer.parseInt(campos[1]);
 
                 if (nGrupo > grupos.size()) {
-                    System.err.printf("[FATAL] Número de grupo inválido en la línea %d, se obtuvo %d\n", nLinea, nGrupo);
+                    System.err.printf("[FATAL] ArchivoCasillas linea %d: %d número de grupo inválido\n", nLinea, nGrupo);
                     System.exit(1);
                 }
 
@@ -106,7 +126,7 @@ public class LectorCasillas {
             case "servicio" -> TipoPropiedad.Servicio;
             case "transporte" -> TipoPropiedad.Transporte;
             default -> {
-                System.err.printf("ArchivoCasillas: \"%s\": tipo desconocido", strTipo);
+                System.err.printf("[FATAL] ArchivoCasillas: \"%s\": tipo desconocido", strTipo);
                 System.exit(1);
                 yield null; // Nunca se ejecuta, pero si no se devuelve algo, da error.
             }
