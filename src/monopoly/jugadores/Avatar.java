@@ -113,6 +113,7 @@ public class Avatar {
     public int getnLanzamientos() {return this.nLanzamientos;}
 
     public void setnLanzamientos() {this.nLanzamientos=1;}
+    public void setnDoblesSeguidos() {this.nDoblesSeguidos=0;}
 
     /**
      * Pone el Avatar en el estado encerrado
@@ -158,6 +159,7 @@ public class Avatar {
         int nActual = casillas.indexOf(this.casilla);
         String accionAdicional= "";
         if(!this.movimientoEspecial){
+            nLanzamientos--;
             if (this.estarEncerrado) {
                 this.seguirEnCarcel();
 
@@ -334,7 +336,7 @@ public class Avatar {
 
         estarEncerrado = true;
         estanciasCarcel = 0;
-
+        nLanzamientos=0;
         Casilla nuevaCasilla = casillas.get(casillas.indexOf(new Casilla(null, "Cárcel")));
         this.getCasilla().quitarAvatar(this);
         this.setCasilla(nuevaCasilla);

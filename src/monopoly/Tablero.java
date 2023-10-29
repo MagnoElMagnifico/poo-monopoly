@@ -154,7 +154,7 @@ public class Tablero {
         if (jugadores.get(turno).getAvatar().getnLanzamientos() > 0) {
             return Formatear.con("Al jugador %s le quedan %d tiros\n".formatted(getJugadorTurno().getNombre(), jugadores.get(turno).getAvatar().getnLanzamientos()), Color.Rojo);
         }
-
+        jugadores.get(turno).getAvatar().setnDoblesSeguidos();
         turno = (turno + 1) % jugadores.size();
         jugadores.get(turno).getAvatar().setnLanzamientos();
         return """
