@@ -28,8 +28,7 @@ public class Tablero {
      * Casillas del tablero
      */
     private final ArrayList<Casilla> casillas;
-    private int nLanzamientos;
-    private int nDoblesSeguidos;
+
     private int turno;
     /**
      * True si la partida ha comenzado: ya no se pueden añadir más jugadores
@@ -43,8 +42,6 @@ public class Tablero {
         // Entre 2 y 6 jugadores
         jugadores = new ArrayList<>(6);
         turno = 0;
-        nLanzamientos = 1;
-        nDoblesSeguidos = 0;
         jugando = false;
 
         banca = new Jugador();
@@ -131,95 +128,19 @@ public class Tablero {
         if (!jugando) {
             return Formatear.con("No se ha iniciado la partida\n", Color.Rojo);
         }
-
-        if (nLanzamientos <= 0) {
-            return Formatear.con("No se puede lanzar más veces. El jugador debe terminar su turno.\n", Color.Rojo);
-        }
-        nLanzamientos--;
-
-        // TODO: tener en cuenta el tipo de avatar
-
-        // Calcular la casilla siguiente
-        Jugador jugador = getJugadorTurno();
+        Jugador jugador=jugadores.get(turno);
         Avatar avatar = jugador.getAvatar();
-        Casilla actualCasilla = avatar.getCasilla();
 
-        String accionAdicional = "";
-        if (avatar.isEstarEncerrado()) {
-            avatar.seguirEnCarcel();
-
-            if (dado.isDoble()) {
-                accionAdicional += "Dados dobles! El jugador puede salir de %s\n".formatted(Formatear.casillaNombre(actualCasilla));
-                avatar.salirCarcel();
-            } else if (avatar.getEstanciasCarcel() >= 3) {
-                // @formatter:off
-                return """
-                        %s con avatar %s no ha sacado dados dobles %s.
-                        Ahora debe pagar obligatoriamente la fianza.
-                        %s""".formatted(Formatear.con(jugador.getNombre(), Color.Azul),
-                                        Formatear.con(Character.toString(avatar.getId()), Color.Azul),
-                                        dado, salirCarcel());
-                // @formatter:on
-            } else {
-                // @formatter:off
-                return """
-                        %s con avatar %s no ha sacado dados dobles %s.
-                        Puede pagar la fianza o permanecer encerrado.
-                        """.formatted(Formatear.con(jugador.getNombre(), Color.Azul),
-                                      Formatear.con(Character.toString(avatar.getId()), Color.Azul),
-                                      dado);
-                // @formatter:on
-            }
-        } else if (dado.isDoble()) {
-            accionAdicional += "Dados dobles! El jugador puede lanzar otra vez\n";
-            nLanzamientos++;
-            nDoblesSeguidos++;
-            if (nDoblesSeguidos >= 3) {
-                // @formatter:off
-                return """
-                        %s con avatar %s ha sacado %s.
-                        Ya son 3 veces seguidas sacando dados dobles.
-                        %s es arrestado por tener tanta suerte.
-                        %s""".formatted(Formatear.con(jugador.getNombre(), Color.Azul),
-                                        Formatear.con(Character.toString(avatar.getId()), Color.Azul),
-                                        dado,
-                                        jugador.getNombre(),
-                                        irCarcel());
-                // @formatter:on
-            }
-        }
-        return accionAdicional + avatar.mover(casillas,dado,calculadora,jugadores,banca);
+        return avatar.mover(casillas,dado,calculadora,jugadores,banca);
     }
 
 
-    public String irCarcel() {
-        Jugador jugador = getJugadorTurno();
-        Avatar avatar = jugador.getAvatar();
-
-        avatar.irCarcel();
-
-        Casilla nuevaCasilla = casillas.get(casillas.indexOf(new Casilla(null, "Cárcel")));
-        avatar.getCasilla().quitarAvatar(avatar);
-        avatar.setCasilla(nuevaCasilla);
-        nuevaCasilla.anadirAvatar(avatar);
-        nLanzamientos = 0;
-
-        return "El avatar se coloca en la Cárcel\n";
-    }
 
     public String salirCarcel() {
         Jugador jugador = getJugadorTurno();
         Avatar avatar = jugador.getAvatar();
+        return avatar.salirCarcel();
 
-        if (!avatar.isEstarEncerrado()) {
-            return Formatear.con("El jugador %s no está en la Cárcel".formatted(jugador.getNombre()), Color.Rojo);
-        }
-
-        long importe = avatar.getCasilla().getPrecio();
-        avatar.salirCarcel();
-        jugador.cobrar(importe);
-
-        return "El jugador %s paga %s para salir de la cárcel\n".formatted(Formatear.con(jugador.getNombre(), Color.Azul), Formatear.num(importe));
     }
 
     /**
@@ -230,14 +151,12 @@ public class Tablero {
             return Formatear.con("No se ha iniciado la partida\n", Color.Rojo);
         }
 
-        if (nLanzamientos > 0) {
-            return Formatear.con("Al jugador %s le quedan %d tiros\n".formatted(getJugadorTurno().getNombre(), nLanzamientos), Color.Rojo);
+        if (jugadores.get(turno).getAvatar().getnLanzamientos() > 0) {
+            return Formatear.con("Al jugador %s le quedan %d tiros\n".formatted(getJugadorTurno().getNombre(), jugadores.get(turno).getAvatar().getnLanzamientos()), Color.Rojo);
         }
 
-        nDoblesSeguidos = 0;
-        nLanzamientos = 1;
         turno = (turno + 1) % jugadores.size();
-
+        jugadores.get(turno).getAvatar().setnLanzamientos();
         return """
                 Se ha cambiado el turno.
                 Ahora le toca a %s.
