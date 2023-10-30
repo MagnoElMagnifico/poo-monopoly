@@ -1,6 +1,7 @@
 package monopoly.utilidades;
 
 import monopoly.casillas.Casilla;
+import monopoly.casillas.Casilla.TipoCasilla;
 import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad.TipoPropiedad;
 
@@ -20,7 +21,7 @@ import java.util.Scanner;
  *     nombre, códigoColor,
  *     ...
  * </pre>
- *
+ * <p>
  * También se usa para leer el nombre y descripción de las
  * Cartas de Comunidad y Suerte.
  * <p>
@@ -45,7 +46,7 @@ public class Lector {
         try {
             scanner = new Scanner(new File(path));
         } catch (FileNotFoundException e) {
-            System.err.printf("[FATAL] No se ha encontrado el archivo de configuración \"%s\": %s\n", path, e);
+            Consola.error("[FATAL] No se ha encontrado el archivo de configuración \"%s\": %s\n".formatted(path, e));
             System.exit(1);
         }
 
@@ -82,7 +83,7 @@ public class Lector {
             String[] campos = linea.strip().replaceAll(" +", "").split(",");
 
             if (campos.length < 2) {
-                System.err.printf("[FATAL] ArchivoCasillas línea %d: Número de campos incorrecto\n", nLinea);
+                Consola.error("[FATAL] ArchivoCasillas línea %d: Número de campos incorrecto\n".formatted(nLinea));
                 System.exit(1);
             }
 
@@ -90,23 +91,24 @@ public class Lector {
                 // Declaración de un Grupo:
                 // Se quita la etiqueta del grupo, son 6 caracteres
                 String nombre = campos[0].substring(6);
-                byte codigoColor = (byte) Integer.parseInt(campos[1]);
+                int codigoColor = Integer.parseInt(campos[1]);
 
                 // El número de grupo es la posición en este Array
                 grupos.add(new Grupo(grupos.size(), nombre, codigoColor));
 
             } else {
-                // Declaración de una Casilla Propiedad:
+                // Declaración de una Casilla
                 int nGrupo = Integer.parseInt(campos[1]);
 
                 if (nGrupo > grupos.size()) {
-                    System.err.printf("[FATAL] ArchivoCasillas linea %d: %d número de grupo inválido\n", nLinea, nGrupo);
+                    Consola.error("[FATAL] ArchivoCasillas linea %d: %d número de grupo inválido\n".formatted(nLinea, nGrupo));
                     System.exit(1);
                 }
 
+                // Si hay 3 campos, es una propiedad. Si no es una casilla especial
                 Casilla c = campos.length == 3 ?
-                        new Casilla(grupos.get(nGrupo), campos[0], stringATipoPropiedad(campos[2])) :
-                        new Casilla(grupos.get(nGrupo), campos[0]);
+                        new Casilla(casillas.size(), grupos.get(nGrupo), campos[0], TipoPropiedad.valueOf(campos[2])) :
+                        new Casilla(casillas.size(), grupos.get(nGrupo), TipoCasilla.valueOf(campos[0]));
 
                 casillas.add(c);
                 grupos.get(nGrupo).anadirCasilla(c);
@@ -117,19 +119,33 @@ public class Lector {
         return casillas;
     }
 
-    /**
-     * Se convierte un String al tipo de dato enumerado
-     */
-    private static TipoPropiedad stringATipoPropiedad(String strTipo) {
-        return switch (strTipo.toLowerCase()) {
-            case "solar" -> TipoPropiedad.Solar;
-            case "servicio" -> TipoPropiedad.Servicio;
-            case "transporte" -> TipoPropiedad.Transporte;
-            default -> {
-                System.err.printf("[FATAL] ArchivoCasillas: \"%s\": tipo desconocido", strTipo);
-                System.exit(1);
-                yield null; // Nunca se ejecuta, pero si no se devuelve algo, da error.
+    /*
+    public static String leerCartas(String path) {
+        Scanner scanner = abrirArchivo(path);
+
+        for (int nLinea = 0; scanner.hasNextLine(); nLinea++) {
+            String linea = scanner.nextLine().strip();
+
+            // Se ignoran los comentarios y líneas en blanco
+            if (ignorarLinea(linea)) {
+                continue;
             }
-        };
+
+            String[] campos = linea.strip().replaceAll(" +", "").split(":");
+
+            if (campos.length != 3) {
+                // TODO
+            }
+
+            switch (campos[0]) {
+                case "Suerte" -> ;
+                case "Comunidad" -> ;
+                default ->
+                        System.err.printf("[FATAL] ArchivoCartas línea %d: carta que no es de suerte ni comunidad (\"%s\")\n", nLinea, campos[0]);
+            }
+        }
+
+        return "";
     }
+    */
 }
