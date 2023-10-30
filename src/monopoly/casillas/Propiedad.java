@@ -1,8 +1,7 @@
 package monopoly.casillas;
 
-import monopoly.Calculadora;
 import monopoly.jugadores.Jugador;
-import monopoly.utilidades.Formatear;
+import monopoly.utilidades.Consola;
 
 /**
  * Representa una casilla que se puede comprar por un jugador.
@@ -19,18 +18,21 @@ import monopoly.utilidades.Formatear;
  * @see Jugador
  */
 public class Propiedad {
+    private final String nombre;
     private final Casilla casilla;
     private final TipoPropiedad tipo;
     private long precio;
     private long alquiler;
     private Jugador propietario;
+
     /**
      * Crea una propiedad.
      *
      * @param casilla Casilla a la que está asociada
      * @param tipo    Tipo de casilla: Solar, Servicio o Transporte
      */
-    public Propiedad(Casilla casilla, TipoPropiedad tipo) {
+    public Propiedad(String nombre, Casilla casilla, TipoPropiedad tipo) {
+        this.nombre = nombre;
         this.casilla = casilla;
         this.tipo = tipo;
         this.propietario = null;
@@ -49,11 +51,11 @@ public class Propiedad {
                    precio: %s
                    alquiler: %s
                    propietario: %s
-               }""".formatted(casilla.getNombre(),
+               }""".formatted(nombre,
                               tipo,
                               tipo == TipoPropiedad.Solar? "\n    grupo: " + casilla.getGrupo().getNombre() : "",
-                              Formatear.num(precio),
-                              Formatear.num(alquiler),
+                              Consola.num(precio),
+                              Consola.num(alquiler),
                               propietario == null ? "-" : propietario.getNombre());
         // @formatter:on
     }
@@ -64,7 +66,11 @@ public class Propiedad {
             return true;
         }
 
-        return obj instanceof Propiedad && ((Propiedad) obj).getCasilla().equals(this.casilla);
+        return obj instanceof Propiedad && ((Propiedad) obj).nombre.equalsIgnoreCase(this.nombre);
+    }
+
+    public String getNombre() {
+        return nombre;
     }
 
     public Casilla getCasilla() {
@@ -80,16 +86,25 @@ public class Propiedad {
     }
 
     public void setPrecio(long precio) {
-        if (precio > 0) {
-            this.precio = precio;
-            this.alquiler = Calculadora.calcularAlquiler(this);
+        if (precio <= 0) {
+            Consola.error("[Propiedad] No se puede asignar un precio negativo o nulo a una propiedad");
+            return;
         }
 
-        // TODO: lanzar un error en caso contrario
+        this.precio = precio;
     }
 
     public long getAlquiler() {
         return alquiler;
+    }
+
+    public void setAlquiler(long alquiler) {
+        if (alquiler <= 0) {
+            Consola.error("[Propiedad] No se puede asignar un alquiler negativo o nulo a una propiedad");
+            return;
+        }
+
+        this.alquiler = alquiler;
     }
 
     public Jugador getPropietario() {

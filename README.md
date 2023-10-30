@@ -48,52 +48,76 @@ Definidas en el paquete `monopoly`:
 - **Tablero**: Crea las casillas, encargado de dibujar el tablero, contiene
   a los jugadores, etc.
 
-- **Jugador**: Representa un jugador dentro del juego.
+- **Calculadora**: Clase encargada de calcular y asignar todos los precios de
+  las propiedades y alquileres.
+
+-----------------------------------------------------------
+
+- **Jugador**: Representa un jugador dentro del juego. Contiene las propiedades,
+  la fortuna, las estadísticas...
+
+- **Avatar**: Representa un jugador en una casilla del juego. Es el encargado de
+  mover el jugador a una casilla distinta.
   - Coche
   - Esfinge
   - Sombrero
   - Pelota
   - Banca (especial)
 
+-----------------------------------------------------------
+
+- **Grupo** (x11): Representa un grupo de casillas. Si un jugador tiene todas las
+  casillas del grupo, se dice que tiene el Monopolio.
+
 - **Casilla** (x40): Representa una casilla del tablero y una propiedad (si aplica).
-  - Solar (x22) (propiedad, pertenece a un grupo)
-  - Transporte (x4) (propiedad, grupo propio)
-    - Puerto
-    - Aeropuerto
-    - Ferrocarril
-    - Nave espacial
-  - Servicio (x4) (propiedad, grupo propio)
-    - Telecomunicaciones
-    - Eléctrico
+  - **Propiedad** (se puede comprar)
+    - Solar (x22)
+    - Transporte (x4)
+      - Puerto
+      - Aeropuerto
+      - Ferrocarril
+      - Nave espacial
+    - Servicio (x4)
+      - Telecomunicaciones
+      - Eléctrico
   - Impuestos (x2)
   - Suerte (x3)
   - Comunidad (x3)
   - Especiales (x4): Carcel, Parking, Salida, IrACarcel (cada una de las esquinas)
 
-- **Edificacion**: Modificaciones que se puede aplicar a los solares.
+- **Edificación**: Modificaciones que se puede aplicar a los solares.
   - Casa
   - Hotel
   - Piscina
   - PistaDeporte
+  
+-----------------------------------------------------------
 
 Definidas en el paquete `monopoly.utilidades`:
 
-- **Dado**: Representa un dado, para realizar tiros y determinar cuantas
-  posiciones se tiene que mover un jugador.
-
+- **Dado**: Representa un lanzamiento de un dado
 - **Consola**: Clase de ayuda para escribir por pantalla con colores y distintos
   formatos.
+- **Lector**: Clase de ayuda para leer los archivo de las casillas y cartas.
+- **PintorTablero**: Clase de ayuda al Tablero para hacer una representación
+  gráfica del mismo.
+
+## Funciones obligatorias de cada Clase
+
+- `toString()`: Información detallada de la clase
+- `listar()`: Información básica (en el futuro una interfaz)
+- `equals()`: Criterio de igualdad
 
 # Notas de estilo
 
 En Java normalmente se siguen las siguientes convenciones, acorde a la [guía de
 estilo de Google].
 
-- 4 espacios de identación
+- 4 espacios de indentación
 - Nombres de clases: `EjemploDeNombre` (PascalCase).
 - Nombres de variables (locales y atributos) y funciones: `ejemploDeNombre` (camelCase).
 - Nombres de constantes: `EJEMPLO_DE_NOMBRE` (UPPER_SNAKE_CASE).
-- Se prohibe el uso de `import paquete.*;`.
+- Se prohíbe el uso de `import paquete.*;`.
 - Se incluyen siempre las llaves aunque solo haya una línea (las llaves van en
   la misma línea):
 
