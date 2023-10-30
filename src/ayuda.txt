@@ -1,0 +1,53 @@
+COMANDOS
+    ayuda, help                   Muestra esta información de ayuda.
+    ver tablero, tablero, show    Muestra el tablero del juego.
+    iniciar, start                Inicia la partida. Ya no se podrán añadir jugadores.
+    jugador, turno, player        Muestra el jugador al que le toca jugar.
+    lanzar, lanzar dados          El jugador actual lanza 2 dados y mueve su avatar.
+    acabar turno, fin, end        Termina el turno del jugador actual.
+    salir carcel                  Saca el jugador actual de la cárcel pagando la fianza.
+    salir, quit                   Cierra el programa.
+
+COMANDOS CON ARGUMENTOS
+    crear jugador <nombre> <tipo>
+          Crea un jugador dado su nombre y tipo. Este último puede ser uno de los
+          4 siguientes:
+              - Coche (alias c)
+              - Esfinge (alias e)
+              - Sombrero (alias s)
+              - Pelota (alias p)
+
+    listar <casillas | enventa | jugadores | avatares>
+          Muestra información sobre las Casillas, la propiedades EnVenta, Jugadores
+          del juego y sus Avatares.
+
+    describir <nombre-casilla>
+          Muestra información sobre una casilla en concreto.
+
+    describir jugador <nombre-jugador>
+          Muestra información sobre un jugador en concreto.
+
+    describir avatar <id>
+          Muestra información sobre un avatar en concreto.
+
+    comprar <nombre-propiedad>
+          Permite permite al jugador actual comprar una propiedad.
+
+          NOTA: solo se puede comprar la propiedad en la que está su avatar y si no
+          tiene dueño.
+
+COMANDOS DEBUG
+    Solo para probar el funcionamiento del juego.
+
+    exec <archivo>
+           Permite ejecutar un archivo que contiene un comando por línea.
+
+    mover <n1> <n2>
+           Simula una tirada de un dado. Si desea moverse un determinado número de casillas,
+           use n2 = 0.
+
+NOTAS
+    - Los comandos no distinguen mayúsculas de minúsculas: "AyUda" es lo mismo que "ayuda".
+    - Se ignoran los espacios en blanco no necesarios: "lanzar     dados" es lo
+      mismo que "lanzar dados".
+    - Lo que empiece por el caracter '#' se considerará un comentario, lo que se ignorará.
