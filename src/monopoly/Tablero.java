@@ -28,8 +28,6 @@ public class Tablero {
      * Casillas del tablero
      */
     private final ArrayList<Casilla> casillas;
-    private int nLanzamientos;
-    private int nDoblesSeguidos;
     private int turno;
     /**
      * True si la partida ha comenzado: ya no se pueden añadir más jugadores
@@ -43,8 +41,6 @@ public class Tablero {
         // Entre 2 y 6 jugadores
         jugadores = new ArrayList<>(6);
         turno = 0;
-        nLanzamientos = 1;
-        nDoblesSeguidos = 0;
         jugando = false;
 
         banca = new Jugador();
@@ -60,12 +56,12 @@ public class Tablero {
 
     public void iniciar() {
         if (jugando) {
-            Consola.error("La partida ya está iniciada\n");
+            Consola.error("La partida ya está iniciada");
             return;
         }
 
         if (jugadores.size() < 2) {
-            Consola.error("No hay suficientes jugadores para empezar (mínimo 2)\n");
+            Consola.error("No hay suficientes jugadores para empezar (mínimo 2)");
             return;
         }
 
@@ -102,12 +98,12 @@ public class Tablero {
      */
     public void anadirJugador(String nombre, Avatar.TipoAvatar tipo) {
         if (jugando) {
-            Consola.error("No se pueden añadir jugadores en mitad de una partida\n");
+            Consola.error("No se pueden añadir jugadores en mitad de una partida");
             return;
         }
 
         if (jugadores.size() >= 6) {
-            Consola.error("El máximo de jugadores es 6\n");
+            Consola.error("El máximo de jugadores es 6");
             return;
         }
 
@@ -131,58 +127,11 @@ public class Tablero {
      */
     public void moverJugador(Dado dado) {
         if (!jugando) {
-            Consola.error("No se ha iniciado la partida\n");
+            Consola.error("No se ha iniciado la partida");
             return;
         }
 
-        if (nLanzamientos <= 0) {
-            Consola.error("No se puede lanzar más veces. El jugador debe terminar su turno.\n");
-            return;
-        }
-        nLanzamientos--;
-
-        // TODO: tener en cuenta el tipo de avatar
-
-        // Calcular la casilla siguiente
-        Jugador jugador = getJugadorTurno();
-        Avatar avatar = jugador.getAvatar();
-
-        if (avatar.isEncerrado()) {
-            avatar.seguirEnCarcel();
-
-            if (dado.isDoble()) {
-                System.out.println("Dados dobles! El jugador puede salir de la Cárcel");
-                avatar.salirCarcel();
-            } else if (avatar.getEstanciasCarcel() >= 3) {
-                System.out.printf("%s con avatar %s no ha sacado dados dobles %s.\nAhora debe pagar obligatoriamente la fianza.\n",
-                        Consola.fmt(jugador.getNombre(), Color.Azul),
-                        Consola.fmt(Character.toString(avatar.getId()), Color.Azul),
-                        dado);
-                avatar.salirCarcel();
-            } else {
-                System.out.printf("%s con avatar %s no ha sacado dados dobles %s.\nPuede pagar la fianza o permanecer encerrado.\n",
-                        Consola.fmt(jugador.getNombre(), Color.Azul),
-                        Consola.fmt(Character.toString(avatar.getId()), Color.Azul),
-                        dado);
-            }
-        } else if (dado.isDoble()) {
-            nLanzamientos++;
-            nDoblesSeguidos++;
-            if (nDoblesSeguidos >= 3) {
-                System.out.printf("""
-                        %s con avatar %s ha sacado %s.
-                        Ya son 3 veces seguidas sacando dados dobles.
-                        %s es arrestado por tener tanta suerte.
-                        """,
-                        Consola.fmt(jugador.getNombre(), Color.Azul),
-                        Consola.fmt(Character.toString(avatar.getId()), Color.Azul),
-                        dado, jugador.getNombre());
-                avatar.irCarcel();
-            }
-
-            System.out.printf("%s. El jugador puede tirar otra vez.\n", Consola.fmt("Dados dobles!", Color.Azul));
-            avatar.mover(dado, casillas, jugadores, calculadora);
-        }
+        getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora);
     }
 
     /**
@@ -190,17 +139,21 @@ public class Tablero {
      */
     public void acabarTurno() {
         if (!jugando) {
-            Consola.error("No se ha iniciado la partida\n");
+            Consola.error("No se ha iniciado la partida");
             return;
         }
 
-        if (nLanzamientos > 0) {
-            Consola.error("Al jugador %s le quedan %d tiros\n".formatted(getJugadorTurno().getNombre(), nLanzamientos));
+        Jugador j = getJugadorTurno();
+        Avatar a = j.getAvatar();
+
+        if (j.getAvatar().getLanzamientos() > 0) {
+            Consola.error("Al jugador %s le quedan %d tiros".formatted(j.getNombre(), a.getLanzamientos()));
             return;
         }
 
-        nDoblesSeguidos = 0;
-        nLanzamientos = 1;
+        a.resetDoblesSeguidos();
+        a.resetLanzamientos();
+
         turno = (turno + 1) % jugadores.size();
 
         System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));

@@ -126,7 +126,7 @@ public class Jugador {
 
         // Comprobar que el jugador tiene fortuna suficiente
         if (!cobrar(p.getPrecio())) {
-            Consola.error("%s no dispone de suficiente dinero para comprar %s\n"
+            Consola.error("%s no dispone de suficiente dinero para comprar %s"
                     .formatted(nombre, p.getCasilla().getNombreFmt()));
             return;
         }

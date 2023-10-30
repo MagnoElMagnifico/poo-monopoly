@@ -21,12 +21,10 @@ import java.util.ArrayList;
  */
 public class Calculadora {
     public static final long PRECIO_GRUPO1 = 1_000_000;
-    private final Jugador banca;
     private long sumaSolares;
     private long nSolares;
 
     public Calculadora(ArrayList<Casilla> casillas, Jugador banca) {
-        this.banca = banca;
         sumaSolares = 0;
         nSolares = 0;
 
@@ -45,8 +43,14 @@ public class Calculadora {
             }
         }
 
-        // Ahora hay que asignar los precios a cada casilla
-        for (Casilla c : casillas) {
+        // Ahora hay que asignar los precios y otros atributos a cada casilla
+        // Para establecer una referencia a la cárcel en IrCárcel, se deben
+        // recorrer las casillas al revés, dado que la Cárcel aparece después
+        // de IrCárcel.
+        Casilla carcel = null;
+        for (int ii = casillas.size() - 1; ii >= 0; ii--) {
+            Casilla c = casillas.get(ii);
+
             switch (c.getTipo()) {
                 case Propiedad -> {
                     Propiedad p = c.getPropiedad();
@@ -55,7 +59,11 @@ public class Calculadora {
                 }
                 case Salida -> c.setAbonoSalida(calcularAbonoSalida());
                 case Impuestos -> c.setImpuestos(calcularAbonoSalida()); // TODO: uno debe valer la mitad
-                case Carcel -> c.setFianza(calcularAbonoSalida() / 4);
+                case Carcel -> {
+                    c.setFianza(calcularAbonoSalida() / 4);
+                    carcel = c;
+                }
+                case IrCarcel -> c.setCarcel(carcel);
             }
         }
     }
@@ -63,31 +71,6 @@ public class Calculadora {
     public static long calcularAlquiler(Propiedad p) {
         // TODO: tener en cuenta el monopolio y casas
         return p.getPrecio() / 10;
-    }
-
-    public long calcularAbonoSalida() {
-        return sumaSolares / nSolares;
-    }
-
-    public long calcularFortuna() {
-        return sumaSolares / 3;
-    }
-
-    // TODO: calcularPrecio(Edificacion)
-    // TODO: calcularHipoteca(Propiedad)
-
-    public long calcularPrecio(Propiedad p) {
-        Grupo g = p.getCasilla().getGrupo();
-
-        // @formatter:off
-        long precioGrupo = switch (p.getTipo()) {
-            case Solar      -> (long) (0.3 * g.getNumeroSolar() * PRECIO_GRUPO1 + PRECIO_GRUPO1);
-            case Transporte -> calcularAbonoSalida();
-            case Servicio   -> (long) (0.75 * calcularAbonoSalida());
-        };
-        // @formatter:on
-
-        return precioGrupo / g.getNumeroCasillas();
     }
 
     /**
@@ -103,7 +86,7 @@ public class Calculadora {
 
         for (Casilla c : casillas) {
             // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-            if (c.isPropiedad() && (c.getPropiedad().getPropietario() == null || c.getPropiedad().getPropietario().isBanca())){
+            if (c.isPropiedad() && (c.getPropiedad().getPropietario() == null || c.getPropiedad().getPropietario().isBanca())) {
                 Propiedad p = c.getPropiedad();
                 p.setPrecio((long) (p.getPrecio() * 1.05));
             }
@@ -114,5 +97,30 @@ public class Calculadora {
         }
 
         System.out.println("Se ha aumentado el precio de todas las casillas en venta\n");
+    }
+
+    public long calcularAbonoSalida() {
+        return sumaSolares / nSolares;
+    }
+
+    // TODO: calcularPrecio(Edificacion)
+    // TODO: calcularHipoteca(Propiedad)
+
+    public long calcularFortuna() {
+        return sumaSolares / 3;
+    }
+
+    public long calcularPrecio(Propiedad p) {
+        Grupo g = p.getCasilla().getGrupo();
+
+        // @formatter:off
+        long precioGrupo = switch (p.getTipo()) {
+            case Solar      -> (long) (0.3 * g.getNumeroSolar() * PRECIO_GRUPO1 + PRECIO_GRUPO1);
+            case Transporte -> calcularAbonoSalida();
+            case Servicio   -> (long) (0.75 * calcularAbonoSalida());
+        };
+        // @formatter:on
+
+        return precioGrupo / g.getNumeroCasillas();
     }
 }

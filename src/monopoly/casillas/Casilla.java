@@ -137,7 +137,7 @@ public class Casilla {
                 banca.ingresar(impuestos);
             }
 
-            case Carcel -> System.out.println("El jugador está solo de visita");
+            case Carcel -> System.out.println("El avatar se coloca en la Cárcel. Solo está de visita");
         }
     }
 
@@ -283,6 +283,11 @@ public class Casilla {
     public void setCarcel(Casilla carcel) {
         if (tipo != TipoCasilla.IrCarcel) {
             Consola.error("[Casilla] No se puede asignar la cárcel a esta casilla");
+            return;
+        }
+
+        if (carcel == null) {
+            Consola.error("[Casilla] La casilla de cárcel es null");
             return;
         }
 

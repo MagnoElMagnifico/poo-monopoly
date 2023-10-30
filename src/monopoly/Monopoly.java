@@ -22,11 +22,9 @@ import java.util.Scanner;
  * @date 25-09-2023
  */
 public class Monopoly {
-    /** Resultado del comando de ayuda */
-    private String msgAyuda;
-
     private final Scanner scanner;
     private final Tablero tablero;
+    private String msgAyuda;
 
     public Monopoly() {
         scanner = new Scanner(System.in);
@@ -86,7 +84,7 @@ public class Monopoly {
         try {
             scanner = new Scanner(archivo);
         } catch (FileNotFoundException e) {
-            Consola.error("\"%s\": no se ha encontrado\n".formatted(nombreArchivo));
+            Consola.error("\"%s\": no se ha encontrado".formatted(nombreArchivo));
             return;
         }
 
@@ -136,7 +134,8 @@ public class Monopoly {
             }
             case "lanzar", "lanzar dados" -> tablero.moverJugador(new Dado()); // TODO: tablero
             case "acabar turno", "fin", "end" -> tablero.acabarTurno(); // TODO: transacción + tablero
-            case "salir carcel" -> tablero.getJugadorTurno().getAvatar().salirCarcel(); // TODO: transacción + tablero
+            case "salir carcel" ->
+                    tablero.getJugadorTurno().getAvatar().salirCarcelPagando(); // TODO: transacción + tablero
             case "cambiar modo" -> tablero.cambiarModo();
 
             default -> this.cmdConArgumentos(cmdNorm);
@@ -212,7 +211,7 @@ public class Monopoly {
                 case "jugador" -> tablero.describirJugador(args[2]);
                 case "avatar" -> tablero.describirAvatar(args[2].charAt(0));
                 default -> Consola.error("\"%s\": Argumento inválido".formatted(args[1]));
-            };
+            }
         }
 
         Consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d".formatted(args.length));
