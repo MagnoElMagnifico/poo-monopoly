@@ -1,8 +1,5 @@
 package monopoly.utilidades;
 
-import monopoly.casillas.Casilla;
-import monopoly.casillas.Grupo;
-
 /**
  * Clase de ayuda para imprimir por Consola con colores y diferentes formatos.
  *
@@ -21,9 +18,11 @@ public class Consola {
      */
     private static final String FIN = "\u001b[0m";
 
-    /** Formatea un mensaje con un color específico. */
-    public static String format(String msg, Color color) {
-        return String.format("%s38;5;%dm%s%s", INICIO, color.ordinal(), msg, FIN);
+    /**
+     * Formatea un mensaje con un color específico.
+     */
+    public static String fmt(String msg, Color color) {
+        return String.format("%s0;%dm%s%s", INICIO, color.ordinal() + 30, msg, FIN);
     }
 
     /**
@@ -35,27 +34,23 @@ public class Consola {
      * @return La cadena formateada
      * @see <a href="https://user-images.githubusercontent.com/995050/47952855-ecb12480-df75-11e8-89d4-ac26c50e80b9.png">Codigos de Color</a>
      */
-    public static String format(String msg, byte color, Estilo... estilos) {
+    public static String fmt(String msg, int color, Estilo... estilos) {
         StringBuilder codEstilo = new StringBuilder();
 
-        // Generar una cadena de estilos si los hay
-        if (estilos.length != 0) {
-            // Los códigos se separan con ';'
-            for (int i = 0; i < estilos.length - 1; i++) {
-                codEstilo.append(estilos[i].ordinal());
-                codEstilo.append(';');
-            }
-
-            // Excepto el último
-            codEstilo.append(estilos[estilos.length - 1].ordinal());
+        // Los códigos se separan con ';'
+        for (Estilo estilo : estilos) {
+            codEstilo.append(estilo.ordinal());
+            codEstilo.append(';');
         }
 
-        return String.format("%s%s38;5;%dm%s%s", INICIO, codEstilo.toString(), color, msg, FIN);
+        return String.format("%s%s38;5;%dm%s%s", INICIO, codEstilo, color & 0xFF, msg, FIN);
     }
 
-    /** Imprime un mensaje de error en rojo a la consola */
+    /**
+     * Imprime un mensaje de error en rojo a la consola
+     */
     public static void error(String msg) {
-        System.out.printf("%s\n", Consola.format(msg, Color.Rojo));
+        System.out.printf("%s\n", Consola.fmt(msg, Color.Rojo));
     }
 
     /**
@@ -82,26 +77,6 @@ public class Consola {
         }
 
         return resultado.toString();
-    }
-
-    /**
-     * Formatea el nombre de una casilla.
-     * <p>
-     * Incluye el nombre de la misma, el nombre del grupo
-     * si no es una casilla especial; y se le aplican los
-     * colores de su grupo.
-     *
-     * @param c Casilla de la que formatear su nombre
-     * @return El nombre de la casilla formateada.
-     */
-    public static String casillaNombre(Casilla c) {
-        Grupo g = c.getGrupo();
-
-        if (!c.isPropiedad()) {
-            return Consola.format(c.getNombre(), g.getCodigoColor());
-        }
-
-        return Consola.format("%s, %s".formatted(c.getNombre(), g.getNombre()), g.getCodigoColor());
     }
 
     /**
