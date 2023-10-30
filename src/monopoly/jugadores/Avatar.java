@@ -30,7 +30,8 @@ public class Avatar {
     private int vueltas;
 
     private boolean movimientoEspecial;
-
+    private boolean estadoCoche;
+    private int nEstadoCoche;
     private int nLanzamientos;
 
     private int nDoblesSeguidos;
@@ -50,6 +51,8 @@ public class Avatar {
         this.movimientoEspecial=false;
         this.nLanzamientos=0;
         this.nDoblesSeguidos=0;
+        this.estadoCoche=false;
+        this.nEstadoCoche=0;
     }
 
     /**
@@ -66,6 +69,8 @@ public class Avatar {
         this.movimientoEspecial=false;
         this.nLanzamientos=0;
         this.nDoblesSeguidos=0;
+        this.estadoCoche=false;
+        this.nEstadoCoche=0;
     }
 
     @Override
@@ -115,9 +120,7 @@ public class Avatar {
     public void setnLanzamientos() {this.nLanzamientos=1;}
     public void setnDoblesSeguidos() {this.nDoblesSeguidos=0;}
 
-    /**
-     * Pone el Avatar en el estado encerrado
-     */
+
 
 
     /**
@@ -155,6 +158,14 @@ public class Avatar {
     }
 
     public String mover(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
+        if(estadoCoche) {
+            nEstadoCoche++;
+            if(nEstadoCoche>2){
+                nEstadoCoche=0;
+                estadoCoche=false;
+            }
+            return "Aún no te puedes mover. Enfriando cocche";
+        }
         Casilla actualCasilla = this.casilla;
         int nActual = casillas.indexOf(this.casilla);
         String accionAdicional= "";
@@ -253,6 +264,7 @@ public class Avatar {
             if (nNuevo >= casillas.size()) {
                 nNuevo -= casillas.size();
             }
+            estadoCoche=true;
         }
         else {
             nNuevo= nActual + dado.getValor();
@@ -270,6 +282,7 @@ public class Avatar {
                 // @formatter:on
             }
         }
+
         Casilla actualCasilla = this.casilla;
         Casilla nuevaCasilla = casillas.get(nNuevo);
 
@@ -277,7 +290,15 @@ public class Avatar {
         actualCasilla.quitarAvatar(this);
         this.setCasilla(nuevaCasilla);
         nuevaCasilla.anadirAvatar(this);
-        return "";
+        return """
+                %s con avatar %s, avanza %s posiciones.
+                Avanza desde %s hasta %s.
+                %s%s""".formatted(Formatear.con(this.jugador.getNombre(), Formatear.Color.Azul),
+                Formatear.con(Character.toString(this.getId()), Formatear.Color.Azul),
+                dado,
+                Formatear.casillaNombre(actualCasilla),
+                Formatear.casillaNombre(nuevaCasilla),
+                accionCasilla(nuevaCasilla, dado, calculadora, banca, casillas), accionAdicional);
     }
 
     private String moverEspecialPelota(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
@@ -321,7 +342,6 @@ public class Avatar {
 
                 jugador.cobrar(importe);
                 banca.ingresar(importe);
-
                 yield "Se han pagado %s de impuestos a la banca.\n".formatted(Formatear.num(importe));
             }
 
@@ -353,11 +373,14 @@ public class Avatar {
             return Formatear.con("El jugador %s no está en la Cárcel".formatted(jugador.getNombre()), Formatear.Color.Rojo);
         }
 
+
         long importe = this.casilla.getPrecio();
+        if(!jugador.cobrar(importe)) return "El jugador no tiene dinero no sale de la carel";
+
         estanciasCarcel = 0;
         estarEncerrado = false;
-        jugador.cobrar(importe);
 
+        //TODO: Arreglar la carcel parar da bancarotq
         return "El jugador %s paga %s para salir de la cárcel\n".formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul), Formatear.num(importe));
     }
 }

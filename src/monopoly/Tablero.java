@@ -130,7 +130,7 @@ public class Tablero {
         }
         Jugador jugador=jugadores.get(turno);
         Avatar avatar = jugador.getAvatar();
-
+        if(avatar.getnLanzamientos() == 0) return "No tienes más lanzamientos\n";
         return avatar.mover(casillas,dado,calculadora,jugadores,banca);
     }
 
