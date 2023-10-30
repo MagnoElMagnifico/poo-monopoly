@@ -151,7 +151,7 @@ public class Tablero {
             return Formatear.con("No se ha iniciado la partida\n", Color.Rojo);
         }
 
-        if (jugadores.get(turno).getAvatar().getnLanzamientos() > 0) {
+        if (jugadores.get(turno).getAvatar().getnLanzamientos() > 0 && jugadores.get(turno).getAvatar().getMovimientoEspecial()) {
             return Formatear.con("Al jugador %s le quedan %d tiros\n".formatted(getJugadorTurno().getNombre(), jugadores.get(turno).getAvatar().getnLanzamientos()), Color.Rojo);
         }
         jugadores.get(turno).getAvatar().setnDoblesSeguidos();

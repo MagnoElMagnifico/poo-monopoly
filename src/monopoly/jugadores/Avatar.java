@@ -117,10 +117,14 @@ public class Avatar {
 
     public int getnLanzamientos() {return this.nLanzamientos;}
 
-    public void setnLanzamientos() {this.nLanzamientos=1;}
+    public void setnLanzamientos() {
+        if(!movimientoEspecial) this.nLanzamientos=1;
+        else if (tipo==TipoAvatar.Coche){
+            this.nLanzamientos=4;
+        }
+    }
     public void setnDoblesSeguidos() {this.nDoblesSeguidos=0;}
-
-
+    public boolean getMovimientoEspecial() {return this.movimientoEspecial;}
 
 
     /**
@@ -265,6 +269,7 @@ public class Avatar {
                 nNuevo -= casillas.size();
             }
             estadoCoche=true;
+            nLanzamientos=0;
         }
         else {
             nNuevo= nActual + dado.getValor();
