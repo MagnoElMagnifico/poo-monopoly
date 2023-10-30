@@ -28,8 +28,7 @@ public class Tablero {
      * Casillas del tablero
      */
     private final ArrayList<Casilla> casillas;
-    private int nLanzamientos;
-    private int nDoblesSeguidos;
+
     private int turno;
     /**
      * True si la partida ha comenzado: ya no se pueden añadir más jugadores
@@ -43,8 +42,6 @@ public class Tablero {
         // Entre 2 y 6 jugadores
         jugadores = new ArrayList<>(6);
         turno = 0;
-        nLanzamientos = 1;
-        nDoblesSeguidos = 0;
         jugando = false;
 
         banca = new Jugador();
@@ -141,8 +138,6 @@ public class Tablero {
         }
         nLanzamientos--;
 
-        // TODO: tener en cuenta el tipo de avatar
-
         // Calcular la casilla siguiente
         Jugador jugador = getJugadorTurno();
         Avatar avatar = jugador.getAvatar();
@@ -198,9 +193,8 @@ public class Tablero {
             Consola.error("Al jugador %s le quedan %d tiros\n".formatted(getJugadorTurno().getNombre(), nLanzamientos));
             return;
         }
-
-        nDoblesSeguidos = 0;
-        nLanzamientos = 1;
+          
+        jugadores.get(turno).getAvatar().setnDoblesSeguidos();
         turno = (turno + 1) % jugadores.size();
 
         System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));

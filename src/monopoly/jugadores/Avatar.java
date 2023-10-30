@@ -34,6 +34,10 @@ public class Avatar {
     private int vueltas;
     private boolean movimientoEspecial;
 
+    private int nLanzamientos;
+
+    private int nDoblesSeguidos;
+
     /**
      * Crea un avatar dado su tipo, id y el jugador al que hace referencia
      */
@@ -47,7 +51,10 @@ public class Avatar {
         this.encerrado = false;
         this.estanciasCarcel = 0;
         this.vueltas = 0;
+
         this.movimientoEspecial = false;
+        this.nLanzamientos = 0;
+        this.nDoblesSeguidos = 0;
     }
 
     /**
@@ -62,7 +69,10 @@ public class Avatar {
         this.encerrado = false;
         this.estanciasCarcel = 0;
         this.vueltas = 0;
-        this.movimientoEspecial = false;
+
+        this.movimientoEspecial=false;
+        this.nLanzamientos = 0;
+        this.nDoblesSeguidos = 0;
     }
 
     @Override
@@ -198,6 +208,24 @@ public class Avatar {
         return estanciasCarcel;
     }
 
+    public int getnLanzamientos() {
+        return this.nLanzamientos;
+    }
+
+    public void setnLanzamientos() {
+        this.nLanzamientos = 1;
+    }
+  
+    public void setnDoblesSeguidos() {
+        nDoblesSeguidos = 0;
+    }
+
+    /**
+     * Pone el Avatar en el estado encerrado
+     */
+
+// > main
+
     /**
      * Se notifica al Avatar de que pasa otro turno en la Cárcel
      */
@@ -207,12 +235,19 @@ public class Avatar {
             return;
         }
 
+// < Marcos
         estanciasCarcel++;
     }
 
     public boolean isEncerrado() {
         return encerrado;
     }
+// =
+    /**
+     * Saca el Avatar del estado encerrado
+     */
+
+// > main
 
     public int getVueltas() {
         return vueltas;
@@ -232,4 +267,214 @@ public class Avatar {
     public enum TipoAvatar {
         Coche, Esfinge, Sombrero, Pelota
     }
+// < Marcos
+// =
+
+    public String mover(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
+        Casilla actualCasilla = this.casilla;
+        int nActual = casillas.indexOf(this.casilla);
+        String accionAdicional= "";
+        if(!this.movimientoEspecial){
+            nLanzamientos--;
+            if (this.estarEncerrado) {
+                this.seguirEnCarcel();
+
+                if (dado.isDoble()) {
+                    accionAdicional += "Dados dobles! El jugador puede salir de %s\n".formatted(Formatear.casillaNombre(actualCasilla));
+                    this.salirCarcel();
+                } else if (this.estanciasCarcel >= 3) {
+                    // @formatter:off
+                    return """
+                        %s con avatar %s no ha sacado dados dobles %s.
+                        Ahora debe pagar obligatoriamente la fianza.
+                        %s""".formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul),
+                            Formatear.con(Character.toString(this.id), Formatear.Color.Azul),
+                            dado, this.salirCarcel());
+                    // @formatter:on
+                } else {
+                    // @formatter:off
+                    return """
+                        %s con avatar %s no ha sacado dados dobles %s.
+                        Puede pagar la fianza o permanecer encerrado.
+                        """.formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul),
+                            Formatear.con(Character.toString(this.id), Formatear.Color.Azul),
+                            dado);
+                    // @formatter:on
+                }
+            } else if (dado.isDoble()) {
+                accionAdicional += "Dados dobles! El jugador puede lanzar otra vez\n";
+                nLanzamientos++;
+                nDoblesSeguidos++;
+                if (nDoblesSeguidos >= 3) {
+                    // @formatter:off
+                    return """
+                        %s con avatar %s ha sacado %s.
+                        Ya son 3 veces seguidas sacando dados dobles.
+                        %s es arrestado por tener tanta suerte.
+                        %s""".formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul),
+                            Formatear.con(Character.toString(this.id), Formatear.Color.Azul),
+                            dado,
+                            jugador.getNombre(),
+                            this.irCarcel(casillas));
+                    // @formatter:on
+                }
+            }
+
+            int nNuevo = nActual + dado.getValor();
+            if (nNuevo >= casillas.size()) {
+                nNuevo -= casillas.size();
+
+                this.anadirVuelta();
+                jugador.ingresar(calculadora.calcularAbonoSalida());
+
+                // @formatter:off
+                accionAdicional += "Como el avatar pasa por la casilla de Salida, %s recibe %s\n%s"
+                        .formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul),
+                                Formatear.num(calculadora.calcularAbonoSalida()),
+                                calculadora.aumentarPrecio(casillas,jugadores));
+                // @formatter:on
+            }
+            Casilla nuevaCasilla = casillas.get(nNuevo);
+
+            // Quitar el avatar de la casilla actual y añadirlo a la nueva
+            actualCasilla.quitarAvatar(this);
+            this.setCasilla(nuevaCasilla);
+            nuevaCasilla.anadirAvatar(this);
+            return """
+                %s con avatar %s, avanza %s posiciones.
+                Avanza desde %s hasta %s.
+                %s%s""".formatted(Formatear.con(this.jugador.getNombre(), Formatear.Color.Azul),
+                    Formatear.con(Character.toString(this.getId()), Formatear.Color.Azul),
+                    dado,
+                    Formatear.casillaNombre(actualCasilla),
+                    Formatear.casillaNombre(nuevaCasilla),
+                    accionCasilla(nuevaCasilla, dado, calculadora, banca, casillas), accionAdicional);
+        }
+        else {
+            return switch (this.tipo) {
+                case Coche -> moverEspecialCoche(casillas,dado,calculadora,jugadores,banca);
+                case Pelota -> moverEspecialPelota(casillas,dado,calculadora,jugadores,banca);
+                case Sombrero -> moverEspecialSombrero(casillas,dado,calculadora,jugadores,banca);
+                case Esfinge -> moverEspecialEsfinge(casillas,dado,calculadora,jugadores,banca);
+            };
+        }
+    }
+
+    private String moverEspecialCoche(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
+        int nActual = casillas.indexOf(this.casilla);
+        String accionAdicional= "";
+        int nNuevo;
+        if(dado.getValor()<=4)  {
+            nNuevo= nActual - dado.getValor()+ casillas.size();
+            if (nNuevo >= casillas.size()) {
+                nNuevo -= casillas.size();
+            }
+        }
+        else {
+            nNuevo= nActual + dado.getValor();
+            if (nNuevo >= casillas.size()) {
+                nNuevo -= casillas.size();
+
+                this.anadirVuelta();
+                jugador.ingresar(calculadora.calcularAbonoSalida());
+
+                // @formatter:off
+                accionAdicional += "Como el avatar pasa por la casilla de Salida, %s recibe %s\n%s"
+                        .formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul),
+                                Formatear.num(calculadora.calcularAbonoSalida()),
+                                calculadora.aumentarPrecio(casillas,jugadores));
+                // @formatter:on
+            }
+        }
+        Casilla actualCasilla = this.casilla;
+        Casilla nuevaCasilla = casillas.get(nNuevo);
+
+        // Quitar el avatar de la casilla actual y añadirlo a la nueva
+        actualCasilla.quitarAvatar(this);
+        this.setCasilla(nuevaCasilla);
+        nuevaCasilla.anadirAvatar(this);
+        return "";
+    }
+
+    private String moverEspecialPelota(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
+        return"";
+    }
+
+    private String moverEspecialEsfinge(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
+        return"";
+    }
+
+    private String moverEspecialSombrero(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
+        return"";
+    }
+    private String accionCasilla(Casilla casilla, Dado dado, Calculadora calculadora, Jugador banca,ArrayList<Casilla> casillas) {
+        if (casilla.isPropiedad()) {
+            return calculadora.pagarAlquiler(casilla.getPropiedad(), this.jugador, dado);
+        }
+
+        return switch (casilla.getNombre()) {
+            case "IrCárcel" -> irCarcel(casillas);
+            case "Comunidad1", "Comunidad2", "Comunidad3" -> "* Acción de Carta de Comunidad *\n";
+            case "Suerte1", "Suerte2", "Suerte3" -> "* Acción de Carta de Suerte *\n";
+            case "Parking" -> {
+                Jugador jugador = this.jugador;
+
+                long bote = banca.getFortuna();
+                jugador.ingresar(bote);
+                banca.cobrar(bote); // Poner a 0 el bote
+
+                yield "El jugador recibe el bote de la banca: %s\n".formatted(Formatear.num(bote));
+
+            }
+
+            case "Impuesto1", "Impuesto2" -> {
+                Jugador jugador = this.jugador;
+                long importe = casilla.getPrecio();
+
+                if (importe > jugador.getFortuna()) {
+                    yield Formatear.con("El jugador no tiene suficientes fondos para pagar el alquiler\n", Formatear.Color.Rojo);
+                }
+
+                jugador.cobrar(importe);
+                banca.ingresar(importe);
+
+                yield "Se han pagado %s de impuestos a la banca.\n".formatted(Formatear.num(importe));
+            }
+
+            case "Cárcel" -> "El jugador está solo de visita.\n";
+            default -> "";
+        };
+    }
+
+
+
+    private String irCarcel(ArrayList<Casilla> casillas) {
+
+        estarEncerrado = true;
+        estanciasCarcel = 0;
+        nLanzamientos=0;
+        Casilla nuevaCasilla = casillas.get(casillas.indexOf(new Casilla(null, "Cárcel")));
+        this.getCasilla().quitarAvatar(this);
+        this.setCasilla(nuevaCasilla);
+        nuevaCasilla.anadirAvatar(this);
+
+
+        return "El avatar se coloca en la Cárcel\n";
+    }
+
+    public String salirCarcel() {
+
+
+        if (!this.estarEncerrado) {
+            return Formatear.con("El jugador %s no está en la Cárcel".formatted(jugador.getNombre()), Formatear.Color.Rojo);
+        }
+
+        long importe = this.casilla.getPrecio();
+        estanciasCarcel = 0;
+        estarEncerrado = false;
+        jugador.cobrar(importe);
+
+        return "El jugador %s paga %s para salir de la cárcel\n".formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul), Formatear.num(importe));
+    }
+//  main
 }
