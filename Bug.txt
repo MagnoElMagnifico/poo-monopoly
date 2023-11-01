@@ -2,6 +2,6 @@
 #Bugs numerados con quien los encontró (G1,M1,J1) si estan resueltos poner # al principio del mismo
 
 
-G1: Acción Describir: mensajes de error cuando no deben
-G2: Impuesto no da ningun mensaje al cobrar la funcionalidad funciona
-G3: Accion Comprar: mensaje de error cundo no deben
+#G1: Acción Describir: mensajes de error cuando no deben
+#G2: Impuesto no da ningun mensaje al cobrar el impuesto
+#G3: Accion Comprar: mensaje de error cundo no deben se puede comprar aunque no se pueda

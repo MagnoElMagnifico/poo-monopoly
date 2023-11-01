@@ -29,6 +29,7 @@ public class Calculadora {
         nSolares = 0;
 
         for (Casilla c : casillas) {
+            c.setBanca(banca);
             if (c.isPropiedad()) {
                 // Asignar propiedades a la Banca
                 Propiedad p = c.getPropiedad();

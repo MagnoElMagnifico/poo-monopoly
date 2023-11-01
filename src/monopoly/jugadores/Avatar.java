@@ -98,12 +98,17 @@ public class Avatar {
      */
     public void mover(Dado dado, ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores, Calculadora calculadora) {
         if (lanzamientos <= 0) {
-            Consola.error("No quedan lanzamientos. El jugador debe terminar el turno");
+            Consola.error("No quedan lanzamientos. El jugador debe terminar el turno\n");
             return;
         }
 
         lanzamientos--;
 
+        if(penalizacion!=0){
+            penalizacion--;
+            Consola.error("Restaurando avatar espera para poder moverte\n");
+            return;
+        }
         if (encerrado) {
             moverEstandoCarcel(dado);
             return;
@@ -134,6 +139,9 @@ public class Avatar {
             this.anadirVuelta();
             jugador.ingresar(calculadora.calcularAbonoSalida());
 
+            // Aumentar los precios en caso de que el avatar pasase por la salida
+            Calculadora.aumentarPrecio(casillas, jugadores);
+
             System.out.printf("Como el avatar pasa por la casilla de Salida, %s recibe %s\n",
                     Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
                     Consola.num(calculadora.calcularAbonoSalida()));
@@ -154,8 +162,7 @@ public class Avatar {
                 dado,
                 anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
 
-        // Aumentar los precios en caso de que el avatar pasase por la salida
-        Calculadora.aumentarPrecio(casillas, jugadores);
+
 
         // Realizar la acción de la casilla
         nuevaCasilla.accion(jugador, dado);
@@ -253,6 +260,7 @@ public class Avatar {
             return (this.casilla.getPosicion()- dado.getValor()+40)%40;
         }else {
             lanzamientos++;
+            if(lanzamientosEspeciales==0) lanzamientos=0;
             return this.casilla.getPosicion() + dado.getValor();
         }
     }

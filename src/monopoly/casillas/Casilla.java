@@ -132,7 +132,7 @@ public class Casilla {
                 if (!jugadorTurno.cobrar(impuestos)) {
                     Consola.error("El jugador no tiene suficientes fondos para pagar los impuestos");
                     return;
-                }
+                } else System.out.printf("El jugador paga de impuestos: %s\n", Consola.num(impuestos));
 
                 banca.ingresar(impuestos);
             }
@@ -258,16 +258,6 @@ public class Casilla {
     }
 
     public void setBanca(Jugador banca) {
-        if (tipo != TipoCasilla.Parking) {
-            Consola.error("[Casilla] No se puede asignar la banca a una casilla que no sea el Parking");
-            return;
-        }
-
-        if (banca == null) {
-            Consola.error("[Casilla] La banca no puede ser nula");
-            return;
-        }
-
         this.banca = banca;
     }
 
