@@ -1,6 +1,7 @@
 package monopoly.jugadores;
 
 import monopoly.Calculadora;
+import monopoly.Monopoly;
 import monopoly.casillas.Casilla;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Consola.Color;
@@ -121,7 +122,7 @@ public class Avatar {
                 case Coche -> moverEspecialCoche(dado);
                 case Esfinge -> moverEspecialEsfinge();
                 case Sombrero -> moverEspecialSombrero();
-                case Pelota -> moverEspecialPelota();
+                case Pelota -> moverEspecialPelota(dado);
             };
         } else {
             posNuevaCasilla = moverBasico(dado);
@@ -260,7 +261,12 @@ public class Avatar {
             return (this.casilla.getPosicion()- dado.getValor()+40)%40;
         }else {
             lanzamientos++;
-            if(lanzamientosEspeciales==0) lanzamientos=0;
+            if(lanzamientosEspeciales==0) {
+                lanzamientos=0;
+                movimientoEspecial=false;
+                return moverBasico(dado);
+            }
+
             return this.casilla.getPosicion() + dado.getValor();
         }
     }
@@ -275,9 +281,11 @@ public class Avatar {
         return -1;
     }
 
-    private int moverEspecialPelota() {
-        // TODO
-        return -1;
+    private int moverEspecialPelota(Dado dado) {
+        movimientoEspecial=false;
+        if(dado.getValor() <=4) return (this.casilla.getPosicion()- dado.getValor()+40)%40;
+        if(dado.getValor() ==5) return this.casilla.getPosicion() +dado.getValor();
+        return this.casilla.getPosicion() +dado.getValor();
     }
 
     public char getId() {
