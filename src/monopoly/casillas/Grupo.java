@@ -1,8 +1,8 @@
 package monopoly.casillas;
 
-import monopoly.utilidades.Formatear;
+import monopoly.utilidades.Consola;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -25,14 +25,14 @@ public class Grupo {
      */
     private final int numero;
     private final String nombre;
-    private final byte codigoColor;
-    private final ArrayList<Casilla> casillas;
+    private final int codigoColor;
+    private final HashSet<Casilla> casillas;
 
-    public Grupo(int numero, String nombre, byte codigoColor) {
+    public Grupo(int numero, String nombre, int codigoColor) {
         this.numero = numero;
         this.nombre = nombre;
         this.codigoColor = codigoColor;
-        this.casillas = new ArrayList<>(3);
+        this.casillas = new HashSet<>(3);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class Grupo {
         casillasStr.append('[');
 
         while (iter.hasNext()) {
-            casillasStr.append(Formatear.con(iter.next().getNombre(), codigoColor));
+            casillasStr.append(iter.next().getNombre());
 
             if (iter.hasNext()) {
                 casillasStr.append(", ");
@@ -56,7 +56,7 @@ public class Grupo {
                     nombre: %s
                     número: %d
                     casillas: %s
-                }""".formatted(Formatear.con(nombre, codigoColor), numero, casillasStr);
+                }""".formatted(Consola.fmt(nombre, codigoColor), numero, casillasStr);
     }
 
     @Override
@@ -84,18 +84,18 @@ public class Grupo {
      * Devuelve el número de solar del grupo
      */
     public int getNumeroSolar() {
-        return numero < 3 ? 0 : numero - 3;
+        return numero - 3;
     }
 
     public String getNombre() {
         return nombre;
     }
 
-    public byte getCodigoColor() {
+    public int getCodigoColor() {
         return codigoColor;
     }
 
-    public ArrayList<Casilla> getCasillas() {
+    public HashSet<Casilla> getCasillas() {
         return casillas;
     }
 }

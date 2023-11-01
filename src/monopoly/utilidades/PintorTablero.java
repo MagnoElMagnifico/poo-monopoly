@@ -3,7 +3,7 @@ package monopoly.utilidades;
 import monopoly.Tablero;
 import monopoly.casillas.Casilla;
 import monopoly.jugadores.Avatar;
-import monopoly.utilidades.Formatear.Estilo;
+import monopoly.utilidades.Consola.Estilo;
 
 import java.util.ArrayList;
 
@@ -45,6 +45,33 @@ public class PintorTablero {
     // @formatter:on
 
     /**
+     * Formatea un String de forma que `msg` tiene como máximo
+     * tam-2 caracteres de longitud y está rodeado de espacios.
+     * <p>
+     * Por ejemplo:
+     *
+     * <pre>
+     *     msg = estoesunejemplo
+     *     tam = 10
+     *     resultado -> " estoesu. "
+     *
+     *     msg = hola
+     *     tam = 10
+     *     resultado -> " hola     "
+     * </pre>
+     *
+     * @param msg Mensaje que formatear
+     * @return Mensaje formateado
+     */
+    private static String celda(String msg) {
+        if (msg.length() + 2 > TAM_TEXTO) {
+            return " %s. ".formatted(msg.substring(0, TAM_TEXTO - 3));
+        }
+
+        return " %s%s".formatted(msg, " ".repeat(TAM_TEXTO - msg.length() - 1));
+    }
+
+    /**
      * Función privada de ayuda que añade a <code>dst</code> el
      * el contenido de una celda: el nombre de la casilla y sus
      * avatares.
@@ -52,22 +79,13 @@ public class PintorTablero {
     private static void pintarCelda(StringBuilder dst, Casilla c, Avatar avatarActual) {
         dst.append(VERT);
 
-        // Escoger un estilo dependiendo del tipo de casilla
-        Estilo estilo = Estilo.Negrita;
-        if (c.isPropiedad()) {
-            estilo = switch (c.getPropiedad().getTipo()) {
-                case Solar -> Estilo.Normal;
-                case Servicio, Transporte -> Estilo.Cursiva;
-            };
-        }
-
-        dst.append(Formatear.con(Formatear.celda(c.getNombre(), TAM_TEXTO), c.getGrupo().getCodigoColor(), estilo));
+        dst.append(Consola.fmt(celda(c.getNombre()), c.getGrupo().getCodigoColor()));
 
         for (int i = 0; i < TAM_AVATAR; i++) {
             if (i < c.getAvatares().size()) {
                 Avatar a = c.getAvatares().get(i);
-                if (avatarActual == a) {
-                    dst.append(Formatear.con(Character.toString(a.getId()), Formatear.Color.Rojo, Estilo.ParpadeoLento));
+                if (avatarActual.equals(a)) {
+                    dst.append(Consola.fmt(Character.toString(a.getId()), 1, Estilo.ParpadeoLento));
                 } else {
                     dst.append(a.getId());
                 }

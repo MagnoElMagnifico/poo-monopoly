@@ -32,7 +32,7 @@ public class Dado {
 
     @Override
     public String toString() {
-        return "(%d: %d, %d)".formatted(dado1 + dado2, dado1, dado2);
+        return "%d (%d y %d)".formatted(dado1 + dado2, dado1, dado2);
     }
 
     @Override

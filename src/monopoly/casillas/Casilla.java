@@ -1,8 +1,10 @@
 package monopoly.casillas;
 
 import monopoly.jugadores.Avatar;
-import monopoly.utilidades.Formatear;
-import monopoly.utilidades.Formatear.Color;
+import monopoly.jugadores.Jugador;
+import monopoly.utilidades.Consola;
+import monopoly.utilidades.Consola.Estilo;
+import monopoly.utilidades.Dado;
 
 import java.util.ArrayList;
 
@@ -10,7 +12,8 @@ import java.util.ArrayList;
  * La clase Casilla representa una casilla del tablero, que pueden ser de dos tipos:
  *
  * <li> Propiedad: se puede comprar por los jugadores (Solares, Servicios, Transporte).
- * <li> Casilla especial: Cárcel, Salida, IrACárcel, Parking.
+ * <li> Casilla especial: Cárcel, Salida, IrACárcel, Parking, Impuestos, CartaComunidad,
+ * CartaSuerte.
  *
  * <p> Además, sabe si hay un avatar sobre la casilla (útil para dibujar el tablero).
  *
@@ -18,82 +21,86 @@ import java.util.ArrayList;
  * @see Avatar
  */
 public class Casilla {
-    private final String nombre;
-    /**
-     * Si es una casilla especial, este campo está a `null`.
-     */
-    private final Propiedad propiedad;
+    private final int posicion;
+    private final TipoCasilla tipo;
     private final Grupo grupo;
+    // Si es una casilla especial, este campo está a `null`.
+    private final Propiedad propiedad;
     private final ArrayList<Avatar> avatares;
-    /**
-     * Esta variable se usa para almacenar:
-     *
-     * <li> el bote del Parking,
-     * <li> a fianza de la Cárcel
-     * <li> el dinero a pagar en los impuestos
-     * <p>
-     * En otros casos, se almacena la información necesaria en propiedad.
-     */
-    private long dinero;
+
+    private long fianza;       /* Solo en Carcel: Valor pagado para salir de la cárcel */
+    private long abonoSalida;  /* Solo en Salida: Valor recibido al pasar por la salida */
+    private long impuestos;    /* Solo en Impuestos: Valor que se cobran por los impuestos */
+    private Jugador banca;     /* Solo en Parking: banca.getFortuna() es el valor recibido */
+    private Casilla carcel;    /* Solo en IrCarcel: casilla a donde se tiene que mover el avatar */
 
     /**
      * Construye una nueva casilla de tipo Propiedad
      */
-    public Casilla(Grupo grupo, String nombre, Propiedad.TipoPropiedad tipoPropiedad) {
-        this.nombre = nombre;
-        this.propiedad = new Propiedad(this, tipoPropiedad);
+    public Casilla(int posicion, Grupo grupo, String nombre, Propiedad.TipoPropiedad tipoPropiedad) {
+        this.posicion = posicion;
+        this.tipo = TipoCasilla.Propiedad;
+        this.propiedad = new Propiedad(nombre, this, tipoPropiedad);
         this.grupo = grupo;
         this.avatares = new ArrayList<>();
-        this.dinero = -1; // Todavía no se le ha asignado un precio
+
+        // Los establece luego la Calculadora según el tipo
+        fianza = -1;
+        abonoSalida = -1;
+        impuestos = -1;
+        banca = null;
+        carcel = null;
     }
 
     /**
      * Construye una nueva casilla de tipo especial
      */
-    public Casilla(Grupo grupo, String nombre) {
-        this.nombre = nombre;
+    public Casilla(int posicion, Grupo grupo, TipoCasilla tipo) {
+        this.posicion = posicion;
+        this.tipo = tipo;
         this.propiedad = null;
         this.grupo = grupo;
         this.avatares = new ArrayList<>();
-        this.dinero = -1; // Todavía no se le ha asignado un precio
+
+        // Los establece luego la Calculadora según el tipo
+        fianza = -1;
+        abonoSalida = -1;
+        impuestos = -1;
+        banca = null;
+        carcel = null;
     }
 
     @Override
     public String toString() {
-        if (!isPropiedad()) {
-            return switch (nombre) {
-                case "Salida" -> """
-                        %s: Casilla de inicio del juego.
-                        Cada vez que un jugador pase por esta casilla recibirá %s.
-                        """.formatted(Formatear.casillaNombre(this), Formatear.num(dinero));
-                case "IrCárcel" -> """
-                        %s: Si un jugador cae en esta casilla, se le enviará directamente
-                        a la casilla Cárcel.
-                        """.formatted(Formatear.casillaNombre(this));
-                case "Comunidad1", "Comunidad2", "Comunidad3", "Suerte1", "Suerte2", "Suerte3" -> """
-                        %s
-                        """.formatted(Formatear.casillaNombre(this));
-                case "Impuesto1", "Impuesto2" -> """
-                        {
-                            nombre: %s
-                            importe: %s
-                        }""".formatted(Formatear.casillaNombre(this), Formatear.num(dinero));
-                case "Parking" -> """
-                        {
-                            nombre: %s
-                            bote: %s
-                        }""".formatted(Formatear.casillaNombre(this), Formatear.num(dinero));
-                case "Cárcel" -> """
-                        {
-                            nombre: %s
-                            fianza: %s
-                        }""".formatted(Formatear.casillaNombre(this), Formatear.num(dinero));
-                default ->
-                        Formatear.con("ERROR: hay un nombre de casilla especial no soportado en el archivo de configuración de las casillas", Color.Rojo);
-            };
-        }
-
-        return propiedad.toString();
+        return switch (tipo) {
+            case Propiedad -> propiedad.toString();
+            case Salida -> """
+                    %s: Casilla de inicio del juego.
+                    Cada vez que un jugador pase por esta casilla recibirá %s.
+                    """.formatted(getNombreFmt(), Consola.num(abonoSalida));
+            case Carcel -> """
+                    {
+                        nombre: %s
+                        fianza: %s
+                    }""".formatted(getNombreFmt(), Consola.num(fianza));
+            case IrCarcel -> """
+                    %s: Si un jugador cae en esta casilla, se le enviará directamente
+                    a la casilla Cárcel.
+                    """.formatted(getNombreFmt());
+            case Comunidad, Suerte -> """
+                    %s: TODO
+                    """.formatted(getNombreFmt());
+            case Impuestos -> """
+                    {
+                        nombre: %s
+                        importe: %s
+                    }""".formatted(getNombreFmt(), Consola.num(impuestos));
+            case Parking -> """
+                    {
+                        nombre: %s
+                        bote: %s
+                    }""".formatted(getNombreFmt(), Consola.num(banca.getFortuna()));
+        };
     }
 
     @Override
@@ -102,11 +109,68 @@ public class Casilla {
             return true;
         }
 
-        return obj instanceof Casilla && ((Casilla) obj).nombre.equalsIgnoreCase(this.nombre);
+        return obj instanceof Casilla && ((Casilla) obj).posicion == this.posicion;
+    }
+
+    public void accion(Jugador jugadorTurno, Dado dado) {
+        if (isPropiedad()) {
+            jugadorTurno.pagarAlquiler(propiedad, dado);
+            return;
+        }
+
+        switch (tipo) {
+            case IrCarcel -> jugadorTurno.getAvatar().irCarcel();
+            case Parking -> {
+                long bote = banca.getFortuna();
+                jugadorTurno.ingresar(bote);
+                banca.cobrar(bote);
+
+                System.out.printf("El jugador recibe el bote de la banca: %s\n", Consola.num(bote));
+            }
+
+            case Impuestos -> {
+                if (!jugadorTurno.cobrar(impuestos)) {
+                    Consola.error("El jugador no tiene suficientes fondos para pagar los impuestos");
+                    return;
+                }
+
+                banca.ingresar(impuestos);
+            }
+
+            case Carcel -> System.out.println("El avatar se coloca en la Cárcel. Solo está de visita");
+        }
     }
 
     public String getNombre() {
-        return nombre;
+        if (isPropiedad()) {
+            return propiedad.getNombre();
+        }
+
+        return tipo.toString();
+    }
+
+    /**
+     * Obtiene el nombre formateado (con colores) de la casilla
+     */
+    public String getNombreFmt() {
+        if (isPropiedad()) {
+            Estilo estilo = switch (propiedad.getTipo()) {
+                case Solar -> Estilo.Normal;
+                case Servicio, Transporte -> Estilo.Cursiva;
+            };
+
+            return Consola.fmt("%s, %s".formatted(propiedad.getNombre(), grupo.getNombre()), grupo.getCodigoColor(), estilo);
+        }
+
+        return Consola.fmt(tipo.toString(), grupo.getCodigoColor(), Estilo.Negrita);
+    }
+
+    public int getPosicion() {
+        return posicion;
+    }
+
+    public TipoCasilla getTipo() {
+        return tipo;
     }
 
     public Grupo getGrupo() {
@@ -118,26 +182,116 @@ public class Casilla {
     }
 
     public boolean isPropiedad() {
-        return propiedad != null;
+        return propiedad != null; // O bien: tipo == TipoCasilla.Propiedad
     }
 
     public ArrayList<Avatar> getAvatares() {
         return avatares;
     }
 
-    public long getPrecio() {
-        return dinero;
+    public long getFianza() {
+        if (tipo != TipoCasilla.Carcel) {
+            Consola.error("[Casilla] No se puede obtener la fianza de esta casilla");
+            return -1;
+        }
+
+        return fianza;
     }
 
-    public void setPrecio(long precio) {
-        if (isPropiedad()) {
-            propiedad.setPrecio(precio);
+    public void setFianza(long fianza) {
+        if (tipo != TipoCasilla.Carcel) {
+            Consola.error("[Casilla] No se puede asignar una fianza a una casilla que no es la Cárcel");
+            return;
         }
 
-        if (precio > 0) {
-            this.dinero = precio;
+        if (fianza <= 0) {
+            Consola.error("[Casilla] La fianza no puede ser nula o negativa");
+            return;
         }
-        // TODO: lanzar un error en caso contrario
+
+        this.fianza = fianza;
+    }
+
+    public long getAbonoSalida() {
+        if (tipo != TipoCasilla.Salida) {
+            Consola.error("[Casilla] No se puede obtener el abono de salida de esta casilla");
+            return -1;
+        }
+
+        return abonoSalida;
+    }
+
+    public void setAbonoSalida(long abonoSalida) {
+        if (tipo != TipoCasilla.Salida) {
+            Consola.error("[Casilla] No se puede asignar el abono de salida a una casilla que no es la Salida");
+            return;
+        }
+
+        if (abonoSalida <= 0) {
+            Consola.error("[Casilla] El abono de salida no puede ser nulo o negativo");
+            return;
+        }
+
+        this.abonoSalida = abonoSalida;
+    }
+
+    public long getImpuestos() {
+        if (tipo != TipoCasilla.Impuestos) {
+            Consola.error("[Casilla] No se puede obtener los impuestos de esta casilla");
+            return -1;
+        }
+
+        return impuestos;
+    }
+
+    public void setImpuestos(long impuestos) {
+        if (tipo != TipoCasilla.Impuestos) {
+            Consola.error("[Casilla] No se puede asignar unos impuestos a esta casilla");
+            return;
+        }
+
+        if (impuestos <= 0) {
+            Consola.error("[Casilla] Los impuestos no pueden ser nulos o negativos");
+            return;
+        }
+        this.impuestos = impuestos;
+    }
+
+    public void setBanca(Jugador banca) {
+        if (tipo != TipoCasilla.Parking) {
+            Consola.error("[Casilla] No se puede asignar la banca a una casilla que no sea el Parking");
+            return;
+        }
+
+        if (banca == null) {
+            Consola.error("[Casilla] La banca no puede ser nula");
+            return;
+        }
+
+        this.banca = banca;
+    }
+
+    public Casilla getCarcel() {
+        if (tipo != TipoCasilla.IrCarcel) {
+            Consola.error("[Casilla] No se puede obtener la Cárcel a partir de esta casilla");
+            return null;
+        }
+
+        return carcel;
+    }
+
+    public void setCarcel(Casilla carcel) {
+        if (tipo != TipoCasilla.IrCarcel) {
+            Consola.error("[Casilla] No se puede asignar la cárcel a esta casilla");
+            return;
+        }
+
+        if (carcel == null) {
+            Consola.error("[Casilla] La casilla de cárcel es null");
+            return;
+        }
+
+        this.carcel = carcel;
     }
 
     public void anadirAvatar(Avatar avatar) {
@@ -146,5 +300,9 @@ public class Casilla {
 
     public void quitarAvatar(Avatar avatar) {
         avatares.remove(avatar);
+    }
+
+    public enum TipoCasilla {
+        Propiedad, Salida, Carcel, IrCarcel, Parking, Impuestos, Comunidad, Suerte
     }
 }

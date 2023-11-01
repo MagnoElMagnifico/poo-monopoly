@@ -1,0 +1,5 @@
+C1: Test comunidad 1
+C2: Test comunidad 2
+C3: Test comunidad 3
+S1: Test suerte 1
+S2: Test suerte 2

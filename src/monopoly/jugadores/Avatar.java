@@ -1,9 +1,11 @@
 package monopoly.jugadores;
 
-import monopoly.casillas.Casilla;
-import monopoly.utilidades.Dado;
-import monopoly.utilidades.Formatear;
 import monopoly.Calculadora;
+import monopoly.casillas.Casilla;
+import monopoly.utilidades.Consola;
+import monopoly.utilidades.Consola.Color;
+import monopoly.utilidades.Dado;
+
 import java.util.ArrayList;
 
 /**
@@ -15,26 +17,19 @@ import java.util.ArrayList;
  * @see Jugador
  */
 public class Avatar {
+    // Propiedades
     private final TipoAvatar tipo;
     private final char id;
     private final Jugador jugador;
     private Casilla casilla;
-    /**
-     * Determina si el avatar está en la Cárcel o no
-     */
-    private boolean estarEncerrado;
-    /**
-     * Número de turnos que se han pasado en la Cárcel
-     */
+
+    // Estado
+    private boolean encerrado;
     private int estanciasCarcel;
     private int vueltas;
-
+    private int lanzamientos;
+    private int doblesSeguidos;
     private boolean movimientoEspecial;
-    private boolean estadoCoche;
-    private int nEstadoCoche;
-    private int nLanzamientos;
-
-    private int nDoblesSeguidos;
 
     /**
      * Crea un avatar dado su tipo, id y el jugador al que hace referencia
@@ -42,17 +37,16 @@ public class Avatar {
     public Avatar(TipoAvatar tipo, char id, Jugador jugador, Casilla casillaInicial) {
         this.tipo = tipo;
         this.id = id;
+        this.jugador = jugador;
         this.casilla = casillaInicial;
         casillaInicial.anadirAvatar(this);
-        this.jugador = jugador;
+
+        this.encerrado = false;
         this.estanciasCarcel = 0;
-        this.estarEncerrado = false;
         this.vueltas = 0;
-        this.movimientoEspecial=false;
-        this.nLanzamientos=0;
-        this.nDoblesSeguidos=0;
-        this.estadoCoche=false;
-        this.nEstadoCoche=0;
+        this.lanzamientos = 1;
+        this.doblesSeguidos = 0;
+        this.movimientoEspecial = false;
     }
 
     /**
@@ -61,16 +55,15 @@ public class Avatar {
     public Avatar(char id) {
         this.tipo = null;
         this.id = id;
-        this.casilla = null;
         this.jugador = null;
+        this.casilla = null;
+
+        this.encerrado = false;
         this.estanciasCarcel = 0;
-        this.estarEncerrado = false;
         this.vueltas = 0;
-        this.movimientoEspecial=false;
-        this.nLanzamientos=0;
-        this.nDoblesSeguidos=0;
-        this.estadoCoche=false;
-        this.nEstadoCoche=0;
+        this.lanzamientos = 1;
+        this.doblesSeguidos = 0;
+        this.movimientoEspecial = false;
     }
 
     @Override
@@ -94,6 +87,170 @@ public class Avatar {
         return obj instanceof Avatar && ((Avatar) obj).getId() == this.id;
     }
 
+    /**
+     * Mueve el avatar las posiciones que indique el dado y según su estado (movimiento básico o avanzado)
+     */
+    public void mover(Dado dado, ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores, Calculadora calculadora) {
+        if (lanzamientos <= 0) {
+            Consola.error("No quedan lanzamientos. El jugador debe terminar el turno");
+            return;
+        }
+
+        lanzamientos--;
+
+        if (encerrado) {
+            moverEstandoCarcel(dado);
+            return;
+        }
+
+        // Obtener la nueva casilla
+        int posNuevaCasilla;
+        if (movimientoEspecial) {
+            posNuevaCasilla = switch (tipo) {
+                case Coche -> moverEspecialCoche();
+                case Esfinge -> moverEspecialEsfinge();
+                case Sombrero -> moverEspecialSombrero();
+                case Pelota -> moverEspecialPelota();
+            };
+        } else {
+            posNuevaCasilla = moverBasico(dado);
+        }
+
+        // Los métodos anteriores devuelven -1 cuando ellos mismos
+        // ya han movido el avatar; por tanto, no hay que hacer nada.
+        if (posNuevaCasilla < 0) {
+            return;
+        }
+
+        // Comprobación de si pasa por la casilla de salida
+        if (posNuevaCasilla >= casillas.size()) {
+            posNuevaCasilla -= casillas.size();
+
+            this.anadirVuelta();
+            jugador.ingresar(calculadora.calcularAbonoSalida());
+
+            System.out.printf("Como el avatar pasa por la casilla de Salida, %s recibe %s\n",
+                    Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                    Consola.num(calculadora.calcularAbonoSalida()));
+        }
+
+        Casilla anteriorCasilla = this.casilla;
+        Casilla nuevaCasilla = casillas.get(posNuevaCasilla);
+
+        // Quitar el avatar de la casilla actual y añadirlo a la nueva
+        this.casilla.quitarAvatar(this);
+        this.setCasilla(nuevaCasilla);
+        nuevaCasilla.anadirAvatar(this);
+
+        // Mostrar información
+        System.out.printf("%s con avatar %s, avanza %s posiciones.\nAvanza desde %s hasta %s.\n",
+                Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                dado,
+                anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
+
+        // Aumentar los precios en caso de que el avatar pasase por la salida
+        Calculadora.aumentarPrecio(casillas, jugadores);
+
+        // Realizar la acción de la casilla
+        nuevaCasilla.accion(jugador, dado);
+    }
+
+    private int moverBasico(Dado dado) {
+        if (dado.isDoble()) {
+            doblesSeguidos++;
+
+            if (doblesSeguidos >= 3) {
+                System.out.printf("""
+                                %s con avatar %s ha sacado %s.
+                                Ya son 3 veces seguidas sacando dados dobles.
+                                %s es arrestado por tener tanta suerte.
+                                """,
+                        Consola.fmt(jugador.getNombre(), Color.Azul),
+                        Consola.fmt(Character.toString(id), Color.Azul),
+                        dado, jugador.getNombre());
+                irCarcel();
+                return -1;
+            }
+        }
+
+        return this.casilla.getPosicion() + dado.getValor();
+    }
+
+    private void moverEstandoCarcel(Dado dado) {
+        estanciasCarcel++;
+
+        if (dado.isDoble()) {
+            System.out.println("Dados dobles! El jugador puede salir de la Cárcel");
+
+            encerrado = false;
+            estanciasCarcel = 0;
+        } else if (estanciasCarcel >= 3) {
+            System.out.printf("%s con avatar %s no ha sacado dados dobles %s.\nAhora debe pagar obligatoriamente la fianza.\n",
+                    Consola.fmt(jugador.getNombre(), Color.Azul),
+                    Consola.fmt(Character.toString(id), Color.Azul),
+                    dado);
+            salirCarcelPagando();
+        } else {
+            System.out.printf("%s con avatar %s no ha sacado dados dobles %s.\nPuede pagar la fianza o permanecer encerrado.\n",
+                    Consola.fmt(jugador.getNombre(), Color.Azul),
+                    Consola.fmt(Character.toString(id), Color.Azul),
+                    dado);
+        }
+    }
+
+    /**
+     * Pone el Avatar en el estado encerrado y lo mueve a la cárcel
+     */
+    public void irCarcel() {
+        encerrado = true;
+        estanciasCarcel = 0;
+
+        Casilla nuevaCasilla = this.casilla.getCarcel();
+        this.casilla.quitarAvatar(this);
+        this.setCasilla(nuevaCasilla);
+        nuevaCasilla.anadirAvatar(this);
+
+        nuevaCasilla.accion(jugador, null); // La casilla Carcel no usa el dado
+    }
+
+    public void salirCarcelPagando() {
+        if (!encerrado) {
+            Consola.error("El jugador no está en la Cárcel");
+            return;
+        }
+
+        if (!jugador.cobrar(casilla.getFianza())) {
+            Consola.error("El jugador no tiene dinero suficiente para pagar la fianza");
+            return;
+        }
+
+        encerrado = false;
+        estanciasCarcel = 0;
+
+        System.out.printf("El jugador %s paga %s para salir de la cárcel\n", jugador.getNombre(), Consola.num(casilla.getFianza()));
+    }
+
+    private int moverEspecialCoche() {
+        // TODO
+        return -1;
+    }
+
+    private int moverEspecialEsfinge() {
+        // TODO
+        return -1;
+    }
+
+    private int moverEspecialSombrero() {
+        // TODO
+        return -1;
+    }
+
+    private int moverEspecialPelota() {
+        // TODO
+        return -1;
+    }
+
     public char getId() {
         return id;
     }
@@ -113,34 +270,27 @@ public class Avatar {
     public Jugador getJugador() {
         return jugador;
     }
-    public void setMovimientoEspecial() {this.movimientoEspecial= !this.movimientoEspecial;}
 
-    public int getnLanzamientos() {return this.nLanzamientos;}
-
-    public void setnLanzamientos() {
-        if(!movimientoEspecial) this.nLanzamientos=1;
-        else if (tipo==TipoAvatar.Coche){
-            this.nLanzamientos=4;
+    public void setMovimientoEspecial() {
+        if (movimientoEspecial) {
+            movimientoEspecial = false;
+            System.out.printf("%s regresa al modo de movimiento básico\n", Consola.fmt(jugador.getNombre(), Consola.Color.Azul));
+        } else {
+            movimientoEspecial = true;
+            System.out.printf("A partir de ahora %s (%s), de tipo %s, se moverá de modo avanzado\n",
+                    Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                    Consola.fmt(Character.toString(id), Consola.Color.Azul),
+                    tipo);
         }
     }
-    public void setnDoblesSeguidos() {this.nDoblesSeguidos=0;}
-    public boolean getMovimientoEspecial() {return this.movimientoEspecial;}
 
-
-    /**
-     * Se notifica al Avatar de que pasa otro turno en la Cárcel
-     */
-    public void seguirEnCarcel() {
-        if (estarEncerrado) {
-            estanciasCarcel++;
-        }
-        // TODO: Error, no se puede seguir en la Cárcel si no estabas dentro inicialmente
+    public int getEstanciasCarcel() {
+        return estanciasCarcel;
     }
 
-    /**
-     * Saca el Avatar del estado encerrado
-     */
-
+    public boolean isEncerrado() {
+        return encerrado;
+    }
 
     public int getVueltas() {
         return vueltas;
@@ -154,238 +304,26 @@ public class Avatar {
         this.vueltas = 0;
     }
 
+    public int getLanzamientos() {
+        return lanzamientos;
+    }
+
+    public void resetLanzamientos() {
+        lanzamientos = 1;
+    }
+
+    public int getDoblesSeguidos() {
+        return doblesSeguidos;
+    }
+
+    public void resetDoblesSeguidos() {
+        doblesSeguidos = 0;
+    }
+
     /**
      * Tipos de avatares posibles
      */
     public enum TipoAvatar {
         Coche, Esfinge, Sombrero, Pelota
-    }
-
-    public String mover(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
-        if(estadoCoche) {
-            nEstadoCoche++;
-            if(nEstadoCoche>2){
-                nEstadoCoche=0;
-                estadoCoche=false;
-            }
-            return "Aún no te puedes mover. Enfriando cocche";
-        }
-        Casilla actualCasilla = this.casilla;
-        int nActual = casillas.indexOf(this.casilla);
-        String accionAdicional= "";
-        if(!this.movimientoEspecial){
-            nLanzamientos--;
-            if (this.estarEncerrado) {
-                this.seguirEnCarcel();
-
-                if (dado.isDoble()) {
-                    accionAdicional += "Dados dobles! El jugador puede salir de %s\n".formatted(Formatear.casillaNombre(actualCasilla));
-                    this.salirCarcel();
-                } else if (this.estanciasCarcel >= 3) {
-                    // @formatter:off
-                    return """
-                        %s con avatar %s no ha sacado dados dobles %s.
-                        Ahora debe pagar obligatoriamente la fianza.
-                        %s""".formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul),
-                            Formatear.con(Character.toString(this.id), Formatear.Color.Azul),
-                            dado, this.salirCarcel());
-                    // @formatter:on
-                } else {
-                    // @formatter:off
-                    return """
-                        %s con avatar %s no ha sacado dados dobles %s.
-                        Puede pagar la fianza o permanecer encerrado.
-                        """.formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul),
-                            Formatear.con(Character.toString(this.id), Formatear.Color.Azul),
-                            dado);
-                    // @formatter:on
-                }
-            } else if (dado.isDoble()) {
-                accionAdicional += "Dados dobles! El jugador puede lanzar otra vez\n";
-                nLanzamientos++;
-                nDoblesSeguidos++;
-                if (nDoblesSeguidos >= 3) {
-                    // @formatter:off
-                    return """
-                        %s con avatar %s ha sacado %s.
-                        Ya son 3 veces seguidas sacando dados dobles.
-                        %s es arrestado por tener tanta suerte.
-                        %s""".formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul),
-                            Formatear.con(Character.toString(this.id), Formatear.Color.Azul),
-                            dado,
-                            jugador.getNombre(),
-                            this.irCarcel(casillas));
-                    // @formatter:on
-                }
-            }
-
-            int nNuevo = nActual + dado.getValor();
-            if (nNuevo >= casillas.size()) {
-                nNuevo -= casillas.size();
-
-                this.anadirVuelta();
-                jugador.ingresar(calculadora.calcularAbonoSalida());
-
-                // @formatter:off
-                accionAdicional += "Como el avatar pasa por la casilla de Salida, %s recibe %s\n%s"
-                        .formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul),
-                                Formatear.num(calculadora.calcularAbonoSalida()),
-                                calculadora.aumentarPrecio(casillas,jugadores));
-                // @formatter:on
-            }
-            Casilla nuevaCasilla = casillas.get(nNuevo);
-
-            // Quitar el avatar de la casilla actual y añadirlo a la nueva
-            actualCasilla.quitarAvatar(this);
-            this.setCasilla(nuevaCasilla);
-            nuevaCasilla.anadirAvatar(this);
-            return """
-                %s con avatar %s, avanza %s posiciones.
-                Avanza desde %s hasta %s.
-                %s%s""".formatted(Formatear.con(this.jugador.getNombre(), Formatear.Color.Azul),
-                    Formatear.con(Character.toString(this.getId()), Formatear.Color.Azul),
-                    dado,
-                    Formatear.casillaNombre(actualCasilla),
-                    Formatear.casillaNombre(nuevaCasilla),
-                    accionCasilla(nuevaCasilla, dado, calculadora, banca, casillas), accionAdicional);
-        }
-        else {
-            return switch (this.tipo) {
-                case Coche -> moverEspecialCoche(casillas,dado,calculadora,jugadores,banca);
-                case Pelota -> moverEspecialPelota(casillas,dado,calculadora,jugadores,banca);
-                case Sombrero -> moverEspecialSombrero(casillas,dado,calculadora,jugadores,banca);
-                case Esfinge -> moverEspecialEsfinge(casillas,dado,calculadora,jugadores,banca);
-            };
-        }
-    }
-
-    private String moverEspecialCoche(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
-        int nActual = casillas.indexOf(this.casilla);
-        String accionAdicional= "";
-        int nNuevo;
-        if(dado.getValor()<=4)  {
-            nNuevo= nActual - dado.getValor()+ casillas.size();
-            if (nNuevo >= casillas.size()) {
-                nNuevo -= casillas.size();
-            }
-            estadoCoche=true;
-            nLanzamientos=0;
-        }
-        else {
-            nNuevo= nActual + dado.getValor();
-            if (nNuevo >= casillas.size()) {
-                nNuevo -= casillas.size();
-
-                this.anadirVuelta();
-                jugador.ingresar(calculadora.calcularAbonoSalida());
-
-                // @formatter:off
-                accionAdicional += "Como el avatar pasa por la casilla de Salida, %s recibe %s\n%s"
-                        .formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul),
-                                Formatear.num(calculadora.calcularAbonoSalida()),
-                                calculadora.aumentarPrecio(casillas,jugadores));
-                // @formatter:on
-            }
-        }
-
-        Casilla actualCasilla = this.casilla;
-        Casilla nuevaCasilla = casillas.get(nNuevo);
-
-        // Quitar el avatar de la casilla actual y añadirlo a la nueva
-        actualCasilla.quitarAvatar(this);
-        this.setCasilla(nuevaCasilla);
-        nuevaCasilla.anadirAvatar(this);
-        return """
-                %s con avatar %s, avanza %s posiciones.
-                Avanza desde %s hasta %s.
-                %s%s""".formatted(Formatear.con(this.jugador.getNombre(), Formatear.Color.Azul),
-                Formatear.con(Character.toString(this.getId()), Formatear.Color.Azul),
-                dado,
-                Formatear.casillaNombre(actualCasilla),
-                Formatear.casillaNombre(nuevaCasilla),
-                accionCasilla(nuevaCasilla, dado, calculadora, banca, casillas), accionAdicional);
-    }
-
-    private String moverEspecialPelota(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
-        return"";
-    }
-
-    private String moverEspecialEsfinge(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
-        return"";
-    }
-
-    private String moverEspecialSombrero(ArrayList<Casilla> casillas, Dado dado,Calculadora calculadora,ArrayList<Jugador> jugadores, Jugador banca){
-        return"";
-    }
-    private String accionCasilla(Casilla casilla, Dado dado, Calculadora calculadora, Jugador banca,ArrayList<Casilla> casillas) {
-        if (casilla.isPropiedad()) {
-            return calculadora.pagarAlquiler(casilla.getPropiedad(), this.jugador, dado);
-        }
-
-        return switch (casilla.getNombre()) {
-            case "IrCárcel" -> irCarcel(casillas);
-            case "Comunidad1", "Comunidad2", "Comunidad3" -> "* Acción de Carta de Comunidad *\n";
-            case "Suerte1", "Suerte2", "Suerte3" -> "* Acción de Carta de Suerte *\n";
-            case "Parking" -> {
-                Jugador jugador = this.jugador;
-
-                long bote = banca.getFortuna();
-                jugador.ingresar(bote);
-                banca.cobrar(bote); // Poner a 0 el bote
-
-                yield "El jugador recibe el bote de la banca: %s\n".formatted(Formatear.num(bote));
-
-            }
-
-            case "Impuesto1", "Impuesto2" -> {
-                Jugador jugador = this.jugador;
-                long importe = casilla.getPrecio();
-
-                if (importe > jugador.getFortuna()) {
-                    yield Formatear.con("El jugador no tiene suficientes fondos para pagar el alquiler\n", Formatear.Color.Rojo);
-                }
-
-                jugador.cobrar(importe);
-                banca.ingresar(importe);
-                yield "Se han pagado %s de impuestos a la banca.\n".formatted(Formatear.num(importe));
-            }
-
-            case "Cárcel" -> "El jugador está solo de visita.\n";
-            default -> "";
-        };
-    }
-
-
-
-    private String irCarcel(ArrayList<Casilla> casillas) {
-
-        estarEncerrado = true;
-        estanciasCarcel = 0;
-        nLanzamientos=0;
-        Casilla nuevaCasilla = casillas.get(casillas.indexOf(new Casilla(null, "Cárcel")));
-        this.getCasilla().quitarAvatar(this);
-        this.setCasilla(nuevaCasilla);
-        nuevaCasilla.anadirAvatar(this);
-
-
-        return "El avatar se coloca en la Cárcel\n";
-    }
-
-    public String salirCarcel() {
-
-
-        if (!this.estarEncerrado) {
-            return Formatear.con("El jugador %s no está en la Cárcel".formatted(jugador.getNombre()), Formatear.Color.Rojo);
-        }
-
-
-        long importe = this.casilla.getPrecio();
-        if(!jugador.cobrar(importe)) return "El jugador no tiene dinero no sale de la carel";
-
-        estanciasCarcel = 0;
-        estarEncerrado = false;
-
-        //TODO: Arreglar la carcel parar da bancarotq
-        return "El jugador %s paga %s para salir de la cárcel\n".formatted(Formatear.con(jugador.getNombre(), Formatear.Color.Azul), Formatear.num(importe));
     }
 }
