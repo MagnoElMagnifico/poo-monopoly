@@ -300,6 +300,7 @@ public class Avatar {
         return jugador;
     }
 
+    public boolean getMovimientoEspecial(){return this.movimientoEspecial;}
     public void setMovimientoEspecial() {
         if (movimientoEspecial) {
             movimientoEspecial = false;
