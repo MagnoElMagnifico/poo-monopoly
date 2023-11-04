@@ -134,8 +134,13 @@ public class Monopoly {
             }
             case "lanzar", "lanzar dados" -> tablero.moverJugador(new Dado()); // TODO: tablero
             case "acabar turno", "fin", "end" -> tablero.acabarTurno(); // TODO: transacción + tablero
-            case "salir carcel" ->
+            case "salir carcel" -> {
+                if (tablero.getJugadorTurno() == null) {
+                    Consola.error("No hay jugadores");
+                } else {
                     tablero.getJugadorTurno().getAvatar().salirCarcelPagando(); // TODO: transacción + tablero
+                }
+            }
             case "cambiar modo" -> tablero.cambiarModo();
 
             default -> this.cmdConArgumentos(cmdNorm);
@@ -167,7 +172,7 @@ public class Monopoly {
      */
     private void cmdCrear(String[] args) {
         if (args.length != 4) {
-            Consola.error("Se esperaban 4 parámetros, se recibieron %d".formatted(args.length));
+            Consola.error("Se esperaban 3 parámetros, se recibieron %d".formatted(args.length - 1));
             return;
         }
 
@@ -214,7 +219,7 @@ public class Monopoly {
             }
         }
 
-        Consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d".formatted(args.length));
+        Consola.error("Se esperaban 1 o 2 parámetros, se recibieron %d".formatted(args.length - 1));
     }
 
     /**
@@ -222,7 +227,7 @@ public class Monopoly {
      */
     private void cmdComprar(String[] args) {
         if (args.length != 2) {
-            Consola.error("Se esperaban 2 parámetros, se recibieron %d".formatted(args.length));
+            Consola.error("Se esperaban 1 parámetro, se recibieron %d".formatted(args.length - 1));
             return;
         }
 
@@ -234,7 +239,7 @@ public class Monopoly {
      */
     private void cmdMover(String[] args) {
         if (args.length != 3) {
-            Consola.error("Se esperaban 2 parámetros, se recibieron %d".formatted(args.length));
+            Consola.error("Se esperaban 2 parámetros, se recibieron %d".formatted(args.length - 1));
             return;
         }
 
@@ -246,7 +251,7 @@ public class Monopoly {
      */
     private void cmdExec(String[] args) {
         if (args.length != 2) {
-            Consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length));
+            Consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length - 1));
             return;
         }
 
