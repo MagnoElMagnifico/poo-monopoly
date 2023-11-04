@@ -1,8 +1,10 @@
 package monopoly.utilidades;
 
-import monopoly.casillas.Casilla;
+import monopoly.casillas.Carta;
 import monopoly.casillas.Casilla.TipoCasilla;
+import monopoly.casillas.Casilla;
 import monopoly.casillas.Grupo;
+import monopoly.casillas.Mazo;
 import monopoly.casillas.Propiedad.TipoPropiedad;
 
 import java.io.File;
@@ -28,8 +30,8 @@ import java.util.Scanner;
  * Formato:
  *
  * <pre>
- *     Suerte:<num>:descripción
- *     Comunidad:<num>: descripción
+ *     S:X:descripción
+ *     C:X: descripción
  *     ...
  * </pre>
  *
@@ -119,9 +121,11 @@ public class Lector {
         return casillas;
     }
 
-    /*
-    public static String leerCartas(String path) {
+    public static Mazo leerCartas(String path) {
         Scanner scanner = abrirArchivo(path);
+
+        ArrayList<Carta> cartaComunidad = new ArrayList<>(6);
+        ArrayList<Carta> cartaSuerte = new ArrayList<>(6);
 
         for (int nLinea = 0; scanner.hasNextLine(); nLinea++) {
             String linea = scanner.nextLine().strip();
@@ -131,21 +135,24 @@ public class Lector {
                 continue;
             }
 
+            // Se limpia la línea y se separa en campos
             String[] campos = linea.strip().replaceAll(" +", "").split(":");
 
             if (campos.length != 3) {
-                // TODO
+                Consola.error("[FATAL] ArchivoCartas línea %d: número de campos incorrecto, %d recibidos, 3 esperados".formatted(nLinea, campos.length));
+                System.exit(1);
             }
 
             switch (campos[0]) {
-                case "Suerte" -> ;
-                case "Comunidad" -> ;
-                default ->
-                        System.err.printf("[FATAL] ArchivoCartas línea %d: carta que no es de suerte ni comunidad (\"%s\")\n", nLinea, campos[0]);
+                case "C" -> cartaComunidad.add(new Carta(Integer.parseInt(campos[1]), Carta.TipoCarta.Comunidad, campos[2]));
+                case "S" -> cartaComunidad.add(new Carta(Integer.parseInt(campos[1]), Carta.TipoCarta.Suerte, campos[2]));
+                default -> {
+                    Consola.error("[FATAL] ArchivoCartas línea %d: \"%s\" tipo de carta desconocido".formatted(nLinea, campos[0]));
+                    System.exit(1);
+                }
             }
         }
 
-        return "";
+        return new Mazo(cartaComunidad, cartaSuerte);
     }
-    */
 }
