@@ -229,6 +229,11 @@ public class Tablero {
     }
 
     public void comprar(String nombre) {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
         Jugador j = getJugadorTurno();
 
         if (!j.getAvatar().getCasilla().getNombre().equalsIgnoreCase(nombre)) {
@@ -247,6 +252,11 @@ public class Tablero {
     }
 
     public void cambiarModo() {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
         getJugadorTurno().getAvatar().setMovimientoEspecial();
     }
 }
