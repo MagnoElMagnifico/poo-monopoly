@@ -33,6 +33,7 @@ public class Casilla {
     private long impuestos;    /* Solo en Impuestos: Valor que se cobran por los impuestos */
     private Jugador banca;     /* Solo en Parking: banca.getFortuna() es el valor recibido */
     private Casilla carcel;    /* Solo en IrCarcel: casilla a donde se tiene que mover el avatar */
+    private Mazo mazo;         /* Solo en Comunidad y Suerte: mazo que contiene las cartas */
 
     /**
      * Construye una nueva casilla de tipo Propiedad
@@ -50,6 +51,7 @@ public class Casilla {
         impuestos = -1;
         banca = null;
         carcel = null;
+        mazo = null;
     }
 
     /**
@@ -68,6 +70,7 @@ public class Casilla {
         impuestos = -1;
         banca = null;
         carcel = null;
+        mazo = null;
     }
 
     @Override
@@ -138,6 +141,8 @@ public class Casilla {
             }
 
             case Carcel -> System.out.println("El avatar se coloca en la Cárcel. Solo está de visita");
+            case Comunidad -> mazo.caerComunidad(jugadorTurno);
+            case Suerte -> mazo.caerSuerte(jugadorTurno);
         }
     }
 
@@ -191,7 +196,7 @@ public class Casilla {
 
     public long getFianza() {
         if (tipo != TipoCasilla.Carcel) {
-            Consola.error("[Casilla] No se puede obtener la fianza de esta casilla");
+            Consola.error("[Casilla] No se puede obtener la fianza de %s".formatted(getNombreFmt()));
             return -1;
         }
 
@@ -200,7 +205,7 @@ public class Casilla {
 
     public void setFianza(long fianza) {
         if (tipo != TipoCasilla.Carcel) {
-            Consola.error("[Casilla] No se puede asignar una fianza a una casilla que no es la Cárcel");
+            Consola.error("[Casilla] No se puede asignar una fianza a %s".formatted(getNombreFmt()));
             return;
         }
 
@@ -214,7 +219,7 @@ public class Casilla {
 
     public long getAbonoSalida() {
         if (tipo != TipoCasilla.Salida) {
-            Consola.error("[Casilla] No se puede obtener el abono de salida de esta casilla");
+            Consola.error("[Casilla] No se puede obtener el abono de salida %s".formatted(getNombreFmt()));
             return -1;
         }
 
@@ -223,7 +228,7 @@ public class Casilla {
 
     public void setAbonoSalida(long abonoSalida) {
         if (tipo != TipoCasilla.Salida) {
-            Consola.error("[Casilla] No se puede asignar el abono de salida a una casilla que no es la Salida");
+            Consola.error("[Casilla] No se puede asignar el abono de salida a %s".formatted(getNombreFmt()));
             return;
         }
 
@@ -237,7 +242,7 @@ public class Casilla {
 
     public long getImpuestos() {
         if (tipo != TipoCasilla.Impuestos) {
-            Consola.error("[Casilla] No se puede obtener los impuestos de esta casilla");
+            Consola.error("[Casilla] No se puede obtener los impuestos de %s".formatted(getNombreFmt()));
             return -1;
         }
 
@@ -246,7 +251,7 @@ public class Casilla {
 
     public void setImpuestos(long impuestos) {
         if (tipo != TipoCasilla.Impuestos) {
-            Consola.error("[Casilla] No se puede asignar unos impuestos a esta casilla");
+            Consola.error("[Casilla] No se puede asignar unos impuestos a %s".formatted(getNombreFmt()));
             return;
         }
 
@@ -259,12 +264,12 @@ public class Casilla {
 
     public void setBanca(Jugador banca) {
         if (tipo != TipoCasilla.Parking) {
-            Consola.error("[Casilla] No se puede asignar la banca a una casilla que no sea el Parking");
+            Consola.error("[Casilla] No se puede asignar la banca a %s".formatted(getNombreFmt()));
             return;
         }
 
         if (banca == null) {
-            Consola.error("[Casilla] La banca no puede ser nula");
+            Consola.error("[Casilla] La banca recibida no puede ser nula");
             return;
         }
 
@@ -273,7 +278,7 @@ public class Casilla {
 
     public Casilla getCarcel() {
         if (tipo != TipoCasilla.IrCarcel) {
-            Consola.error("[Casilla] No se puede obtener la Cárcel a partir de esta casilla");
+            Consola.error("[Casilla] No se puede obtener la Cárcel a partir de %s".formatted(getNombreFmt()));
             return null;
         }
 
@@ -282,16 +287,39 @@ public class Casilla {
 
     public void setCarcel(Casilla carcel) {
         if (tipo != TipoCasilla.IrCarcel) {
-            Consola.error("[Casilla] No se puede asignar la cárcel a esta casilla");
+            Consola.error("[Casilla] No se puede asignar la cárcel a %s".formatted(getNombreFmt()));
             return;
         }
 
         if (carcel == null) {
-            Consola.error("[Casilla] La casilla de cárcel es null");
+            Consola.error("[Casilla] La casilla de cárcel recibida no puede ser null");
             return;
         }
 
         this.carcel = carcel;
+    }
+
+    public Mazo getMazo() {
+        if (tipo != TipoCasilla.Comunidad && tipo != TipoCasilla.Suerte) {
+            Consola.error("[Casilla] No se puede obtener el mazo de %s".formatted(getNombreFmt()));
+            return null;
+        }
+
+        return mazo;
+    }
+
+    public void setMazo(Mazo mazo) {
+        if (tipo != TipoCasilla.Comunidad && tipo != TipoCasilla.Suerte) {
+            Consola.error("[Casilla] No se puede asignar el mazo a %s".formatted(getNombreFmt()));
+            return;
+        }
+
+        if (mazo == null) {
+            Consola.error("[Casilla] El mazo recibido no puede ser null");
+            return;
+        }
+
+        this.mazo = mazo;
     }
 
     public void anadirAvatar(Avatar avatar) {

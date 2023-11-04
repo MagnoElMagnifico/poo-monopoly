@@ -2,9 +2,11 @@ package monopoly;
 
 import monopoly.casillas.Casilla;
 import monopoly.casillas.Grupo;
+import monopoly.casillas.Mazo;
 import monopoly.casillas.Propiedad;
 import monopoly.casillas.Propiedad.TipoPropiedad;
 import monopoly.jugadores.Jugador;
+import monopoly.utilidades.Lector;
 
 import java.util.ArrayList;
 
@@ -12,9 +14,6 @@ import java.util.ArrayList;
  * Clase encargada de poner los precios iniciales de
  * cada propiedad, calcular la fortuna de los jugadores,
  * el alquiler, etc.
- * <p>
- * Además, se encarga de realizar la operación de compra
- * y de pago del alquiler.
  *
  * @see Propiedad
  * @see Jugador
@@ -24,7 +23,7 @@ public class Calculadora {
     private long sumaSolares;
     private long nSolares;
 
-    public Calculadora(ArrayList<Casilla> casillas, Jugador banca) {
+    public Calculadora(ArrayList<Casilla> casillas, Jugador banca, Mazo mazo) {
         sumaSolares = 0;
         nSolares = 0;
 
@@ -47,6 +46,7 @@ public class Calculadora {
         // Para establecer una referencia a la cárcel en IrCárcel, se deben
         // recorrer las casillas al revés, dado que la Cárcel aparece después
         // de IrCárcel.
+        // También se asigna el mazo a las casillas de carta.
         Casilla carcel = null;
         for (int ii = casillas.size() - 1; ii >= 0; ii--) {
             Casilla c = casillas.get(ii);
@@ -64,6 +64,8 @@ public class Calculadora {
                     carcel = c;
                 }
                 case IrCarcel -> c.setCarcel(carcel);
+                case Parking -> c.setBanca(banca);
+                case Comunidad, Suerte -> c.setMazo(mazo);
             }
         }
     }
