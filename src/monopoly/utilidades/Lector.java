@@ -145,7 +145,7 @@ public class Lector {
 
             switch (campos[0]) {
                 case "C" -> cartaComunidad.add(new Carta(Integer.parseInt(campos[1]), Carta.TipoCarta.Comunidad, campos[2]));
-                case "S" -> cartaComunidad.add(new Carta(Integer.parseInt(campos[1]), Carta.TipoCarta.Suerte, campos[2]));
+                case "S" -> cartaSuerte.add(new Carta(Integer.parseInt(campos[1]), Carta.TipoCarta.Suerte, campos[2]));
                 default -> {
                     Consola.error("[FATAL] ArchivoCartas línea %d: \"%s\" tipo de carta desconocido".formatted(nLinea, campos[0]));
                     System.exit(1);
