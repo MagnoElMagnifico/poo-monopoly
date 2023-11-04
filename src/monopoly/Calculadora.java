@@ -70,9 +70,30 @@ public class Calculadora {
         }
     }
 
+    /** Comprueba si el dueño de la propiedad tiene todo el grupo */
+    public static boolean tieneGrupo(Propiedad p) {
+        Grupo g = p.getCasilla().getGrupo();
+        Jugador propietario = p.getPropietario();
+
+        for (Casilla c : g.getCasillas()) {
+            if (!propietario.getPropiedades().contains(c.getPropiedad())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static long calcularAlquiler(Propiedad p) {
-        // TODO: tener en cuenta el monopolio y casas
-        return p.getPrecio() / 10;
+        long alquiler = p.getPrecio() / 10;
+
+        if (tieneGrupo(p)) {
+            alquiler *= 2;
+        }
+
+        // TODO: recorrer edificios
+
+        return alquiler;
     }
 
     /**

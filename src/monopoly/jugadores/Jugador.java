@@ -1,6 +1,7 @@
 package monopoly.jugadores;
 
 import monopoly.casillas.Casilla;
+import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar.TipoAvatar;
 import monopoly.utilidades.Consola;
@@ -119,7 +120,7 @@ public class Jugador {
         }
 
         // Comprobar que no sea propiedad de otro jugador
-        if (p.getPropietario().isBanca()) {
+        if (!p.getPropietario().isBanca()) {
             Consola.error("No se pueden comprar propiedades de otro jugador");
             System.out.printf("%s pertenece a %s\n", p.getCasilla().getNombreFmt(), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
         }
@@ -136,6 +137,31 @@ public class Jugador {
         p.setPropietario(this);
 
         System.out.printf("El jugador %s ha comprado la casilla %s por %s\n", nombre, p.getCasilla().getNombreFmt(), Consola.num(p.getPrecio()));
+
+        // Actualizar los precios de los alquileres si se acaba de
+        // completar un Monopolio
+        boolean tenerMonopolio = true;
+        for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
+            // Si se encuentra una propiedad cuyo propietario no es este jugador,
+            // es que no tiene el monopolio
+            if (!c.getPropiedad().getPropietario().equals(this)) {
+                tenerMonopolio = false;
+                break;
+            }
+        }
+
+        if (tenerMonopolio) {
+            for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
+                Propiedad propiedad = c.getPropiedad();
+                propiedad.setAlquiler(2 * propiedad.getAlquiler());
+            }
+
+            Grupo g = p.getCasilla().getGrupo();
+            System.out.printf("""
+                    Con esta casilla el %s completa el Monopolio de %s!
+                    Ahora los alquileres de ese grupo valen el doble.
+                    """, Consola.fmt(nombre, Consola.Color.Azul), Consola.fmt(g.getNombre(), g.getCodigoColor()));
+        }
     }
 
     /**
