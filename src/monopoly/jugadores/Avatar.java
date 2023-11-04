@@ -49,23 +49,6 @@ public class Avatar {
         this.movimientoEspecial = false;
     }
 
-    /**
-     * Crear un avatar temporal dado su ID. Útil para el comando `describir`.
-     */
-    public Avatar(char id) {
-        this.tipo = null;
-        this.id = id;
-        this.jugador = null;
-        this.casilla = null;
-
-        this.encerrado = false;
-        this.estanciasCarcel = 0;
-        this.vueltas = 0;
-        this.lanzamientos = 1;
-        this.doblesSeguidos = 0;
-        this.movimientoEspecial = false;
-    }
-
     @Override
     public String toString() {
         return """
@@ -145,7 +128,7 @@ public class Avatar {
         // Mostrar información
         System.out.printf("%s con avatar %s, avanza %s posiciones.\nAvanza desde %s hasta %s.\n",
                 Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
-                Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                Consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
                 dado,
                 anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
 
@@ -211,7 +194,7 @@ public class Avatar {
         this.setCasilla(nuevaCasilla);
         nuevaCasilla.anadirAvatar(this);
 
-        nuevaCasilla.accion(jugador, null); // La casilla Carcel no usa el dado
+        System.out.println("Por tanto, el avatar termina en la Cárcel");
     }
 
     public void salirCarcelPagando() {
