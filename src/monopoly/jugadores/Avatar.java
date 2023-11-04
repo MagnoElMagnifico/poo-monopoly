@@ -154,6 +154,9 @@ public class Avatar {
                         dado, jugador.getNombre());
                 irCarcel();
                 return -1;
+            } else {
+                lanzamientos++;
+                System.out.println("Dados dobles! El jugador puede tirar otra vez");
             }
         }
 
