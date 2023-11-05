@@ -44,6 +44,7 @@ public class Calculadora {
         // de IrCárcel.
         // También se asigna el mazo a las casillas de carta.
         Casilla carcel = null;
+        int nImpuestos = 0;
         for (int ii = casillas.size() - 1; ii >= 0; ii--) {
             Casilla c = casillas.get(ii);
 
@@ -54,7 +55,12 @@ public class Calculadora {
                     p.setAlquiler(calcularAlquiler(p));
                 }
                 case Salida -> c.setAbonoSalida(calcularAbonoSalida());
-                case Impuestos -> c.setImpuestos(calcularAbonoSalida()); // TODO: uno debe valer la mitad
+                case Impuestos -> {
+                    // El último impuesto valdrá 1/2 del abono de salida
+                    // El primer impuesto valdrá 2/2 = 1 abono de salida
+                    nImpuestos++;
+                    c.setImpuestos(nImpuestos * calcularAbonoSalida() / 2);
+                }
                 case Carcel -> {
                     c.setFianza(calcularAbonoSalida() / 4);
                     carcel = c;
