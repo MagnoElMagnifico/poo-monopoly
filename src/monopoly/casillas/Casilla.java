@@ -115,6 +115,9 @@ public class Casilla {
         return obj instanceof Casilla && ((Casilla) obj).posicion == this.posicion;
     }
 
+    /**
+     * Realiza la acción de casilla específica cuando un avatar cae en ella
+     */
     public void accion(Jugador jugadorTurno, Dado dado) {
         if (isPropiedad()) {
             jugadorTurno.pagarAlquiler(propiedad, dado);

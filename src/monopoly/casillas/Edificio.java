@@ -3,6 +3,18 @@ package monopoly.casillas;
 import monopoly.Calculadora;
 import monopoly.utilidades.Consola;
 
+/**
+ * Representa una edificación de un solar.
+ * Puede ser de 4 tipos:
+ * <li>Casa</li>
+ * <li>Hotel</li>
+ * <li>Piscina</li>
+ * <li>Pista de deporte</li>
+ *
+ * @author Marcos Granja Grille
+ * @date 5-11-2023
+ * @see Propiedad
+ */
 public class Edificio {
     private final int id;
     private final TipoEdificio tipo;

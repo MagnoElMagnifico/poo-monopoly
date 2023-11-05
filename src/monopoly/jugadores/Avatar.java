@@ -142,6 +142,9 @@ public class Avatar {
         return true;
     }
 
+    /**
+     * Función de ayuda que calcula la casilla siguiente cuando se usa el modo básico
+     */
     private int moverBasico(Dado dado) {
         if (dado.isDoble()) {
             doblesSeguidos++;
@@ -166,12 +169,15 @@ public class Avatar {
         return this.casilla.getPosicion() + dado.getValor();
     }
 
+    /**
+     * Realiza una tirada de dados cuando está en la cárcel
+     */
     private void moverEstandoCarcel(Dado dado) {
         estanciasCarcel++;
 
         if (dado.isDoble()) {
             System.out.println("Dados dobles! El jugador puede salir de la Cárcel");
-
+            lanzamientos++;
             encerrado = false;
             estanciasCarcel = 0;
         } else if (estanciasCarcel >= 3) {

@@ -2,6 +2,14 @@ package monopoly.casillas;
 
 import monopoly.utilidades.Consola;
 
+/**
+ * Representa una carta de Comunidad o Suerte y realiza
+ * la acción personalizada para cada una de ellas.
+ *
+ * @author Marcos Granja Grille
+ * @date 05-11-2023
+ * @see Mazo
+ */
 public class Carta {
     private final int id;
     private final TipoCarta tipo;
@@ -33,6 +41,9 @@ public class Carta {
         return carta.id == this.id && carta.tipo == this.tipo;
     }
 
+    /**
+     * Realiza la acción de la carta en concreto
+     */
     public void accionCarta() {
         switch (tipo) {
             case Suerte -> accionSuerte();
@@ -40,6 +51,9 @@ public class Carta {
         }
     }
 
+    /**
+     * Función de ayuda que realiza las acciones de las cartas de Suerte
+     */
     private void accionSuerte() {
         // TODO: implementar acción para cada tipo de carta
         switch (id) {
@@ -48,6 +62,9 @@ public class Carta {
         }
     }
 
+    /**
+     * Función de ayuda que realiza las acciones de las cartas de Comunidad
+     */
     private void accionComunidad() {
         // TODO: implementar acción para cada tipo de carta
         switch (id) {

@@ -116,6 +116,9 @@ public class Jugador {
                 }""".formatted(nombre, avatar.getId(), Consola.num(fortuna), Consola.num(gastos), listaPropiedades(), listaEdificios());
     }
 
+    /**
+     * Devuelve un String con información sobre la fortuna, gastos y propiedades del jugador
+     */
     public String describirTransaccion() {
         return """
                 {
@@ -195,8 +198,14 @@ public class Jugador {
         return true;
     }
 
-    public void comprar(Edificio e) {
+    /**
+     * Realiza la compra del edificio dado.
+     *
+     * @return True si la operación es exitosa y false en otro caso.
+     */
+    public boolean comprar(Edificio e) {
         // TODO
+        return false;
     }
 
     /**
