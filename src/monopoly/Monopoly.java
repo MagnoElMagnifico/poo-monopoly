@@ -155,7 +155,7 @@ public class Monopoly {
         String[] args = cmd.split(" ");
         switch (args[0]) {
             case "crear"     -> cmdCrear(args);
-            case "comprar"   -> cmdComprar(args); // TODO: Describir transacción
+            case "comprar"   -> cmdComprar(args);
             case "describir" -> cmdDescribir(args);
             case "mover"     -> cmdMover(args);
             case "exec"      -> cmdExec(args);

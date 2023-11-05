@@ -72,18 +72,20 @@ public class Avatar {
 
     /**
      * Mueve el avatar las posiciones que indique el dado y según su estado (movimiento básico o avanzado)
+     *
+     * @return True si se ha movido con éxito, false si ha habido un error.
      */
-    public void mover(Dado dado, ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores, Calculadora calculadora) {
+    public boolean mover(Dado dado, ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores, Calculadora calculadora) {
         if (lanzamientos <= 0) {
             Consola.error("No quedan lanzamientos. El jugador debe terminar el turno");
-            return;
+            return false;
         }
 
         lanzamientos--;
 
         if (encerrado) {
             moverEstandoCarcel(dado);
-            return;
+            return false;
         }
 
         // Obtener la nueva casilla
@@ -102,7 +104,7 @@ public class Avatar {
         // Los métodos anteriores devuelven -1 cuando ellos mismos
         // ya han movido el avatar; por tanto, no hay que hacer nada.
         if (posNuevaCasilla < 0) {
-            return;
+            return true;
         }
 
         // Comprobación de si pasa por la casilla de salida
@@ -137,6 +139,7 @@ public class Avatar {
 
         // Realizar la acción de la casilla
         nuevaCasilla.accion(jugador, dado);
+        return true;
     }
 
     private int moverBasico(Dado dado) {
@@ -200,21 +203,26 @@ public class Avatar {
         System.out.println("Por tanto, el avatar termina en la Cárcel");
     }
 
-    public void salirCarcelPagando() {
+    /**
+     * Saca el avatar de la cárcel pagando la fianza.
+     * @return True si la operación ha sido exitosa, false en otro caso.
+     */
+    public boolean salirCarcelPagando() {
         if (!encerrado) {
             Consola.error("El jugador no está en la Cárcel");
-            return;
+            return false;
         }
 
         if (!jugador.cobrar(casilla.getFianza())) {
             Consola.error("El jugador no tiene dinero suficiente para pagar la fianza");
-            return;
+            return false;
         }
 
         encerrado = false;
         estanciasCarcel = 0;
 
         System.out.printf("El jugador %s paga %s para salir de la cárcel\n", jugador.getNombre(), Consola.num(casilla.getFianza()));
+        return true;
     }
 
     private int moverEspecialCoche() {

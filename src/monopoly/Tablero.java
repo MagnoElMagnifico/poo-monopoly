@@ -135,8 +135,10 @@ public class Tablero {
             return;
         }
 
-        getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora);
-        // TODO: mostrar tablero
+        // Muestra el tablero si se ha movido el avatar con éxito
+        if (getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora)) {
+            System.out.print(this);
+        }
     }
 
     /**
@@ -162,7 +164,8 @@ public class Tablero {
         turno = (turno + 1) % jugadores.size();
 
         System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
-        // TODO: mostrar tablero y transacción
+        System.out.print(this);
+        System.out.print(jugadorTurno.describirTransaccion());
     }
 
     /**
@@ -186,8 +189,12 @@ public class Tablero {
             return;
         }
 
-        getJugadorTurno().getAvatar().salirCarcelPagando();
-        // TODO: transacción + tablero
+        Jugador j = getJugadorTurno();
+
+        if (j.getAvatar().salirCarcelPagando()) {
+            System.out.print(this);
+            System.out.print(j.describirTransaccion());
+        }
     }
 
     /**
@@ -216,7 +223,9 @@ public class Tablero {
             return;
         }
 
-        j.comprar(c.getPropiedad());
+        if (j.comprar(c.getPropiedad())) {
+            j.describirTransaccion();
+        }
     }
 
     /**
@@ -243,7 +252,7 @@ public class Tablero {
             return;
         }
 
-        j.comprar(new Edificio(tipoEdificio, p));
+        j.comprar(new Edificio(p.getEdificios().size(), tipoEdificio, p));
     }
 
     @Override
