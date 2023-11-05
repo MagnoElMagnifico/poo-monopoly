@@ -1,6 +1,7 @@
 package monopoly;
 
 import monopoly.casillas.Casilla;
+import monopoly.casillas.Edificio;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar;
 import monopoly.jugadores.Jugador;
@@ -15,7 +16,8 @@ import java.util.Random;
 
 /**
  * Clase que representa el tablero del juego.
- * Contiene a los jugadores y a las casillas. Tira el dado y gestiona el turno actual.
+ * Contiene a los jugadores y a las casillas; gestiona el
+ * turno actual, el estado de la partida, etc.
  *
  * @see Jugador
  * @see Casilla
@@ -24,14 +26,8 @@ public class Tablero {
     private final Calculadora calculadora;
     private final Jugador banca;
     private final ArrayList<Jugador> jugadores;
-    /**
-     * Casillas del tablero
-     */
     private final ArrayList<Casilla> casillas;
     private int turno;
-    /**
-     * True si la partida ha comenzado: ya no se pueden añadir más jugadores
-     */
     private boolean jugando;
 
     /**
@@ -54,6 +50,10 @@ public class Tablero {
         calculadora = new Calculadora(casillas, banca, Lector.leerCartas("src/cartas.txt"));
     }
 
+    /**
+     * Iniciar la partida: a partir de ahora se pueden lanzar
+     * los dados, pero no se pueden añadir más jugadores.
+     */
     public void iniciar() {
         if (jugando) {
             Consola.error("La partida ya está iniciada");
@@ -66,7 +66,7 @@ public class Tablero {
         }
 
         jugando = true;
-        System.out.printf(Consola.fmt("Se ha iniciado la partida.\nA JUGAR!\n", Color.Verde));
+        System.out.print(Consola.fmt("Se ha iniciado la partida.\nA JUGAR!\n", Color.Verde));
     }
 
     /**
@@ -87,9 +87,11 @@ public class Tablero {
     private char generarAvatarId() {
         char posibleId;
         Random rand = new Random();
+
         do {
             posibleId = (char) (rand.nextInt((int) 'Z' - (int) 'A' + 1) + (int) 'A');
         } while (!comprobarAvatarId(posibleId));
+
         return posibleId;
     }
 
@@ -123,15 +125,18 @@ public class Tablero {
     }
 
     /**
-     * Mueve el jugador un determinado número de casillas
+     * Mueve el avatar del jugador actual las
+     * casillas correspondientes según la tirada
+     * del dado.
      */
-    public void moverJugador(Dado dado) {
+    public void moverAvatar(Dado dado) {
         if (!jugando) {
             Consola.error("No se ha iniciado la partida");
             return;
         }
 
         getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora);
+        // TODO: mostrar tablero
     }
 
     /**
@@ -143,20 +148,100 @@ public class Tablero {
             return;
         }
 
-        Jugador j = getJugadorTurno();
-        Avatar a = j.getAvatar();
+        Jugador jugadorTurno = getJugadorTurno();
+        Avatar avatarTurno = jugadorTurno.getAvatar();
 
-        if (j.getAvatar().getLanzamientos() > 0) {
-            Consola.error("Al jugador %s le quedan %d tiros".formatted(j.getNombre(), a.getLanzamientos()));
+        if (jugadorTurno.getAvatar().getLanzamientos() > 0) {
+            Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientos()));
             return;
         }
 
-        a.resetDoblesSeguidos();
-        a.resetLanzamientos();
+        avatarTurno.resetDoblesSeguidos();
+        avatarTurno.resetLanzamientos();
 
         turno = (turno + 1) % jugadores.size();
 
         System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
+        // TODO: mostrar tablero y transacción
+    }
+
+    /**
+     * Realiza las comprobaciones necesarias y llama al avatar para que cambie de modo de movimiento
+     */
+    public void cambiarModo() {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
+        getJugadorTurno().getAvatar().cambiarModo();
+    }
+
+    /**
+     * Realiza las comprobaciones necesarias y llama al avatar para que salga de la cárcel pagando la fianza.
+     */
+    public void salirCarcel() {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
+        getJugadorTurno().getAvatar().salirCarcelPagando();
+        // TODO: transacción + tablero
+    }
+
+    /**
+     * Realiza las comprobaciones necesarias y llama al jugador para que compre la
+     * propiedad en la que se encuentra.
+     *
+     * @param nombre Nombre de la propiedad a comprar recibida desde el comando
+     */
+    public void comprar(String nombre) {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
+        Jugador j = getJugadorTurno();
+
+        if (!j.getAvatar().getCasilla().getNombre().equalsIgnoreCase(nombre)) {
+            Consola.error("No se puede comprar otra casilla que no sea la actual");
+            return;
+        }
+
+        Casilla c = j.getAvatar().getCasilla();
+
+        if (!c.isPropiedad()) {
+            Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
+            return;
+        }
+
+        j.comprar(c.getPropiedad());
+    }
+
+    /**
+     * Realiza las comprobaciones necesarias y llama al jugador para que edifique un nuevo edificio del tipo dado.
+     */
+    public void edificar(Edificio.TipoEdificio tipoEdificio) {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
+        Jugador j = getJugadorTurno();
+        Casilla c = j.getAvatar().getCasilla();
+
+        if (!c.isPropiedad() || c.getPropiedad().getTipo() != Propiedad.TipoPropiedad.Solar) {
+            Consola.error("No se puede edificar en una casilla que no sea un solar");
+            return;
+        }
+
+        j.comprar(new Edificio(tipoEdificio, c.getPropiedad()));
+    }
+
+    @Override
+    public String toString() {
+        return PintorTablero.pintarTablero(this);
     }
 
     /**
@@ -189,19 +274,23 @@ public class Tablero {
         return enVenta;
     }
 
-    @Override
-    public String toString() {
-        return PintorTablero.pintarTablero(this);
-    }
-
+    /**
+     * Obtiene las casillas de este tablero
+     */
     public ArrayList<Casilla> getCasillas() {
         return casillas;
     }
 
+    /**
+     * Obtiene los jugadores jugando actualmente en esta partida
+     */
     public ArrayList<Jugador> getJugadores() {
         return jugadores;
     }
 
+    /**
+     * Imprime por pantalla la información de la casilla dado su nombre
+     */
     public void describirCasilla(String nombre) {
         for (Casilla c : casillas) {
             if (c.getNombre().equalsIgnoreCase(nombre)) {
@@ -210,6 +299,9 @@ public class Tablero {
         }
     }
 
+    /**
+     * Imprime por pantalla la información del jugador dado su nombre
+     */
     public void describirJugador(String nombre) {
         for (Jugador j : jugadores) {
             if (j.getNombre().equalsIgnoreCase(nombre)) {
@@ -218,6 +310,9 @@ public class Tablero {
         }
     }
 
+    /**
+     * Imprime por pantalla la información del avatar dado su ID
+     */
     public void describirAvatar(char id) {
         for (Jugador jugador : jugadores) {
             Avatar a = jugador.getAvatar();
@@ -226,37 +321,5 @@ public class Tablero {
                 return;
             }
         }
-    }
-
-    public void comprar(String nombre) {
-        if (!jugando) {
-            Consola.error("No se ha iniciado la partida");
-            return;
-        }
-
-        Jugador j = getJugadorTurno();
-
-        if (!j.getAvatar().getCasilla().getNombre().equalsIgnoreCase(nombre)) {
-            Consola.error("No se puede comprar otra casilla que no sea la actual");
-            return;
-        }
-
-        Casilla c = j.getAvatar().getCasilla();
-
-        if (!c.isPropiedad()) {
-            Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
-            return;
-        }
-
-        j.comprar(c.getPropiedad());
-    }
-
-    public void cambiarModo() {
-        if (!jugando) {
-            Consola.error("No se ha iniciado la partida");
-            return;
-        }
-
-        getJugadorTurno().getAvatar().setMovimientoEspecial();
     }
 }
