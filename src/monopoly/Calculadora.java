@@ -70,15 +70,39 @@ public class Calculadora {
      * Calcula y devuelve el precio del alquiler de una propiedad
      */
     public static long calcularAlquiler(Propiedad p) {
-        long alquiler = p.getPrecio() / 10;
+        long alquilerSolar = p.getPrecio() / 10;
 
+        // Si el dueño tiene el monopolio, el alquiler se duplica
         if (tieneGrupo(p)) {
-            alquiler *= 2;
+            alquilerSolar *= 2;
         }
 
-        // TODO: recorrer edificios
+        // Calcular el precio incluyendo los edificios
+        long alquilerEdificio = 0;
+        int nCasas = 0;
 
-        return alquiler;
+        for (Edificio e : p.getEdificios()) {
+            // @formatter:off
+            switch (e.getTipo()) {
+                case Hotel                 -> alquilerEdificio += 70 * alquilerSolar;
+                case Piscina, PistaDeporte -> alquilerEdificio += 25 * alquilerSolar;
+                case Casa -> nCasas++;
+            }
+            // @formatter:on
+        }
+
+        // @formatter:off
+        // Añadir el alquiler dado por las casas
+        alquilerEdificio += switch (nCasas) {
+            case 0  ->  0;
+            case 1  ->  5 * alquilerSolar;
+            case 2  -> 15 * alquilerSolar;
+            case 3  -> 35 * alquilerSolar;
+            default -> 50 * alquilerSolar;
+        };
+        // @formatter:on
+
+        return alquilerSolar + alquilerEdificio;
     }
 
     /**
@@ -126,12 +150,13 @@ public class Calculadora {
     /**
      * Calcula y devuelve el precio de edificar un edificio en la propiedad dada
      */
-    public static long calcularPrecio(Propiedad p, Edificio e) {
+    public static long calcularPrecio(Edificio e) {
+        long precioSolar = e.getSolar().getPrecio();
         // @formatter:off
         return switch (e.getTipo()) {
-            case Casa, Hotel  -> (long) (0.6 * p.getPrecio());
-            case Piscina      -> (long) (0.4 * p.getPrecio());
-            case PistaDeporte -> (long) (1.25 * p.getPrecio());
+            case Casa, Hotel  -> (long) (0.6 * precioSolar);
+            case Piscina      -> (long) (0.4 * precioSolar);
+            case PistaDeporte -> (long) (1.25 * precioSolar);
         };
         // @formatter:on
     }
