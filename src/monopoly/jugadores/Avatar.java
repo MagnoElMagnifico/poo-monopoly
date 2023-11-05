@@ -205,6 +205,7 @@ public class Avatar {
 
     /**
      * Saca el avatar de la cárcel pagando la fianza.
+     *
      * @return True si la operación ha sido exitosa, false en otro caso.
      */
     public boolean salirCarcelPagando() {

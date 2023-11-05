@@ -17,7 +17,7 @@ public class Carta {
     @Override
     public String toString() {
         // TODO?: Mejorar presentación de la carta
-        return "%s: %s\n".formatted(Consola.fmt(tipo == TipoCarta.Suerte? "Carta de Suerte" : "Carta de Comunidad", Consola.Color.Azul), descripcion);
+        return "%s: %s\n".formatted(Consola.fmt(tipo == TipoCarta.Suerte ? "Carta de Suerte" : "Carta de Comunidad", Consola.Color.Azul), descripcion);
     }
 
     @Override

@@ -23,10 +23,10 @@ public class Propiedad {
     private final String nombre;
     private final Casilla casilla;
     private final TipoPropiedad tipo;
+    private final ArrayList<Edificio> edificios;
     private long precio;
     private long alquiler;
     private Jugador propietario;
-    private final ArrayList<Edificio> edificios;
 
     /**
      * Crea una propiedad.
