@@ -257,7 +257,7 @@ public class Avatar {
         return jugador;
     }
 
-    public void setMovimientoEspecial() {
+    public void cambiarModo() {
         if (movimientoEspecial) {
             movimientoEspecial = false;
             System.out.printf("%s regresa al modo de movimiento básico\n", Consola.fmt(jugador.getNombre(), Consola.Color.Azul));
