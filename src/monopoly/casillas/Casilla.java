@@ -31,7 +31,7 @@ public class Casilla {
     private long fianza;       /* Solo en Carcel: Valor pagado para salir de la cárcel */
     private long abonoSalida;  /* Solo en Salida: Valor recibido al pasar por la salida */
     private long impuestos;    /* Solo en Impuestos: Valor que se cobran por los impuestos */
-    private Jugador banca;     /* Solo en Parking: banca.getFortuna() es el valor recibido */
+    private Jugador banca;     /* Solo en Parking e Impuestos: banca.getFortuna() es el valor recibido */
     private Casilla carcel;    /* Solo en IrCarcel: casilla a donde se tiene que mover el avatar */
     private Mazo mazo;         /* Solo en Comunidad y Suerte: mazo que contiene las cartas */
 
@@ -138,6 +138,7 @@ public class Casilla {
                 }
 
                 banca.ingresar(impuestos);
+                System.out.printf("Se han cobrado %s de impuestos a la banca\n", impuestos);
             }
 
             case Carcel -> System.out.println("El avatar se coloca en la Cárcel. Solo está de visita");
@@ -263,7 +264,7 @@ public class Casilla {
     }
 
     public void setBanca(Jugador banca) {
-        if (tipo != TipoCasilla.Parking) {
+        if (tipo != TipoCasilla.Parking && tipo != TipoCasilla.Impuestos) {
             Consola.error("[Casilla] No se puede asignar la banca a %s".formatted(getNombreFmt()));
             return;
         }

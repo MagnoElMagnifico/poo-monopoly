@@ -56,6 +56,7 @@ public class Calculadora {
                 }
                 case Salida -> c.setAbonoSalida(calcularAbonoSalida());
                 case Impuestos -> {
+                    c.setBanca(banca);
                     // El último impuesto valdrá 1/2 del abono de salida
                     // El primer impuesto valdrá 2/2 = 1 abono de salida
                     nImpuestos++;
@@ -197,6 +198,4 @@ public class Calculadora {
 
         return precioGrupo / g.getNumeroCasillas();
     }
-
-    // TODO: calcularHipoteca(Propiedad)
 }
