@@ -1,12 +1,8 @@
 package monopoly;
 
-import monopoly.casillas.Casilla;
-import monopoly.casillas.Grupo;
-import monopoly.casillas.Mazo;
-import monopoly.casillas.Propiedad;
+import monopoly.casillas.*;
 import monopoly.casillas.Propiedad.TipoPropiedad;
 import monopoly.jugadores.Jugador;
-import monopoly.utilidades.Lector;
 
 import java.util.ArrayList;
 
@@ -70,7 +66,24 @@ public class Calculadora {
         }
     }
 
-    /** Comprueba si el dueño de la propiedad tiene todo el grupo */
+    /**
+     * Calcula y devuelve el precio del alquiler de una propiedad
+     */
+    public static long calcularAlquiler(Propiedad p) {
+        long alquiler = p.getPrecio() / 10;
+
+        if (tieneGrupo(p)) {
+            alquiler *= 2;
+        }
+
+        // TODO: recorrer edificios
+
+        return alquiler;
+    }
+
+    /**
+     * Comprueba si el dueño de la propiedad tiene todo el grupo
+     */
     public static boolean tieneGrupo(Propiedad p) {
         Grupo g = p.getCasilla().getGrupo();
         Jugador propietario = p.getPropietario();
@@ -82,18 +95,6 @@ public class Calculadora {
         }
 
         return true;
-    }
-
-    public static long calcularAlquiler(Propiedad p) {
-        long alquiler = p.getPrecio() / 10;
-
-        if (tieneGrupo(p)) {
-            alquiler *= 2;
-        }
-
-        // TODO: recorrer edificios
-
-        return alquiler;
     }
 
     /**
@@ -122,28 +123,49 @@ public class Calculadora {
         System.out.println("Se ha aumentado el precio de todas las casillas en venta\n");
     }
 
+    /**
+     * Calcula y devuelve el precio de edificar un edificio en la propiedad dada
+     */
+    public static long calcularPrecio(Propiedad p, Edificio e) {
+        // @formatter:off
+        return switch (e.getTipo()) {
+            case Casa, Hotel  -> (long) (0.6 * p.getPrecio());
+            case Piscina      -> (long) (0.4 * p.getPrecio());
+            case PistaDeporte -> (long) (1.25 * p.getPrecio());
+        };
+        // @formatter:on
+    }
+
+    /**
+     * Devuelve el abono que reciben los jugadores cuando su avatar pasa por la casilla de salida.
+     */
     public long calcularAbonoSalida() {
         return sumaSolares / nSolares;
     }
 
-    // TODO: calcularPrecio(Edificacion)
-    // TODO: calcularHipoteca(Propiedad)
-
+    /**
+     * Calcula y devuelve la fortuna inicial que poseeran los jugadores
+     */
     public long calcularFortuna() {
         return sumaSolares / 3;
     }
 
+    /**
+     * Calcula y devuelve el precio de una propiedad
+     */
     public long calcularPrecio(Propiedad p) {
         Grupo g = p.getCasilla().getGrupo();
 
         // @formatter:off
         long precioGrupo = switch (p.getTipo()) {
-            case Solar      -> (long) (0.3 * g.getNumeroSolar() * PRECIO_GRUPO1 + PRECIO_GRUPO1);
             case Transporte -> calcularAbonoSalida();
             case Servicio   -> (long) (0.75 * calcularAbonoSalida());
+            case Solar      -> (long) (0.3 * g.getNumeroSolar() * PRECIO_GRUPO1 + PRECIO_GRUPO1);
         };
         // @formatter:on
 
         return precioGrupo / g.getNumeroCasillas();
     }
+
+    // TODO: calcularHipoteca(Propiedad)
 }
