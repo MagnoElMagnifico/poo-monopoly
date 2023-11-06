@@ -23,6 +23,9 @@ public class Avatar {
     private final Jugador jugador;
     private Casilla casilla;
 
+    // Historial
+    private final ArrayList<Casilla> historialCasillas;
+
     // Estado
     private boolean encerrado;
     private int estanciasCarcel;
@@ -43,14 +46,16 @@ public class Avatar {
         this.casilla = casillaInicial;
         casillaInicial.anadirAvatar(this);
 
+        this.historialCasillas = new ArrayList<>();
+
         this.encerrado = false;
         this.estanciasCarcel = 0;
         this.vueltas = 0;
         this.lanzamientos = 1;
-        this.doblesSeguidos = 0;
-        this.movimientoEspecial = false;
         this.lanzamientosEspeciales = 0;
         this.penalizacion = 0;
+        this.doblesSeguidos = 0;
+        this.movimientoEspecial = false;
     }
 
     @Override
@@ -139,6 +144,9 @@ public class Avatar {
         this.casilla.quitarAvatar(this);
         this.setCasilla(nuevaCasilla);
         nuevaCasilla.anadirAvatar(this);
+
+        // Añadir la nueva casilla al historial
+        historialCasillas.add(nuevaCasilla);
 
         // Mostrar información
         System.out.printf("%s con avatar %s, avanza %s posiciones.\nAvanza desde %s hasta %s.\n",
@@ -360,6 +368,10 @@ public class Avatar {
 
     public boolean isMovimientoEspecial() {
         return movimientoEspecial;
+    }
+
+    public ArrayList<Casilla> getHistorialCasillas() {
+        return historialCasillas;
     }
 
     /**
