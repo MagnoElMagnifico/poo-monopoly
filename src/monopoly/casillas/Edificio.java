@@ -1,6 +1,7 @@
 package monopoly.casillas;
 
 import monopoly.Calculadora;
+import monopoly.jugadores.Avatar;
 import monopoly.utilidades.Consola;
 
 /**
@@ -41,6 +42,15 @@ public class Edificio {
                     grupo: %s
                     valor: %s
                 }""".formatted(getNombreFmt(), solar.getPropietario().getNombre(), solar.getCasilla().getNombre(), solar.getCasilla().getGrupo().getNombre(), valor);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        return obj instanceof Edificio && ((Edificio) obj).id == this.id;
     }
 
     public String getNombreFmt() {
