@@ -29,6 +29,8 @@ public class Tablero {
     private final ArrayList<Casilla> casillas;
     private int turno;
     private boolean jugando;
+    private int nCompras;
+
 
     /**
      * Crea un tablero por defecto
@@ -135,6 +137,7 @@ public class Tablero {
             return;
         }
 
+
         // Muestra el tablero si se ha movido el avatar con éxito
         if (getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora)) {
             System.out.print(this);
@@ -153,14 +156,15 @@ public class Tablero {
         Jugador jugadorTurno = getJugadorTurno();
         Avatar avatarTurno = jugadorTurno.getAvatar();
 
-        if (jugadorTurno.getAvatar().getLanzamientos() > 0) {
+        if (jugadorTurno.getAvatar().getLanzamientos() > 0 && !jugadorTurno.getAvatar().isMovimientoEspecial()) {
             Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientos()));
             return;
         }
 
+
         avatarTurno.resetDoblesSeguidos();
         avatarTurno.resetLanzamientos();
-
+        avatarTurno.setPuedeComprar(true);
         turno = (turno + 1) % jugadores.size();
 
         System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
@@ -222,8 +226,14 @@ public class Tablero {
             Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
             return;
         }
-
+        if(!j.getAvatar().isPuedeComprar()){
+            Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
+            return;
+        }
         if (j.comprar(c.getPropiedad())) {
+            if(j.getAvatar().isMovimientoEspecial() && j.getAvatar().getTipo()== Avatar.TipoAvatar.Pelota) {
+                j.getAvatar().setPuedeComprar(false);
+            }
             j.describirTransaccion();
         }
     }
@@ -338,4 +348,7 @@ public class Tablero {
             }
         }
     }
+
+
 }
+

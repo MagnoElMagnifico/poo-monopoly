@@ -1,6 +1,7 @@
 package monopoly.jugadores;
 
 import monopoly.Calculadora;
+import monopoly.Monopoly;
 import monopoly.casillas.Casilla;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Consola.Color;
@@ -32,7 +33,9 @@ public class Avatar {
     private int penalizacion;
     private int doblesSeguidos;
     private boolean movimientoEspecial;
-
+    private int dadoEspera;
+    private boolean pelotaMovimento;
+    private boolean puedeComprar;
     /**
      * Crea un avatar dado su tipo, id y el jugador al que hace referencia
      */
@@ -43,6 +46,27 @@ public class Avatar {
         this.casilla = casillaInicial;
         casillaInicial.anadirAvatar(this);
 
+        this.encerrado = false;
+        this.estanciasCarcel = 0;
+        this.vueltas = 0;
+        this.lanzamientos = 1;
+        this.doblesSeguidos = 0;
+        this.movimientoEspecial = false;
+        this.lanzamientosEspeciales=0;
+        this.penalizacion=0;
+        this.dadoEspera=0;
+        this.pelotaMovimento=false;
+        this.puedeComprar=true;
+    }
+
+    /**
+     * Crear un avatar temporal dado su ID. Útil para el comando `describir`.
+     */
+    public Avatar(char id) {
+        this.tipo = null;
+        this.id = id;
+        this.jugador = null;
+        this.casilla = null;
         this.encerrado = false;
         this.estanciasCarcel = 0;
         this.vueltas = 0;
@@ -79,6 +103,7 @@ public class Avatar {
      *
      * @return True si se ha movido con éxito, false si ha habido un error.
      */
+
     public boolean mover(Dado dado, ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores, Calculadora calculadora) {
         if (lanzamientos <= 0) {
             Consola.error("No quedan lanzamientos. El jugador debe terminar el turno");
@@ -86,6 +111,7 @@ public class Avatar {
         }
 
         lanzamientos--;
+
 
         if (penalizacion != 0) {
             penalizacion--;
@@ -105,7 +131,7 @@ public class Avatar {
                 case Coche -> moverEspecialCoche(dado, casillas.size());
                 case Esfinge -> moverEspecialEsfinge();
                 case Sombrero -> moverEspecialSombrero();
-                case Pelota -> moverEspecialPelota();
+                case Pelota -> moverEspecialPelota(dado);
             };
         } else {
             posNuevaCasilla = moverBasico(dado);
@@ -213,7 +239,8 @@ public class Avatar {
     public void irCarcel() {
         encerrado = true;
         estanciasCarcel = 0;
-
+        lanzamientos=0;
+        lanzamientosEspeciales=0;
         Casilla nuevaCasilla = this.casilla.getCarcel();
         this.casilla.quitarAvatar(this);
         this.setCasilla(nuevaCasilla);
@@ -257,21 +284,37 @@ public class Avatar {
         }
 
         lanzamientosEspeciales--;
+        if(dado.getValor()<4){
+            lanzamientosEspeciales=0;
+            penalizacion=2;
+            lanzamientos=0;
+            return (this.casilla.getPosicion()- dado.getValor()+40)%40;
+        }else {
+            lanzamientos++;
+            if (lanzamientosEspeciales == 0) {
+                lanzamientos=0;
+                if (dado.isDoble()) {
+                    doblesSeguidos++;
+                    if (doblesSeguidos >= 3) {
+                        System.out.printf("""
+                                        %s con avatar %s ha sacado %s.
+                                        Ya son 3 veces seguidas sacando dados dobles.
+                                        %s es arrestado por tener tanta suerte.
+                                        """,
+                                Consola.fmt(jugador.getNombre(), Color.Azul),
+                                Consola.fmt(Character.toString(id), Color.Azul),
+                                dado, jugador.getNombre());
+                        irCarcel();
+                        return -1;
+                    }
+                    lanzamientosEspeciales++;
+                    lanzamientos++;
+                }
+                return this.casilla.getPosicion() + dado.getValor();
+            }
+            return this.casilla.getPosicion() + dado.getValor();
 
-        if (dado.getValor() < 4) {
-            lanzamientosEspeciales = 0;
-            penalizacion = 2;
-            lanzamientos = 0;
-            return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
         }
-
-        lanzamientos++;
-
-        if (lanzamientosEspeciales == 0) {
-            lanzamientos = 0;
-        }
-
-        return this.casilla.getPosicion() + dado.getValor();
     }
 
     private int moverEspecialEsfinge() {
@@ -284,8 +327,27 @@ public class Avatar {
         return -1;
     }
 
-    private int moverEspecialPelota() {
-        // TODO
+    private int moverEspecialPelota(Dado dado) {
+        if(!pelotaMovimento){
+            if(dado.getValor() <=4) return (this.casilla.getPosicion()- dado.getValor()+40)%40;
+            if(dado.getValor() ==5) return this.casilla.getPosicion() +dado.getValor();
+        }
+        if(lanzamientos==0){
+            lanzamientos=2;
+            dadoEspera=dado.getValor()-5;
+            pelotaMovimento=true;
+            return this.casilla.getPosicion() +5;
+        }
+        if(pelotaMovimento){
+            if(dadoEspera<=2){
+                lanzamientos=0;
+                pelotaMovimento=false;
+                return this.casilla.getPosicion() +dadoEspera;
+            }
+            lanzamientos++;
+            dadoEspera-=2;
+            return this.casilla.getPosicion() +2;
+        }
         return -1;
     }
 
@@ -360,6 +422,14 @@ public class Avatar {
 
     public boolean isMovimientoEspecial() {
         return movimientoEspecial;
+    }
+
+    public boolean isPuedeComprar() {
+        return puedeComprar;
+    }
+
+    public void setPuedeComprar(boolean puedeComprar) {
+        this.puedeComprar = puedeComprar;
     }
 
     /**
