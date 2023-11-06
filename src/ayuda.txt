@@ -8,6 +8,7 @@ COMANDOS
     salir carcel                  Saca el jugador actual de la cárcel pagando la fianza.
     salir, quit                   Cierra el programa.
     cambiar modo                  Cambia el modo del avatar del jugador con el turno.
+    siguiente, sig                Avanza las casillas necesarias en el modo especial del avatar tipo pelota.
 
 COMANDOS CON ARGUMENTOS
     crear jugador <nombre> <tipo>

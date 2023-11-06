@@ -137,7 +137,7 @@ public class Monopoly {
             case "salir carcel" ->
                     tablero.getJugadorTurno().getAvatar().salirCarcelPagando(); // TODO: transacción + tablero
             case "cambiar modo" -> tablero.cambiarModo();
-
+            case "siguiente", "sig" -> tablero.
             default -> this.cmdConArgumentos(cmdNorm);
         }
     }
@@ -254,6 +254,5 @@ public class Monopoly {
 
         ejecutarArchivo(args[1]);
     }
-
 
 }

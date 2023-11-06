@@ -62,7 +62,6 @@ public class Avatar {
         this.id = id;
         this.jugador = null;
         this.casilla = null;
-
         this.encerrado = false;
         this.estanciasCarcel = 0;
         this.vueltas = 0;
@@ -97,14 +96,13 @@ public class Avatar {
     /**
      * Mueve el avatar las posiciones que indique el dado y según su estado (movimiento básico o avanzado)
      */
-    public void mover(Dado dado, ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores, Calculadora calculadora) {
+    public void mover(Dado dado, ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores, Calculadora calculadora, int flag) {
         if (lanzamientos <= 0) {
             Consola.error("No quedan lanzamientos. El jugador debe terminar el turno\n");
             return;
         }
 
         lanzamientos--;
-
         if(penalizacion!=0){
             penalizacion--;
             Consola.error("Restaurando avatar espera para poder moverte\n");
@@ -118,6 +116,7 @@ public class Avatar {
         // Obtener la nueva casilla
         int posNuevaCasilla;
         if (movimientoEspecial) {
+            flag=1;
             posNuevaCasilla = switch (tipo) {
                 case Coche -> moverEspecialCoche(dado);
                 case Esfinge -> moverEspecialEsfinge();
@@ -218,7 +217,6 @@ public class Avatar {
     public void irCarcel() {
         encerrado = true;
         estanciasCarcel = 0;
-
         Casilla nuevaCasilla = this.casilla.getCarcel();
         this.casilla.quitarAvatar(this);
         this.setCasilla(nuevaCasilla);
@@ -262,9 +260,24 @@ public class Avatar {
         }else {
             lanzamientos++;
             if(lanzamientosEspeciales==0) {
-                lanzamientos=0;
-                movimientoEspecial=false;
-                return moverBasico(dado);
+                if(dado.isDoble()){
+                    doblesSeguidos++;
+                    if (doblesSeguidos >= 3) {
+                        System.out.printf("""
+                                %s con avatar %s ha sacado %s.
+                                Ya son 3 veces seguidas sacando dados dobles.
+                                %s es arrestado por tener tanta suerte.
+                                """,
+                                Consola.fmt(jugador.getNombre(), Color.Azul),
+                                Consola.fmt(Character.toString(id), Color.Azul),
+                                dado, jugador.getNombre());
+                        irCarcel();
+                        return -1;
+                    }
+                    lanzamientosEspeciales++;
+                    return this.casilla.getPosicion() + dado.getValor();
+
+                }
             }
 
             return this.casilla.getPosicion() + dado.getValor();
@@ -282,7 +295,6 @@ public class Avatar {
     }
 
     private int moverEspecialPelota(Dado dado) {
-        movimientoEspecial=false;
         if(dado.getValor() <=4) return (this.casilla.getPosicion()- dado.getValor()+40)%40;
         if(dado.getValor() ==5) return this.casilla.getPosicion() +dado.getValor();
         return this.casilla.getPosicion() +dado.getValor();

@@ -33,7 +33,6 @@ public class Tablero {
      * True si la partida ha comenzado: ya no se pueden añadir más jugadores
      */
     private boolean jugando;
-
     private int nCompras;
 
     /**
@@ -134,7 +133,7 @@ public class Tablero {
             return;
         }
 
-        getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora);
+        getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora,0);
     }
 
     /**
@@ -153,7 +152,6 @@ public class Tablero {
             Consola.error("Al jugador %s le quedan %d tiros".formatted(j.getNombre(), a.getLanzamientos()));
             return;
         }
-
         a.resetDoblesSeguidos();
         a.resetLanzamientos();
         nCompras=0;
@@ -257,4 +255,5 @@ public class Tablero {
     public void cambiarModo() {
         getJugadorTurno().getAvatar().setMovimientoEspecial();
     }
+
 }
