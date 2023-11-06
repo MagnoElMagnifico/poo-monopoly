@@ -34,6 +34,8 @@ public class Tablero {
      */
     private boolean jugando;
 
+    private int nCompras;
+
     /**
      * Crea un tablero por defecto
      */
@@ -42,6 +44,7 @@ public class Tablero {
         jugadores = new ArrayList<>(6);
         turno = 0;
         jugando = false;
+        nCompras=0;
 
         banca = new Jugador();
         // En lugar de añadir con código las casillas, se leen de
@@ -153,7 +156,7 @@ public class Tablero {
 
         a.resetDoblesSeguidos();
         a.resetLanzamientos();
-
+        nCompras=0;
         turno = (turno + 1) % jugadores.size();
 
         System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
@@ -243,7 +246,12 @@ public class Tablero {
             return;
         }
 
+        if(j.getAvatar().getMovimientoEspecial() && nCompras>=1){
+            Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
+            return;
+        }
         j.comprar(c.getPropiedad());
+        nCompras++;
     }
 
     public void cambiarModo() {

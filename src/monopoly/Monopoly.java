@@ -212,9 +212,11 @@ public class Monopoly {
                 case "avatar" -> tablero.describirAvatar(args[2].charAt(0));
                 default -> Consola.error("\"%s\": Argumento inválido".formatted(args[1]));
             }
+        }else{
+            Consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d".formatted(args.length));
         }
 
-        Consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d".formatted(args.length));
+
     }
 
     /**

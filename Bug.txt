@@ -1,0 +1,7 @@
+#Nuevo archivo donde poner todos los bugs que encontremos
+#Bugs numerados con quien los encontró (G1,M1,J1) si estan resueltos poner # al principio del mismo
+
+
+#G1: Acción Describir: mensajes de error cuando no deben
+#G2: Impuesto no da ningun mensaje al cobrar el impuesto
+#G3: Accion Comprar: mensaje de error cundo no deben se puede comprar aunque no se pueda

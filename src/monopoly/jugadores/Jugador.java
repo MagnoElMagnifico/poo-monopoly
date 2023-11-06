@@ -114,19 +114,20 @@ public class Jugador {
     public void comprar(Propiedad p) {
         // Comprobar que el jugador no haya comprado ya la casilla
         if (propiedades.contains(p)) {
-            Consola.error("El jugador %s ya ha comprado la casilla %s.".formatted(nombre, p.getCasilla().getNombreFmt()));
+            Consola.error("El jugador %s ya ha comprado la casilla %s\n.".formatted(nombre, p.getCasilla().getNombreFmt()));
             return;
         }
 
         // Comprobar que no sea propiedad de otro jugador
-        if (p.getPropietario().isBanca()) {
-            Consola.error("No se pueden comprar propiedades de otro jugador");
+        if (!p.getPropietario().isBanca()) {
+            Consola.error("No se pueden comprar propiedades de otro jugador\n");
             System.out.printf("%s pertenece a %s\n", p.getCasilla().getNombreFmt(), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
+            return;
         }
 
         // Comprobar que el jugador tiene fortuna suficiente
         if (!cobrar(p.getPrecio())) {
-            Consola.error("%s no dispone de suficiente dinero para comprar %s"
+            Consola.error("%s no dispone de suficiente dinero para comprar %s\n"
                     .formatted(nombre, p.getCasilla().getNombreFmt()));
             return;
         }
@@ -155,18 +156,19 @@ public class Jugador {
         };
 
         if (!cobrar(importe)) {
-            Consola.error("El jugador no tiene suficientes fondos para pagar el alquiler");
+            Consola.error("El jugador no tiene suficientes fondos para pagar el alquiler\n");
             return;
         }
 
         p.getPropietario().ingresar(importe);
-        System.out.printf("Se han pagado %s de alquiler a %s", Consola.num(p.getAlquiler()), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
+        System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(p.getAlquiler()), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
     }
 
     /**
      * Cobra al jugador una cantidad de dinero
      */
     public boolean cobrar(long cantidad) {
+
         if (cantidad <= 0 && cantidad > fortuna) {
             return false;
         }
