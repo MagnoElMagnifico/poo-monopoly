@@ -1,11 +1,14 @@
 package monopoly.jugadores;
 
 import monopoly.casillas.Casilla;
+import monopoly.casillas.Edificio;
+import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar.TipoAvatar;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Dado;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -21,6 +24,7 @@ public class Jugador {
     private final Avatar avatar;
     private final boolean banca;
     private final HashSet<Propiedad> propiedades;
+    private final ArrayList<Edificio> edificios;
     private long fortuna;
     private long gastos;
 
@@ -34,6 +38,7 @@ public class Jugador {
         this.fortuna = 0;
         this.gastos = 0;
         this.propiedades = new HashSet<>(28);
+        this.edificios = null;
     }
 
     /**
@@ -46,6 +51,7 @@ public class Jugador {
         this.fortuna = fortuna;
         this.gastos = 0;
         this.propiedades = new HashSet<>();
+        this.edificios = new ArrayList<>();
     }
 
     /**
@@ -71,6 +77,28 @@ public class Jugador {
         return propiedadesStr.toString();
     }
 
+    /**
+     * Función de ayuda para listar los nombres de los Edificios en un String
+     */
+    private String listaEdificios() {
+        StringBuilder edificiosStr = new StringBuilder();
+
+        edificiosStr.append('[');
+        Iterator<Edificio> iter = edificios.iterator();
+
+        while (iter.hasNext()) {
+            edificiosStr.append(iter.next().getNombreFmt());
+
+            if (iter.hasNext()) {
+                edificiosStr.append(", ");
+            }
+        }
+
+        edificiosStr.append(']');
+
+        return edificiosStr.toString();
+    }
+
     @Override
     public String toString() {
         if (banca) {
@@ -84,11 +112,13 @@ public class Jugador {
                     fortuna: %s
                     gastos: %s
                     propiedades: %s
-                }""".formatted(nombre, avatar.getId(), Consola.num(fortuna), Consola.num(gastos), listaPropiedades());
-        // TODO: hipotecas
-        // TODO: edificios
+                    edificios: %s
+                }""".formatted(nombre, avatar.getId(), Consola.num(fortuna), Consola.num(gastos), listaPropiedades(), listaEdificios());
     }
 
+    /**
+     * Devuelve un String con información sobre la fortuna, gastos y propiedades del jugador
+     */
     public String describirTransaccion() {
         return """
                 {
@@ -110,26 +140,28 @@ public class Jugador {
 
     /**
      * Hace que el jugador compre la propiedad a la banca
+     *
+     * @return True cuando la operación resultó exitosa, false en otro caso.
      */
-    public void comprar(Propiedad p) {
+    public boolean comprar(Propiedad p) {
         // Comprobar que el jugador no haya comprado ya la casilla
         if (propiedades.contains(p)) {
-            Consola.error("El jugador %s ya ha comprado la casilla %s\n.".formatted(nombre, p.getCasilla().getNombreFmt()));
-            return;
+            Consola.error("El jugador %s ya ha comprado la casilla %s.".formatted(nombre, p.getCasilla().getNombreFmt()));
+            return false;
         }
 
         // Comprobar que no sea propiedad de otro jugador
         if (!p.getPropietario().isBanca()) {
-            Consola.error("No se pueden comprar propiedades de otro jugador\n");
+            Consola.error("No se pueden comprar propiedades de otro jugador");
             System.out.printf("%s pertenece a %s\n", p.getCasilla().getNombreFmt(), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
-            return;
+            return false;
         }
 
         // Comprobar que el jugador tiene fortuna suficiente
         if (!cobrar(p.getPrecio())) {
-            Consola.error("%s no dispone de suficiente dinero para comprar %s\n"
+            Consola.error("%s no dispone de suficiente dinero para comprar %s"
                     .formatted(nombre, p.getCasilla().getNombreFmt()));
-            return;
+            return false;
         }
 
         p.getPropietario().quitarPropiedad(p);
@@ -137,6 +169,43 @@ public class Jugador {
         p.setPropietario(this);
 
         System.out.printf("El jugador %s ha comprado la casilla %s por %s\n", nombre, p.getCasilla().getNombreFmt(), Consola.num(p.getPrecio()));
+
+        // Actualizar los precios de los alquileres si se acaba de
+        // completar un Monopolio
+        boolean tenerMonopolio = true;
+        for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
+            // Si se encuentra una propiedad cuyo propietario no es este jugador,
+            // es que no tiene el monopolio
+            if (!c.getPropiedad().getPropietario().equals(this)) {
+                tenerMonopolio = false;
+                break;
+            }
+        }
+
+        if (tenerMonopolio) {
+            for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
+                Propiedad propiedad = c.getPropiedad();
+                propiedad.setAlquiler(2 * propiedad.getAlquiler());
+            }
+
+            Grupo g = p.getCasilla().getGrupo();
+            System.out.printf("""
+                    Con esta casilla el %s completa el Monopolio de %s!
+                    Ahora los alquileres de ese grupo valen el doble.
+                    """, Consola.fmt(nombre, Consola.Color.Azul), Consola.fmt(g.getNombre(), g.getCodigoColor()));
+        }
+
+        return true;
+    }
+
+    /**
+     * Realiza la compra del edificio dado.
+     *
+     * @return True si la operación es exitosa y false en otro caso.
+     */
+    public boolean comprar(Edificio e) {
+        // TODO
+        return false;
     }
 
     /**
@@ -148,15 +217,13 @@ public class Jugador {
             return;
         }
 
-        // TODO: comprobar si está hipotecado
-
         long importe = switch (p.getTipo()) {
             case Solar, Transporte -> p.getAlquiler();
             case Servicio -> p.getAlquiler() * dado.getValor() * 4;
         };
 
         if (!cobrar(importe)) {
-            Consola.error("El jugador no tiene suficientes fondos para pagar el alquiler\n");
+            Consola.error("El jugador no tiene suficientes fondos para pagar el alquiler");
             return;
         }
 
@@ -168,7 +235,6 @@ public class Jugador {
      * Cobra al jugador una cantidad de dinero
      */
     public boolean cobrar(long cantidad) {
-
         if (cantidad <= 0 && cantidad > fortuna) {
             return false;
         }
