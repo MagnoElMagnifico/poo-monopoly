@@ -1,5 +1,12 @@
-C1: Test comunidad 1
-C2: Test comunidad 2
-C3: Test comunidad 3
-S1: Test suerte 1
-S2: Test suerte 2
+S: 1: Vendes tu billete de avión para Terrassa en una subasta por Internet. Cobra 500000€
+S: 2: ¡Has ganado el bote de la lotería! Recibe 1000000€.
+S: 3: Paga 1500000€ por la matrícula del colegio privado
+S: 4: El aumento del impuesto sobre bienes inmuebles afecta a todas tus propiedades. Paga 400000€ por casa, 1150000M€ por hotel, 200.000€ por piscina y 750000€ por pista de deportes.
+S: 5: Has sido elegido presidente de la junta directiva. Paga a cada jugador 250000€.3
+S: 6: Te multan por usar el móvil mientras conduces. Paga 150000€.
+C: 1: Paga 500000€ por un fin de semana en un balneario de 5 estrellas
+C: 2: Tu compañía de Internet obtiene beneficios. Recibe 2000000€
+C: 3: Paga 1000000€ por invitar a todos tus amigos a un viaje a León.
+C: 4: Devolución de Hacienda. Cobra 500000€.
+C: 5: Alquilas a tus compañeros una villa en Cannes durante una semana. Paga 200000€ a cada jugador.
+C: 6: Recibe 1000000€ de beneficios por alquilar los servicios de tu jet privado.
