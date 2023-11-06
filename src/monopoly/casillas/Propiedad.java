@@ -1,5 +1,6 @@
 package monopoly.casillas;
 
+import monopoly.Calculadora;
 import monopoly.jugadores.Jugador;
 import monopoly.utilidades.Consola;
 
@@ -55,12 +56,14 @@ public class Propiedad {
                    precio: %s
                    alquiler: %s
                    propietario: %s
+                   edificios: %s
                }""".formatted(nombre,
                               tipo,
                               tipo == TipoPropiedad.Solar? "\n    grupo: " + casilla.getGrupo().getNombre() : "",
                               Consola.num(precio),
                               Consola.num(alquiler),
-                              propietario == null ? "-" : propietario.getNombre());
+                              propietario == null ? "-" : propietario.getNombre(),
+                              Consola.listar(edificios.iterator(), Edificio::getNombreFmt));
         // @formatter:on
     }
 
@@ -102,13 +105,8 @@ public class Propiedad {
         return alquiler;
     }
 
-    public void setAlquiler(long alquiler) {
-        if (alquiler <= 0) {
-            Consola.error("[Propiedad] No se puede asignar un alquiler negativo o nulo a una propiedad");
-            return;
-        }
-
-        this.alquiler = alquiler;
+    public void actualizarAlquiler() {
+        this.alquiler = Calculadora.calcularAlquiler(this);
     }
 
     public Jugador getPropietario() {

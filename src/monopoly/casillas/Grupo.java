@@ -37,26 +37,12 @@ public class Grupo {
 
     @Override
     public String toString() {
-        StringBuilder casillasStr = new StringBuilder();
-
-        Iterator<Casilla> iter = casillas.iterator();
-        casillasStr.append('[');
-
-        while (iter.hasNext()) {
-            casillasStr.append(iter.next().getNombre());
-
-            if (iter.hasNext()) {
-                casillasStr.append(", ");
-            }
-        }
-        casillasStr.append(']');
-
         return """
                 {
                     nombre: %s
                     número: %d
                     casillas: %s
-                }""".formatted(Consola.fmt(nombre, codigoColor), numero, casillasStr);
+                }""".formatted(Consola.fmt(nombre, codigoColor), numero, Consola.listar(casillas.iterator(), Casilla::getNombre));
     }
 
     @Override
