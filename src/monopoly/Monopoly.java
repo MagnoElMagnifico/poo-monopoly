@@ -137,7 +137,7 @@ public class Monopoly {
             //case "siguiente", "sig" -> tablero.
             case "salir carcel"               -> tablero.salirCarcel();
             case "cambiar modo"               -> tablero.cambiarModo();
-            case "lanzar", "lanzar dados"     -> tablero.moverAvatar(new Dado());
+            case "lanzar", "lanzar dados", "siguiente", "sig"-> tablero.moverAvatar(new Dado());
             case "acabar turno", "fin", "end" -> tablero.acabarTurno();
 
             default -> this.cmdConArgumentos(cmdNorm);

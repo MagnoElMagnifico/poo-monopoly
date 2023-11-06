@@ -33,7 +33,9 @@ public class Avatar {
     private int penalizacion;
     private int doblesSeguidos;
     private boolean movimientoEspecial;
-
+    private int dadoEspera;
+    private boolean pelotaMovimento;
+    private boolean puedeComprar;
     /**
      * Crea un avatar dado su tipo, id y el jugador al que hace referencia
      */
@@ -52,6 +54,9 @@ public class Avatar {
         this.movimientoEspecial = false;
         this.lanzamientosEspeciales=0;
         this.penalizacion=0;
+        this.dadoEspera=0;
+        this.pelotaMovimento=false;
+        this.puedeComprar=true;
     }
 
     /**
@@ -285,6 +290,7 @@ public class Avatar {
         }else {
             lanzamientos++;
             if (lanzamientosEspeciales == 0) {
+                lanzamientos=0;
                 if (dado.isDoble()) {
                     doblesSeguidos++;
                     if (doblesSeguidos >= 3) {
@@ -300,9 +306,8 @@ public class Avatar {
                         return -1;
                     }
                     lanzamientosEspeciales++;
-                    return this.casilla.getPosicion() + dado.getValor();
-
                 }
+                return this.casilla.getPosicion() + dado.getValor();
             }
             return this.casilla.getPosicion() + dado.getValor();
 
@@ -320,9 +325,27 @@ public class Avatar {
     }
 
     private int moverEspecialPelota(Dado dado) {
-        if(dado.getValor() <=4) return (this.casilla.getPosicion()- dado.getValor()+40)%40;
-        if(dado.getValor() ==5) return this.casilla.getPosicion() +dado.getValor();
-        return this.casilla.getPosicion() +dado.getValor();
+        if(!pelotaMovimento){
+            if(dado.getValor() <=4) return (this.casilla.getPosicion()- dado.getValor()+40)%40;
+            if(dado.getValor() ==5) return this.casilla.getPosicion() +dado.getValor();
+        }
+        if(lanzamientos==0){
+            lanzamientos=2;
+            dadoEspera=dado.getValor()-5;
+            pelotaMovimento=true;
+            return this.casilla.getPosicion() +5;
+        }
+        if(pelotaMovimento){
+            if(dadoEspera<=2){
+                lanzamientos=0;
+                pelotaMovimento=false;
+                return this.casilla.getPosicion() +dadoEspera;
+            }
+            lanzamientos++;
+            dadoEspera-=2;
+            return this.casilla.getPosicion() +2;
+        }
+        return -1;
     }
 
     public char getId() {
@@ -396,6 +419,14 @@ public class Avatar {
 
     public boolean isMovimientoEspecial() {
         return movimientoEspecial;
+    }
+
+    public boolean isPuedeComprar() {
+        return puedeComprar;
+    }
+
+    public void setPuedeComprar(boolean puedeComprar) {
+        this.puedeComprar = puedeComprar;
     }
 
     /**
