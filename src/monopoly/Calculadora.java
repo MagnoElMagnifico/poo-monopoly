@@ -52,7 +52,7 @@ public class Calculadora {
                 case Propiedad -> {
                     Propiedad p = c.getPropiedad();
                     p.setPrecio(calcularPrecio(p));
-                    p.setAlquiler(calcularAlquiler(p));
+                    p.actualizarAlquiler();
                 }
                 case Salida -> c.setAbonoSalida(calcularAbonoSalida());
                 case Impuestos -> {
@@ -118,6 +118,11 @@ public class Calculadora {
     public static boolean tieneGrupo(Propiedad p) {
         Grupo g = p.getCasilla().getGrupo();
         Jugador propietario = p.getPropietario();
+
+        // A la banca no se le aplican los monopolios
+        if (propietario.isBanca()) {
+            return false;
+        }
 
         for (Casilla c : g.getCasillas()) {
             if (!propietario.getPropiedades().contains(c.getPropiedad())) {
