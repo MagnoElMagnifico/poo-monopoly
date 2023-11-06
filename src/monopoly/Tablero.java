@@ -252,7 +252,7 @@ public class Tablero {
             return;
         }
 
-        j.comprar(new Edificio(p.getEdificios().size(), tipoEdificio, p));
+        j.comprar(new Edificio(tipoEdificio, p));
     }
 
     @Override

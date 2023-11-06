@@ -16,13 +16,16 @@ import monopoly.utilidades.Consola;
  * @see Propiedad
  */
 public class Edificio {
+    /** Permite generar IDs para edificios de forma que nunca se repitan */
+    private static int ultimoId;
+
     private final int id;
     private final TipoEdificio tipo;
     private final long valor;
     private final Propiedad solar;
 
-    public Edificio(int id, TipoEdificio tipo, Propiedad solar) {
-        this.id = id;
+    public Edificio(TipoEdificio tipo, Propiedad solar) {
+        this.id = ultimoId++;
         this.tipo = tipo;
         this.solar = solar;
         this.valor = Calculadora.calcularPrecio(this);
