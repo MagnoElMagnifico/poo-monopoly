@@ -3,9 +3,10 @@ package monopoly.jugadores;
 import monopoly.casillas.Casilla;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar.TipoAvatar;
-import monopoly.utilidades.Formatear;
+import monopoly.utilidades.Consola;
+import monopoly.utilidades.Dado;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 
 /**
@@ -18,7 +19,8 @@ import java.util.Iterator;
 public class Jugador {
     private final String nombre;
     private final Avatar avatar;
-    private final ArrayList<Propiedad> propiedades;
+    private final boolean banca;
+    private final HashSet<Propiedad> propiedades;
     private long fortuna;
     private long gastos;
 
@@ -28,9 +30,10 @@ public class Jugador {
     public Jugador() {
         this.nombre = "Banca";
         this.avatar = null;
+        this.banca = true;
         this.fortuna = 0;
         this.gastos = 0;
-        this.propiedades = new ArrayList<>(28);
+        this.propiedades = new HashSet<>(28);
     }
 
     /**
@@ -39,9 +42,10 @@ public class Jugador {
     public Jugador(String nombre, TipoAvatar tipo, char id, Casilla casillaInicial, long fortuna) {
         this.avatar = new Avatar(tipo, id, this, casillaInicial);
         this.nombre = nombre;
+        this.banca = false;
         this.fortuna = fortuna;
         this.gastos = 0;
-        this.propiedades = new ArrayList<>();
+        this.propiedades = new HashSet<>();
     }
 
     /**
@@ -55,7 +59,7 @@ public class Jugador {
 
         while (iter.hasNext()) {
             Casilla c = iter.next().getCasilla();
-            propiedadesStr.append(Formatear.con(c.getNombre(), c.getGrupo().getCodigoColor()));
+            propiedadesStr.append(c.getNombreFmt());
 
             if (iter.hasNext()) {
                 propiedadesStr.append(", ");
@@ -69,7 +73,7 @@ public class Jugador {
 
     @Override
     public String toString() {
-        if (avatar == null) {
+        if (banca) {
             return "Jugador Especial: Banca\n";
         }
 
@@ -80,7 +84,7 @@ public class Jugador {
                     fortuna: %s
                     gastos: %s
                     propiedades: %s
-                }""".formatted(nombre, avatar.getId(), Formatear.num(fortuna), Formatear.num(gastos), listaPropiedades());
+                }""".formatted(nombre, avatar.getId(), Consola.num(fortuna), Consola.num(gastos), listaPropiedades());
         // TODO: hipotecas
         // TODO: edificios
     }
@@ -92,7 +96,7 @@ public class Jugador {
                     gastos: %s
                     propiedades: %s
                 }
-                """.formatted(Formatear.num(fortuna), Formatear.num(gastos), listaPropiedades());
+                """.formatted(Consola.num(fortuna), Consola.num(gastos), listaPropiedades());
     }
 
     @Override
@@ -105,24 +109,89 @@ public class Jugador {
     }
 
     /**
+     * Hace que el jugador compre la propiedad a la banca
+     */
+    public void comprar(Propiedad p) {
+        // Comprobar que el jugador no haya comprado ya la casilla
+        if (propiedades.contains(p)) {
+            Consola.error("El jugador %s ya ha comprado la casilla %s\n.".formatted(nombre, p.getCasilla().getNombreFmt()));
+            return;
+        }
+
+        // Comprobar que no sea propiedad de otro jugador
+        if (!p.getPropietario().isBanca()) {
+            Consola.error("No se pueden comprar propiedades de otro jugador\n");
+            System.out.printf("%s pertenece a %s\n", p.getCasilla().getNombreFmt(), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
+            return;
+        }
+
+        // Comprobar que el jugador tiene fortuna suficiente
+        if (!cobrar(p.getPrecio())) {
+            Consola.error("%s no dispone de suficiente dinero para comprar %s\n"
+                    .formatted(nombre, p.getCasilla().getNombreFmt()));
+            return;
+        }
+
+        p.getPropietario().quitarPropiedad(p);
+        anadirPropiedad(p);
+        p.setPropietario(this);
+
+        System.out.printf("El jugador %s ha comprado la casilla %s por %s\n", nombre, p.getCasilla().getNombreFmt(), Consola.num(p.getPrecio()));
+    }
+
+    /**
+     * Hace que el jugador page el alquiler correspondiente
+     * al dueño de la casilla en donde se encuentra
+     */
+    public void pagarAlquiler(Propiedad p, Dado dado) {
+        if (p.getPropietario().isBanca() || p.getPropietario().equals(this)) {
+            return;
+        }
+
+        // TODO: comprobar si está hipotecado
+
+        long importe = switch (p.getTipo()) {
+            case Solar, Transporte -> p.getAlquiler();
+            case Servicio -> p.getAlquiler() * dado.getValor() * 4;
+        };
+
+        if (!cobrar(importe)) {
+            Consola.error("El jugador no tiene suficientes fondos para pagar el alquiler\n");
+            return;
+        }
+
+        p.getPropietario().ingresar(importe);
+        System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(p.getAlquiler()), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
+    }
+
+    /**
      * Cobra al jugador una cantidad de dinero
      */
-    public void cobrar(long cantidad) {
-        if (cantidad > 0 && cantidad <= fortuna) {
-            fortuna -= cantidad;
-            gastos += cantidad;
+    public boolean cobrar(long cantidad) {
+
+        if (cantidad <= 0 && cantidad > fortuna) {
+            return false;
         }
-        // TODO: lanzar error de lo contrario
+
+        fortuna -= cantidad;
+        gastos += cantidad;
+        return true;
     }
 
     /**
      * Ingresa una cantidad de dinero al jugador
      */
     public void ingresar(long cantidad) {
-        if (cantidad > 0) {
-            fortuna += cantidad;
+        if (cantidad <= 0) {
+            Consola.error("[Jugador] No se puede ingresar una cantidad negativa o nula");
+            return;
         }
-        // TODO: lanzar error de lo contrario
+
+        fortuna += cantidad;
+    }
+
+    public boolean isBanca() {
+        return banca;
     }
 
     public String getNombre() {
@@ -141,7 +210,7 @@ public class Jugador {
         return gastos;
     }
 
-    public ArrayList<Propiedad> getPropiedades() {
+    public HashSet<Propiedad> getPropiedades() {
         return propiedades;
     }
 

@@ -3701,11 +3701,11 @@
       "locked": false,
       "fontSize": 28,
       "fontFamily": 3,
-      "text": "Main",
+      "text": "monopoly.monopoly.Main",
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "zzBD8Kus3CbhRlTfPBa0P",
-      "originalText": "Main",
+      "originalText": "monopoly.monopoly.Main",
       "lineHeight": 1.2,
       "baseline": 27
     },

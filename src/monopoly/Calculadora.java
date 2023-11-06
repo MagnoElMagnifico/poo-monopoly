@@ -5,9 +5,6 @@ import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
 import monopoly.casillas.Propiedad.TipoPropiedad;
 import monopoly.jugadores.Jugador;
-import monopoly.utilidades.Dado;
-import monopoly.utilidades.Formatear;
-import monopoly.utilidades.Formatear.Color;
 
 import java.util.ArrayList;
 
@@ -24,16 +21,15 @@ import java.util.ArrayList;
  */
 public class Calculadora {
     public static final long PRECIO_GRUPO1 = 1_000_000;
-    private final Jugador banca;
     private long sumaSolares;
     private long nSolares;
 
     public Calculadora(ArrayList<Casilla> casillas, Jugador banca) {
-        this.banca = banca;
         sumaSolares = 0;
         nSolares = 0;
 
         for (Casilla c : casillas) {
+            c.setBanca(banca);
             if (c.isPropiedad()) {
                 // Asignar propiedades a la Banca
                 Propiedad p = c.getPropiedad();
@@ -48,43 +44,72 @@ public class Calculadora {
             }
         }
 
-        // Ahora hay que asignar los precios a cada casilla
-        for (Casilla c : casillas) {
-            c.setPrecio(calcularPrecio(c));
+        // Ahora hay que asignar los precios y otros atributos a cada casilla
+        // Para establecer una referencia a la cárcel en IrCárcel, se deben
+        // recorrer las casillas al revés, dado que la Cárcel aparece después
+        // de IrCárcel.
+        Casilla carcel = null;
+        for (int ii = casillas.size() - 1; ii >= 0; ii--) {
+            Casilla c = casillas.get(ii);
+
+            switch (c.getTipo()) {
+                case Propiedad -> {
+                    Propiedad p = c.getPropiedad();
+                    p.setPrecio(calcularPrecio(p));
+                    p.setAlquiler(calcularAlquiler(p));
+                }
+                case Salida -> c.setAbonoSalida(calcularAbonoSalida());
+                case Impuestos -> c.setImpuestos(calcularAbonoSalida()); // TODO: uno debe valer la mitad
+                case Carcel -> {
+                    c.setFianza(calcularAbonoSalida() / 4);
+                    carcel = c;
+                }
+                case IrCarcel -> c.setCarcel(carcel);
+            }
         }
     }
 
     public static long calcularAlquiler(Propiedad p) {
+        // TODO: tener en cuenta el monopolio y casas
         return p.getPrecio() / 10;
+    }
+
+    /**
+     * Aumenta el precio de todos los solares que
+     * aún no se han vendido al cabo de 4 vueltas.
+     */
+    public static void aumentarPrecio(ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores) {
+        for (Jugador jugador : jugadores) {
+            if (jugador.getAvatar().getVueltas() < 4) {
+                return;
+            }
+        }
+
+        for (Casilla c : casillas) {
+            // Si la casilla se puede comprar y no tiene dueño, es que está en venta
+            if (c.isPropiedad() && (c.getPropiedad().getPropietario() == null || c.getPropiedad().getPropietario().isBanca())) {
+                Propiedad p = c.getPropiedad();
+                p.setPrecio((long) (p.getPrecio() * 1.05));
+            }
+        }
+
+        for (Jugador jugador : jugadores) {
+            jugador.getAvatar().resetVuelta();
+        }
+
+        System.out.println("Se ha aumentado el precio de todas las casillas en venta\n");
     }
 
     public long calcularAbonoSalida() {
         return sumaSolares / nSolares;
     }
 
+    // TODO: calcularPrecio(Edificacion)
+    // TODO: calcularHipoteca(Propiedad)
+
     public long calcularFortuna() {
         return sumaSolares / 3;
     }
-
-    public long calcularPrecio(Casilla c) {
-        if (c.isPropiedad()) {
-            return calcularPrecio(c.getPropiedad());
-        }
-
-        // @formatter:off
-        return switch (c.getNombre()) {
-            case "Salida"    -> calcularAbonoSalida();     // Cantidad que recibe al pasar por Salida
-            case "Impuesto1" -> calcularAbonoSalida();
-            case "Impuesto2" -> calcularAbonoSalida() / 2;
-            case "Parking"   -> banca.getFortuna();        // La fortuna de la banca representa este bote
-            case "Cárcel"    -> calcularAbonoSalida() / 4;
-            default          -> -1;
-        };
-        // @formatter:on
-    }
-
-    // TODO: calcularPrecio(Edificacion)
-    // TODO: calcularHipoteca(Propiedad)
 
     public long calcularPrecio(Propiedad p) {
         Grupo g = p.getCasilla().getGrupo();
@@ -99,116 +124,4 @@ public class Calculadora {
 
         return precioGrupo / g.getNumeroCasillas();
     }
-
-    /**
-     * Hace que el jugador compre la propiedad a la banca
-     */
-    public String comprar(Propiedad solar, Jugador jugador) {
-        // Comprobar que el jugador no haya comprado ya la casilla
-        if (jugador.getPropiedades().contains(solar)) {
-            return Formatear.con("El jugador %s ya ha comprado la casilla %s.\n".formatted(jugador.getNombre(), solar.getCasilla().getNombre()), Color.Rojo);
-        }
-
-        // Comprobar que no sea propiedad de otro jugador
-        if (solar.getPropietario() != banca) {
-            // @formatter:off
-            return """
-                   %s
-                   %s pertenece a %s
-                   """.formatted(Formatear.con("No se pueden comprar propiedades de otro jugador\n", Color.Rojo),
-                                 Formatear.casillaNombre(solar.getCasilla()),
-                                 Formatear.con(jugador.getNombre(), Color.Azul));
-            // @formatter:on
-        }
-
-        // Comprobar que el jugador tiene fortuna suficiente
-        if (solar.getPrecio() > jugador.getFortuna()) {
-            return Formatear.con("%s no dispone de suficiente dinero para comprar %s\n"
-                    .formatted(jugador.getNombre(), solar.getCasilla().getNombre()), Color.Rojo);
-        }
-
-        jugador.cobrar(solar.getPrecio());
-        jugador.anadirPropiedad(solar);
-        banca.quitarPropiedad(solar);
-        solar.setPropietario(jugador);
-
-        return "El jugador %s ha comprado la casilla %s por %s\n"
-                .formatted(jugador.getNombre(), Formatear.casillaNombre(solar.getCasilla()), Formatear.num(solar.getPrecio()));
-    }
-
-    /**
-     * Hace que el jugador page el alquiler correspondiente
-     * al dueño de la casilla en donde se encuentra
-     */
-    public String pagarAlquiler(Propiedad p, Jugador jugador, Dado dado) {
-        if (p.getPropietario() == banca) return "";
-        if (p.getPropietario() == jugador) return "";
-
-        // TODO: comprobar si está hipotecado
-        // TODO: precio servicios y transportes incrementado
-
-        long importe = switch (p.getTipo()) {
-            case Solar, Transporte -> p.getAlquiler(); // TODO: Tranporte con monopolio
-            case Servicio -> p.getAlquiler() * dado.getValor() * 4;
-        };
-
-        if (importe > jugador.getFortuna()) {
-            return Formatear.con("El jugador no tiene suficientes fondos para pagar el alquiler\n", Color.Rojo);
-        }
-
-        jugador.cobrar(importe);
-        p.getPropietario().ingresar(importe);
-        return "Se han pagado %s de alquiler a %s\n"
-                .formatted(Formatear.num(p.getAlquiler()), Formatear.con(p.getPropietario().getNombre(), Color.Azul));
-    }
-
-    /**
-     * Aumenta el precio de todos los solares que
-     * aún no se han vendido al cabo de 4 vueltas.
-     */
-    public String aumentarPrecio(ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores) {
-        for (Jugador jugador : jugadores) {
-            if (jugador.getAvatar().getVueltas() < 4) {
-                return "";
-            }
-        }
-
-        for (Casilla casilla : casillas) {
-            // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-            if (casilla.isPropiedad() && (casilla.getPropiedad().getPropietario() == null || casilla.getPropiedad().getPropietario() == banca)) {
-                Propiedad p = casilla.getPropiedad();
-                p.setPrecio((long) (p.getPrecio() * 1.05));
-            }
-        }
-
-        for (Jugador jugador : jugadores) {
-            jugador.getAvatar().resetVuelta();
-        }
-
-        return "Se ha aumentado el precio de todas las casillas en venta\n";
-    }
-
-    /*
-    No es para esta entrega:
-    public static String valoresPropiedad(Propiedad solar){
-        return """
-                        Nombre:%s
-                        propietario: %s
-                        Precio: %d
-                        alquiler: %d
-                        valor hotel: %d
-                        valor casa: %d
-                        valor piscina: %d
-                        valor pista de deporte: %d
-                        alquiler una casa: %d
-                        alquiler dos casas: %d
-                        alquiler tres casas: %d
-                        alquiler hotel: %d
-                        alquiler piscina: %d
-                        alquiler pista de deporte: %d
-                """.formatted(solar.getCasilla().getNombre(),solar.getPropietario(),solar.getPrecio(),solar.getAlquiler(),
-                (int)(solar.getPrecio()*0.6),(int)(solar.getPrecio()*0.6),(int)(solar.getPrecio()*0.4),(int)(solar.getPrecio()*1.25),
-                solar.getPrecio()*5, solar.getPrecio()*15,solar.getPrecio()*30,solar.getPrecio()*70,solar.getPrecio()*25,solar.getPrecio()*25);
-    }
-    */
 }

@@ -1,13 +1,16 @@
 package monopoly;
 
 import monopoly.jugadores.Avatar;
+import monopoly.utilidades.Consola;
+import monopoly.utilidades.Consola.Color;
+import monopoly.utilidades.Consola.Estilo;
 import monopoly.utilidades.Dado;
-import monopoly.utilidades.Formatear;
-import monopoly.utilidades.Formatear.Color;
-import monopoly.utilidades.Formatear.Estilo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Scanner;
 
 /**
@@ -19,74 +22,20 @@ import java.util.Scanner;
  * @date 25-09-2023
  */
 public class Monopoly {
-    // @formatter:off
-    /** Resultado del comando de ayuda */
-    private static final String MSG_AYUDA = """
-                %s
-                    ayuda, help                   Muestra esta información de ayuda.
-                    ver tablero, tablero, show    Muestra el tablero del juego.
-                    iniciar, start                Inicia la partida. Ya no se podrán añadir jugadores.
-                    jugador, turno, player        Muestra el jugador al que le toca jugar.
-                    lanzar, lanzar dados          El jugador actual lanza 2 dados y mueve su avatar.
-                    acabar turno, fin, end        Termina el turno del jugador actual.
-                    salir carcel                  Saca el jugador actual de la cárcel pagando la fianza.
-                    salir, quit                   Cierra el programa.
-
-                %s
-                    crear jugador <nombre> <tipo>
-                          Crea un jugador dado su nombre y tipo. Este último puede ser uno de los
-                          4 siguientes:
-                              - Coche (alias c)
-                              - Esfinge (alias e)
-                              - Sombrero (alias s)
-                              - Pelota (alias p)
-
-                    listar <casillas | enventa | jugadores | avatares>
-                          Muestra información sobre las Casillas, la propiedades EnVenta, Jugadores
-                          del juego y sus Avatares.
-
-                    describir <nombre-casilla>
-                          Muestra información sobre una casilla en concreto.
-                    
-                    describir jugador <nombre-jugador>
-                          Muestra información sobre un jugador en concreto.
-                          
-                    describir avatar <id>
-                          Muestra información sobre un avatar en concreto.
-
-                    comprar <nombre-propiedad>
-                          Permite permite al jugador actual comprar una propiedad.
-
-                          NOTA: solo se puede comprar la propiedad en la que está su avatar y si no
-                          tiene dueño.
-
-                %s
-                    Solo para probar el funcionamiento del juego.
-
-                    exec <archivo>
-                           Permite ejecutar un archivo que contiene un comando por línea.
-                    
-                    mover <n1> <n2>
-                           Simula una tirada de un dado. Si desea moverse un determinado número de casillas,
-                           use n2 = 0.
-
-                %s
-                    - Los comandos no distinguen mayúsculas de minúsculas: "AyUda" es lo mismo que "ayuda".
-                    - Se ignoran los espacios en blanco no necesarios: "lanzar     dados" es lo
-                      mismo que "lanzar dados".
-                    - Lo que empiece por el caracter '#' se considerará un comentario, lo que se ignorará.
-            """.formatted(Formatear.con("COMANDOS", Color.Rojo, Estilo.Negrita),
-                          Formatear.con("COMANDOS CON ARGUMENTOS", Color.Rojo, Estilo.Negrita),
-                          Formatear.con("COMANDOS DEBUG", Color.Rojo, Estilo.Negrita),
-                          Formatear.con("NOTAS", Color.Rojo, Estilo.Negrita));
-    // @formatter:on
-
     private final Scanner scanner;
     private final Tablero tablero;
+    private String msgAyuda;
 
     public Monopoly() {
         scanner = new Scanner(System.in);
         tablero = new Tablero();
+
+        try {
+            msgAyuda = Files.readString(Path.of("src/ayuda.txt"));
+        } catch (IOException e) {
+            Consola.error("[Monopoly] Error abriendo el archivo de ayuda: " + e);
+            System.exit(1);
+        }
     }
 
     /**
@@ -106,7 +55,7 @@ public class Monopoly {
 
         // Se ejecuta el archivo y se inicia la consola
         if (args.length == 1) {
-            System.out.println(ejecutarArchivo(args[0]));
+            ejecutarArchivo(args[0]);
         }
 
         iniciarConsola();
@@ -117,17 +66,17 @@ public class Monopoly {
      * Muestra el Prompt ("$>") y permite al usuario escribir un comando.
      */
     public void iniciarConsola() {
-        System.out.printf("Puedes usar el comando \"%s\" para ver las opciones disponibles\n", Formatear.con("ayuda", Color.Verde));
+        System.out.printf("Puedes usar el comando \"%s\" para ver las opciones disponibles\n", Consola.fmt("ayuda", Color.Verde));
         while (true) {
-            System.out.print(Formatear.con("$> ", Color.Verde, Estilo.Negrita));
-            System.out.print(this.procesarCmd(scanner.nextLine()));
+            System.out.print(Consola.fmt("$> ", 2, Estilo.Negrita));
+            this.procesarCmd(scanner.nextLine());
         }
     }
 
     /**
      * Lee y ejecuta el contenido del archivo pasado por parámetro
      */
-    private String ejecutarArchivo(String nombreArchivo) {
+    private void ejecutarArchivo(String nombreArchivo) {
         // Se abre el archivo a ejecutar
         File archivo = new File(nombreArchivo);
         Scanner scanner;
@@ -135,27 +84,23 @@ public class Monopoly {
         try {
             scanner = new Scanner(archivo);
         } catch (FileNotFoundException e) {
-            return Formatear.con("\"%s\": no se ha encontrado\n".formatted(nombreArchivo), Color.Rojo);
+            Consola.error("\"%s\": no se ha encontrado".formatted(nombreArchivo));
+            return;
         }
-
-        // String para almacenar la salida del comando
-        StringBuilder salida = new StringBuilder();
 
         // Se procesa línea a línea, ejecutando cada comando
         while (scanner.hasNextLine()) {
-            salida.append(procesarCmd(scanner.nextLine()));
+            procesarCmd(scanner.nextLine());
         }
-
-        return salida.toString();
     }
 
     /**
      * Procesa el comando dado y realiza las llamadas pertinentes para ejecutarlo
      */
-    private String procesarCmd(String cmd) {
+    private void procesarCmd(String cmd) {
         // Ignorar comandos en blanco o con solo espacios
         if (cmd.isBlank() || cmd.stripLeading().startsWith("#")) {
-            return "";
+            return;
         }
 
         // Normalizar:
@@ -164,34 +109,37 @@ public class Monopoly {
         //   - Convertir a minúsculas
         String cmdNorm = cmd.strip().replaceAll(" +", " ").toLowerCase();
 
-        // Ver: https://docs.oracle.com/en/java/javase/17/language/switch-expressions.html
-        return switch (cmdNorm) {
+        switch (cmdNorm) {
             // Comandos de manejo del juego
-            case "salir", "quit" -> {
-                System.exit(0);
-                yield ""; // Si no devuelvo un objeto da error
-            }
-            case "ayuda", "help" -> MSG_AYUDA;
+            case "salir", "quit" -> System.exit(0);
+            case "ayuda", "help" -> System.out.print(msgAyuda);
             case "iniciar", "start" -> tablero.iniciar();
 
             // Comandos de información
-            case "ver tablero", "tablero", "show" -> tablero.toString();
-            case "listar casillas" -> tablero.getCasillas().toString() + '\n';
-            case "listar enventa" -> tablero.getEnVenta().toString() + '\n';
-            case "listar jugadores" -> tablero.getJugadores().toString() + '\n';
-            case "listar avatares" -> tablero.getAvatares().toString() + '\n';
+            // @formatter:off
+            case "ver tablero", "tablero", "show" -> System.out.print(tablero);
+            case "listar casillas"  -> System.out.println(tablero.getCasillas());
+            case "listar enventa"   -> System.out.println(tablero.getEnVenta());
+            case "listar jugadores" -> System.out.println(tablero.getJugadores());
+            case "listar avatares"  -> System.out.println(tablero.getAvatares());
+            // @formatter:on
 
             // Acciones de jugadores
-            case "jugador", "turno", "player" ->
-                    tablero.getJugadorTurno() == null ? Formatear.con("No hay jugadores\n", Color.Rojo) : tablero.getJugadorTurno().toString() + '\n';
-            case "lanzar", "lanzar dados" -> tablero.moverJugador(new Dado()) + tablero;
-            case "acabar turno", "fin", "end" ->
-                    tablero.acabarTurno() + tablero.getJugadorTurno().describirTransaccion() + tablero;
-            case "salir carcel" -> tablero.salirCarcel() + tablero.getJugadorTurno().describirTransaccion() + tablero;
+            case "jugador", "turno", "player" -> {
+                if (tablero.getJugadorTurno() == null) {
+                    Consola.error("No hay jugadores");
+                } else {
+                    System.out.println(tablero.getJugadorTurno());
+                }
+            }
+            case "lanzar", "lanzar dados" -> tablero.moverJugador(new Dado()); // TODO: tablero
+            case "acabar turno", "fin", "end" -> tablero.acabarTurno(); // TODO: transacción + tablero
+            case "salir carcel" ->
+                    tablero.getJugadorTurno().getAvatar().salirCarcelPagando(); // TODO: transacción + tablero
             case "cambiar modo" -> tablero.cambiarModo();
 
             default -> this.cmdConArgumentos(cmdNorm);
-        };
+        }
     }
 
     /**
@@ -200,30 +148,32 @@ public class Monopoly {
      * @param cmd Comando previamente normalizado.
      * @return String con el resultado del comando.
      */
-    private String cmdConArgumentos(String cmd) {
+    private void cmdConArgumentos(String cmd) {
         // @formatter:off
         String[] args = cmd.split(" ");
-        return switch (args[0]) {
+        switch (args[0]) {
             case "crear"     -> cmdCrear(args);
-            case "comprar"   -> cmdComprar(args) + tablero.getJugadorTurno().describirTransaccion();
+            case "comprar"   -> cmdComprar(args); // TODO: Describir transacción
             case "describir" -> cmdDescribir(args);
             case "mover"     -> cmdMover(args);
             case "exec"      -> cmdExec(args);
-            default          -> Formatear.con("\"%s\": Comando no válido\n".formatted(args[0]), Color.Rojo);
-        };
+            default          -> Consola.error("\"%s\": Comando no válido".formatted(args[0]));
+        }
         // @formatter:on
     }
 
     /**
      * Ejecuta el comando crear jugador
      */
-    private String cmdCrear(String[] args) {
+    private void cmdCrear(String[] args) {
         if (args.length != 4) {
-            return Formatear.con("Se esperaban 4 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+            Consola.error("Se esperaban 4 parámetros, se recibieron %d".formatted(args.length));
+            return;
         }
 
         if (!args[1].equals("jugador")) {
-            return Formatear.con("\"%s\": Subcomando de crear no válido\n".formatted(args[1]), Color.Rojo);
+            Consola.error("\"%s\": Subcomando de crear no válido".formatted(args[1]));
+            return;
         }
 
         // Como se pasa todo a minúsculas, los nombres quedan mal
@@ -238,63 +188,70 @@ public class Monopoly {
             case "s", "sombrero" -> tipo = Avatar.TipoAvatar.Sombrero;
             case "p", "pelota"   -> tipo = Avatar.TipoAvatar.Pelota;
             default -> {
-                return Formatear.con("\"%s\": No es un tipo válido de Avatar (prueba con c, e, s, p)\n".formatted(args[3]), Color.Rojo);
+                Consola.error("\"%s\": No es un tipo válido de Avatar (prueba con c, e, s, p)".formatted(args[3]));
+                return;
             }
         }
         // @formatter:on
 
-        return tablero.anadirJugador(nombre, tipo);
+        tablero.anadirJugador(nombre, tipo);
     }
 
     /**
      * Ejecuta el comando de describir
      */
-    private String cmdDescribir(String[] args) {
+    private void cmdDescribir(String[] args) {
         if (args.length == 2) {
-            return tablero.describirCasilla(args[1]);
+            tablero.describirCasilla(args[1]);
+            return;
         }
 
         if (args.length == 3) {
-            return switch (args[1]) {
+            switch (args[1]) {
                 case "jugador" -> tablero.describirJugador(args[2]);
                 case "avatar" -> tablero.describirAvatar(args[2].charAt(0));
-                default -> Formatear.con("\"%s\": Argumento inválido\n".formatted(args[1]), Color.Rojo);
-            };
+                default -> Consola.error("\"%s\": Argumento inválido".formatted(args[1]));
+            }
+        }else{
+            Consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d".formatted(args.length));
         }
 
-        return Formatear.con("Se esperaban 2 o 3 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+
     }
 
     /**
      * Ejecuta el comando de comprar
      */
-    private String cmdComprar(String[] args) {
+    private void cmdComprar(String[] args) {
         if (args.length != 2) {
-            return Formatear.con("Se esperaban 2 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+            Consola.error("Se esperaban 2 parámetros, se recibieron %d".formatted(args.length));
+            return;
         }
 
-        return tablero.comprar(args[1]);
+        tablero.comprar(args[1]);
     }
 
     /**
      * Ejecuta el comando de mover
      */
-    private String cmdMover(String[] args) {
-        if (args.length == 3) {
-            return tablero.moverJugador(new Dado(Integer.parseInt(args[1]), Integer.parseInt(args[2])));
+    private void cmdMover(String[] args) {
+        if (args.length != 3) {
+            Consola.error("Se esperaban 2 parámetros, se recibieron %d".formatted(args.length));
+            return;
         }
 
-        return Formatear.con("Se esperaban 2 parámetros, se recibieron %d\n".formatted(args.length), Color.Rojo);
+        tablero.moverJugador(new Dado(Integer.parseInt(args[1]), Integer.parseInt(args[2])));
     }
 
     /**
      * Ejecuta el comando de ejecutar un archivo
      */
-    private String cmdExec(String[] args) {
+    private void cmdExec(String[] args) {
         if (args.length != 2) {
-            return Formatear.con("Se esperaba 1 parámetro, se recibieron %d\n".formatted(args.length), Color.Rojo);
+            Consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length));
+            return;
         }
 
-        return ejecutarArchivo(args[1]);
+        ejecutarArchivo(args[1]);
     }
 }
