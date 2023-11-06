@@ -228,7 +228,7 @@ public class Jugador {
         }
 
         p.getPropietario().ingresar(importe);
-        System.out.printf("Se han pagado %s de alquiler a %s", Consola.num(p.getAlquiler()), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
+        System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(p.getAlquiler()), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
     }
 
     /**

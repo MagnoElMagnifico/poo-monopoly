@@ -28,6 +28,8 @@ public class Avatar {
     private int estanciasCarcel;
     private int vueltas;
     private int lanzamientos;
+    private int lanzamientosEspeciales;
+    private int penalizacion;
     private int doblesSeguidos;
     private boolean movimientoEspecial;
 
@@ -47,6 +49,8 @@ public class Avatar {
         this.lanzamientos = 1;
         this.doblesSeguidos = 0;
         this.movimientoEspecial = false;
+        this.lanzamientosEspeciales = 0;
+        this.penalizacion = 0;
     }
 
     @Override
@@ -83,6 +87,12 @@ public class Avatar {
 
         lanzamientos--;
 
+        if (penalizacion != 0) {
+            penalizacion--;
+            Consola.error("Restaurando avatar: espera para poder moverte");
+            return false;
+        }
+
         if (encerrado) {
             moverEstandoCarcel(dado);
             return false;
@@ -92,7 +102,7 @@ public class Avatar {
         int posNuevaCasilla;
         if (movimientoEspecial) {
             posNuevaCasilla = switch (tipo) {
-                case Coche -> moverEspecialCoche();
+                case Coche -> moverEspecialCoche(dado, casillas.size());
                 case Esfinge -> moverEspecialEsfinge();
                 case Sombrero -> moverEspecialSombrero();
                 case Pelota -> moverEspecialPelota();
@@ -103,7 +113,7 @@ public class Avatar {
 
         // Los métodos anteriores devuelven -1 cuando ellos mismos
         // ya han movido el avatar; por tanto, no hay que hacer nada.
-        if (posNuevaCasilla < 0) {
+        if (posNuevaCasilla <= 0) {
             return true;
         }
 
@@ -113,6 +123,9 @@ public class Avatar {
 
             this.anadirVuelta();
             jugador.ingresar(calculadora.calcularAbonoSalida());
+
+            // Aumentar los precios en caso de que el avatar pasase por la salida
+            Calculadora.aumentarPrecio(casillas, jugadores);
 
             System.out.printf("Como el avatar pasa por la casilla de Salida, %s recibe %s\n",
                     Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
@@ -232,9 +245,33 @@ public class Avatar {
         return true;
     }
 
-    private int moverEspecialCoche() {
-        // TODO
-        return -1;
+    private int moverEspecialCoche(Dado dado, int nCasillas) {
+        if (lanzamientos == 0) {
+            lanzamientos = 2;
+            lanzamientosEspeciales = 4;
+        }
+
+        if (lanzamientosEspeciales == 0) {
+            Consola.error("No quedan lanzamientos. El jugador debe terminar el turno");
+            return -1;
+        }
+
+        lanzamientosEspeciales--;
+
+        if (dado.getValor() < 4) {
+            lanzamientosEspeciales = 0;
+            penalizacion = 2;
+            lanzamientos = 0;
+            return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
+        }
+
+        lanzamientos++;
+
+        if (lanzamientosEspeciales == 0) {
+            lanzamientos = 0;
+        }
+
+        return this.casilla.getPosicion() + dado.getValor();
     }
 
     private int moverEspecialEsfinge() {
@@ -319,6 +356,10 @@ public class Avatar {
 
     public void resetDoblesSeguidos() {
         doblesSeguidos = 0;
+    }
+
+    public boolean isMovimientoEspecial() {
+        return movimientoEspecial;
     }
 
     /**

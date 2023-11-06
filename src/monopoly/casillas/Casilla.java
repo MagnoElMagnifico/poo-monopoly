@@ -138,7 +138,7 @@ public class Casilla {
                 if (!jugadorTurno.cobrar(impuestos)) {
                     Consola.error("El jugador no tiene suficientes fondos para pagar los impuestos");
                     return;
-                }
+                } else System.out.printf("El jugador paga de impuestos: %s\n", Consola.num(impuestos));
 
                 banca.ingresar(impuestos);
                 System.out.printf("Se han cobrado %s de impuestos a la banca\n", impuestos);
