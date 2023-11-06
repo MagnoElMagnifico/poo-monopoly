@@ -3,6 +3,8 @@ package monopoly.casillas;
 import monopoly.jugadores.Jugador;
 import monopoly.utilidades.Consola;
 
+import java.util.ArrayList;
+
 /**
  * Representa una casilla que se puede comprar por un jugador.
  * <p>
@@ -21,6 +23,7 @@ public class Propiedad {
     private final String nombre;
     private final Casilla casilla;
     private final TipoPropiedad tipo;
+    private final ArrayList<Edificio> edificios;
     private long precio;
     private long alquiler;
     private Jugador propietario;
@@ -38,6 +41,7 @@ public class Propiedad {
         this.propietario = null;
         this.precio = -1;   // Marcar como todavía no establecido
         this.alquiler = -1; // Marcar como todavía no establecido
+        this.edificios = new ArrayList<>();
     }
 
     // Para el comando listar enventa
@@ -113,6 +117,14 @@ public class Propiedad {
 
     public void setPropietario(Jugador propietario) {
         this.propietario = propietario;
+    }
+
+    public ArrayList<Edificio> getEdificios() {
+        return edificios;
+    }
+
+    public void anadirEdificio(Edificio e) {
+        edificios.add(e);
     }
 
     /**

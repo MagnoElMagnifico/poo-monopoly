@@ -1,5 +1,6 @@
 package monopoly;
 
+import monopoly.casillas.Edificio.TipoEdificio;
 import monopoly.jugadores.Avatar;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Consola.Color;
@@ -16,10 +17,12 @@ import java.util.Scanner;
 /**
  * Clase principal del juego del Monopoly.
  * <p>
- * Se encarga de procesar los comandos y ejecutarlos.
+ * Se encarga de interpretar los comandos y hacer
+ * llamadas al tablero para ejecutarlos.
  *
  * @author Marcos Granja Grille
  * @date 25-09-2023
+ * @see Tablero
  */
 public class Monopoly {
     private final Scanner scanner;
@@ -109,20 +112,19 @@ public class Monopoly {
         //   - Convertir a minúsculas
         String cmdNorm = cmd.strip().replaceAll(" +", " ").toLowerCase();
 
+        // @formatter:off
         switch (cmdNorm) {
             // Comandos de manejo del juego
-            case "salir", "quit" -> System.exit(0);
-            case "ayuda", "help" -> System.out.print(msgAyuda);
+            case "salir", "quit"    -> System.exit(0);
+            case "ayuda", "help"    -> System.out.print(msgAyuda);
             case "iniciar", "start" -> tablero.iniciar();
 
             // Comandos de información
-            // @formatter:off
             case "ver tablero", "tablero", "show" -> System.out.print(tablero);
             case "listar casillas"  -> System.out.println(tablero.getCasillas());
             case "listar enventa"   -> System.out.println(tablero.getEnVenta());
             case "listar jugadores" -> System.out.println(tablero.getJugadores());
             case "listar avatares"  -> System.out.println(tablero.getAvatares());
-            // @formatter:on
 
             // Acciones de jugadores
             case "jugador", "turno", "player" -> {
@@ -132,14 +134,14 @@ public class Monopoly {
                     System.out.println(tablero.getJugadorTurno());
                 }
             }
-            case "lanzar", "lanzar dados" -> tablero.moverJugador(new Dado()); // TODO: tablero
-            case "acabar turno", "fin", "end" -> tablero.acabarTurno(); // TODO: transacción + tablero
-            case "salir carcel" ->
-                    tablero.getJugadorTurno().getAvatar().salirCarcelPagando(); // TODO: transacción + tablero
-            case "cambiar modo" -> tablero.cambiarModo();
+            case "salir carcel"               -> tablero.salirCarcel();
+            case "cambiar modo"               -> tablero.cambiarModo();
+            case "lanzar", "lanzar dados"     -> tablero.moverAvatar(new Dado());
+            case "acabar turno", "fin", "end" -> tablero.acabarTurno();
 
             default -> this.cmdConArgumentos(cmdNorm);
         }
+        // @formatter:on
     }
 
     /**
@@ -153,10 +155,11 @@ public class Monopoly {
         String[] args = cmd.split(" ");
         switch (args[0]) {
             case "crear"     -> cmdCrear(args);
-            case "comprar"   -> cmdComprar(args); // TODO: Describir transacción
+            case "comprar"   -> cmdComprar(args);
             case "describir" -> cmdDescribir(args);
             case "mover"     -> cmdMover(args);
             case "exec"      -> cmdExec(args);
+            case "edificar"  -> cmdEdificar(args);
             default          -> Consola.error("\"%s\": Comando no válido".formatted(args[0]));
         }
         // @formatter:on
@@ -167,7 +170,7 @@ public class Monopoly {
      */
     private void cmdCrear(String[] args) {
         if (args.length != 4) {
-            Consola.error("Se esperaban 4 parámetros, se recibieron %d".formatted(args.length));
+            Consola.error("Se esperaban 3 parámetros, se recibieron %d".formatted(args.length - 1));
             return;
         }
 
@@ -212,11 +215,9 @@ public class Monopoly {
                 case "avatar" -> tablero.describirAvatar(args[2].charAt(0));
                 default -> Consola.error("\"%s\": Argumento inválido".formatted(args[1]));
             }
-        }else{
+        } else {
             Consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d".formatted(args.length));
         }
-
-
     }
 
     /**
@@ -224,7 +225,7 @@ public class Monopoly {
      */
     private void cmdComprar(String[] args) {
         if (args.length != 2) {
-            Consola.error("Se esperaban 2 parámetros, se recibieron %d".formatted(args.length));
+            Consola.error("Se esperaban 1 parámetro, se recibieron %d".formatted(args.length - 1));
             return;
         }
 
@@ -236,11 +237,11 @@ public class Monopoly {
      */
     private void cmdMover(String[] args) {
         if (args.length != 3) {
-            Consola.error("Se esperaban 2 parámetros, se recibieron %d".formatted(args.length));
+            Consola.error("Se esperaban 2 parámetros, se recibieron %d".formatted(args.length - 1));
             return;
         }
 
-        tablero.moverJugador(new Dado(Integer.parseInt(args[1]), Integer.parseInt(args[2])));
+        tablero.moverAvatar(new Dado(Integer.parseInt(args[1]), Integer.parseInt(args[2])));
     }
 
     /**
@@ -248,10 +249,34 @@ public class Monopoly {
      */
     private void cmdExec(String[] args) {
         if (args.length != 2) {
-            Consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length));
+            Consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length - 1));
             return;
         }
 
         ejecutarArchivo(args[1]);
+    }
+
+    /**
+     * Ejecuta el comando de edificar
+     */
+    private void cmdEdificar(String[] args) {
+        if (args.length != 2) {
+            Consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length - 1));
+            return;
+        }
+
+        TipoEdificio tipoEdificio;
+        switch (args[1]) {
+            case "casa", "c" -> tipoEdificio = TipoEdificio.Casa;
+            case "hotel", "h" -> tipoEdificio = TipoEdificio.Hotel;
+            case "piscina", "p" -> tipoEdificio = TipoEdificio.Piscina;
+            case "pista", "pistadeporte", "deporte", "d" -> tipoEdificio = TipoEdificio.PistaDeporte;
+            default -> {
+                Consola.error("\"%s\": tipo de edificio desconocido (prueba con: casa, hotel, piscina, pista)".formatted(args[1]));
+                return;
+            }
+        }
+
+        tablero.edificar(tipoEdificio);
     }
 }

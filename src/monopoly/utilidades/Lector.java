@@ -1,8 +1,11 @@
 package monopoly.utilidades;
 
+import monopoly.casillas.Carta;
+import monopoly.casillas.Carta.TipoCarta;
 import monopoly.casillas.Casilla;
 import monopoly.casillas.Casilla.TipoCasilla;
 import monopoly.casillas.Grupo;
+import monopoly.casillas.Mazo;
 import monopoly.casillas.Propiedad.TipoPropiedad;
 
 import java.io.File;
@@ -28,8 +31,8 @@ import java.util.Scanner;
  * Formato:
  *
  * <pre>
- *     Suerte:<num>:descripción
- *     Comunidad:<num>: descripción
+ *     S:X:descripción
+ *     C:X: descripción
  *     ...
  * </pre>
  *
@@ -39,7 +42,9 @@ import java.util.Scanner;
  * @see monopoly.Tablero
  */
 public class Lector {
-
+    /**
+     * Función de ayuda que abre un Scanner para leer un archivo. Si no se encuentra el archivo, termina el programa.
+     */
     private static Scanner abrirArchivo(String path) {
         Scanner scanner = null;
 
@@ -53,12 +58,15 @@ public class Lector {
         return scanner;
     }
 
+    /**
+     * Función de ayuda que ignora líneas en blanco y comentarios
+     */
     private static boolean ignorarLinea(String linea) {
         return linea.isBlank() || linea.stripLeading().startsWith("#");
     }
 
     /**
-     * Lee el archivo dada su dirección.
+     * Lee el archivo de configuración de Casillas dada su dirección.
      *
      * @param path Dirección del achivo a leer.
      * @return La lista de casillas contenida en el archivo
@@ -119,9 +127,14 @@ public class Lector {
         return casillas;
     }
 
-    /*
-    public static String leerCartas(String path) {
+    /**
+     * Lee el archivo de configuración de cartas dada su dirección
+     */
+    public static Mazo leerCartas(String path) {
         Scanner scanner = abrirArchivo(path);
+
+        ArrayList<Carta> cartaComunidad = new ArrayList<>(6);
+        ArrayList<Carta> cartaSuerte = new ArrayList<>(6);
 
         for (int nLinea = 0; scanner.hasNextLine(); nLinea++) {
             String linea = scanner.nextLine().strip();
@@ -131,21 +144,24 @@ public class Lector {
                 continue;
             }
 
+            // Se limpia la línea y se separa en campos
             String[] campos = linea.strip().replaceAll(" +", "").split(":");
 
             if (campos.length != 3) {
-                // TODO
+                Consola.error("[FATAL] ArchivoCartas línea %d: número de campos incorrecto, %d recibidos, 3 esperados".formatted(nLinea, campos.length));
+                System.exit(1);
             }
 
             switch (campos[0]) {
-                case "Suerte" -> ;
-                case "Comunidad" -> ;
-                default ->
-                        System.err.printf("[FATAL] ArchivoCartas línea %d: carta que no es de suerte ni comunidad (\"%s\")\n", nLinea, campos[0]);
+                case "C" -> cartaComunidad.add(new Carta(Integer.parseInt(campos[1]), TipoCarta.Comunidad, campos[2]));
+                case "S" -> cartaSuerte.add(new Carta(Integer.parseInt(campos[1]), TipoCarta.Suerte, campos[2]));
+                default -> {
+                    Consola.error("[FATAL] ArchivoCartas línea %d: \"%s\" tipo de carta desconocido".formatted(nLinea, campos[0]));
+                    System.exit(1);
+                }
             }
         }
 
-        return "";
+        return new Mazo(cartaComunidad, cartaSuerte);
     }
-    */
 }
