@@ -17,7 +17,7 @@ import monopoly.utilidades.Consola;
  */
 public class Edificio {
     /** Permite generar IDs para edificios de forma que nunca se repitan */
-    private static int ultimoId;
+    private static int ultimoId = 1;
 
     private final int id;
     private final TipoEdificio tipo;
