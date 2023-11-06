@@ -1,6 +1,9 @@
 package monopoly.casillas;
 
+import monopoly.Tablero;
 import monopoly.utilidades.Consola;
+
+
 
 /**
  * Representa una carta de Comunidad o Suerte y realiza
@@ -14,12 +17,13 @@ public class Carta {
     private final int id;
     private final TipoCarta tipo;
     private final String descripcion;
+    private final Tablero tablero;
 
-    public Carta(int id, TipoCarta tipo, String descripcion) {
-        // Comprobación del ID
+    public Carta(Tablero tablero, int id, TipoCarta tipo, String descripcion) {
         this.id = id;
         this.tipo = tipo;
         this.descripcion = descripcion;
+        this.tablero = tablero;
     }
 
     @Override
@@ -57,7 +61,35 @@ public class Carta {
     private void accionSuerte() {
         // TODO: implementar acción para cada tipo de carta
         switch (id) {
-            case 1 -> System.out.printf("TODO: acción de carta %d con descripción %s\n", id, descripcion);
+            //case 1 -> System.out.printf("TODO: acción de carta %d con descripción %s\n", id, descripcion);
+            case 1 -> {
+                System.out.println();
+                tablero.getJugadorTurno().ingresar(500000);
+            }
+            case 2 -> {
+                System.out.println();
+                tablero.getJugadorTurno().ingresar(1000000);
+            }
+            case 3 -> {
+                System.out.println();
+                if (!tablero.getJugadorTurno().cobrar(1500000)) {
+                    Consola.error("No tiene suficiente dinero");
+                }
+            }
+            case 4 -> // TODO: pagar por casa, hotel, piscina y pista de deportes
+                    System.out.println();
+            case 5 -> {
+                System.out.println();
+                tablero.getJugadorTurno().cobrar(250000L *tablero.getJugadores().size());
+                for (int i = 0; i< tablero.getJugadores().size(); i++) {
+                    tablero.getJugadores().get(i).ingresar(250000);
+                }
+            }
+
+            case 6 -> {
+                System.out.println();
+                tablero.getJugadorTurno().cobrar(150000);
+            }
             default -> Consola.error("[Carta] ID no soportado para realizar acción");
         }
     }
@@ -68,7 +100,29 @@ public class Carta {
     private void accionComunidad() {
         // TODO: implementar acción para cada tipo de carta
         switch (id) {
-            case 1 -> System.out.println(descripcion);
+            //case 1 -> System.out.println(descripcion);
+            case 1 -> {
+                if (!tablero.getJugadorTurno().cobrar(150000)) {
+                    Consola.error("No tiene suficiente dinero");
+                }
+            }
+            case 2 -> tablero.getJugadorTurno().ingresar(2000000);
+            case 3 -> {
+                if (tablero.getJugadorTurno().cobrar(1000000)) {
+                    System.out.println("No tiene suficiente dinero");
+                }
+            }
+            case 4 -> tablero.getJugadorTurno().ingresar(500000);
+            case 5 -> {
+                if (tablero.getJugadorTurno().cobrar(200000L *tablero.getJugadores().size())) {
+                    System.out.println("No tiene suficiente dinero");
+                }
+                for (int i = 0; i< tablero.getJugadores().size(); i++) {
+                    tablero.getJugadores().get(i).ingresar(200000);
+                }
+            }
+            case 6 -> tablero.getJugadorTurno().ingresar(1000000);
+
             default -> Consola.error("[Carta] ID no soportado para realizar acción");
         }
     }

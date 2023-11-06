@@ -47,7 +47,7 @@ public class Tablero {
         // dado que el usuario puede modificarlo sin reparos.
         casillas = Lector.leerCasillas("src/casillas.txt");
         // Creación de la calculadora
-        calculadora = new Calculadora(casillas, banca, Lector.leerCartas("src/cartas.txt"));
+        calculadora = new Calculadora(casillas, banca, Lector.leerCartas("src/cartas.txt", Tablero.this));
     }
 
     /**
