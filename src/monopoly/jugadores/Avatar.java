@@ -239,6 +239,8 @@ public class Avatar {
     public void irCarcel() {
         encerrado = true;
         estanciasCarcel = 0;
+        lanzamientos=0;
+        lanzamientosEspeciales=0;
         Casilla nuevaCasilla = this.casilla.getCarcel();
         this.casilla.quitarAvatar(this);
         this.setCasilla(nuevaCasilla);
@@ -306,6 +308,7 @@ public class Avatar {
                         return -1;
                     }
                     lanzamientosEspeciales++;
+                    lanzamientos++;
                 }
                 return this.casilla.getPosicion() + dado.getValor();
             }
