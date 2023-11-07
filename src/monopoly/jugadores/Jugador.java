@@ -283,6 +283,15 @@ public class Jugador {
         System.out.printf("Se ha deshipotecado %s por %s\n%n", propiedad.getCasilla().getNombreFmt(),Consola.num(cantidad));
     }
 
+    public boolean setBancaRota(){
+        if(bancaRota){
+            Consola.error("Ya estas en BancaRota");
+            return false;
+        }
+        bancaRota=true;
+        return true;
+    }
+
     public boolean isBanca() {
         return banca;
     }

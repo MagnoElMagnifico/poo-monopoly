@@ -378,5 +378,8 @@ public class Tablero {
     }
 
 
+    public void bancaRota() {
+        Jugador j= getJugadorTurno();
+    }
 }
 
