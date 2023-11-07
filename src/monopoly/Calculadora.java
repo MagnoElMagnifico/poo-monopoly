@@ -168,6 +168,9 @@ public class Calculadora {
         // @formatter:on
     }
 
+    public static long calcularHipoteca(Propiedad propiedad){
+        return propiedad.getPrecio()/2;
+    }
     /**
      * Devuelve el abono que reciben los jugadores cuando su avatar pasa por la casilla de salida.
      */

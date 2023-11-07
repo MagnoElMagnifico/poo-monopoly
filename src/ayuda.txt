@@ -33,10 +33,17 @@ COMANDOS CON ARGUMENTOS
           Muestra información sobre un avatar en concreto.
 
     comprar <nombre-propiedad>
-          Permite permite al jugador actual comprar una propiedad.
+          Permite al jugador actual comprar una propiedad.
 
           NOTA: solo se puede comprar la propiedad en la que está su avatar y si no
           tiene dueño.
+    hipotecar <nombre-propiedad>
+          Permite al jugador actual hipotecar una propiedad
+
+    deshipotecar <nombre-propiedad>
+          Permite al jugador actual deshipotecar una propiedad
+
+
 
 COMANDOS DEBUG
     Solo para probar el funcionamiento del juego.

@@ -26,6 +26,7 @@ public class Propiedad {
     private final ArrayList<Edificio> edificios;
     private long precio;
     private long alquiler;
+    private boolean hipotecada;
     private Jugador propietario;
 
     /**
@@ -42,6 +43,7 @@ public class Propiedad {
         this.precio = -1;   // Marcar como todavía no establecido
         this.alquiler = -1; // Marcar como todavía no establecido
         this.edificios = new ArrayList<>();
+        this.hipotecada = false;
     }
 
     // Para el comando listar enventa
@@ -125,6 +127,14 @@ public class Propiedad {
 
     public void anadirEdificio(Edificio e) {
         edificios.add(e);
+    }
+
+    public boolean isHipotecada() {
+        return hipotecada;
+    }
+
+    public void setHipotecada(boolean hipotecada) {
+        this.hipotecada = hipotecada;
     }
 
     /**

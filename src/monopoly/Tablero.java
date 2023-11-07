@@ -265,6 +265,34 @@ public class Tablero {
         j.comprar(new Edificio(p.getEdificios().size(), tipoEdificio, p));
     }
 
+    public void hipotecar(String nombre) {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
+        Jugador j = getJugadorTurno();
+        for (Casilla c : casillas) {
+            if (c.getNombre().equalsIgnoreCase(nombre) && c.isPropiedad()) {
+                j.hipotecar(c.getPropiedad());
+            }
+        }
+    }
+
+    public void deshipotecar(String nombre) {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
+        Jugador j = getJugadorTurno();
+        for (Casilla c : casillas) {
+            if (c.getNombre().equalsIgnoreCase(nombre) && c.isPropiedad()) {
+                j.deshipotecar(c.getPropiedad());
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return PintorTablero.pintarTablero(this);

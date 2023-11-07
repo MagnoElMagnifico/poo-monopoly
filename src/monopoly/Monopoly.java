@@ -161,6 +161,8 @@ public class Monopoly {
             case "mover"     -> cmdMover(args);
             case "exec"      -> cmdExec(args);
             case "edificar"  -> cmdEdificar(args);
+            case "hipotecar" -> cmdHipoteca(args);
+            case  "deshipotecar"-> cmdHipoteca(args);
             default          -> Consola.error("\"%s\": Comando no válido".formatted(args[0]));
         }
         // @formatter:on
@@ -280,5 +282,14 @@ public class Monopoly {
         }
 
         tablero.edificar(tipoEdificio);
+    }
+
+    private void cmdHipoteca(String[] args) {
+        if (args.length != 2) {
+            Consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length - 1));
+            return;
+        }
+        if(args[0].equals("hipotecar")) tablero.hipotecar(args[1]);
+        else tablero.deshipotecar(args[1]);
     }
 }
