@@ -30,4 +30,3 @@ edificar casa
 describir Cracovia
 
 end
-quit
