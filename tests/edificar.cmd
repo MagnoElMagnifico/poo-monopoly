@@ -29,4 +29,32 @@ describir Cracovia
 edificar casa
 describir Cracovia
 
-end
+# Construir todo al máximo
+edificar casa
+edificar casa
+edificar casa
+edificar hotel
+
+edificar casa
+edificar casa
+edificar casa
+edificar casa
+edificar hotel
+
+edificar casa
+edificar casa
+edificar casa
+edificar casa
+edificar hotel
+
+edificar casa
+edificar casa
+edificar casa
+
+edificar piscina
+edificar piscina
+edificar piscina
+
+edificar pista
+edificar pista
+edificar pista

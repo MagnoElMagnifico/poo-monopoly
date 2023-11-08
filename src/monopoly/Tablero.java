@@ -245,14 +245,9 @@ public class Tablero {
             return;
         }
 
-        Propiedad p = c.getPropiedad();
-
-        if (!p.getPropietario().equals(j)) {
-            Consola.error("No se puede edificar en una propiedad que no te pertenece");
-            return;
+        if (j.comprar(new Edificio(tipoEdificio, c.getPropiedad()))) {
+            j.describirTransaccion();
         }
-
-        j.comprar(new Edificio(tipoEdificio, p));
     }
 
     @Override

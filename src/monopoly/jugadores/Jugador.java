@@ -1,16 +1,16 @@
 package monopoly.jugadores;
 
+import monopoly.Calculadora;
 import monopoly.casillas.Casilla;
 import monopoly.casillas.Edificio;
+import monopoly.casillas.Edificio.TipoEdificio;
 import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar.TipoAvatar;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Dado;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  * Clase que representa un Jugador. Almacena su información sobre su fortuna y propiedades.
@@ -24,7 +24,6 @@ public class Jugador {
     private final Avatar avatar;
     private final boolean banca;
     private final HashSet<Propiedad> propiedades;
-    private final ArrayList<Edificio> edificios;
     private long fortuna;
     private long gastos;
 
@@ -38,7 +37,6 @@ public class Jugador {
         this.fortuna = 0;
         this.gastos = 0;
         this.propiedades = new HashSet<>(28);
-        this.edificios = null;
     }
 
     /**
@@ -51,52 +49,31 @@ public class Jugador {
         this.fortuna = fortuna;
         this.gastos = 0;
         this.propiedades = new HashSet<>();
-        this.edificios = new ArrayList<>();
     }
 
-    /**
-     * Función de ayuda para listar los nombres de las propiedades en un String
-     */
-    private String listaPropiedades() {
-        StringBuilder propiedadesStr = new StringBuilder();
+    private String listarEdificios() {
+        StringBuilder edificios = new StringBuilder();
+        edificios.append('[');
 
-        propiedadesStr.append('[');
-        Iterator<Propiedad> iter = propiedades.iterator();
+        // Si es el primer elemento que se añade a la lista,
+        // no se añade coma; pero sí en el resto.
+        boolean primero = true;
+        for (Propiedad p : propiedades) {
+            if (p.getTipo() == Propiedad.TipoPropiedad.Solar) {
+                for (Edificio e : p.getEdificios()) {
+                    if (primero) {
+                        primero = false;
+                    } else {
+                        edificios.append(", ");
+                    }
 
-        while (iter.hasNext()) {
-            Casilla c = iter.next().getCasilla();
-            propiedadesStr.append(c.getNombreFmt());
-
-            if (iter.hasNext()) {
-                propiedadesStr.append(", ");
+                    edificios.append(e.getNombreFmt());
+                }
             }
         }
 
-        propiedadesStr.append(']');
-
-        return propiedadesStr.toString();
-    }
-
-    /**
-     * Función de ayuda para listar los nombres de los Edificios en un String
-     */
-    private String listaEdificios() {
-        StringBuilder edificiosStr = new StringBuilder();
-
-        edificiosStr.append('[');
-        Iterator<Edificio> iter = edificios.iterator();
-
-        while (iter.hasNext()) {
-            edificiosStr.append(iter.next().getNombreFmt());
-
-            if (iter.hasNext()) {
-                edificiosStr.append(", ");
-            }
-        }
-
-        edificiosStr.append(']');
-
-        return edificiosStr.toString();
+        edificios.append(']');
+        return edificios.toString();
     }
 
     @Override
@@ -105,6 +82,7 @@ public class Jugador {
             return "Jugador Especial: Banca\n";
         }
 
+        // @formatter:off
         return """
                 {
                     nombre: %s
@@ -113,7 +91,13 @@ public class Jugador {
                     gastos: %s
                     propiedades: %s
                     edificios: %s
-                }""".formatted(nombre, avatar.getId(), Consola.num(fortuna), Consola.num(gastos), listaPropiedades(), listaEdificios());
+                }""".formatted(nombre,
+                               avatar.getId(),
+                               Consola.num(fortuna),
+                               Consola.num(gastos),
+                               Consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()),
+                               listarEdificios());
+        // @formatter:on
     }
 
     /**
@@ -126,7 +110,7 @@ public class Jugador {
                     gastos: %s
                     propiedades: %s
                 }
-                """.formatted(Consola.num(fortuna), Consola.num(gastos), listaPropiedades());
+                """.formatted(Consola.num(fortuna), Consola.num(gastos), Consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()));
     }
 
     @Override
@@ -185,7 +169,7 @@ public class Jugador {
         if (tenerMonopolio) {
             for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
                 Propiedad propiedad = c.getPropiedad();
-                propiedad.setAlquiler(2 * propiedad.getAlquiler());
+                propiedad.actualizarAlquiler();
             }
 
             Grupo g = p.getCasilla().getGrupo();
@@ -199,13 +183,113 @@ public class Jugador {
     }
 
     /**
-     * Realiza la compra del edificio dado.
+     * Realiza la compra del edificio y lo construye en el solar dado.
      *
      * @return True si la operación es exitosa y false en otro caso.
      */
     public boolean comprar(Edificio e) {
-        // TODO
-        return false;
+        Propiedad solar = e.getSolar();
+        Casilla casilla = solar.getCasilla();
+
+        // Comprobar que se está edificando en la casilla en la que está el avatar
+        if (!casilla.equals(avatar.getCasilla())) {
+            Consola.error("No se puede edificar en una casilla distinta a la actual");
+            return false;
+        }
+
+        if (!solar.getPropietario().equals(this)) {
+            Consola.error("No se puede edificar en una propiedad que no te pertenece");
+            return false;
+        }
+
+        // Calcula el número de estancias del avatar en el solar
+        int nEstanciasCasilla = 0;
+        for (Casilla c : avatar.getHistorialCasillas()) {
+            if (c.equals(casilla)) {
+                nEstanciasCasilla++;
+            }
+        }
+
+        // Comprobar que el jugador tiene el monopolio o ha caído dos veces en la casilla
+        if (!Calculadora.tieneGrupo(solar) && nEstanciasCasilla <= 2) {
+            Consola.error("El jugador tiene que tener el Monopolio o haber pasado más de 2 veces por la casilla para poder edificar");
+            return false;
+        }
+
+        // Casa   :                    4 (ni no hay max hoteles), $ por solar
+        // Hotel  : consume 4 casas    $ por grupo
+        // Piscina: hotel, 2 casas     $ por grupo
+        // Pista  : 2 hoteles          $ por grupo
+
+        // Comprobar que se cumplen las restricciones de casas / hoteles / piscinas / pistas de deporte
+        int nCasillasGrupo = casilla.getGrupo().getNumeroCasillas();
+        switch (e.getTipo()) {
+            case Casa -> {
+                if (solar.contarEdificio(TipoEdificio.Hotel) < nCasillasGrupo) {
+                    if (solar.contarEdificio(TipoEdificio.Casa) >= 4) {
+                        Consola.error("No se pueden edificar más de 4 casas en un solar cuando no hay el máximo de hoteles");
+                        return false;
+                    }
+                } else if (solar.contarEdificio(TipoEdificio.Casa) >= nCasillasGrupo) {
+                    Consola.error("No se pueden edificar más de %d casas en un solar cuando hay el número máximo de hoteles".formatted(nCasillasGrupo));
+                    return false;
+                }
+            }
+
+            case Hotel -> {
+                if (solar.contarEdificio(TipoEdificio.Hotel) >= nCasillasGrupo) {
+                    Consola.error("No se pueden edificar más de %d hoteles en este grupo".formatted(nCasillasGrupo));
+                    return false;
+                }
+
+                if (solar.contarEdificio(TipoEdificio.Casa) < 4) {
+                    Consola.error("Se necesitan 4 casas en el solar para edificar un hotel");
+                    return false;
+                }
+
+                for (int ii = 0; ii < 4 ; ii++) {
+                    solar.quitarEdificio(TipoEdificio.Casa);
+                }
+            }
+
+            case Piscina -> {
+                if (solar.contarEdificio(TipoEdificio.Piscina) >= nCasillasGrupo) {
+                    Consola.error("No se pueden edificar más de %d piscinas en este grupo".formatted(nCasillasGrupo));
+                    return false;
+                }
+
+                if (solar.contarEdificio(TipoEdificio.Hotel) < 1 && solar.contarEdificio(TipoEdificio.Casa) < 2) {
+                    Consola.error("Se necesita 1 hotel y 2 casas para edificar una piscina");
+                    return false;
+                }
+            }
+
+            case PistaDeporte -> {
+                if (solar.contarEdificio(TipoEdificio.PistaDeporte) >= nCasillasGrupo) {
+                    Consola.error("No se pueden edificar más de %d pistas de deporte en este grupo".formatted(nCasillasGrupo));
+                    return false;
+                }
+
+                if (solar.contarEdificio(TipoEdificio.Hotel) < 2) {
+                    Consola.error("Se necesitan 2 hoteles para construir una pista de deporte");
+                    return false;
+                }
+            }
+        }
+
+        // Comprobar que tiene el dinero
+        if (!cobrar(e.getValor())) {
+            Consola.error("El jugador no tiene los fondos suficientes para edificar.\nNecesita %s.".formatted(Consola.num(e.getValor())));
+            return false;
+        }
+
+        System.out.printf("%s ha construido un %s en la casilla %s\n", nombre, e.getTipo(), casilla.getNombreFmt());
+
+        // Actualizar el solar
+        solar.anadirEdificio(e);
+        solar.actualizarAlquiler();
+
+        return true;
     }
 
     /**
@@ -233,9 +317,11 @@ public class Jugador {
 
     /**
      * Cobra al jugador una cantidad de dinero
+     * @param cantidad Dinero a ingresar
+     * @return True si la operación es correcta, false en otro caso
      */
     public boolean cobrar(long cantidad) {
-        if (cantidad <= 0 && cantidad > fortuna) {
+        if (cantidad <= 0 || cantidad > fortuna) {
             return false;
         }
 

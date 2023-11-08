@@ -42,12 +42,24 @@ public class Propiedad {
         this.propietario = null;
         this.precio = -1;   // Marcar como todavía no establecido
         this.alquiler = -1; // Marcar como todavía no establecido
-        this.edificios = new ArrayList<>();
+
+        if (tipo == TipoPropiedad.Solar) {
+            this.edificios = new ArrayList<>();
+        } else {
+            this.edificios = null;
+        }
     }
 
     // Para el comando listar enventa
     @Override
     public String toString() {
+        StringBuilder edificiosStr = new StringBuilder();
+        if (tipo == TipoPropiedad.Solar) {
+            edificiosStr.append("    edificios: ");
+            edificiosStr.append(Consola.listar(edificios.iterator(), Edificio::getNombreFmt));
+            edificiosStr.append('\n');
+        }
+
         // @formatter:off
         return """
                {
@@ -56,14 +68,13 @@ public class Propiedad {
                    precio: %s
                    alquiler: %s
                    propietario: %s
-                   edificios: %s
-               }""".formatted(nombre,
+               %s}""".formatted(nombre,
                               tipo,
                               tipo == TipoPropiedad.Solar? "\n    grupo: " + casilla.getGrupo().getNombre() : "",
                               Consola.num(precio),
                               Consola.num(alquiler),
                               propietario == null ? "-" : propietario.getNombre(),
-                              Consola.listar(edificios.iterator(), Edificio::getNombreFmt));
+                              edificiosStr);
         // @formatter:on
     }
 
@@ -117,12 +128,54 @@ public class Propiedad {
         this.propietario = propietario;
     }
 
-    public ArrayList<Edificio> getEdificios() {
-        return edificios;
+    public void anadirEdificio(Edificio e) {
+        if (tipo != TipoPropiedad.Solar) {
+            Consola.error("[Propiedad] No se puede añadir un edificio a un %s".formatted(tipo));
+            return;
+        }
+
+        edificios.add(e);
     }
 
-    public void anadirEdificio(Edificio e) {
-        edificios.add(e);
+    public boolean quitarEdificio(Edificio.TipoEdificio tipo) {
+        if (this.tipo != TipoPropiedad.Solar) {
+            Consola.error("[Propiedad] No se puede añadir un edificio a un %s".formatted(tipo));
+            return false;
+        }
+
+        for (int ii = 0; ii < edificios.size(); ii++) {
+            if (edificios.get(ii).getTipo() == tipo) {
+                edificios.remove(ii);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public int contarEdificio(Edificio.TipoEdificio tipo) {
+        if (this.tipo != TipoPropiedad.Solar) {
+            Consola.error("[Propiedad] %s no tiene edificios".formatted(tipo));
+            return -1;
+        }
+
+        int numero = 0;
+        for (Edificio e : edificios) {
+            if (e.getTipo() == tipo) {
+                numero++;
+            }
+        }
+
+        return numero;
+    }
+
+    public ArrayList<Edificio> getEdificios() {
+        if (this.tipo != TipoPropiedad.Solar) {
+            Consola.error("[Propiedad] %s no tiene edificios".formatted(tipo));
+            return null;
+        }
+
+        return edificios;
     }
 
     /**
