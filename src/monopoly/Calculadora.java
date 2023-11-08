@@ -1,6 +1,7 @@
 package monopoly;
 
 import monopoly.casillas.*;
+import monopoly.casillas.Edificio.TipoEdificio;
 import monopoly.casillas.Propiedad.TipoPropiedad;
 import monopoly.jugadores.Jugador;
 
@@ -84,29 +85,31 @@ public class Calculadora {
             alquilerSolar *= 2;
         }
 
-        // Calcular el precio incluyendo los edificios
+        // Calcular el precio incluyendo los edificios (solo si es solar)
         long alquilerEdificio = 0;
-        int nCasas = 0;
+        if (p.getTipo() == TipoPropiedad.Solar) {
+            int nCasas = 0;
 
-        for (Edificio e : p.getEdificios()) {
-            // @formatter:off
+            for (Edificio e : p.getEdificios()) {
+                // @formatter:off
             switch (e.getTipo()) {
                 case Hotel                 -> alquilerEdificio += 70 * alquilerSolar;
                 case Piscina, PistaDeporte -> alquilerEdificio += 25 * alquilerSolar;
                 case Casa -> nCasas++;
             }
             // @formatter:on
-        }
+            }
 
-        // @formatter:off
-        // Añadir el alquiler dado por las casas
-        alquilerEdificio += switch (nCasas) {
-            case 0  ->  0;
-            case 1  ->  5 * alquilerSolar;
-            case 2  -> 15 * alquilerSolar;
-            case 3  -> 35 * alquilerSolar;
-            default -> 50 * alquilerSolar;
-        };
+            // @formatter:off
+            // Añadir el alquiler dado por las casas
+            alquilerEdificio += switch (nCasas) {
+                case 0  ->  0;
+                case 1  ->  5 * alquilerSolar;
+                case 2  -> 15 * alquilerSolar;
+                case 3  -> 35 * alquilerSolar;
+                default -> 50 * alquilerSolar;
+            };
+        }
         // @formatter:on
 
         return alquilerSolar + alquilerEdificio;
