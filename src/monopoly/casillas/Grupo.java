@@ -3,7 +3,6 @@ package monopoly.casillas;
 import monopoly.utilidades.Consola;
 
 import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  * Representa un grupo lógico de casillas.
