@@ -50,31 +50,58 @@ public class Propiedad {
         }
     }
 
-    // Para el comando listar enventa
+    private String toStringSolar() {
+        // TODO
+        // valor casa: %s
+        // valor hotel: %s
+        // valor piscina: %s
+        // valor pista de deporte: %s
+        // alquiler una casa: %s
+        // alquiler dos casas: %s
+        // alquiler tres casas: %s
+        // alquiler cuatro casas: %s
+        // alquiler hotel: %s
+        // alquiler piscina: %s
+        // alquiler pista de deporte: %s
+        // @formatter:off
+        return """
+                {
+                    tipo: %s
+                    nombre: %s
+                    grupo: %s
+                    precio: %s
+                    alquiler: %s
+                    propietario: %s
+                    edificios: %s
+                }""".formatted(tipo,
+                               nombre,
+                               casilla.getGrupo().getNombre(),
+                               Consola.num(precio),
+                               Consola.num(alquiler),
+                               propietario.getNombre(),
+                               Consola.listar(edificios.iterator(), Edificio::getNombreFmt));
+        // @formatter:on
+    }
+
     @Override
     public String toString() {
-        StringBuilder edificiosStr = new StringBuilder();
         if (tipo == TipoPropiedad.Solar) {
-            edificiosStr.append("    edificios: ");
-            edificiosStr.append(Consola.listar(edificios.iterator(), Edificio::getNombreFmt));
-            edificiosStr.append('\n');
+            return toStringSolar();
         }
 
         // @formatter:off
         return """
                {
+                   tipo: %s
                    nombre: %s
-                   tipo: %s%s
                    precio: %s
                    alquiler: %s
                    propietario: %s
-               %s}""".formatted(nombre,
+               }""".formatted(nombre,
                               tipo,
-                              tipo == TipoPropiedad.Solar? "\n    grupo: " + casilla.getGrupo().getNombre() : "",
                               Consola.num(precio),
                               Consola.num(alquiler),
-                              propietario == null ? "-" : propietario.getNombre(),
-                              edificiosStr);
+                              propietario == null ? "Banca" : propietario.getNombre());
         // @formatter:on
     }
 
