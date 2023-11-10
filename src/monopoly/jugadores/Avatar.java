@@ -179,7 +179,7 @@ public class Avatar {
                         Consola.fmt(jugador.getNombre(), Color.Azul),
                         Consola.fmt(Character.toString(id), Color.Azul),
                         dado, jugador.getNombre());
-                irCarcel();
+                irCarcel(); // TODO: no funciona: NullPointer porque cárcel no está definido para todas las casillas
                 return -1;
             } else {
                 lanzamientos++;
