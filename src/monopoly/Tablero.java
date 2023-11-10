@@ -2,6 +2,7 @@ package monopoly;
 
 import monopoly.casillas.Casilla;
 import monopoly.casillas.Edificio;
+import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar;
 import monopoly.jugadores.Jugador;
@@ -27,27 +28,25 @@ public class Tablero {
     private final Jugador banca;
     private final ArrayList<Jugador> jugadores;
     private final ArrayList<Casilla> casillas;
+    private final ArrayList<Grupo> grupos;
     private int turno;
     private boolean jugando;
 
     /**
      * Crea un tablero por defecto
      */
-    public Tablero() {
+    public Tablero(ArrayList<Casilla> casillas, ArrayList<Grupo> grupos) {
         // Entre 2 y 6 jugadores
-        jugadores = new ArrayList<>(6);
-        turno = 0;
-        jugando = false;
+        this.jugadores = new ArrayList<>(6);
+        this.turno = 0;
+        this.jugando = false;
 
-        banca = new Jugador();
-        // En lugar de añadir con código las casillas, se leen de
-        // un archivo de configuración.
-        //
-        // NOTA: Esto es potencialmente un problema de seguridad,
-        // dado que el usuario puede modificarlo sin reparos.
-        casillas = Lector.leerCasillas("src/casillas.txt");
-        // Creación de la calculadora
-        calculadora = new Calculadora(casillas, banca, Lector.leerCartas("src/cartas.txt"));
+        this.banca = new Jugador();
+        this.casillas = casillas;
+        this.grupos = grupos;
+
+        this.calculadora = new Calculadora(casillas);
+        this.calculadora.asignarValores(casillas, banca, Lector.leerCartas("src/cartas.txt"));
     }
 
     /**
@@ -256,40 +255,17 @@ public class Tablero {
     }
 
     /**
-     * Obtiene los avatares de los jugadores
-     */
-    public ArrayList<Avatar> getAvatares() {
-        ArrayList<Avatar> avatares = new ArrayList<>(jugadores.size());
-
-        // NOTA: si `jugadores` está vacío, esto no se ejecuta y se devuelve un ArrayList vacío
-        for (Jugador jugador : jugadores) {
-            avatares.add(jugador.getAvatar());
-        }
-
-        return avatares;
-    }
-
-    /**
-     * Obtiene las casillas que actualmente están en venta
-     */
-    public ArrayList<Propiedad> getEnVenta() {
-        ArrayList<Propiedad> enVenta = new ArrayList<>(casillas.size());
-
-        for (Casilla casilla : casillas) {
-            // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-            if (casilla.isPropiedad() && (casilla.getPropiedad().getPropietario() == null || casilla.getPropiedad().getPropietario() == banca)) {
-                enVenta.add(casilla.getPropiedad());
-            }
-        }
-
-        return enVenta;
-    }
-
-    /**
      * Obtiene las casillas de este tablero
      */
     public ArrayList<Casilla> getCasillas() {
         return casillas;
+    }
+
+    /**
+     * Obtiene los grupos en los que se dividen las casillas de este tablero
+     */
+    public ArrayList<Grupo> getGrupos() {
+        return grupos;
     }
 
     /**
@@ -332,5 +308,61 @@ public class Tablero {
                 return;
             }
         }
+    }
+
+    /**
+     * Muestra los avatares de los jugadores
+     */
+    public void listarAvatares() {
+        for (Jugador jugador : jugadores) {
+            System.out.println(jugador.getAvatar());
+        }
+    }
+
+    /**
+     * Muestra las casillas que actualmente están en venta
+     */
+    public void listarEnVenta() {
+        for (Casilla casilla : casillas) {
+            // Si la casilla se puede comprar y no tiene dueño, es que está en venta
+            if (casilla.isPropiedad() && (casilla.getPropiedad().getPropietario() == null || casilla.getPropiedad().getPropietario() == banca)) {
+                System.out.println(casilla.getPropiedad());
+            }
+        }
+    }
+
+    /**
+     * Muestra todos los edificios construidos
+     */
+    public void listarEdificios() {
+        for (Casilla c : casillas) {
+            if (c.isPropiedad() && c.getPropiedad().getTipo() == Propiedad.TipoPropiedad.Solar) {
+                for (Edificio e : c.getPropiedad().getEdificios()) {
+                    System.out.println(e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Obtiene información sobre los edificios del grupo dado su nombre, junto con el número de edificios que se pueden construir
+     */
+    public void listarEdificiosGrupo(String nombreGrupo) {
+        Grupo grupo = null;
+        for (Grupo g : grupos) {
+            if (g.getNombre().equalsIgnoreCase(nombreGrupo)) {
+                grupo = g;
+                break;
+            }
+        }
+
+        if (grupo == null) {
+            Consola.error("No existe un grupo con el nombre \"%s\"".formatted(nombreGrupo));
+            return;
+        }
+
+        grupo.listarEdificios();
+
+        // TODO: información sobre los edificios aún edificables
     }
 }

@@ -6,6 +6,7 @@ import monopoly.utilidades.Consola;
 import monopoly.utilidades.Consola.Color;
 import monopoly.utilidades.Consola.Estilo;
 import monopoly.utilidades.Dado;
+import monopoly.utilidades.Lector;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,7 +32,13 @@ public class Monopoly {
 
     public Monopoly() {
         scanner = new Scanner(System.in);
-        tablero = new Tablero();
+
+        // En lugar de añadir con código las casillas, se leen de
+        // un archivo de configuración.
+        //
+        // NOTA: Esto es potencialmente un problema de seguridad,
+        // dado que el usuario puede modificarlo sin reparos.
+        tablero = Lector.leerCasillas("src/casillas.txt");
 
         try {
             msgAyuda = Files.readString(Path.of("src/ayuda.txt"));
@@ -121,10 +128,6 @@ public class Monopoly {
 
             // Comandos de información
             case "ver tablero", "tablero", "show" -> System.out.print(tablero);
-            case "listar casillas"  -> System.out.println(tablero.getCasillas());
-            case "listar enventa"   -> System.out.println(tablero.getEnVenta());
-            case "listar jugadores" -> System.out.println(tablero.getJugadores());
-            case "listar avatares"  -> System.out.println(tablero.getAvatares());
 
             // Acciones de jugadores
             case "jugador", "turno", "player" -> {
@@ -160,6 +163,7 @@ public class Monopoly {
             case "mover"     -> cmdMover(args);
             case "exec"      -> cmdExec(args);
             case "edificar"  -> cmdEdificar(args);
+            case "listar"    -> cmdListar(args);
             default          -> Consola.error("\"%s\": Comando no válido".formatted(args[0]));
         }
         // @formatter:on
@@ -278,5 +282,29 @@ public class Monopoly {
         }
 
         tablero.edificar(tipoEdificio);
+    }
+
+    /**
+     * Ejecuta todos los comandos de listar
+     */
+    private void cmdListar(String[] args) {
+        if (args.length == 2) {
+            switch (args[1]) {
+                case "casillas" -> System.out.println(tablero.getCasillas());
+                case "jugadores" -> System.out.println(tablero.getJugadores());
+                case "enventa" -> tablero.listarEnVenta();
+                case "avatares" -> tablero.listarAvatares();
+                case "edificios" -> tablero.listarEdificios();
+                default -> Consola.error("Listar \"%s\" no está soportado".formatted(args[1]));
+            }
+            return;
+        }
+
+        if (args.length == 3 && args[1].equals("edificios")) {
+            tablero.listarEdificiosGrupo(args[2]);
+            return;
+        }
+
+        Consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d.".formatted(args.length - 1));
     }
 }

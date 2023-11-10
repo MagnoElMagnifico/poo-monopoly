@@ -1,7 +1,6 @@
 package monopoly;
 
 import monopoly.casillas.*;
-import monopoly.casillas.Edificio.TipoEdificio;
 import monopoly.casillas.Propiedad.TipoPropiedad;
 import monopoly.jugadores.Jugador;
 
@@ -20,56 +19,17 @@ public class Calculadora {
     private long sumaSolares;
     private long nSolares;
 
-    public Calculadora(ArrayList<Casilla> casillas, Jugador banca, Mazo mazo) {
+    public Calculadora(ArrayList<Casilla> casillas) {
         sumaSolares = 0;
         nSolares = 0;
 
+        // Contar los solares y su precio total
         for (Casilla c : casillas) {
             if (c.isPropiedad()) {
-                // Asignar propiedades a la Banca
-                Propiedad p = c.getPropiedad();
-                banca.anadirPropiedad(p);
-                p.setPropietario(banca);
-
-                // Contar los solares y su precio total
-                if (p.getTipo() == TipoPropiedad.Solar) {
+                if (c.getPropiedad().getTipo() == TipoPropiedad.Solar) {
                     sumaSolares += calcularPrecio(c.getPropiedad());
                     nSolares++;
                 }
-            }
-        }
-
-        // Ahora hay que asignar los precios y otros atributos a cada casilla
-        // Para establecer una referencia a la cárcel en IrCárcel, se deben
-        // recorrer las casillas al revés, dado que la Cárcel aparece después
-        // de IrCárcel.
-        // También se asigna el mazo a las casillas de carta.
-        Casilla carcel = null;
-        int nImpuestos = 0;
-        for (int ii = casillas.size() - 1; ii >= 0; ii--) {
-            Casilla c = casillas.get(ii);
-
-            switch (c.getTipo()) {
-                case Propiedad -> {
-                    Propiedad p = c.getPropiedad();
-                    p.setPrecio(calcularPrecio(p));
-                    p.actualizarAlquiler();
-                }
-                case Salida -> c.setAbonoSalida(calcularAbonoSalida());
-                case Impuestos -> {
-                    c.setBanca(banca);
-                    // El último impuesto valdrá 1/2 del abono de salida
-                    // El primer impuesto valdrá 2/2 = 1 abono de salida
-                    nImpuestos++;
-                    c.setImpuestos(nImpuestos * calcularAbonoSalida() / 2);
-                }
-                case Carcel -> {
-                    c.setFianza(calcularAbonoSalida() / 4);
-                    carcel = c;
-                }
-                case IrCarcel -> c.setCarcel(carcel);
-                case Parking -> c.setBanca(banca);
-                case Comunidad, Suerte -> c.setMazo(mazo);
             }
         }
     }
@@ -92,12 +52,12 @@ public class Calculadora {
 
             for (Edificio e : p.getEdificios()) {
                 // @formatter:off
-            switch (e.getTipo()) {
-                case Hotel                 -> alquilerEdificio += 70 * alquilerSolar;
-                case Piscina, PistaDeporte -> alquilerEdificio += 25 * alquilerSolar;
-                case Casa -> nCasas++;
-            }
-            // @formatter:on
+                switch (e.getTipo()) {
+                    case Hotel                 -> alquilerEdificio += 70 * alquilerSolar;
+                    case Piscina, PistaDeporte -> alquilerEdificio += 25 * alquilerSolar;
+                    case Casa -> nCasas++;
+                }
+                // @formatter:on
             }
 
             // @formatter:off
@@ -174,6 +134,52 @@ public class Calculadora {
             case PistaDeporte -> (long) (1.25 * precioSolar);
         };
         // @formatter:on
+    }
+
+    /**
+     * Asigna los precios y otros atributos a cada casilla según su tipo.
+     * <p>
+     * Además, pone a la banca como propietario de todas las propiedades.
+     * <p>
+     * También se asigna el mazo a las casillas de carta.
+     */
+    public void asignarValores(ArrayList<Casilla> casillas, Jugador banca, Mazo mazo) {
+        // Para establecer una referencia a la cárcel en IrCárcel, se deben
+        // recorrer las casillas al revés, dado que la Cárcel aparece después
+        // de IrCárcel.
+        Casilla carcel = null;
+        int nImpuestos = 0;
+        for (int ii = casillas.size() - 1; ii >= 0; ii--) {
+            Casilla c = casillas.get(ii);
+
+            switch (c.getTipo()) {
+                case Propiedad -> {
+                    Propiedad p = c.getPropiedad();
+
+                    // Asignar propiedades a la Banca
+                    banca.anadirPropiedad(p);
+                    p.setPropietario(banca);
+
+                    p.setPrecio(calcularPrecio(p));
+                    p.actualizarAlquiler();
+                }
+                case Salida -> c.setAbonoSalida(calcularAbonoSalida());
+                case Impuestos -> {
+                    c.setBanca(banca);
+                    // El último impuesto valdrá 1/2 del abono de salida
+                    // El primer impuesto valdrá 2/2 = 1 abono de salida
+                    nImpuestos++;
+                    c.setImpuestos(nImpuestos * calcularAbonoSalida() / 2);
+                }
+                case Carcel -> {
+                    c.setFianza(calcularAbonoSalida() / 4);
+                    carcel = c;
+                }
+                case IrCarcel -> c.setCarcel(carcel);
+                case Parking -> c.setBanca(banca);
+                case Comunidad, Suerte -> c.setMazo(mazo);
+            }
+        }
     }
 
     /**

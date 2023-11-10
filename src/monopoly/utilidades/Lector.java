@@ -1,5 +1,6 @@
 package monopoly.utilidades;
 
+import monopoly.Tablero;
 import monopoly.casillas.Carta;
 import monopoly.casillas.Carta.TipoCarta;
 import monopoly.casillas.Casilla;
@@ -71,7 +72,7 @@ public class Lector {
      * @param path Dirección del achivo a leer.
      * @return La lista de casillas contenida en el archivo
      */
-    public static ArrayList<Casilla> leerCasillas(String path) {
+    public static Tablero leerCasillas(String path) {
         Scanner scanner = abrirArchivo(path);
 
         // Hay 8 grupos de solares, 1 de transporte,
@@ -124,7 +125,7 @@ public class Lector {
         }
 
         scanner.close();
-        return casillas;
+        return new Tablero(casillas, grupos);
     }
 
     /**
