@@ -44,6 +44,30 @@ public class Grupo {
                 }""".formatted(Consola.fmt(nombre, codigoColor), numero, Consola.listar(casillas.iterator(), Casilla::getNombre));
     }
 
+    public void listarEdificios() {
+        for (Casilla c : casillas) {
+            if (c.isPropiedad()) {
+                Propiedad p = c.getPropiedad();
+
+                System.out.printf("""
+                                {
+                                    propiedad: %s
+                                    casas: %s
+                                    hoteles: %s
+                                    piscinas: %s
+                                    pistas de deporte: %s
+                                    alquiler: %s
+                                }
+                                """, p.getNombre(),
+                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Casa ? e.getNombreFmt() : null),
+                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Hotel ? e.getNombreFmt() : null),
+                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Piscina ? e.getNombreFmt() : null),
+                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.PistaDeporte ? e.getNombreFmt() : null),
+                        Consola.num(p.getAlquiler()));
+            }
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
