@@ -30,31 +30,15 @@ edificar casa
 describir Cracovia
 
 # Construir todo al máximo
-edificar casa
-edificar casa
-edificar casa
+edificar casa 3
 edificar hotel
 
-edificar casa
-edificar casa
-edificar casa
-edificar casa
+edificar casa 4
 edificar hotel
 
-edificar casa
-edificar casa
-edificar casa
-edificar casa
+edificar casa 4
 edificar hotel
 
-edificar casa
-edificar casa
-edificar casa
-
-edificar piscina
-edificar piscina
-edificar piscina
-
-edificar pista
-edificar pista
-edificar pista
+edificar casa 3
+edificar piscina 3
+edificar pista 3

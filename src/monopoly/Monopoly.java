@@ -264,8 +264,8 @@ public class Monopoly {
      * Ejecuta el comando de edificar
      */
     private void cmdEdificar(String[] args) {
-        if (args.length != 2) {
-            Consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length - 1));
+        if (args.length != 2 && args.length != 3) {
+            Consola.error("Se esperaba 1 o 2 parámetros, se recibieron %d".formatted(args.length - 1));
             return;
         }
 
@@ -281,7 +281,7 @@ public class Monopoly {
             }
         }
 
-        tablero.edificar(tipoEdificio);
+        tablero.edificar(tipoEdificio, args.length == 2? 1 : Integer.parseInt(args[2]));
     }
 
     /**

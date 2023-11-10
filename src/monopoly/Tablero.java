@@ -230,7 +230,7 @@ public class Tablero {
     /**
      * Realiza las comprobaciones necesarias y llama al jugador para que edifique un nuevo edificio del tipo dado.
      */
-    public void edificar(Edificio.TipoEdificio tipoEdificio) {
+    public void edificar(Edificio.TipoEdificio tipoEdificio, int cantidad) {
         if (!jugando) {
             Consola.error("No se ha iniciado la partida");
             return;
@@ -244,9 +244,13 @@ public class Tablero {
             return;
         }
 
-        if (j.comprar(new Edificio(tipoEdificio, c.getPropiedad()))) {
-            j.describirTransaccion();
+        for (int ii = 0; ii < cantidad; ii++) {
+            if (!j.comprar(new Edificio(tipoEdificio, c.getPropiedad()))) {
+                return;
+            }
         }
+
+        j.describirTransaccion();
     }
 
     @Override
