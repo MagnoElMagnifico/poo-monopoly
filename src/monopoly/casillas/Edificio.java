@@ -34,6 +34,7 @@ public class Edificio {
 
     @Override
     public String toString() {
+        // @formatter:off
         return """
                 {
                     id: %s
@@ -41,7 +42,12 @@ public class Edificio {
                     casilla: %s
                     grupo: %s
                     valor: %s
-                }""".formatted(getNombreFmt(), solar.getPropietario().getNombre(), solar.getCasilla().getNombre(), solar.getCasilla().getGrupo().getNombre(), valor);
+                }""".formatted(getNombreFmt(),
+                               solar.getPropietario().getNombre(),
+                               solar.getCasilla().getNombre(),
+                               solar.getCasilla().getGrupo().getNombre(),
+                               Consola.num(valor));
+        // @formatter:on
     }
 
     @Override
