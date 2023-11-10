@@ -1,7 +1,6 @@
 package monopoly.casillas;
 
 import monopoly.Calculadora;
-import monopoly.jugadores.Avatar;
 import monopoly.utilidades.Consola;
 
 /**
@@ -17,7 +16,9 @@ import monopoly.utilidades.Consola;
  * @see Propiedad
  */
 public class Edificio {
-    /** Permite generar IDs para edificios de forma que nunca se repitan */
+    /**
+     * Permite generar IDs para edificios de forma que nunca se repitan
+     */
     private static int ultimoId = 1;
 
     private final int id;
