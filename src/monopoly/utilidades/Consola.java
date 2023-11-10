@@ -101,17 +101,23 @@ public class Consola {
      */
     public static<T> String listar(Iterator<T> elementos, Function<T, String> funcion) {
         StringBuilder lista = new StringBuilder();
-
         lista.append('[');
+
         while (elementos.hasNext()) {
-            lista.append(funcion.apply(elementos.next()));
+            String elemento = funcion.apply(elementos.next());
+
+            if (elemento == null) {
+                continue;
+            }
+
+            lista.append(elemento);
 
             if (elementos.hasNext()) {
                 lista.append(", ");
             }
         }
-        lista.append(']');
 
+        lista.append(']');
         return lista.toString();
     }
 
