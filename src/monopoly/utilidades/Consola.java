@@ -1,6 +1,5 @@
 package monopoly.utilidades;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Function;
 
@@ -99,10 +98,11 @@ public class Consola {
      *                  representación String que aparecerá en el resultado.
      * @return String con la lista de los elementos en una sola línea
      */
-    public static<T> String listar(Iterator<T> elementos, Function<T, String> funcion) {
+    public static <T> String listar(Iterator<T> elementos, Function<T, String> funcion) {
         StringBuilder lista = new StringBuilder();
         lista.append('[');
 
+        boolean primero = true;
         while (elementos.hasNext()) {
             String elemento = funcion.apply(elementos.next());
 
@@ -110,11 +110,13 @@ public class Consola {
                 continue;
             }
 
-            lista.append(elemento);
-
-            if (elementos.hasNext()) {
+            if (primero) {
+                primero = false;
+            } else {
                 lista.append(", ");
             }
+
+            lista.append(elemento);
         }
 
         lista.append(']');
