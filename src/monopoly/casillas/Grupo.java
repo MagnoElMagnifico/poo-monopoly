@@ -68,6 +68,22 @@ public class Grupo {
         }
     }
 
+    public int contarEdificios(Edificio.TipoEdificio tipo) {
+        int numero = 0;
+
+        for (Casilla c : casillas) {
+            if (c.isPropiedad()) {
+                for (Edificio e : c.getPropiedad().getEdificios()) {
+                    if (e.getTipo() == tipo) {
+                        numero++;
+                    }
+                }
+            }
+        }
+
+        return numero;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

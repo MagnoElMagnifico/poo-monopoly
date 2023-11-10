@@ -180,7 +180,7 @@ public class Propiedad {
         return false;
     }
 
-    public int contarEdificio(Edificio.TipoEdificio tipo) {
+    public int contarEdificios(Edificio.TipoEdificio tipo) {
         if (this.tipo != TipoPropiedad.Solar) {
             Consola.error("[Propiedad] %s no tiene edificios".formatted(tipo));
             return -1;
