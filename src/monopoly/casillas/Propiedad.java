@@ -1,5 +1,6 @@
 package monopoly.casillas;
 
+import monopoly.Calculadora;
 import monopoly.jugadores.Jugador;
 import monopoly.utilidades.Consola;
 
@@ -42,27 +43,67 @@ public class Propiedad {
         this.propietario = null;
         this.precio = -1;   // Marcar como todavía no establecido
         this.alquiler = -1; // Marcar como todavía no establecido
-        this.edificios = new ArrayList<>();
         this.hipotecada = false;
+
+        if (tipo == TipoPropiedad.Solar) {
+            this.edificios = new ArrayList<>();
+        } else {
+            this.edificios = null;
+        }
     }
 
-    // Para el comando listar enventa
+    private String toStringSolar() {
+        // TODO
+        // valor casa: %s
+        // valor hotel: %s
+        // valor piscina: %s
+        // valor pista de deporte: %s
+        // alquiler una casa: %s
+        // alquiler dos casas: %s
+        // alquiler tres casas: %s
+        // alquiler cuatro casas: %s
+        // alquiler hotel: %s
+        // alquiler piscina: %s
+        // alquiler pista de deporte: %s
+        // @formatter:off
+        return """
+                {
+                    tipo: %s
+                    nombre: %s
+                    grupo: %s
+                    precio: %s
+                    alquiler: %s
+                    propietario: %s
+                    edificios: %s
+                }""".formatted(tipo,
+                               nombre,
+                               casilla.getGrupo().getNombre(),
+                               Consola.num(precio),
+                               Consola.num(alquiler),
+                               propietario.getNombre(),
+                               Consola.listar(edificios.iterator(), Edificio::getNombreFmt));
+        // @formatter:on
+    }
+
     @Override
     public String toString() {
+        if (tipo == TipoPropiedad.Solar) {
+            return toStringSolar();
+        }
+
         // @formatter:off
         return """
                {
+                   tipo: %s
                    nombre: %s
-                   tipo: %s%s
                    precio: %s
                    alquiler: %s
                    propietario: %s
                }""".formatted(nombre,
                               tipo,
-                              tipo == TipoPropiedad.Solar? "\n    grupo: " + casilla.getGrupo().getNombre() : "",
                               Consola.num(precio),
                               Consola.num(alquiler),
-                              propietario == null ? "-" : propietario.getNombre());
+                              propietario == null ? "Banca" : propietario.getNombre());
         // @formatter:on
     }
 
@@ -104,13 +145,8 @@ public class Propiedad {
         return alquiler;
     }
 
-    public void setAlquiler(long alquiler) {
-        if (alquiler <= 0) {
-            Consola.error("[Propiedad] No se puede asignar un alquiler negativo o nulo a una propiedad");
-            return;
-        }
-
-        this.alquiler = alquiler;
+    public void actualizarAlquiler() {
+        this.alquiler = Calculadora.calcularAlquiler(this);
     }
 
     public Jugador getPropietario() {
@@ -121,12 +157,54 @@ public class Propiedad {
         this.propietario = propietario;
     }
 
-    public ArrayList<Edificio> getEdificios() {
-        return edificios;
+    public void anadirEdificio(Edificio e) {
+        if (tipo != TipoPropiedad.Solar) {
+            Consola.error("[Propiedad] No se puede añadir un edificio a un %s".formatted(tipo));
+            return;
+        }
+
+        edificios.add(e);
     }
 
-    public void anadirEdificio(Edificio e) {
-        edificios.add(e);
+    public boolean quitarEdificio(Edificio.TipoEdificio tipo) {
+        if (this.tipo != TipoPropiedad.Solar) {
+            Consola.error("[Propiedad] No se puede añadir un edificio a un %s".formatted(tipo));
+            return false;
+        }
+
+        for (int ii = 0; ii < edificios.size(); ii++) {
+            if (edificios.get(ii).getTipo() == tipo) {
+                edificios.remove(ii);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public int contarEdificios(Edificio.TipoEdificio tipo) {
+        if (this.tipo != TipoPropiedad.Solar) {
+            Consola.error("[Propiedad] %s no tiene edificios".formatted(tipo));
+            return -1;
+        }
+
+        int numero = 0;
+        for (Edificio e : edificios) {
+            if (e.getTipo() == tipo) {
+                numero++;
+            }
+        }
+
+        return numero;
+    }
+
+    public ArrayList<Edificio> getEdificios() {
+        if (this.tipo != TipoPropiedad.Solar) {
+            Consola.error("[Propiedad] %s no tiene edificios".formatted(tipo));
+            return null;
+        }
+
+        return edificios;
     }
 
     public boolean isHipotecada() {

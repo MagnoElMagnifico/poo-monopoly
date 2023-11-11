@@ -2,6 +2,7 @@ package monopoly;
 
 import monopoly.casillas.Casilla;
 import monopoly.casillas.Edificio;
+import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar;
 import monopoly.jugadores.Jugador;
@@ -27,29 +28,25 @@ public class Tablero {
     private final Jugador banca;
     private final ArrayList<Jugador> jugadores;
     private final ArrayList<Casilla> casillas;
+    private final ArrayList<Grupo> grupos;
     private int turno;
     private boolean jugando;
-    private int nCompras;
-
 
     /**
      * Crea un tablero por defecto
      */
-    public Tablero() {
+    public Tablero(ArrayList<Casilla> casillas, ArrayList<Grupo> grupos) {
         // Entre 2 y 6 jugadores
-        jugadores = new ArrayList<>(6);
-        turno = 0;
-        jugando = false;
+        this.jugadores = new ArrayList<>(6);
+        this.turno = 0;
+        this.jugando = false;
 
-        banca = new Jugador();
-        // En lugar de añadir con código las casillas, se leen de
-        // un archivo de configuración.
-        //
-        // NOTA: Esto es potencialmente un problema de seguridad,
-        // dado que el usuario puede modificarlo sin reparos.
-        casillas = Lector.leerCasillas("src/casillas.txt");
-        // Creación de la calculadora
-        calculadora = new Calculadora(casillas, banca, Lector.leerCartas("src/cartas.txt", Tablero.this));
+        this.banca = new Jugador();
+        this.casillas = casillas;
+        this.grupos = grupos;
+
+        this.calculadora = new Calculadora(casillas);
+        this.calculadora.asignarValores(casillas, banca, Lector.leerCartas("src/cartas.txt", this));
     }
 
     /**
@@ -137,7 +134,6 @@ public class Tablero {
             return;
         }
 
-
         // Muestra el tablero si se ha movido el avatar con éxito
         if (getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora)) {
             System.out.print(this);
@@ -161,15 +157,15 @@ public class Tablero {
             return;
         }
 
-
         avatarTurno.resetDoblesSeguidos();
         avatarTurno.resetLanzamientos();
         avatarTurno.setPuedeComprar(true);
+
         turno = (turno + 1) % jugadores.size();
 
         System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
         System.out.print(this);
-        System.out.print(jugadorTurno.describirTransaccion());
+        jugadorTurno.describirTransaccion();
     }
 
     /**
@@ -197,7 +193,7 @@ public class Tablero {
 
         if (j.getAvatar().salirCarcelPagando()) {
             System.out.print(this);
-            System.out.print(j.describirTransaccion());
+            j.describirTransaccion();
         }
     }
 
@@ -226,12 +222,15 @@ public class Tablero {
             Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
             return;
         }
-        if(!j.getAvatar().isPuedeComprar()){
+
+        if (!j.getAvatar().isPuedeComprar()) {
+            // TODO: pero por qué no se puede comprar? Explicar esto mejor
             Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
             return;
         }
+
         if (j.comprar(c.getPropiedad())) {
-            if(j.getAvatar().isMovimientoEspecial() && j.getAvatar().getTipo()== Avatar.TipoAvatar.Pelota) {
+            if (j.getAvatar().isMovimientoEspecial() && j.getAvatar().getTipo() == Avatar.TipoAvatar.Pelota) {
                 j.getAvatar().setPuedeComprar(false);
             }
             j.describirTransaccion();
@@ -241,28 +240,42 @@ public class Tablero {
     /**
      * Realiza las comprobaciones necesarias y llama al jugador para que edifique un nuevo edificio del tipo dado.
      */
-    public void edificar(Edificio.TipoEdificio tipoEdificio) {
+    public void edificar(Edificio.TipoEdificio tipoEdificio, int cantidad) {
         if (!jugando) {
             Consola.error("No se ha iniciado la partida");
             return;
         }
 
-        Jugador j = getJugadorTurno();
-        Casilla c = j.getAvatar().getCasilla();
+        if (getJugadorTurno().comprar(tipoEdificio, cantidad)) {
+            getJugadorTurno().describirTransaccion();
+        }
+    }
 
-        if (!c.isPropiedad() || c.getPropiedad().getTipo() != Propiedad.TipoPropiedad.Solar) {
-            Consola.error("No se puede edificar en una casilla que no sea un solar");
+    /**
+     * Realiza las comprobaciones necesarias y llama al jugador para que venda una edificación
+     */
+    public void vender(Edificio.TipoEdificio tipoEdificio, String nombreSolar, int cantidad) {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
             return;
         }
 
-        Propiedad p = c.getPropiedad();
+        // Buscar el solar
+        Propiedad solar = null;
+        for (Casilla c : casillas) {
+            if (c.isPropiedad() && c.getPropiedad().getTipo() == Propiedad.TipoPropiedad.Solar && c.getPropiedad().getNombre().equalsIgnoreCase(nombreSolar)) {
+                solar = c.getPropiedad();
+            }
+        }
 
-        if (!p.getPropietario().equals(j)) {
-            Consola.error("No se puede edificar en una propiedad que no te pertenece");
+        if (solar == null) {
+            Consola.error("No existe el solar \"%s\"".formatted(nombreSolar));
             return;
         }
 
-        j.comprar(new Edificio(p.getEdificios().size(), tipoEdificio, p));
+        if (getJugadorTurno().vender(tipoEdificio, solar, cantidad)) {
+            getJugadorTurno().describirTransaccion();
+        }
     }
 
     public void hipotecar(String nombre) {
@@ -299,40 +312,17 @@ public class Tablero {
     }
 
     /**
-     * Obtiene los avatares de los jugadores
-     */
-    public ArrayList<Avatar> getAvatares() {
-        ArrayList<Avatar> avatares = new ArrayList<>(jugadores.size());
-
-        // NOTA: si `jugadores` está vacío, esto no se ejecuta y se devuelve un ArrayList vacío
-        for (Jugador jugador : jugadores) {
-            avatares.add(jugador.getAvatar());
-        }
-
-        return avatares;
-    }
-
-    /**
-     * Obtiene las casillas que actualmente están en venta
-     */
-    public ArrayList<Propiedad> getEnVenta() {
-        ArrayList<Propiedad> enVenta = new ArrayList<>(casillas.size());
-
-        for (Casilla casilla : casillas) {
-            // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-            if (casilla.isPropiedad() && (casilla.getPropiedad().getPropietario() == null || casilla.getPropiedad().getPropietario() == banca)) {
-                enVenta.add(casilla.getPropiedad());
-            }
-        }
-
-        return enVenta;
-    }
-
-    /**
      * Obtiene las casillas de este tablero
      */
     public ArrayList<Casilla> getCasillas() {
         return casillas;
+    }
+
+    /**
+     * Obtiene los grupos en los que se dividen las casillas de este tablero
+     */
+    public ArrayList<Grupo> getGrupos() {
+        return grupos;
     }
 
     /**
@@ -377,9 +367,64 @@ public class Tablero {
         }
     }
 
+    /**
+     * Muestra los avatares de los jugadores
+     */
+    public void listarAvatares() {
+        for (Jugador jugador : jugadores) {
+            System.out.println(jugador.getAvatar());
+        }
+    }
 
-    public void bancaRota() {
-        Jugador j= getJugadorTurno();
+    public void bancarrota() {
+        Jugador j = getJugadorTurno();
+        // TODO
+    }
+
+    /**
+     * Muestra las casillas que actualmente están en venta
+     */
+    public void listarEnVenta() {
+        for (Casilla casilla : casillas) {
+            // Si la casilla se puede comprar y no tiene dueño, es que está en venta
+            if (casilla.isPropiedad() && (casilla.getPropiedad().getPropietario() == null || casilla.getPropiedad().getPropietario() == banca)) {
+                System.out.println(casilla.getPropiedad());
+            }
+        }
+    }
+
+    /**
+     * Muestra todos los edificios construidos
+     */
+    public void listarEdificios() {
+        for (Casilla c : casillas) {
+            if (c.isPropiedad() && c.getPropiedad().getTipo() == Propiedad.TipoPropiedad.Solar) {
+                for (Edificio e : c.getPropiedad().getEdificios()) {
+                    System.out.println(e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Obtiene información sobre los edificios del grupo dado su nombre, junto con el número de edificios que se pueden construir
+     */
+    public void listarEdificiosGrupo(String nombreGrupo) {
+        Grupo grupo = null;
+        for (Grupo g : grupos) {
+            if (g.getNombre().equalsIgnoreCase(nombreGrupo)) {
+                grupo = g;
+                break;
+            }
+        }
+
+        if (grupo == null) {
+            Consola.error("No existe un grupo con el nombre \"%s\"".formatted(nombreGrupo));
+            return;
+        }
+
+        grupo.listarEdificios();
+
+        // TODO: información sobre los edificios aún edificables
     }
 }
-

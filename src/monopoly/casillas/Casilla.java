@@ -91,7 +91,8 @@ public class Casilla {
                     a la casilla Cárcel.
                     """.formatted(getNombreFmt());
             case Comunidad, Suerte -> """
-                    %s: TODO
+                    %s: Si un jugador cae en esta casilla, tendrá que escoger una carta y
+                    se realizará su acción específica.
                     """.formatted(getNombreFmt());
             case Impuestos -> """
                     {
