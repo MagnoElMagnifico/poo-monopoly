@@ -327,6 +327,8 @@ public class Jugador {
 
         // Comprobar que tiene el dinero
         if (!cobrar(cantidad * e.getValor())) {
+            endeudado=false;
+            cantidadDeuda=0;
             Consola.error("El jugador no tiene los fondos suficientes para edificar.\nNecesita %s.".formatted(Consola.num(cantidad * e.getValor())));
             return false;
         }
@@ -507,10 +509,7 @@ public class Jugador {
             }
         }
     }
-    public void pagarDeuda(Propiedad p){
 
-
-    }
     public boolean setBancarrota(Jugador banca){
         if(bancarrota){
             Consola.error("Ya estas en BancaRota");
@@ -525,7 +524,7 @@ public class Jugador {
                  Propiedad c = iter.next();
                  c.setPropietario(banca);
                  c.setHipotecada(false);
-                 propiedades.remove(c);
+                 iter.remove();
                  banca.anadirPropiedad(c);
             }
         }
@@ -536,7 +535,7 @@ public class Jugador {
                 Propiedad c = iter.next();
                 c.setPropietario(jug);
                 c.setHipotecada(false);
-                propiedades.remove(c);
+                iter.remove();
                 jug.anadirPropiedad(c);
             }
         }
