@@ -17,24 +17,27 @@ import java.util.ArrayList;
  * @see Jugador
  */
 public class Avatar {
+    // @formatter:off
     // Propiedades
     private final TipoAvatar tipo;
     private final char id;
     private final Jugador jugador;
-    private Casilla casilla;
-
     // Historial
     private final ArrayList<Casilla> historialCasillas;
-
+    private Casilla casilla;
     // Estado
     private boolean encerrado;
+    private boolean movimientoEspecial;
+    private boolean pelotaMovimiento;
+    private boolean puedeComprar;
+    private int dadoEspera;
+    private int doblesSeguidos;
     private int estanciasCarcel;
-    private int vueltas;
     private int lanzamientos;
     private int lanzamientosEspeciales;
     private int penalizacion;
-    private int doblesSeguidos;
-    private boolean movimientoEspecial;
+    private int vueltas;
+    // @formatter:on
 
     /**
      * Crea un avatar dado su tipo, id y el jugador al que hace referencia
@@ -49,13 +52,17 @@ public class Avatar {
         this.historialCasillas = new ArrayList<>();
 
         this.encerrado = false;
+        this.movimientoEspecial = false;
+        this.pelotaMovimiento = false;
+        this.puedeComprar = true;
+
+        this.dadoEspera = 0;
+        this.doblesSeguidos = 0;
         this.estanciasCarcel = 0;
-        this.vueltas = 0;
         this.lanzamientos = 1;
         this.lanzamientosEspeciales = 0;
         this.penalizacion = 0;
-        this.doblesSeguidos = 0;
-        this.movimientoEspecial = false;
+        this.vueltas = 0;
     }
 
     @Override
@@ -110,7 +117,7 @@ public class Avatar {
                 case Coche -> moverEspecialCoche(dado, casillas.size());
                 case Esfinge -> moverEspecialEsfinge();
                 case Sombrero -> moverEspecialSombrero();
-                case Pelota -> moverEspecialPelota();
+                case Pelota -> moverEspecialPelota(dado, casillas.size());
             };
         } else {
             posNuevaCasilla = moverBasico(dado);
@@ -221,6 +228,8 @@ public class Avatar {
     public void irCarcel() {
         encerrado = true;
         estanciasCarcel = 0;
+        lanzamientos = 0;
+        lanzamientosEspeciales = 0;
 
         Casilla nuevaCasilla = this.casilla.getCarcel();
         this.casilla.quitarAvatar(this);
@@ -277,6 +286,24 @@ public class Avatar {
 
         if (lanzamientosEspeciales == 0) {
             lanzamientos = 0;
+            if (dado.isDoble()) {
+                doblesSeguidos++;
+                if (doblesSeguidos >= 3) {
+                    System.out.printf("""
+                                    %s con avatar %s ha sacado %s.
+                                    Ya son 3 veces seguidas sacando dados dobles.
+                                    %s es arrestado por tener tanta suerte.
+                                    """,
+                            Consola.fmt(jugador.getNombre(), Color.Azul),
+                            Consola.fmt(Character.toString(id), Color.Azul),
+                            dado, jugador.getNombre());
+                    irCarcel();
+                    return -1;
+                }
+                lanzamientosEspeciales++;
+                lanzamientos++;
+            }
+            return this.casilla.getPosicion() + dado.getValor();
         }
 
         return this.casilla.getPosicion() + dado.getValor();
@@ -292,8 +319,30 @@ public class Avatar {
         return -1;
     }
 
-    private int moverEspecialPelota() {
-        // TODO
+    private int moverEspecialPelota(Dado dado, int nCasillas) {
+        if (!pelotaMovimiento) {
+            if (dado.getValor() <= 4) return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
+            if (dado.getValor() == 5) return this.casilla.getPosicion() + dado.getValor();
+        }
+
+        if (lanzamientos == 0) {
+            lanzamientos = 2;
+            dadoEspera = dado.getValor() - 5;
+            pelotaMovimiento = true;
+            return this.casilla.getPosicion() + 5;
+        }
+
+        if (pelotaMovimiento) {
+            if (dadoEspera <= 2) {
+                lanzamientos = 0;
+                pelotaMovimiento = false;
+                return this.casilla.getPosicion() + dadoEspera;
+            }
+            lanzamientos++;
+            dadoEspera -= 2;
+            return this.casilla.getPosicion() + 2;
+        }
+
         return -1;
     }
 
@@ -372,6 +421,14 @@ public class Avatar {
 
     public ArrayList<Casilla> getHistorialCasillas() {
         return historialCasillas;
+    }
+
+    public boolean isPuedeComprar() {
+        return puedeComprar;
+    }
+
+    public void setPuedeComprar(boolean puedeComprar) {
+        this.puedeComprar = puedeComprar;
     }
 
     /**

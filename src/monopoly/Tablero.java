@@ -46,7 +46,7 @@ public class Tablero {
         this.grupos = grupos;
 
         this.calculadora = new Calculadora(casillas);
-        this.calculadora.asignarValores(casillas, banca, Lector.leerCartas("src/cartas.txt"));
+        this.calculadora.asignarValores(casillas, banca, Lector.leerCartas("src/cartas.txt", this));
     }
 
     /**
@@ -152,13 +152,14 @@ public class Tablero {
         Jugador jugadorTurno = getJugadorTurno();
         Avatar avatarTurno = jugadorTurno.getAvatar();
 
-        if (jugadorTurno.getAvatar().getLanzamientos() > 0) {
+        if (jugadorTurno.getAvatar().getLanzamientos() > 0 && !jugadorTurno.getAvatar().isMovimientoEspecial()) {
             Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientos()));
             return;
         }
 
         avatarTurno.resetDoblesSeguidos();
         avatarTurno.resetLanzamientos();
+        avatarTurno.setPuedeComprar(true);
 
         turno = (turno + 1) % jugadores.size();
 
@@ -222,7 +223,16 @@ public class Tablero {
             return;
         }
 
+        if (!j.getAvatar().isPuedeComprar()) {
+            // TODO: pero por qué no se puede comprar?
+            Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
+            return;
+        }
+
         if (j.comprar(c.getPropiedad())) {
+            if (j.getAvatar().isMovimientoEspecial() && j.getAvatar().getTipo() == Avatar.TipoAvatar.Pelota) {
+                j.getAvatar().setPuedeComprar(false);
+            }
             j.describirTransaccion();
         }
     }

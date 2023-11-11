@@ -131,7 +131,7 @@ public class Lector {
     /**
      * Lee el archivo de configuración de cartas dada su dirección
      */
-    public static Mazo leerCartas(String path) {
+    public static Mazo leerCartas(String path, Tablero tablero) {
         Scanner scanner = abrirArchivo(path);
 
         ArrayList<Carta> cartaComunidad = new ArrayList<>(6);
@@ -154,8 +154,10 @@ public class Lector {
             }
 
             switch (campos[0]) {
-                case "C" -> cartaComunidad.add(new Carta(Integer.parseInt(campos[1]), TipoCarta.Comunidad, campos[2]));
-                case "S" -> cartaSuerte.add(new Carta(Integer.parseInt(campos[1]), TipoCarta.Suerte, campos[2]));
+                case "C" ->
+                        cartaComunidad.add(new Carta(tablero, Integer.parseInt(campos[1]), TipoCarta.Comunidad, campos[2]));
+                case "S" ->
+                        cartaSuerte.add(new Carta(tablero, Integer.parseInt(campos[1]), TipoCarta.Suerte, campos[2]));
                 default -> {
                     Consola.error("[FATAL] ArchivoCartas línea %d: \"%s\" tipo de carta desconocido".formatted(nLinea, campos[0]));
                     System.exit(1);
