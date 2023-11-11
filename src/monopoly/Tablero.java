@@ -164,7 +164,7 @@ public class Tablero {
 
         System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
         System.out.print(this);
-        System.out.print(jugadorTurno.describirTransaccion());
+        jugadorTurno.describirTransaccion();
     }
 
     /**
@@ -192,7 +192,7 @@ public class Tablero {
 
         if (j.getAvatar().salirCarcelPagando()) {
             System.out.print(this);
-            System.out.print(j.describirTransaccion());
+            j.describirTransaccion();
         }
     }
 
@@ -236,21 +236,36 @@ public class Tablero {
             return;
         }
 
-        Jugador j = getJugadorTurno();
-        Casilla c = j.getAvatar().getCasilla();
+        if (getJugadorTurno().comprar(tipoEdificio, cantidad)) {
+            getJugadorTurno().describirTransaccion();
+        }
+    }
 
-        if (!c.isPropiedad() || c.getPropiedad().getTipo() != Propiedad.TipoPropiedad.Solar) {
-            Consola.error("No se puede edificar en una casilla que no sea un solar");
+    /**
+     * Realiza las comprobaciones necesarias y llama al jugador para que venda una edificación
+     */
+    public void vender(Edificio.TipoEdificio tipoEdificio, String nombreSolar, int cantidad) {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
             return;
         }
 
-        for (int ii = 0; ii < cantidad; ii++) {
-            if (!j.comprar(new Edificio(tipoEdificio, c.getPropiedad()))) {
-                return;
+        // Buscar el solar
+        Propiedad solar = null;
+        for (Casilla c : casillas) {
+            if (c.isPropiedad() && c.getPropiedad().getTipo() == Propiedad.TipoPropiedad.Solar && c.getPropiedad().getNombre().equalsIgnoreCase(nombreSolar)) {
+                solar = c.getPropiedad();
             }
         }
 
-        j.describirTransaccion();
+        if (solar == null) {
+            Consola.error("No existe el solar \"%s\"".formatted(nombreSolar));
+            return;
+        }
+
+        if (getJugadorTurno().vender(tipoEdificio, solar, cantidad)) {
+            getJugadorTurno().describirTransaccion();
+        }
     }
 
     @Override

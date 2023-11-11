@@ -163,6 +163,7 @@ public class Monopoly {
             case "mover"     -> cmdMover(args);
             case "exec"      -> cmdExec(args);
             case "edificar"  -> cmdEdificar(args);
+            case "vender"    -> cmdVender(args);
             case "listar"    -> cmdListar(args);
             default          -> Consola.error("\"%s\": Comando no válido".formatted(args[0]));
         }
@@ -171,6 +172,9 @@ public class Monopoly {
 
     /**
      * Ejecuta el comando crear jugador
+     * <pre>
+     *     crear jugador {nombre} { c, coche | e, esfinge | s, sombrero | p, pelota }
+     * </pre>
      */
     private void cmdCrear(String[] args) {
         if (args.length != 4) {
@@ -206,6 +210,11 @@ public class Monopoly {
 
     /**
      * Ejecuta el comando de describir
+     * <pre>
+     *     describir {casilla}
+     *     describir jugador {jugador}
+     *     describir avatar {avatar}
+     * </pre>
      */
     private void cmdDescribir(String[] args) {
         if (args.length == 2) {
@@ -226,6 +235,9 @@ public class Monopoly {
 
     /**
      * Ejecuta el comando de comprar
+     * <pre>
+     *     comprar {propiedad}
+     * </pre>
      */
     private void cmdComprar(String[] args) {
         if (args.length != 2) {
@@ -238,18 +250,24 @@ public class Monopoly {
 
     /**
      * Ejecuta el comando de mover
+     * <pre>
+     *     mover {dado 1} [dado2]
+     * </pre>
      */
     private void cmdMover(String[] args) {
-        if (args.length != 3) {
-            Consola.error("Se esperaban 2 parámetros, se recibieron %d".formatted(args.length - 1));
+        if (args.length != 2 && args.length != 3) {
+            Consola.error("Se esperaba 1 o 2 parámetros, se recibieron %d".formatted(args.length - 1));
             return;
         }
 
-        tablero.moverAvatar(new Dado(Integer.parseInt(args[1]), Integer.parseInt(args[2])));
+        tablero.moverAvatar(new Dado(Integer.parseInt(args[1]), args.length == 2 ? 0 : Integer.parseInt(args[2])));
     }
 
     /**
      * Ejecuta el comando de ejecutar un archivo
+     * <pre>
+     *     exec {nombre archivo}
+     * </pre>
      */
     private void cmdExec(String[] args) {
         if (args.length != 2) {
@@ -261,31 +279,64 @@ public class Monopoly {
     }
 
     /**
-     * Ejecuta el comando de edificar
+     * A partir del String dado como parámetro, lo convierte a un tipo de edificio
+     */
+    private TipoEdificio convertirTipoEdificio(String str) {
+        return switch (str) {
+            case "c", "casa", "casas" -> TipoEdificio.Casa;
+            case "h", "hotel", "hoteles" -> TipoEdificio.Hotel;
+            case "p", "piscina", "piscinas" -> TipoEdificio.Piscina;
+            case "d", "pista", "pistas", "deportes", "deporte", "pistasdeporte", "pistadeporte" ->
+                    TipoEdificio.PistaDeporte;
+            default -> {
+                Consola.error("\"%s\": tipo de edificio desconocido (prueba con: casa, hotel, piscina, pista)".formatted(str));
+                yield null;
+            }
+        };
+    }
+
+    /**
+     * Ejecuta el comando de edificar:
+     * <pre>
+     *     edificar {tipo edificio} [cantidad]
+     * </pre>
      */
     private void cmdEdificar(String[] args) {
         if (args.length != 2 && args.length != 3) {
-            Consola.error("Se esperaba 1 o 2 parámetros, se recibieron %d".formatted(args.length - 1));
+            Consola.error("Se esperaban 1 o 2 parámetros, se recibieron %d".formatted(args.length - 1));
             return;
         }
 
-        TipoEdificio tipoEdificio;
-        switch (args[1]) {
-            case "casa", "c" -> tipoEdificio = TipoEdificio.Casa;
-            case "hotel", "h" -> tipoEdificio = TipoEdificio.Hotel;
-            case "piscina", "p" -> tipoEdificio = TipoEdificio.Piscina;
-            case "pista", "pistadeporte", "deporte", "d" -> tipoEdificio = TipoEdificio.PistaDeporte;
-            default -> {
-                Consola.error("\"%s\": tipo de edificio desconocido (prueba con: casa, hotel, piscina, pista)".formatted(args[1]));
-                return;
-            }
+        TipoEdificio tipoEdificio = convertirTipoEdificio(args[1]);
+        if (tipoEdificio != null) {
+            tablero.edificar(tipoEdificio, args.length == 2 ? 1 : Integer.parseInt(args[2]));
+        }
+    }
+
+    /**
+     * Ejecuta el comando de vender un edificio
+     * <pre>
+     *     vender {tipo edificio} {solar} [cantidad]
+     * </pre>
+     */
+    private void cmdVender(String[] args) {
+        if (args.length != 3 && args.length != 4) {
+            Consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d".formatted(args.length - 1));
+            return;
         }
 
-        tablero.edificar(tipoEdificio, args.length == 2? 1 : Integer.parseInt(args[2]));
+        TipoEdificio tipoEdificio = convertirTipoEdificio(args[1]);
+        if (tipoEdificio != null) {
+            tablero.vender(tipoEdificio, args[2], args.length == 3 ? 1 : Integer.parseInt(args[3]));
+        }
     }
 
     /**
      * Ejecuta todos los comandos de listar
+     * <pre>
+     *     listar { casillas | jugadores | enventa | avatares }
+     *     listar edificios { nombre grupo }
+     * </pre>
      */
     private void cmdListar(String[] args) {
         if (args.length == 2) {

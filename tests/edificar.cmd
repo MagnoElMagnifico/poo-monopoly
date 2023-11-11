@@ -6,39 +6,19 @@ crear jugador nadie coche
 iniciar
 
 # Comprar Polonia
-mover 1 0
+mover 1
 comprar Varsovia
 end
 
 mover -1 1
 end
 
-mover 2 0
+mover 2
 comprar Lodz
 end
 
 mover -1 1
 end
 
-mover 1 0
-
-# Ver los cambios
-describir Cracovia
+mover 1
 comprar Cracovia
-describir Cracovia
-edificar casa
-describir Cracovia
-
-# Construir todo al máximo
-edificar casa 3
-edificar hotel
-
-edificar casa 4
-edificar hotel
-
-edificar casa 4
-edificar hotel
-
-edificar casa 3
-edificar piscina 3
-edificar pista 3
