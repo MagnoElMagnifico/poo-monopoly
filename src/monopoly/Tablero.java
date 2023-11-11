@@ -136,7 +136,10 @@ public class Tablero {
             Consola.error("No se ha iniciado la partida");
             return;
         }
-
+        if(getJugadorTurno().isEndeudado()){
+            Consola.error("Estas endeudado paga la deuda o declárate en bancarrota");
+            return;
+        }
 
         // Muestra el tablero si se ha movido el avatar con éxito
         if (getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora)) {
@@ -296,6 +299,16 @@ public class Tablero {
         }
     }
 
+    public void pagarDeuda() {
+        Jugador j = getJugadorTurno();
+        Avatar a =j.getAvatar();
+        if(a.getCasilla().isPropiedad()){
+
+        }
+        else {
+            j.pagarDeuda(banca);
+        }
+    }
     @Override
     public String toString() {
         return PintorTablero.pintarTablero(this);
@@ -395,5 +408,7 @@ public class Tablero {
             jugando=false;
         }
     }
+
+
 }
 

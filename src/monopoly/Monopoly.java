@@ -140,6 +140,7 @@ public class Monopoly {
             case "lanzar", "lanzar dados", "siguiente", "sig"-> tablero.moverAvatar(new Dado());
             case "acabar turno", "fin", "end" -> tablero.acabarTurno();
             case "bancarrota" -> tablero.bancarrota();
+            case "pagar deuda" -> tablero.pagarDeuda();
 
             default -> this.cmdConArgumentos(cmdNorm);
         }

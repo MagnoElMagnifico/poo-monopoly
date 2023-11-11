@@ -300,7 +300,32 @@ public class Jugador {
         gastos += cantidad;
         System.out.printf("Se ha deshipotecado %s por %s\n%n", propiedad.getCasilla().getNombreFmt(),Consola.num(cantidad));
     }
+    public void pagarDeuda(Jugador banca) {
+        if (!endeudado) {
+            Consola.error("El jugador %s no está endeudado.".formatted(nombre));
+            return;
+        }
+        if(jug==null){
+            if(cobrar(cantidadDeuda)) {
+                System.out.printf("El jugador %s ha pagado %s de deuda\n%n", Consola.fmt(nombre, Consola.Color.Azul),Consola.num(cantidadDeuda));
+                banca.ingresar(cantidadDeuda);
+                endeudado = false;
+                cantidadDeuda = 0;
+            }
+        }
+        else {
+            if(cobrar(cantidadDeuda)){
+                System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(cantidadDeuda), Consola.fmt(jug.getNombre(), Consola.Color.Azul));
+                jug.ingresar(cantidadDeuda);
+                endeudado=false;
+                jug=null;
+                cantidadDeuda=0;
+            }
+        }
+    }
+    public void pagarDeuda(Propiedad p){
 
+    }
     public boolean setBancarrota(Jugador banca){
         if(bancarrota){
             Consola.error("Ya estas en BancaRota");
@@ -308,6 +333,7 @@ public class Jugador {
         }
         bancarrota=true;
         if(jug==null){
+
             Iterator<Propiedad> iter = propiedades.iterator();
 
             while (iter.hasNext()) {
@@ -367,4 +393,5 @@ public class Jugador {
     public boolean isEndeudado() {
         return endeudado;
     }
+
 }
