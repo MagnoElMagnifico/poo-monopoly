@@ -425,6 +425,26 @@ public class Tablero {
 
         grupo.listarEdificios();
 
-        // TODO: información sobre los edificios aún edificables
+        // Mostrar cuantos edificios más se pueden construir
+        // @formatter:off
+        int nCasillas = grupo.getNumeroCasillas();
+        int nHoteles  = nCasillas - grupo.contarEdificios(Edificio.TipoEdificio.Hotel);
+        int nPiscinas = nCasillas - grupo.contarEdificios(Edificio.TipoEdificio.Piscina);
+        int nPistas   = nCasillas - grupo.contarEdificios(Edificio.TipoEdificio.PistaDeporte);
+        int nCasas    = (nHoteles == 0? nCasillas : 4) - grupo.contarEdificios(Edificio.TipoEdificio.Casa);
+        // @formatter:on
+
+        if (nCasas == 0 && nHoteles == 0 && nPiscinas == 0 && nPistas == 0) {
+            System.out.printf("\nYa no se pueden construir más edificios en %s\n", grupo.getNombre());
+            return;
+        }
+
+        // @formatter:off
+        System.out.println("\nAún se pueden edificar:");
+        if (nCasas != 0)    System.out.printf("  - %d casa(s)\n", nCasas);
+        if (nHoteles != 0)  System.out.printf("  - %d hotel(es)\n", nHoteles);
+        if (nPiscinas != 0) System.out.printf("  - %d piscina(s)\n", nPiscinas);
+        if (nPistas != 0)   System.out.printf("  - %d pistas(s) de deporte\n", nPistas);
+        // @formatter:on
     }
 }
