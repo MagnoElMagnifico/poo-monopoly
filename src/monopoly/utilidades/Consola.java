@@ -1,5 +1,8 @@
 package monopoly.utilidades;
 
+import java.util.Iterator;
+import java.util.function.Function;
+
 /**
  * Clase de ayuda para imprimir por Consola con colores y diferentes formatos.
  *
@@ -77,6 +80,47 @@ public class Consola {
         }
 
         return resultado.toString();
+    }
+
+    /**
+     * Función que permite listar en una línea una colección de elementos.
+     * <p>
+     * Por ejemplo:
+     * <pre>
+     *     // jugadores.Jugador.toString()
+     *     Consola.listar(propiedades, (p) -> p.getNombre());
+     * </pre>
+     * Devuelve <pre>[Varsovia, Roma, Madrid]</pre>.
+     *
+     * @param elementos Lista con los elementos a mostrar
+     * @param funcion   Función lambda especial que toma un elemento de
+     *                  la colección <pre>elementos</pre> y devuelve su
+     *                  representación String que aparecerá en el resultado.
+     * @return String con la lista de los elementos en una sola línea
+     */
+    public static <T> String listar(Iterator<T> elementos, Function<T, String> funcion) {
+        StringBuilder lista = new StringBuilder();
+        lista.append('[');
+
+        boolean primero = true;
+        while (elementos.hasNext()) {
+            String elemento = funcion.apply(elementos.next());
+
+            if (elemento == null) {
+                continue;
+            }
+
+            if (primero) {
+                primero = false;
+            } else {
+                lista.append(", ");
+            }
+
+            lista.append(elemento);
+        }
+
+        lista.append(']');
+        return lista.toString();
     }
 
     /**

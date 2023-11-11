@@ -72,7 +72,7 @@ public class Lector {
      * @param path Dirección del achivo a leer.
      * @return La lista de casillas contenida en el archivo
      */
-    public static ArrayList<Casilla> leerCasillas(String path) {
+    public static Tablero leerCasillas(String path) {
         Scanner scanner = abrirArchivo(path);
 
         // Hay 8 grupos de solares, 1 de transporte,
@@ -125,7 +125,7 @@ public class Lector {
         }
 
         scanner.close();
-        return casillas;
+        return new Tablero(casillas, grupos);
     }
 
     /**
@@ -154,10 +154,10 @@ public class Lector {
             }
 
             switch (campos[0]) {
-                case "C" -> {
-                    cartaComunidad.add(new Carta(tablero, Integer.parseInt(campos[1]), TipoCarta.Comunidad, campos[2]));
-                }
-                case "S" -> cartaSuerte.add(new Carta(tablero, Integer.parseInt(campos[1]), TipoCarta.Suerte, campos[2]));
+                case "C" ->
+                        cartaComunidad.add(new Carta(tablero, Integer.parseInt(campos[1]), TipoCarta.Comunidad, campos[2]));
+                case "S" ->
+                        cartaSuerte.add(new Carta(tablero, Integer.parseInt(campos[1]), TipoCarta.Suerte, campos[2]));
                 default -> {
                     Consola.error("[FATAL] ArchivoCartas línea %d: \"%s\" tipo de carta desconocido".formatted(nLinea, campos[0]));
                     System.exit(1);
