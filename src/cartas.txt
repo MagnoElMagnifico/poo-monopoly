@@ -1,12 +1,15 @@
-S: 1: Vendes tu billete de avión para Terrassa en una subasta por Internet. Cobra 500 000 €
-S: 2: ¡Has ganado el bote de la lotería! Recibe 1 000 000 €.
-S: 3: Paga 1 500 000 € por la matrícula del colegio privado
-S: 4: El aumento del impuesto sobre bienes inmuebles afecta a todas tus propiedades. Paga 400 000 € por casa, 1 150 000 € por hotel, 200 000€ por piscina y 750 000 € por pista de deportes.
-S: 5: Has sido elegido presidente de la junta directiva. Paga a cada jugador 250 000 €.
-S: 6: Te multan por usar el móvil mientras conduces. Paga 150 000 €.
-C: 1: Paga 500 000 € por un fin de semana en un balneario de 5 estrellas
-C: 2: Tu compañía de Internet obtiene beneficios. Recibe 2 000 000 €
-C: 3: Paga 1 000 000 € por invitar a todos tus amigos a un viaje a León.
-C: 4: Devolución de Hacienda. Cobra 500 000 €.
-C: 5: Alquilas a tus compañeros una villa en Cannes durante una semana. Paga 200 000 € a cada jugador.
-C: 6: Recibe 1 000 000 € de beneficios por alquilar los servicios de tu jet privado.
+# Los números se corresponden con el PDF de la especificación
+
+S: 3: Vendes tu billete de avión para Hamburgo en una subasta por Internet. Cobra 500 000 €.
+S: 6: ¡Has ganado el bote de la lotería! Recibe 1 000 000 €.
+S: 7: Paga 1 500 000 € por una matrícula en un colegio privado.
+S: 8: El aumento del impuesto sobre bienes inmuebles afecta a todas tus propiedades. Paga 400 000 € por casa, 1 150 000 € por hotel, 200 000 € por piscina y 750 000 € por pista de deportes.
+S:10: Has sido elegido presidente de la junta directiva. Paga a cada jugador 250 000 €.
+S:12: Te multan por usar el móvil mientras conduces. Paga 150 000 €.
+
+C: 1: Paga 500 000 € por un fin de semana en un balneario de 5 estrellas.
+C: 4: Tu compañía de Internet obtiene beneficios. Recibe 2 000 000 €.
+C: 5: Paga 1 000 000 € por invitar a todos tus amigos a un viaje a Marsella.
+C: 6: Devolución de Hacienda. Cobra 500 000 €.
+C: 8: Alquilas a tus compañeros una villa en Madrid durante una semana. Paga 200 000 € a cada jugador.
+C: 9: Recibe 1 000 000 € de beneficios por alquilar los servicios de tu jet privado.

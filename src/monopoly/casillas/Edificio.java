@@ -16,13 +16,18 @@ import monopoly.utilidades.Consola;
  * @see Propiedad
  */
 public class Edificio {
+    /**
+     * Permite generar IDs para edificios de forma que nunca se repitan
+     */
+    private static int ultimoId = 1;
+
     private final int id;
     private final TipoEdificio tipo;
     private final long valor;
     private final Propiedad solar;
 
-    public Edificio(int id, TipoEdificio tipo, Propiedad solar) {
-        this.id = id;
+    public Edificio(TipoEdificio tipo, Propiedad solar) {
+        this.id = ultimoId++;
         this.tipo = tipo;
         this.solar = solar;
         this.valor = Calculadora.calcularPrecio(this);
@@ -30,6 +35,7 @@ public class Edificio {
 
     @Override
     public String toString() {
+        // @formatter:off
         return """
                 {
                     id: %s
@@ -37,7 +43,21 @@ public class Edificio {
                     casilla: %s
                     grupo: %s
                     valor: %s
-                }""".formatted(getNombreFmt(), solar.getPropietario().getNombre(), solar.getCasilla().getNombre(), solar.getCasilla().getGrupo().getNombre(), valor);
+                }""".formatted(getNombreFmt(),
+                               solar.getPropietario().getNombre(),
+                               solar.getCasilla().getNombre(),
+                               solar.getCasilla().getGrupo().getNombre(),
+                               Consola.num(valor));
+        // @formatter:on
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        return obj instanceof Edificio && ((Edificio) obj).id == this.id;
     }
 
     public String getNombreFmt() {

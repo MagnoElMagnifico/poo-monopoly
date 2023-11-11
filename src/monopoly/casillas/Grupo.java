@@ -3,7 +3,6 @@ package monopoly.casillas;
 import monopoly.utilidades.Consola;
 
 import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  * Representa un grupo lógico de casillas.
@@ -37,26 +36,52 @@ public class Grupo {
 
     @Override
     public String toString() {
-        StringBuilder casillasStr = new StringBuilder();
-
-        Iterator<Casilla> iter = casillas.iterator();
-        casillasStr.append('[');
-
-        while (iter.hasNext()) {
-            casillasStr.append(iter.next().getNombre());
-
-            if (iter.hasNext()) {
-                casillasStr.append(", ");
-            }
-        }
-        casillasStr.append(']');
-
         return """
                 {
                     nombre: %s
                     número: %d
                     casillas: %s
-                }""".formatted(Consola.fmt(nombre, codigoColor), numero, casillasStr);
+                }""".formatted(Consola.fmt(nombre, codigoColor), numero, Consola.listar(casillas.iterator(), Casilla::getNombre));
+    }
+
+    public void listarEdificios() {
+        for (Casilla c : casillas) {
+            if (c.isPropiedad()) {
+                Propiedad p = c.getPropiedad();
+
+                System.out.printf("""
+                                {
+                                    propiedad: %s
+                                    casas: %s
+                                    hoteles: %s
+                                    piscinas: %s
+                                    pistas de deporte: %s
+                                    alquiler: %s
+                                }
+                                """, p.getNombre(),
+                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Casa ? e.getNombreFmt() : null),
+                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Hotel ? e.getNombreFmt() : null),
+                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Piscina ? e.getNombreFmt() : null),
+                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.PistaDeporte ? e.getNombreFmt() : null),
+                        Consola.num(p.getAlquiler()));
+            }
+        }
+    }
+
+    public int contarEdificios(Edificio.TipoEdificio tipo) {
+        int numero = 0;
+
+        for (Casilla c : casillas) {
+            if (c.isPropiedad()) {
+                for (Edificio e : c.getPropiedad().getEdificios()) {
+                    if (e.getTipo() == tipo) {
+                        numero++;
+                    }
+                }
+            }
+        }
+
+        return numero;
     }
 
     @Override
