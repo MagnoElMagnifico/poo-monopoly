@@ -160,7 +160,10 @@ public class Tablero {
             Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientos()));
             return;
         }
-
+        if(jugadorTurno.isEndeudado()){
+            Consola.error("El jugador %s está enduedado paga la deuda o declárate en bancarrota".formatted(jugadorTurno.getNombre()));
+            return;
+        }
 
         avatarTurno.resetDoblesSeguidos();
         avatarTurno.resetLanzamientos();
@@ -383,6 +386,13 @@ public class Tablero {
         if(j.setBancarrota(banca)){
             System.out.printf("El jugador: %s se declara en bancarrota\n%n", Consola.fmt(j.getNombre(),Color.Azul));
             jugadores.remove(j);
+            turno--;
+            if(turno<0) turno= jugadores.size()-1;
+        }
+        if(jugadores.size()==1){
+            j=jugadores.get(0);
+            System.out.println(Consola.fmt("Felicidades %s, has ganado la partida".formatted(j.getNombre()),Color.Amarillo));
+            jugando=false;
         }
     }
 }
