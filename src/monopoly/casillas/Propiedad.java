@@ -27,6 +27,7 @@ public class Propiedad {
     private final ArrayList<Edificio> edificios;
     private long precio;
     private long alquiler;
+    private boolean hipotecada;
     private Jugador propietario;
 
     /**
@@ -42,6 +43,7 @@ public class Propiedad {
         this.propietario = null;
         this.precio = -1;   // Marcar como todavía no establecido
         this.alquiler = -1; // Marcar como todavía no establecido
+        this.hipotecada = false;
 
         if (tipo == TipoPropiedad.Solar) {
             this.edificios = new ArrayList<>();
@@ -203,6 +205,14 @@ public class Propiedad {
         }
 
         return edificios;
+    }
+
+    public boolean isHipotecada() {
+        return hipotecada;
+    }
+
+    public void setHipotecada(boolean hipotecada) {
+        this.hipotecada = hipotecada;
     }
 
     /**

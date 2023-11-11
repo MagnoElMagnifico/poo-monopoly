@@ -27,6 +27,7 @@ public class Jugador {
     private final HashSet<Propiedad> propiedades;
     private long fortuna;
     private long gastos;
+    private boolean bancarrota;
 
     /**
      * Crea el jugador especial Banca
@@ -38,6 +39,7 @@ public class Jugador {
         this.fortuna = 0;
         this.gastos = 0;
         this.propiedades = new HashSet<>(28);
+        this.bancarrota = false;
     }
 
     /**
@@ -393,7 +395,7 @@ public class Jugador {
      * al dueño de la casilla en donde se encuentra
      */
     public void pagarAlquiler(Propiedad p, Dado dado) {
-        if (p.getPropietario().isBanca() || p.getPropietario().equals(this)) {
+        if (p.getPropietario().isBanca() || p.getPropietario().equals(this) || p.isHipotecada()) {
             return;
         }
 
@@ -431,12 +433,45 @@ public class Jugador {
      * Ingresa una cantidad de dinero al jugador
      */
     public void ingresar(long cantidad) {
-        if (cantidad <= 0) {
+        if (cantidad < 0) {
             Consola.error("[Jugador] No se puede ingresar una cantidad negativa o nula");
             return;
         }
 
         fortuna += cantidad;
+    }
+
+    public void hipotecar(Propiedad propiedad) {
+        if (propiedad.isHipotecada()) {
+            Consola.error("No se puede hipotecar, ya está hipotecada");
+            return;
+        }
+
+        propiedad.setHipotecada(true);
+        long cantidad = Calculadora.calcularHipoteca(propiedad);
+        fortuna += cantidad;
+        System.out.printf("Se ha hipotecado %s por %s\n%n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
+    }
+
+    public void deshipotecar(Propiedad propiedad) {
+        if (!propiedad.isHipotecada()) {
+            Consola.error("No se puede deshipotecar, no está hipotecada");
+            return;
+        }
+        long cantidad = Calculadora.calcularHipoteca(propiedad);
+        propiedad.setHipotecada(false);
+        fortuna -= cantidad;
+        gastos += cantidad;
+        System.out.printf("Se ha deshipotecado %s por %s\n%n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
+    }
+
+    public boolean setBancaRota() {
+        if (bancarrota) {
+            Consola.error("Ya estas en BancaRota");
+            return false;
+        }
+        bancarrota = true;
+        return true;
     }
 
     public boolean isBanca() {

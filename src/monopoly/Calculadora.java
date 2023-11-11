@@ -136,6 +136,10 @@ public class Calculadora {
         // @formatter:on
     }
 
+    public static long calcularHipoteca(Propiedad propiedad) {
+        return propiedad.getPrecio() / 2;
+    }
+
     /**
      * Asigna los precios y otros atributos a cada casilla según su tipo.
      * <p>

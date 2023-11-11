@@ -224,7 +224,7 @@ public class Tablero {
         }
 
         if (!j.getAvatar().isPuedeComprar()) {
-            // TODO: pero por qué no se puede comprar?
+            // TODO: pero por qué no se puede comprar? Explicar esto mejor
             Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
             return;
         }
@@ -275,6 +275,34 @@ public class Tablero {
 
         if (getJugadorTurno().vender(tipoEdificio, solar, cantidad)) {
             getJugadorTurno().describirTransaccion();
+        }
+    }
+
+    public void hipotecar(String nombre) {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
+        Jugador j = getJugadorTurno();
+        for (Casilla c : casillas) {
+            if (c.getNombre().equalsIgnoreCase(nombre) && c.isPropiedad()) {
+                j.hipotecar(c.getPropiedad());
+            }
+        }
+    }
+
+    public void deshipotecar(String nombre) {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
+        Jugador j = getJugadorTurno();
+        for (Casilla c : casillas) {
+            if (c.getNombre().equalsIgnoreCase(nombre) && c.isPropiedad()) {
+                j.deshipotecar(c.getPropiedad());
+            }
         }
     }
 
@@ -346,6 +374,11 @@ public class Tablero {
         for (Jugador jugador : jugadores) {
             System.out.println(jugador.getAvatar());
         }
+    }
+
+    public void bancarrota() {
+        Jugador j = getJugadorTurno();
+        // TODO
     }
 
     /**

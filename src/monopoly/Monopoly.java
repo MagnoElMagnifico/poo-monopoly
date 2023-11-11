@@ -142,6 +142,7 @@ public class Monopoly {
             case "lanzar", "lanzar dados",
                  "siguiente", "sig", "next"   -> tablero.moverAvatar(new Dado()); // TODO?: que el comando next pase un dado null
             case "acabar turno", "fin", "end" -> tablero.acabarTurno();
+            case "banca rota" -> tablero.bancarrota();
 
             default -> this.cmdConArgumentos(cmdNorm);
         }
@@ -158,15 +159,17 @@ public class Monopoly {
         // @formatter:off
         String[] args = cmd.split(" ");
         switch (args[0]) {
-            case "crear"     -> cmdCrear(args);
-            case "comprar"   -> cmdComprar(args);
-            case "describir" -> cmdDescribir(args);
-            case "mover"     -> cmdMover(args);
-            case "exec"      -> cmdExec(args);
-            case "edificar"  -> cmdEdificar(args);
-            case "vender"    -> cmdVender(args);
-            case "listar"    -> cmdListar(args);
-            default          -> Consola.error("\"%s\": Comando no válido".formatted(args[0]));
+            case "crear"        -> cmdCrear(args);
+            case "comprar"      -> cmdComprar(args);
+            case "describir"    -> cmdDescribir(args);
+            case "mover"        -> cmdMover(args);
+            case "exec"         -> cmdExec(args);
+            case "edificar"     -> cmdEdificar(args);
+            case "hipotecar",
+                 "deshipotecar" -> cmdHipoteca(args);
+            case "vender"       -> cmdVender(args);
+            case "listar"       -> cmdListar(args);
+            default             -> Consola.error("\"%s\": Comando no válido".formatted(args[0]));
         }
         // @formatter:on
     }
@@ -358,5 +361,14 @@ public class Monopoly {
         }
 
         Consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d.".formatted(args.length - 1));
+    }
+
+    private void cmdHipoteca(String[] args) {
+        if (args.length != 2) {
+            Consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length - 1));
+            return;
+        }
+        if (args[0].equals("hipotecar")) tablero.hipotecar(args[1]);
+        else tablero.deshipotecar(args[1]);
     }
 }
