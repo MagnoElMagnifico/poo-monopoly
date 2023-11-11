@@ -378,8 +378,12 @@ public class Tablero {
     }
 
 
-    public void bancaRota() {
+    public void bancarrota() {
         Jugador j= getJugadorTurno();
+        if(j.setBancarrota(banca)){
+            System.out.printf("El jugador: %s se declara en bancarrota\n%n", Consola.fmt(j.getNombre(),Color.Azul));
+            jugadores.remove(j);
+        }
     }
 }
 

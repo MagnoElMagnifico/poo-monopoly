@@ -139,7 +139,7 @@ public class Monopoly {
             case "cambiar modo"               -> tablero.cambiarModo();
             case "lanzar", "lanzar dados", "siguiente", "sig"-> tablero.moverAvatar(new Dado());
             case "acabar turno", "fin", "end" -> tablero.acabarTurno();
-            case "banca rota" -> tablero.bancaRota();
+            case "bancarrota" -> tablero.bancarrota();
 
             default -> this.cmdConArgumentos(cmdNorm);
         }
@@ -162,8 +162,7 @@ public class Monopoly {
             case "mover"     -> cmdMover(args);
             case "exec"      -> cmdExec(args);
             case "edificar"  -> cmdEdificar(args);
-            case "hipotecar" -> cmdHipoteca(args);
-            case  "deshipotecar"-> cmdHipoteca(args);
+            case "hipotecar","deshipotecar" -> cmdHipoteca(args);
             default          -> Consola.error("\"%s\": Comando no válido".formatted(args[0]));
         }
         // @formatter:on

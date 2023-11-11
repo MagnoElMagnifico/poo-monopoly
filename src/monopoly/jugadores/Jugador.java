@@ -28,7 +28,11 @@ public class Jugador {
     private final ArrayList<Edificio> edificios;
     private long fortuna;
     private long gastos;
-    private boolean bancaRota;
+    private boolean endeudado;
+    private long cantidadDeuda;
+    private Jugador jug;
+    private boolean bancarrota;
+
 
     /**
      * Crea el jugador especial Banca
@@ -41,7 +45,10 @@ public class Jugador {
         this.gastos = 0;
         this.propiedades = new HashSet<>(28);
         this.edificios = null;
-        this.bancaRota=false;
+        this.bancarrota=false;
+        this.jug =null;
+        this.endeudado=false;
+        this.cantidadDeuda=0;
     }
 
     /**
@@ -55,6 +62,10 @@ public class Jugador {
         this.gastos = 0;
         this.propiedades = new HashSet<>();
         this.edificios = new ArrayList<>();
+        this.bancarrota=false;
+        this.jug =null;
+        this.endeudado=false;
+        this.cantidadDeuda=0;
     }
 
     /**
@@ -162,6 +173,8 @@ public class Jugador {
 
         // Comprobar que el jugador tiene fortuna suficiente
         if (!cobrar(p.getPrecio())) {
+            cantidadDeuda=0;
+            endeudado=false;
             Consola.error("%s no dispone de suficiente dinero para comprar %s"
                     .formatted(nombre, p.getCasilla().getNombreFmt()));
             return false;
@@ -226,6 +239,7 @@ public class Jugador {
         };
 
         if (!cobrar(importe)) {
+            jug=p.getPropietario();
             Consola.error("El jugador no tiene suficientes fondos para pagar el alquiler");
             return;
         }
@@ -238,10 +252,14 @@ public class Jugador {
      * Cobra al jugador una cantidad de dinero
      */
     public boolean cobrar(long cantidad) {
-        if (cantidad <= 0 && cantidad > fortuna) {
+        if (cantidad <= 0 ) {
             return false;
         }
-
+        if (cantidad > fortuna) {
+            endeudado=true;
+            cantidadDeuda=cantidad;
+            return false;
+        }
         fortuna -= cantidad;
         gastos += cantidad;
         return true;
@@ -283,12 +301,34 @@ public class Jugador {
         System.out.printf("Se ha deshipotecado %s por %s\n%n", propiedad.getCasilla().getNombreFmt(),Consola.num(cantidad));
     }
 
-    public boolean setBancaRota(){
-        if(bancaRota){
+    public boolean setBancarrota(Jugador banca){
+        if(bancarrota){
             Consola.error("Ya estas en BancaRota");
             return false;
         }
-        bancaRota=true;
+        bancarrota=true;
+        if(jug==null){
+            Iterator<Propiedad> iter = propiedades.iterator();
+
+            while (iter.hasNext()) {
+                 Propiedad c = iter.next();
+                 c.setPropietario(banca);
+                 c.setHipotecada(false);
+                 propiedades.remove(c);
+                 banca.anadirPropiedad(c);
+            }
+        }
+        else {
+            Iterator<Propiedad> iter = propiedades.iterator();
+
+            while (iter.hasNext()) {
+                Propiedad c = iter.next();
+                c.setPropietario(jug);
+                c.setHipotecada(false);
+                propiedades.remove(c);
+                jug.anadirPropiedad(c);
+            }
+        }
         return true;
     }
 
@@ -322,5 +362,9 @@ public class Jugador {
 
     public void quitarPropiedad(Propiedad p) {
         propiedades.remove(p);
+    }
+
+    public boolean isEndeudado() {
+        return endeudado;
     }
 }
