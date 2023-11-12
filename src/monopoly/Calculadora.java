@@ -126,6 +126,16 @@ public class Calculadora {
      * Calcula y devuelve el precio de edificar un edificio en la propiedad dada
      */
     public static long calcularPrecio(Edificio e) {
+        /*
+         * TODO: según el ejemplo del CV, el alquiler del solar que se usa para el
+         * cálculo de los edificios no es 2*precio si el jugador tiene el monopolio
+         *
+         *  - Alugueiro do solar: (10% de 10,000)*2 = 2,000€
+         *  - Alugueiro do hotel: 70*(10% de 10,000) = 70,000€
+         *  - Alugueiro das casas: 15*(10% de 10,000) = 15,000€
+         *  - Alugueiro da piscina: 25*(10% de 10,000) = 25,000€
+         *  - TOTAL: 2,000+70,000+15,000+25,000=112,000€
+         */
         long precioSolar = e.getSolar().getPrecio();
         // @formatter:off
         return switch (e.getTipo()) {

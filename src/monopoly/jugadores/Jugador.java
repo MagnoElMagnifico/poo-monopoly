@@ -193,6 +193,20 @@ public class Jugador {
      * Comprueba las restricciones de construcción
      */
     private boolean edificable(Propiedad solar, Edificio.TipoEdificio tipo, int cantidad) {
+        /*
+         * TODO: WTF es esto
+         *
+         * En el CV: Limitación da venta de edificios
+         *
+         * Nesta entrega a construción de edificios ten unha serie de límites e restricións.
+         * Por exemplo, para construír unha piscina nun solar hai que ter, canto menos, un
+         * hotel e unha casa nese solar. É posible que ese requisito de edificación se "rompa"
+         * despois dunha venta. Por exemplo, se o xogador só contase cun hotel nese solar e
+         * decide vendelo despois de construír a piscina. Esta situación estará permitida no xogo.
+         *
+         * Polo tanto, só será preciso impoñer límites e restricións no momento da edificación,
+         * **pero a venta de edificios será libre, sen restricións**.
+         */
         Grupo grupo = solar.getCasilla().getGrupo();
         final int maxEdificios = grupo.getNumeroCasillas();
 
