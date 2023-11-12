@@ -5,7 +5,6 @@ import monopoly.casillas.Casilla;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Consola.Color;
 import monopoly.utilidades.Dado;
-
 import java.util.ArrayList;
 
 /**
@@ -28,14 +27,15 @@ public class Avatar {
     // Estado
     private boolean encerrado;
     private boolean movimientoEspecial;
-    private boolean pelotaMovimiento;
-    private boolean puedeComprar;
-    private int dadoEspera;
+    private boolean pelotaMovimiento;  /*Solo para la pelota se comprueba si esta en movimento*/
+    private boolean puedeComprar; /* Solo para el coche no permite permite comprar solo una vez*/
+    private int casillasRestantes; /*Solo para la pelota almacena el dado del turno*/
+    private Dado pelotaDado; /*Solo pafra la pelota guarda el dado */
     private int doblesSeguidos;
     private int estanciasCarcel;
     private int lanzamientos;
-    private int lanzamientosEspeciales;
-    private int penalizacion;
+    private int lanzamientosEspeciales; /*Solo para el coche alamcena los movimentos que quedan en modo especial*/
+    private int penalizacion; /*Solo para el coche penalizacion si saca menos de 4 */
     private int vueltas;
     // @formatter:on
 
@@ -56,13 +56,14 @@ public class Avatar {
         this.pelotaMovimiento = false;
         this.puedeComprar = true;
 
-        this.dadoEspera = 0;
+        this.casillasRestantes = 0;
         this.doblesSeguidos = 0;
         this.estanciasCarcel = 0;
         this.lanzamientos = 1;
         this.lanzamientosEspeciales = 0;
         this.penalizacion = 0;
         this.vueltas = 0;
+        this.pelotaDado=null;
     }
 
     @Override
@@ -155,13 +156,24 @@ public class Avatar {
         // Añadir la nueva casilla al historial
         historialCasillas.add(nuevaCasilla);
 
-        // Mostrar información
-        System.out.printf("%s con avatar %s, avanza %s posiciones.\nAvanza desde %s hasta %s.\n",
-                Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
-                Consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
-                dado,
-                anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
 
+        // Mostrar informacion de la lepota si estáen movimiento especial
+        if(movimientoEspecial && tipo==TipoAvatar.Pelota && pelotaDado !=null){
+            System.out.printf("%s con avatar %s, avanza %s posiciones. Quedan %s\nAvanza desde %s hasta %s.\n",
+                    Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                    Consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
+                    pelotaDado, Consola.num(casillasRestantes),
+                    anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
+            if(casillasRestantes==0) pelotaDado=null;
+        }
+        else{
+            // Mostrar información
+            System.out.printf("%s con avatar %s, avanza %s posiciones.\nAvanza desde %s hasta %s.\n",
+                    Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                    Consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
+                    dado,
+                    anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
+        }
         // Aumentar los precios en caso de que el avatar pasase por la salida
         Calculadora.aumentarPrecio(casillas, jugadores);
 
@@ -263,27 +275,21 @@ public class Avatar {
     }
 
     private int moverEspecialCoche(Dado dado, int nCasillas) {
+        // Primera tirada
         if (lanzamientos == 0) {
             lanzamientos = 2;
             lanzamientosEspeciales = 4;
         }
-
+        // Lanzamos el error de que no quedan lanzamientos
         if (lanzamientosEspeciales == 0) {
             Consola.error("No quedan lanzamientos. El jugador debe terminar el turno");
             return -1;
         }
 
+        // 4 tiradas especiales
         lanzamientosEspeciales--;
-
-        if (dado.getValor() < 4) {
-            lanzamientosEspeciales = 0;
-            penalizacion = 2;
-            lanzamientos = 0;
-            return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
-        }
-
         lanzamientos++;
-
+        // Ultima(s) tirada con comportamiento normal
         if (lanzamientosEspeciales == 0) {
             lanzamientos = 0;
             if (dado.isDoble()) {
@@ -300,12 +306,19 @@ public class Avatar {
                     irCarcel();
                     return -1;
                 }
+                System.out.println("Dados dobles! El jugador puede tirar otra vez");
                 lanzamientosEspeciales++;
                 lanzamientos++;
             }
             return this.casilla.getPosicion() + dado.getValor();
         }
-
+        //Condicion para romper el coche penalizacion
+        if (dado.getValor() < 4) {
+            lanzamientosEspeciales = 0;
+            penalizacion = 2;
+            lanzamientos = 0;
+            return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
+        }
         return this.casilla.getPosicion() + dado.getValor();
     }
 
@@ -320,29 +333,74 @@ public class Avatar {
     }
 
     private int moverEspecialPelota(Dado dado, int nCasillas) {
+        // Comportamieto normal
         if (!pelotaMovimiento) {
             if (dado.getValor() <= 4) return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
             if (dado.getValor() == 5) return this.casilla.getPosicion() + dado.getValor();
         }
-
+        // Hay que mover más de una vez. 1º vez
         if (lanzamientos == 0) {
             lanzamientos = 2;
-            dadoEspera = dado.getValor() - 5;
+            pelotaDado=dado;
+            casillasRestantes = dado.getValor() - 5;
             pelotaMovimiento = true;
             return this.casilla.getPosicion() + 5;
         }
-
+        // Resto de veces
         if (pelotaMovimiento) {
-            if (dadoEspera <= 2) {
+
+            // Ultima vez
+            if (casillasRestantes <= 2) {
                 lanzamientos = 0;
+                int i =casillasRestantes;
+                casillasRestantes=0;
                 pelotaMovimiento = false;
-                return this.casilla.getPosicion() + dadoEspera;
+                if (pelotaDado.isDoble()) {
+                    lanzamientos++;
+                    doblesSeguidos++;
+                    if (doblesSeguidos >= 3) {
+                        System.out.printf("""
+                                        %s con avatar %s ha sacado %s.
+                                        Ya son 3 veces seguidas sacando dados dobles.
+                                        %s es arrestado por tener tanta suerte.
+                                        """,
+                                Consola.fmt(jugador.getNombre(), Color.Azul),
+                                Consola.fmt(Character.toString(id), Color.Azul),
+                                dado, jugador.getNombre());
+                        irCarcel();
+                        return -1;
+                    }
+                    System.out.println("Dados dobles! El jugador puede tirar otra vez");
+                }
+                return this.casilla.getPosicion() + i;
             }
+            // Resto de veces
+            casillasRestantes -= 2;
             lanzamientos++;
-            dadoEspera -= 2;
+            if(casillasRestantes==0){
+                pelotaMovimiento=false;
+                lanzamientos=0;
+                if (pelotaDado.isDoble()) {
+                    lanzamientos++;
+                    doblesSeguidos++;
+                    if (doblesSeguidos >= 3) {
+                        System.out.printf("""
+                                        %s con avatar %s ha sacado %s.
+                                        Ya son 3 veces seguidas sacando dados dobles.
+                                        %s es arrestado por tener tanta suerte.
+                                        """,
+                                Consola.fmt(jugador.getNombre(), Color.Azul),
+                                Consola.fmt(Character.toString(id), Color.Azul),
+                                dado, jugador.getNombre());
+                        irCarcel();
+                        return -1;
+                    }
+                    System.out.println("Dados dobles! El jugador puede tirar otra vez");
+                }
+            }
             return this.casilla.getPosicion() + 2;
         }
-
+         // Salio algo mal
         return -1;
     }
 
@@ -367,6 +425,10 @@ public class Avatar {
     }
 
     public void cambiarModo() {
+        if (lanzamientos >=2){
+            Consola.error("No puedes cambiar de modo en mitad de un movimiento");
+            return;
+        }
         if (movimientoEspecial) {
             movimientoEspecial = false;
             System.out.printf("%s regresa al modo de movimiento básico\n", Consola.fmt(jugador.getNombre(), Consola.Color.Azul));

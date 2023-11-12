@@ -162,7 +162,10 @@ public class Tablero {
             Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientos()));
             return;
         }
-
+        if(jugadorTurno.getAvatar().getTipo()== Avatar.TipoAvatar.Pelota && jugadorTurno.getAvatar().getLanzamientos() > 0){
+            Consola.error("Al jugador %s le quedan  tiros".formatted(jugadorTurno.getNombre()));
+            return;
+        }
         if(jugadorTurno.isEndeudado()){
             Consola.error("El jugador %s está enduedado paga la deuda o declárate en bancarrota".formatted(jugadorTurno.getNombre()));
             return;

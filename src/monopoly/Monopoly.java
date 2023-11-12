@@ -122,7 +122,7 @@ public class Monopoly {
         // @formatter:off
         switch (cmdNorm) {
             // Comandos de manejo del juego
-            case "salir", "quit"    -> System.exit(0);
+            case "salir", "quit", "exit"    -> System.exit(0);
             case "ayuda", "help"    -> System.out.print(msgAyuda);
             case "iniciar", "start" -> tablero.iniciar();
 

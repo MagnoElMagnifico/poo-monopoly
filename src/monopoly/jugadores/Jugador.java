@@ -30,7 +30,7 @@ public class Jugador {
     private long gastos;
     private boolean endeudado;
     private long cantidadDeuda;
-    private Jugador jug;
+    private Jugador jug; /* Solo par al deuda jugador a quien le debes dinero*/
     private boolean bancarrota;
 
 
@@ -445,6 +445,7 @@ public class Jugador {
         if (cantidad > fortuna) {
             endeudado = true;
             cantidadDeuda = cantidad;
+            return false;
         }
         fortuna -= cantidad;
         gastos += cantidad;
@@ -480,7 +481,7 @@ public class Jugador {
             Consola.error("No se puede deshipotecar, no está hipotecada");
             return;
         }
-        long cantidad = Calculadora.calcularHipoteca(propiedad);
+        long cantidad = Calculadora.calculardeshipoteca(propiedad);
         propiedad.setHipotecada(false);
         fortuna -= cantidad;
         gastos += cantidad;
