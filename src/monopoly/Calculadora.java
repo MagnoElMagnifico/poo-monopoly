@@ -141,7 +141,7 @@ public class Calculadora {
     }
 
     public static long calculardeshipoteca(Propiedad propiedad) {
-        return (long) (calcularHipoteca(propiedad)*1.1);
+        return (long) (calcularHipoteca(propiedad) * 1.1);
     }
 
     /**

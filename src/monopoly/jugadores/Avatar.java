@@ -5,6 +5,7 @@ import monopoly.casillas.Casilla;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Consola.Color;
 import monopoly.utilidades.Dado;
+
 import java.util.ArrayList;
 
 /**
@@ -63,7 +64,7 @@ public class Avatar {
         this.lanzamientosEspeciales = 0;
         this.penalizacion = 0;
         this.vueltas = 0;
-        this.pelotaDado=null;
+        this.pelotaDado = null;
     }
 
     @Override
@@ -158,15 +159,14 @@ public class Avatar {
 
 
         // Mostrar informacion de la lepota si estáen movimiento especial
-        if(movimientoEspecial && tipo==TipoAvatar.Pelota && pelotaDado !=null){
+        if (movimientoEspecial && tipo == TipoAvatar.Pelota && pelotaDado != null) {
             System.out.printf("%s con avatar %s, avanza %s posiciones. Quedan %s\nAvanza desde %s hasta %s.\n",
                     Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
                     Consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
                     pelotaDado, Consola.num(casillasRestantes),
                     anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
-            if(casillasRestantes==0) pelotaDado=null;
-        }
-        else{
+            if (casillasRestantes == 0) pelotaDado = null;
+        } else {
             // Mostrar información
             System.out.printf("%s con avatar %s, avanza %s posiciones.\nAvanza desde %s hasta %s.\n",
                     Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
@@ -341,7 +341,7 @@ public class Avatar {
         // Hay que mover más de una vez. 1º vez
         if (lanzamientos == 0) {
             lanzamientos = 2;
-            pelotaDado=dado;
+            pelotaDado = dado;
             casillasRestantes = dado.getValor() - 5;
             pelotaMovimiento = true;
             return this.casilla.getPosicion() + 5;
@@ -352,8 +352,8 @@ public class Avatar {
             // Ultima vez
             if (casillasRestantes <= 2) {
                 lanzamientos = 0;
-                int i =casillasRestantes;
-                casillasRestantes=0;
+                int i = casillasRestantes;
+                casillasRestantes = 0;
                 pelotaMovimiento = false;
                 if (pelotaDado.isDoble()) {
                     lanzamientos++;
@@ -377,9 +377,9 @@ public class Avatar {
             // Resto de veces
             casillasRestantes -= 2;
             lanzamientos++;
-            if(casillasRestantes==0){
-                pelotaMovimiento=false;
-                lanzamientos=0;
+            if (casillasRestantes == 0) {
+                pelotaMovimiento = false;
+                lanzamientos = 0;
                 if (pelotaDado.isDoble()) {
                     lanzamientos++;
                     doblesSeguidos++;
@@ -400,7 +400,7 @@ public class Avatar {
             }
             return this.casilla.getPosicion() + 2;
         }
-         // Salio algo mal
+        // Salio algo mal
         return -1;
     }
 
@@ -425,7 +425,7 @@ public class Avatar {
     }
 
     public void cambiarModo() {
-        if (lanzamientos >=2){
+        if (lanzamientos >= 2) {
             Consola.error("No puedes cambiar de modo en mitad de un movimiento");
             return;
         }

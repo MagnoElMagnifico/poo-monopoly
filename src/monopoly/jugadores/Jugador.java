@@ -34,7 +34,6 @@ public class Jugador {
     private boolean bancarrota;
 
 
-
     /**
      * Crea el jugador especial Banca
      */
@@ -45,10 +44,10 @@ public class Jugador {
         this.fortuna = 0;
         this.gastos = 0;
         this.propiedades = new HashSet<>(28);
-        this.bancarrota=false;
-        this.jug =null;
-        this.endeudado=false;
-        this.cantidadDeuda=0;
+        this.bancarrota = false;
+        this.jug = null;
+        this.endeudado = false;
+        this.cantidadDeuda = 0;
 
     }
 
@@ -62,10 +61,10 @@ public class Jugador {
         this.fortuna = fortuna;
         this.gastos = 0;
         this.propiedades = new HashSet<>();
-        this.bancarrota=false;
-        this.jug =null;
-        this.endeudado=false;
-        this.cantidadDeuda=0;
+        this.bancarrota = false;
+        this.jug = null;
+        this.endeudado = false;
+        this.cantidadDeuda = 0;
     }
 
     private String listarEdificios() {
@@ -161,8 +160,8 @@ public class Jugador {
 
         // Comprobar que el jugador tiene fortuna suficiente
         if (!cobrar(p.getPrecio())) {
-            cantidadDeuda=0;
-            endeudado=false;
+            cantidadDeuda = 0;
+            endeudado = false;
             Consola.error("%s no dispone de suficiente dinero para comprar %s"
                     .formatted(nombre, p.getCasilla().getNombreFmt()));
             return false;
@@ -327,8 +326,8 @@ public class Jugador {
 
         // Comprobar que tiene el dinero
         if (!cobrar(cantidad * e.getValor())) {
-            endeudado=false;
-            cantidadDeuda=0;
+            endeudado = false;
+            cantidadDeuda = 0;
             Consola.error("El jugador no tiene los fondos suficientes para edificar.\nNecesita %s.".formatted(Consola.num(cantidad * e.getValor())));
             return false;
         }
@@ -423,7 +422,7 @@ public class Jugador {
         };
 
         if (!cobrar(importe)) {
-            jug=p.getPropietario();
+            jug = p.getPropietario();
             Consola.error("El jugador no tiene suficientes fondos para pagar el alquiler");
             return;
         }
@@ -439,7 +438,7 @@ public class Jugador {
      * @return True si la operación es correcta, false en otro caso
      */
     public boolean cobrar(long cantidad) {
-        if (cantidad <= 0 ) {
+        if (cantidad <= 0) {
             return false;
         }
         if (cantidad > fortuna) {
@@ -487,49 +486,48 @@ public class Jugador {
         gastos += cantidad;
         System.out.printf("Se ha deshipotecado %s por %s\n%n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
     }
+
     public void pagarDeuda(Jugador banca) {
         if (!endeudado) {
             Consola.error("El jugador %s no está endeudado.".formatted(nombre));
             return;
         }
-        if(jug==null){
-            if(cobrar(cantidadDeuda)) {
-                System.out.printf("El jugador %s ha pagado %s de deuda\n%n", Consola.fmt(nombre, Consola.Color.Azul),Consola.num(cantidadDeuda));
+        if (jug == null) {
+            if (cobrar(cantidadDeuda)) {
+                System.out.printf("El jugador %s ha pagado %s de deuda\n%n", Consola.fmt(nombre, Consola.Color.Azul), Consola.num(cantidadDeuda));
                 banca.ingresar(cantidadDeuda);
                 endeudado = false;
                 cantidadDeuda = 0;
             }
-        }
-        else {
-            if(cobrar(cantidadDeuda)){
+        } else {
+            if (cobrar(cantidadDeuda)) {
                 System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(cantidadDeuda), Consola.fmt(jug.getNombre(), Consola.Color.Azul));
                 jug.ingresar(cantidadDeuda);
-                endeudado=false;
-                jug=null;
-                cantidadDeuda=0;
+                endeudado = false;
+                jug = null;
+                cantidadDeuda = 0;
             }
         }
     }
 
-    public boolean setBancarrota(Jugador banca){
-        if(bancarrota){
+    public boolean setBancarrota(Jugador banca) {
+        if (bancarrota) {
             Consola.error("Ya estas en BancaRota");
             return false;
         }
-        bancarrota=true;
-        if(jug==null){
+        bancarrota = true;
+        if (jug == null) {
 
             Iterator<Propiedad> iter = propiedades.iterator();
 
             while (iter.hasNext()) {
-                 Propiedad c = iter.next();
-                 c.setPropietario(banca);
-                 c.setHipotecada(false);
-                 iter.remove();
-                 banca.anadirPropiedad(c);
+                Propiedad c = iter.next();
+                c.setPropietario(banca);
+                c.setHipotecada(false);
+                iter.remove();
+                banca.anadirPropiedad(c);
             }
-        }
-        else {
+        } else {
             Iterator<Propiedad> iter = propiedades.iterator();
 
             while (iter.hasNext()) {

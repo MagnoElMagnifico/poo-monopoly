@@ -134,7 +134,7 @@ public class Tablero {
             return;
         }
 
-        if(getJugadorTurno().isEndeudado()){
+        if (getJugadorTurno().isEndeudado()) {
             Consola.error("Estas endeudado paga la deuda o declárate en bancarrota");
             return;
         }
@@ -162,11 +162,11 @@ public class Tablero {
             Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientos()));
             return;
         }
-        if(jugadorTurno.getAvatar().getTipo()== Avatar.TipoAvatar.Pelota && jugadorTurno.getAvatar().getLanzamientos() > 0){
+        if (jugadorTurno.getAvatar().getTipo() == Avatar.TipoAvatar.Pelota && jugadorTurno.getAvatar().getLanzamientos() > 0) {
             Consola.error("Al jugador %s le quedan  tiros".formatted(jugadorTurno.getNombre()));
             return;
         }
-        if(jugadorTurno.isEndeudado()){
+        if (jugadorTurno.isEndeudado()) {
             Consola.error("El jugador %s está enduedado paga la deuda o declárate en bancarrota".formatted(jugadorTurno.getNombre()));
             return;
         }
@@ -323,14 +323,14 @@ public class Tablero {
 
     public void pagarDeuda() {
         Jugador j = getJugadorTurno();
-        Avatar a =j.getAvatar();
-        if(a.getCasilla().isPropiedad()){
+        Avatar a = j.getAvatar();
+        if (a.getCasilla().isPropiedad()) {
 
-        }
-        else {
+        } else {
             j.pagarDeuda(banca);
         }
     }
+
     @Override
     public String toString() {
         return PintorTablero.pintarTablero(this);
@@ -403,17 +403,17 @@ public class Tablero {
 
     public void bancarrota() {
 
-        Jugador j= getJugadorTurno();
-        if(j.setBancarrota(banca)){
-            System.out.printf("El jugador: %s se declara en bancarrota\n%n", Consola.fmt(j.getNombre(),Color.Azul));
+        Jugador j = getJugadorTurno();
+        if (j.setBancarrota(banca)) {
+            System.out.printf("El jugador: %s se declara en bancarrota\n%n", Consola.fmt(j.getNombre(), Color.Azul));
             jugadores.remove(j);
             turno--;
-            if(turno<0) turno= jugadores.size()-1;
+            if (turno < 0) turno = jugadores.size() - 1;
         }
-        if(jugadores.size()==1){
-            j=jugadores.get(0);
-            System.out.println(Consola.fmt("Felicidades %s, has ganado la partida".formatted(j.getNombre()),Color.Amarillo));
-            jugando=false;
+        if (jugadores.size() == 1) {
+            j = jugadores.get(0);
+            System.out.println(Consola.fmt("Felicidades %s, has ganado la partida".formatted(j.getNombre()), Color.Amarillo));
+            jugando = false;
         }
 
     }
