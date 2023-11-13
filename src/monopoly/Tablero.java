@@ -324,11 +324,7 @@ public class Tablero {
     public void pagarDeuda() {
         Jugador j = getJugadorTurno();
         Avatar a = j.getAvatar();
-        if (a.getCasilla().isPropiedad()) {
-
-        } else {
-            j.pagarDeuda(banca);
-        }
+        j.pagarDeuda(banca);
     }
 
     @Override
