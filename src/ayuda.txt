@@ -6,10 +6,11 @@ COMANDOS
     lanzar, lanzar dados          El jugador actual lanza 2 dados y mueve su avatar.
     acabar turno, fin, end        Termina el turno del jugador actual.
     salir carcel                  Saca el jugador actual de la cárcel pagando la fianza.
-    Bancarota                     Declara al jugador actual en bancarota.
-    salir, quit                   Cierra el programa.
+    Bancarrota                     Declara al jugador actual en bancarota.
+    salir, quit, exit             Cierra el programa.
     cambiar modo                  Cambia el modo del avatar del jugador con el turno.
-    siguiente, sig                Avanza las casillas necesarias en el modo especial del avatar tipo pelota.
+    siguiente, sig, next          Avanza las casillas necesarias en el modo especial del avatar tipo pelota.
+    pgar deuda                    Paga la deuda pendiente si tienes alguna.
 
 COMANDOS CON ARGUMENTOS
     crear jugador <nombre> <tipo>
@@ -38,11 +39,31 @@ COMANDOS CON ARGUMENTOS
 
           NOTA: solo se puede comprar la propiedad en la que está su avatar y si no
           tiene dueño.
+
     hipotecar <nombre-propiedad>
           Permite al jugador actual hipotecar una propiedad.
 
     deshipotecar <nombre-propiedad>
           Permite al jugador actual deshipotecar una propiedad.
+
+    edificar <tipo-edificio> <cantidad>
+          Permite al jugador edificar en la casilla actual.
+          Máximos de los edificios por grupo y condiciones de edificación:
+              Casa: 4* numero de solares, sin condición
+              Hotel: numero de solares, se necesitan 4 casas
+              Piscina: Numero de solares, se necesita 1 hotel y 2 casas
+              Pista: Numero de solares, se necesita 1 hotel y 2 casas
+
+          NOTA: solo se puede edifiar si tienes monopoly o has caido 2 veces en el
+          mismo solar.
+
+    vender <tipo-edificio> <nombre-propiedad> <cantidad>
+          Permite vender las edificaciones construidas en un solar.
+
+          NOTA: se puede vender cuando el jugador lo considere.
+
+    estadisticas  <nombre-jugador || "   "  >
+          Permite visualizar las estadisticas de un jugador o de la partida.
 
 
 
