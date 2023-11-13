@@ -6,11 +6,8 @@ import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar;
 import monopoly.jugadores.Jugador;
-import monopoly.utilidades.Consola;
+import monopoly.utilidades.*;
 import monopoly.utilidades.Consola.Color;
-import monopoly.utilidades.Dado;
-import monopoly.utilidades.Lector;
-import monopoly.utilidades.PintorTablero;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -139,34 +136,40 @@ public class Tablero {
             return;
         }
 
-
         // Muestra el tablero si se ha movido el avatar con éxito
         if (getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora)) {
             System.out.print(this);
         }
     }
 
-    public void moverAvatar(){
+    public void moverAvatar() {
         if (!jugando) {
             Consola.error("No se ha iniciado la partida");
             return;
         }
-        if(getJugadorTurno().getAvatar().getTipo()!=Avatar.TipoAvatar.Pelota){
+
+        Avatar avatarTurno = getJugadorTurno().getAvatar();
+
+        if (avatarTurno.getTipo() != Avatar.TipoAvatar.Pelota) {
             Consola.error("No puedes usar este comando no eres una pelota.");
             return;
         }
-        if(!getJugadorTurno().getAvatar().isMovimientoEspecial() || !getJugadorTurno().getAvatar().isPelotaMovimiento()){
+
+        if (!avatarTurno.isMovimientoEspecial() || !avatarTurno.isPelotaMovimiento()) {
             Consola.error("No puedes usar esto ahora vuelve más tarde.");
             return;
         }
+
         if (getJugadorTurno().isEndeudado()) {
             Consola.error("Estas endeudado paga la deuda o declárate en bancarrota");
             return;
         }
-        if (getJugadorTurno().getAvatar().mover(null, casillas, jugadores, calculadora)) {
+
+        if (avatarTurno.mover(null, casillas, jugadores, calculadora)) {
             System.out.print(this);
         }
     }
+
     /**
      * Termina el turno del jugador actual y calcula el siguiente
      */
@@ -179,19 +182,20 @@ public class Tablero {
         Jugador jugadorTurno = getJugadorTurno();
         Avatar avatarTurno = jugadorTurno.getAvatar();
 
-        if (jugadorTurno.getAvatar().getLanzamientos() > 0 && !jugadorTurno.getAvatar().isMovimientoEspecial()) {
-            Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientos()));
-            return;
-        }
-        if (jugadorTurno.getAvatar().getTipo() == Avatar.TipoAvatar.Pelota && jugadorTurno.getAvatar().getLanzamientos() > 0) {
-            Consola.error("Al jugador %s le quedan  tiros".formatted(jugadorTurno.getNombre()));
-            return;
-        }
-        if (jugadorTurno.isEndeudado()) {
-            Consola.error("El jugador %s está enduedado paga la deuda o declárate en bancarrota".formatted(jugadorTurno.getNombre()));
+        if (avatarTurno.getLanzamientosEnTurno() > 0 && !jugadorTurno.getAvatar().isMovimientoEspecial()) {
+            Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientosEnTurno()));
             return;
         }
 
+        if (avatarTurno.getTipo() == Avatar.TipoAvatar.Pelota && avatarTurno.getLanzamientosEnTurno() > 0) {
+            Consola.error("Al jugador %s le quedan  tiros".formatted(jugadorTurno.getNombre()));
+            return;
+        }
+
+        if (jugadorTurno.isEndeudado()) {
+            Consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota".formatted(jugadorTurno.getNombre()));
+            return;
+        }
 
         avatarTurno.resetDoblesSeguidos();
         avatarTurno.resetLanzamientos();
@@ -258,9 +262,9 @@ public class Tablero {
             Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
             return;
         }
+
         // Especifico para el coche que solo puede comprar una vez por turno en modo especial
         if (!j.getAvatar().isPuedeComprar()) {
-
             Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
             return;
         }
@@ -342,12 +346,6 @@ public class Tablero {
         }
     }
 
-    public void pagarDeuda() {
-        Jugador j = getJugadorTurno();
-        Avatar a = j.getAvatar();
-        j.pagarDeuda(banca);
-    }
-
     @Override
     public String toString() {
         return PintorTablero.pintarTablero(this);
@@ -372,6 +370,10 @@ public class Tablero {
      */
     public ArrayList<Jugador> getJugadores() {
         return jugadores;
+    }
+
+    public Jugador getBanca() {
+        return banca;
     }
 
     /**
@@ -479,9 +481,144 @@ public class Tablero {
 
         grupo.listarEdificios();
 
-        // TODO: información sobre los edificios aún edificables
+        // Mostrar cuantos edificios más se pueden construir
+        // @formatter:off
+        int nCasillas = grupo.getNumeroCasillas();
+        int nHoteles  = nCasillas - grupo.contarEdificios(Edificio.TipoEdificio.Hotel);
+        int nPiscinas = nCasillas - grupo.contarEdificios(Edificio.TipoEdificio.Piscina);
+        int nPistas   = nCasillas - grupo.contarEdificios(Edificio.TipoEdificio.PistaDeporte);
+        int nCasas    = (nHoteles == 0? nCasillas : 4) - grupo.contarEdificios(Edificio.TipoEdificio.Casa);
+        // @formatter:on
 
+        if (nCasas == 0 && nHoteles == 0 && nPiscinas == 0 && nPistas == 0) {
+            System.out.printf("\nYa no se pueden construir más edificios en %s\n", grupo.getNombre());
+            return;
+        }
+
+        // @formatter:off
+        System.out.println("\nAún se pueden edificar:");
+        if (nCasas != 0)    System.out.printf("  - %d casa(s)\n", nCasas);
+        if (nHoteles != 0)  System.out.printf("  - %d hotel(es)\n", nHoteles);
+        if (nPiscinas != 0) System.out.printf("  - %d piscina(s)\n", nPiscinas);
+        if (nPistas != 0)   System.out.printf("  - %d pistas(s) de deporte\n", nPistas);
+        // @formatter:on
     }
 
+    /**
+     * Muestra las estadísticas generales sobre la evolución del juego
+     */
+    public void mostrarEstadisticas() {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
 
+        Casilla casillaMasRentable = null;
+        long maxAlquilerCobrado = -1;
+
+        Casilla masFrecuentada = null;
+        int maxEstancias = -1;
+
+        // Analizar todas las casillas
+        for (Casilla c : casillas) {
+            EstadisticasCasilla ec = c.getEstadisticas();
+
+            // Encontrar el máximo del alquiler cobrado
+            if (ec.getAlquilerTotalCobrado() > maxAlquilerCobrado) {
+                maxAlquilerCobrado = ec.getAlquilerTotalCobrado();
+                casillaMasRentable = c;
+            }
+
+            // Encontrar el máximo de estancias
+            if (ec.getEstancias() > maxEstancias) {
+                maxEstancias = ec.getEstancias();
+                masFrecuentada = c;
+            }
+        }
+
+        Grupo grupoMasRentable = null;
+        long maxGrupoAlquiler = -1;
+
+        for (Grupo g : grupos) {
+
+            long alquilerTotalGrupo = 0;
+            for (Casilla c : g.getCasillas()) {
+                alquilerTotalGrupo += c.getEstadisticas().getAlquilerTotalCobrado();
+            }
+
+            if (alquilerTotalGrupo > maxGrupoAlquiler) {
+                maxGrupoAlquiler = alquilerTotalGrupo;
+                grupoMasRentable = g;
+            }
+        }
+
+        //
+        Jugador masVueltas = null;
+        int maxVueltas = -1;
+
+        Jugador masTiradas = null;
+        int maxTiradas = -1;
+
+        Jugador enCabeza = null;
+        long maxCapital = -1;
+
+        for (Jugador j : jugadores) {
+            EstadisticasJugador ej = j.getEstadisticas();
+
+            if (ej.getVueltas() > maxVueltas) {
+                maxVueltas = ej.getVueltas();
+                masVueltas = j;
+            }
+
+            if (ej.getTiradas() > maxTiradas) {
+                maxTiradas = ej.getTiradas();
+                masTiradas = j;
+            }
+
+            if (ej.getCapital() > maxCapital) {
+                maxCapital = ej.getCapital();
+                enCabeza = j;
+            }
+        }
+
+        // @formatter:off
+        System.out.printf(
+                """
+                {
+                    casilla más rentable: %s (%s)
+                    grupo más rentable: %s (%s)
+                    casilla más frecuentada: %s (%d)
+                    jugador con más vueltas: %s (%d)
+                    jugador con más tiradas: %s (%d)
+                    jugador en cabeza: %s (%s)
+                }
+                """,
+                casillaMasRentable.getNombreFmt(), Consola.num(maxAlquilerCobrado),
+                grupoMasRentable.getNombre(), Consola.num(maxGrupoAlquiler),
+                masFrecuentada.getNombreFmt(), maxEstancias,
+                masVueltas.getNombre(), maxVueltas,
+                masTiradas.getNombre(), maxTiradas,
+                enCabeza.getNombre(), Consola.num(maxCapital));
+        // @formatter:on
+    }
+
+    /**
+     * Muestra las estadísticas de un jugador en concreto
+     */
+    public void mostrarEstadisticas(String nombreJugador) {
+        Jugador jugador = null;
+        for (Jugador j : jugadores) {
+            if (j.getNombre().equalsIgnoreCase(nombreJugador)) {
+                jugador = j;
+                break;
+            }
+        }
+
+        if (jugador == null) {
+            Consola.error("No existe el jugador \"%s\"".formatted(nombreJugador));
+            return;
+        }
+
+        System.out.print(jugador.getEstadisticas());
+    }
 }

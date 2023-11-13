@@ -1,3 +1,21 @@
+    // - dinero invertido en compra de propiedades y edificaciones (invertido)
+    // - pago de tasas e impuestos
+    // - cobro de alquileres
+    // - pago de alquileres
+    // - abonos salida
+    // - inversiones
+    // - premios: bote o carta
+    // - veces en la carcel
+
+    // - jugador con mas vueltas
+    // - jugador con mas tiradas
+    // - jugador con mayor fortuna+propiedades+edificios
+
+
+    // - casilla mas rentable
+    // - casilla mas frecuentada
+    // - grupo mas rentable
+
 # Monopoly
 
 Juego del Monopoly (con algunas modificaciones) para la clase de Programación
