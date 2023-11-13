@@ -140,7 +140,7 @@ public class Monopoly {
             case "salir carcel"               -> tablero.salirCarcel();
             case "cambiar modo"               -> tablero.cambiarModo();
             case "lanzar", "lanzar dados"    -> tablero.moverAvatar(new Dado());
-            case  "siguiente", "sig", "next"   -> tablero.moverAvatar(); // TODO?: que el comando next pase un dado null
+            case  "siguiente", "sig", "next"   -> tablero.moverAvatar();
             case "acabar turno", "fin", "end" -> tablero.acabarTurno();
             case "bancarrota" -> tablero.bancarrota();
             case "pagar deuda" -> tablero.pagarDeuda();
