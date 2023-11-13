@@ -18,10 +18,12 @@ public class Calculadora {
     public static final long PRECIO_GRUPO1 = 1_000_000;
     private long sumaSolares;
     private long nSolares;
+    private int nAumentosPrecio;
 
     public Calculadora(ArrayList<Casilla> casillas) {
         sumaSolares = 0;
         nSolares = 0;
+        nAumentosPrecio = 1;
 
         // Contar los solares y su precio total
         for (Casilla c : casillas) {
@@ -100,12 +102,14 @@ public class Calculadora {
      * Aumenta el precio de todos los solares que
      * aún no se han vendido al cabo de 4 vueltas.
      */
-    public static void aumentarPrecio(ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores) {
+    public void aumentarPrecio(ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores) {
         for (Jugador jugador : jugadores) {
-            if (jugador.getAvatar().getVueltas() < 4) {
+            if (jugador.getEstadisticas().getVueltas() - 4 * nAumentosPrecio <= 0) {
                 return;
             }
         }
+
+        nAumentosPrecio++;
 
         for (Casilla c : casillas) {
             // Si la casilla se puede comprar y no tiene dueño, es que está en venta
@@ -113,10 +117,6 @@ public class Calculadora {
                 Propiedad p = c.getPropiedad();
                 p.setPrecio((long) (p.getPrecio() * 1.05));
             }
-        }
-
-        for (Jugador jugador : jugadores) {
-            jugador.getAvatar().resetVuelta();
         }
 
         System.out.println("Se ha aumentado el precio de todas las casillas en venta\n");

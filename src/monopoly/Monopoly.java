@@ -169,6 +169,7 @@ public class Monopoly {
                  "deshipotecar" -> cmdHipoteca(args);
             case "vender"       -> cmdVender(args);
             case "listar"       -> cmdListar(args);
+            case "estadisticas" -> cmdEstadisticas(args);
             default             -> Consola.error("\"%s\": Comando no válido".formatted(args[0]));
         }
         // @formatter:on
@@ -363,6 +364,12 @@ public class Monopoly {
         Consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d.".formatted(args.length - 1));
     }
 
+    /**
+     * Ejecuta el comando de hipotecar
+     * <pre>
+     *      hipotecar {propiedad}
+     * </pre>
+     */
     private void cmdHipoteca(String[] args) {
         if (args.length != 2) {
             Consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length - 1));
@@ -370,5 +377,19 @@ public class Monopoly {
         }
         if (args[0].equals("hipotecar")) tablero.hipotecar(args[1]);
         else tablero.deshipotecar(args[1]);
+    }
+
+    private void cmdEstadisticas(String[] args) {
+        if (args.length == 1) {
+            tablero.mostrarEstadisticas();
+            return;
+        }
+
+        if (args.length == 2) {
+            tablero.mostrarEstadisticas(args[1]);
+            return;
+        }
+
+        Consola.error("Se esperaba 0 o 1 parámetro, se recibieron %d".formatted(args.length - 1));
     }
 }

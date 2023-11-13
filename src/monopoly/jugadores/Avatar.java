@@ -32,11 +32,10 @@ public class Avatar {
     private boolean puedeComprar;
     private int dadoEspera;
     private int doblesSeguidos;
-    private int estanciasCarcel;
-    private int lanzamientos;
+    private int turnosEnCarcel;
+    private int lanzamientosEnTurno;
     private int lanzamientosEspeciales;
     private int penalizacion;
-    private int vueltas;
     // @formatter:on
 
     /**
@@ -48,6 +47,7 @@ public class Avatar {
         this.jugador = jugador;
         this.casilla = casillaInicial;
         casillaInicial.anadirAvatar(this);
+        casillaInicial.getEstadisticas().anadirEstancia();
 
         this.historialCasillas = new ArrayList<>();
 
@@ -58,11 +58,10 @@ public class Avatar {
 
         this.dadoEspera = 0;
         this.doblesSeguidos = 0;
-        this.estanciasCarcel = 0;
-        this.lanzamientos = 1;
+        this.turnosEnCarcel = 0;
+        this.lanzamientosEnTurno = 1;
         this.lanzamientosEspeciales = 0;
         this.penalizacion = 0;
-        this.vueltas = 0;
     }
 
     @Override
@@ -92,12 +91,13 @@ public class Avatar {
      * @return True si se ha movido con éxito, false si ha habido un error.
      */
     public boolean mover(Dado dado, ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores, Calculadora calculadora) {
-        if (lanzamientos <= 0) {
+        if (lanzamientosEnTurno <= 0) {
             Consola.error("No quedan lanzamientos. El jugador debe terminar el turno");
             return false;
         }
 
-        lanzamientos--;
+        lanzamientosEnTurno--;
+        jugador.getEstadisticas().anadirTirada();
 
         if (penalizacion != 0) {
             penalizacion--;
@@ -133,11 +133,13 @@ public class Avatar {
         if (posNuevaCasilla >= casillas.size()) {
             posNuevaCasilla -= casillas.size();
 
-            this.anadirVuelta();
-            jugador.ingresar(calculadora.calcularAbonoSalida());
+            long abonoSalida = calculadora.calcularAbonoSalida();
+            jugador.ingresar(abonoSalida);
+            jugador.getEstadisticas().anadirAbonoSalida(abonoSalida);
+            jugador.getEstadisticas().anadirVuelta();
 
             // Aumentar los precios en caso de que el avatar pasase por la salida
-            Calculadora.aumentarPrecio(casillas, jugadores);
+            calculadora.aumentarPrecio(casillas, jugadores);
 
             System.out.printf("Como el avatar pasa por la casilla de Salida, %s recibe %s\n",
                     Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
@@ -154,6 +156,7 @@ public class Avatar {
 
         // Añadir la nueva casilla al historial
         historialCasillas.add(nuevaCasilla);
+        nuevaCasilla.getEstadisticas().anadirEstancia();
 
         // Mostrar información
         System.out.printf("%s con avatar %s, avanza %s posiciones.\nAvanza desde %s hasta %s.\n",
@@ -163,7 +166,7 @@ public class Avatar {
                 anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
 
         // Aumentar los precios en caso de que el avatar pasase por la salida
-        Calculadora.aumentarPrecio(casillas, jugadores);
+        calculadora.aumentarPrecio(casillas, jugadores);
 
         // Realizar la acción de la casilla
         nuevaCasilla.accion(jugador, dado);
@@ -189,7 +192,7 @@ public class Avatar {
                 irCarcel(); // TODO: no funciona: NullPointer porque cárcel no está definido para todas las casillas
                 return -1;
             } else {
-                lanzamientos++;
+                lanzamientosEnTurno++;
                 System.out.println("Dados dobles! El jugador puede tirar otra vez");
             }
         }
@@ -201,14 +204,14 @@ public class Avatar {
      * Realiza una tirada de dados cuando está en la cárcel
      */
     private void moverEstandoCarcel(Dado dado) {
-        estanciasCarcel++;
+        turnosEnCarcel++;
 
         if (dado.isDoble()) {
             System.out.println("Dados dobles! El jugador puede salir de la Cárcel");
-            lanzamientos++;
+            lanzamientosEnTurno++;
             encerrado = false;
-            estanciasCarcel = 0;
-        } else if (estanciasCarcel >= 3) {
+            turnosEnCarcel = 0;
+        } else if (turnosEnCarcel >= 3) {
             System.out.printf("%s con avatar %s no ha sacado dados dobles %s.\nAhora debe pagar obligatoriamente la fianza.\n",
                     Consola.fmt(jugador.getNombre(), Color.Azul),
                     Consola.fmt(Character.toString(id), Color.Azul),
@@ -227,9 +230,10 @@ public class Avatar {
      */
     public void irCarcel() {
         encerrado = true;
-        estanciasCarcel = 0;
-        lanzamientos = 0;
+        turnosEnCarcel = 0;
+        lanzamientosEnTurno = 0;
         lanzamientosEspeciales = 0;
+        jugador.getEstadisticas().anadirEstanciaCarcel();
 
         Casilla nuevaCasilla = this.casilla.getCarcel();
         this.casilla.quitarAvatar(this);
@@ -256,15 +260,15 @@ public class Avatar {
         }
 
         encerrado = false;
-        estanciasCarcel = 0;
+        turnosEnCarcel = 0;
 
         System.out.printf("El jugador %s paga %s para salir de la cárcel\n", jugador.getNombre(), Consola.num(casilla.getFianza()));
         return true;
     }
 
     private int moverEspecialCoche(Dado dado, int nCasillas) {
-        if (lanzamientos == 0) {
-            lanzamientos = 2;
+        if (lanzamientosEnTurno == 0) {
+            lanzamientosEnTurno = 2;
             lanzamientosEspeciales = 4;
         }
 
@@ -278,14 +282,14 @@ public class Avatar {
         if (dado.getValor() < 4) {
             lanzamientosEspeciales = 0;
             penalizacion = 2;
-            lanzamientos = 0;
+            lanzamientosEnTurno = 0;
             return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
         }
 
-        lanzamientos++;
+        lanzamientosEnTurno++;
 
         if (lanzamientosEspeciales == 0) {
-            lanzamientos = 0;
+            lanzamientosEnTurno = 0;
             if (dado.isDoble()) {
                 doblesSeguidos++;
                 if (doblesSeguidos >= 3) {
@@ -301,7 +305,7 @@ public class Avatar {
                     return -1;
                 }
                 lanzamientosEspeciales++;
-                lanzamientos++;
+                lanzamientosEnTurno++;
             }
             return this.casilla.getPosicion() + dado.getValor();
         }
@@ -325,8 +329,8 @@ public class Avatar {
             if (dado.getValor() == 5) return this.casilla.getPosicion() + dado.getValor();
         }
 
-        if (lanzamientos == 0) {
-            lanzamientos = 2;
+        if (lanzamientosEnTurno == 0) {
+            lanzamientosEnTurno = 2;
             dadoEspera = dado.getValor() - 5;
             pelotaMovimiento = true;
             return this.casilla.getPosicion() + 5;
@@ -334,11 +338,11 @@ public class Avatar {
 
         if (pelotaMovimiento) {
             if (dadoEspera <= 2) {
-                lanzamientos = 0;
+                lanzamientosEnTurno = 0;
                 pelotaMovimiento = false;
                 return this.casilla.getPosicion() + dadoEspera;
             }
-            lanzamientos++;
+            lanzamientosEnTurno++;
             dadoEspera -= 2;
             return this.casilla.getPosicion() + 2;
         }
@@ -379,32 +383,21 @@ public class Avatar {
         }
     }
 
-    public int getEstanciasCarcel() {
-        return estanciasCarcel;
+    public int getTurnosEnCarcel() {
+        return turnosEnCarcel;
     }
 
     public boolean isEncerrado() {
         return encerrado;
     }
 
-    public int getVueltas() {
-        return vueltas;
-    }
-
-    public void anadirVuelta() {
-        this.vueltas++;
-    }
-
-    public void resetVuelta() {
-        this.vueltas = 0;
-    }
-
-    public int getLanzamientos() {
-        return lanzamientos;
+    /** Devuelve el número de lanzamientos restantes. No confundir con EstadisticasJugador.nTiradas */
+    public int getLanzamientosEnTurno() {
+        return lanzamientosEnTurno;
     }
 
     public void resetLanzamientos() {
-        lanzamientos = 1;
+        lanzamientosEnTurno = 1;
     }
 
     public int getDoblesSeguidos() {

@@ -6,11 +6,8 @@ import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar;
 import monopoly.jugadores.Jugador;
-import monopoly.utilidades.Consola;
+import monopoly.utilidades.*;
 import monopoly.utilidades.Consola.Color;
-import monopoly.utilidades.Dado;
-import monopoly.utilidades.Lector;
-import monopoly.utilidades.PintorTablero;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -152,8 +149,8 @@ public class Tablero {
         Jugador jugadorTurno = getJugadorTurno();
         Avatar avatarTurno = jugadorTurno.getAvatar();
 
-        if (jugadorTurno.getAvatar().getLanzamientos() > 0 && !jugadorTurno.getAvatar().isMovimientoEspecial()) {
-            Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientos()));
+        if (jugadorTurno.getAvatar().getLanzamientosEnTurno() > 0 && !jugadorTurno.getAvatar().isMovimientoEspecial()) {
+            Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientosEnTurno()));
             return;
         }
 
@@ -332,6 +329,10 @@ public class Tablero {
         return jugadores;
     }
 
+    public Jugador getBanca() {
+        return banca;
+    }
+
     /**
      * Imprime por pantalla la información de la casilla dado su nombre
      */
@@ -446,5 +447,119 @@ public class Tablero {
         if (nPiscinas != 0) System.out.printf("  - %d piscina(s)\n", nPiscinas);
         if (nPistas != 0)   System.out.printf("  - %d pistas(s) de deporte\n", nPistas);
         // @formatter:on
+    }
+
+    /** Muestra las estadísticas generales sobre la evolución del juego */
+    public void mostrarEstadisticas() {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
+        Casilla casillaMasRentable = null;
+        long maxAlquilerCobrado = -1;
+
+        Casilla masFrecuentada = null;
+        int maxEstancias = -1;
+
+        // Analizar todas las casillas
+        for (Casilla c : casillas) {
+            EstadisticasCasilla ec = c.getEstadisticas();
+
+            // Encontrar el máximo del alquiler cobrado
+            if (ec.getAlquilerTotalCobrado() > maxAlquilerCobrado) {
+                maxAlquilerCobrado = ec.getAlquilerTotalCobrado();
+                casillaMasRentable = c;
+            }
+
+            // Encontrar el máximo de estancias
+            if (ec.getEstancias() > maxEstancias) {
+                maxEstancias = ec.getEstancias();
+                masFrecuentada = c;
+            }
+        }
+
+        Grupo grupoMasRentable = null;
+        long maxGrupoAlquiler = -1;
+
+        for (Grupo g : grupos) {
+
+            long alquilerTotalGrupo = 0;
+            for (Casilla c : g.getCasillas()) {
+                alquilerTotalGrupo += c.getEstadisticas().getAlquilerTotalCobrado();
+            }
+
+            if (alquilerTotalGrupo > maxGrupoAlquiler) {
+                maxGrupoAlquiler = alquilerTotalGrupo;
+                grupoMasRentable = g;
+            }
+        }
+
+        //
+        Jugador masVueltas = null;
+        int maxVueltas = -1;
+
+        Jugador masTiradas = null;
+        int maxTiradas = -1;
+
+        Jugador enCabeza = null;
+        long maxCapital = -1;
+
+        for (Jugador j : jugadores) {
+            EstadisticasJugador ej = j.getEstadisticas();
+
+            if (ej.getVueltas() > maxVueltas) {
+                maxVueltas = ej.getVueltas();
+                masVueltas = j;
+            }
+
+            if (ej.getTiradas() > maxTiradas) {
+                maxTiradas = ej.getTiradas();
+                masTiradas = j;
+            }
+
+            if (ej.getCapital() > maxCapital) {
+                maxCapital = ej.getCapital();
+                enCabeza = j;
+            }
+        }
+
+        // @formatter:off
+        System.out.printf(
+                """
+                {
+                    casilla más rentable: %s (%s)
+                    grupo más rentable: %s (%s)
+                    casilla más frecuentada: %s (%d)
+                    jugador con más vueltas: %s (%d)
+                    jugador con más tiradas: %s (%d)
+                    jugador en cabeza: %s (%s)
+                }
+                """,
+                casillaMasRentable.getNombreFmt(), Consola.num(maxAlquilerCobrado),
+                grupoMasRentable.getNombre(), Consola.num(maxGrupoAlquiler),
+                masFrecuentada.getNombreFmt(), maxEstancias,
+                masVueltas.getNombre(), maxVueltas,
+                masTiradas.getNombre(), maxTiradas,
+                enCabeza.getNombre(), Consola.num(maxCapital));
+        // @formatter:on
+    }
+
+    /** Muestra las estadísticas de un jugador en concreto */
+    public void mostrarEstadisticas(String nombreJugador) {
+        Jugador jugador = null;
+        for (Jugador j : jugadores) {
+            if (j.getNombre().equalsIgnoreCase(nombreJugador)) {
+                jugador = j;
+                break;
+            }
+        }
+
+        if (jugador == null) {
+            Consola.error("No existe el jugador \"%s\"".formatted(nombreJugador));
+            return;
+        }
+
+        System.out.print(jugador.getEstadisticas());
     }
 }

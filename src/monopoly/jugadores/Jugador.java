@@ -9,6 +9,7 @@ import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar.TipoAvatar;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Dado;
+import monopoly.utilidades.EstadisticasJugador;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,6 +29,7 @@ public class Jugador {
     private long fortuna;
     private long gastos;
     private boolean bancarrota;
+    private final EstadisticasJugador estadisticas;
 
     /**
      * Crea el jugador especial Banca
@@ -40,6 +42,7 @@ public class Jugador {
         this.gastos = 0;
         this.propiedades = new HashSet<>(28);
         this.bancarrota = false;
+        this.estadisticas = null;
     }
 
     /**
@@ -52,6 +55,7 @@ public class Jugador {
         this.fortuna = fortuna;
         this.gastos = 0;
         this.propiedades = new HashSet<>();
+        this.estadisticas = new EstadisticasJugador(this);
     }
 
     private String listarEdificios() {
@@ -151,6 +155,7 @@ public class Jugador {
                     .formatted(nombre, p.getCasilla().getNombreFmt()));
             return false;
         }
+        estadisticas.anadirInversion(p.getPrecio());
 
         p.getPropietario().quitarPropiedad(p);
         anadirPropiedad(p);
@@ -193,20 +198,6 @@ public class Jugador {
      * Comprueba las restricciones de construcción
      */
     private boolean edificable(Propiedad solar, Edificio.TipoEdificio tipo, int cantidad) {
-        /*
-         * TODO: WTF es esto
-         *
-         * En el CV: Limitación da venta de edificios
-         *
-         * Nesta entrega a construción de edificios ten unha serie de límites e restricións.
-         * Por exemplo, para construír unha piscina nun solar hai que ter, canto menos, un
-         * hotel e unha casa nese solar. É posible que ese requisito de edificación se "rompa"
-         * despois dunha venta. Por exemplo, se o xogador só contase cun hotel nese solar e
-         * decide vendelo despois de construír a piscina. Esta situación estará permitida no xogo.
-         *
-         * Polo tanto, só será preciso impoñer límites e restricións no momento da edificación,
-         * **pero a venta de edificios será libre, sen restricións**.
-         */
         Grupo grupo = solar.getCasilla().getGrupo();
         final int maxEdificios = grupo.getNumeroCasillas();
 
@@ -223,12 +214,6 @@ public class Jugador {
                     Consola.error("No se pueden edificar más de %d casas en un grupo cuando hay el número máximo de hoteles".formatted(maxEdificios));
                     return false;
                 }
-
-                // En caso de que se borren casas y haya alguna piscina, tienen que quedar al menos 2 casas
-                if (grupo.contarEdificios(TipoEdificio.Piscina) >= 1 && grupo.contarEdificios(TipoEdificio.Casa) + cantidad < 2) {
-                    Consola.error("Se necesitan al menos 2 casas para tener una piscina");
-                    return false;
-                }
             }
 
             case Hotel -> {
@@ -239,18 +224,6 @@ public class Jugador {
 
                 if (solar.contarEdificios(TipoEdificio.Casa) < 4 * cantidad) {
                     Consola.error("Se necesitan 4 casas en el solar para edificar un hotel");
-                    return false;
-                }
-
-                // Si se borran hoteles y hay alguna piscina, tiene que quedar al menos 1 hotel
-                if (grupo.contarEdificios(TipoEdificio.Piscina) >= 1 && grupo.contarEdificios(TipoEdificio.Hotel) + cantidad < 1) {
-                    Consola.error("Se necesita al menos 1 hotel para tener una piscina");
-                    return false;
-                }
-
-                // Si se borran hoteles y hay alguna pista de deporte, tienen que quedar al menos 2 hoteles
-                if (grupo.contarEdificios(TipoEdificio.PistaDeporte) >= 1 && grupo.contarEdificios(TipoEdificio.Hotel) + cantidad < 2) {
-                    Consola.error("Se necesitan al menos 2 hoteles para tener una pista de deporte");
                     return false;
                 }
             }
@@ -328,6 +301,7 @@ public class Jugador {
             Consola.error("El jugador no tiene los fondos suficientes para edificar.\nNecesita %s.".formatted(Consola.num(cantidad * e.getValor())));
             return false;
         }
+        estadisticas.anadirInversion(cantidad * e.getValor());
 
         System.out.printf("""
                 %s ha construido %d %s(s) en el solar %s por %s.
@@ -364,11 +338,6 @@ public class Jugador {
             return false;
         }
 
-        // Comprobar si el estado es válido después de quitar el número de edificios dado
-        if (!edificable(solar, tipoEdificio, -cantidad)) {
-            return false;
-        }
-
         // Borrar los edificios en cuestión e ingresar la mitad de su valor
         ArrayList<Edificio> edificios = solar.getEdificios();
         int nBorrados = 0;
@@ -392,6 +361,8 @@ public class Jugador {
         }
 
         ingresar(importeRecuperado);
+
+        // NOTA: no se considera este importe recuperado para las estadísticas
 
         System.out.printf("""
                 %s ha vendido %d %s(s) del solar %s por %s.
@@ -425,6 +396,10 @@ public class Jugador {
 
         p.getPropietario().ingresar(importe);
         System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(p.getAlquiler()), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
+
+        estadisticas.anadirPagoAlquiler(importe);
+        p.getCasilla().getEstadisticas().anadirCobroAlquiler(importe);
+        p.getPropietario().getEstadisticas().anadirCobroAlquiler(importe);
     }
 
     /**
@@ -463,8 +438,8 @@ public class Jugador {
 
         propiedad.setHipotecada(true);
         long cantidad = Calculadora.calcularHipoteca(propiedad);
-        fortuna += cantidad;
-        System.out.printf("Se ha hipotecado %s por %s\n%n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
+        ingresar(cantidad);
+        System.out.printf("Se ha hipotecado %s por %s\n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
     }
 
     public void deshipotecar(Propiedad propiedad) {
@@ -472,16 +447,21 @@ public class Jugador {
             Consola.error("No se puede deshipotecar, no está hipotecada");
             return;
         }
+
         long cantidad = Calculadora.calcularHipoteca(propiedad);
+
+        if (!cobrar(cantidad)) {
+            Consola.error("No tienes suficientes fondos para deshipotecar esa propiedad");
+            return;
+        }
+
         propiedad.setHipotecada(false);
-        fortuna -= cantidad;
-        gastos += cantidad;
-        System.out.printf("Se ha deshipotecado %s por %s\n%n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
+        System.out.printf("Se ha deshipotecado %s por %s\n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
     }
 
-    public boolean setBancaRota() {
+    public boolean setBancarrota() {
         if (bancarrota) {
-            Consola.error("Ya estas en BancaRota");
+            Consola.error("Ya estas en bancarrota");
             return false;
         }
         bancarrota = true;
@@ -506,6 +486,10 @@ public class Jugador {
 
     public long getGastos() {
         return gastos;
+    }
+
+    public EstadisticasJugador getEstadisticas() {
+        return estadisticas;
     }
 
     public HashSet<Propiedad> getPropiedades() {
