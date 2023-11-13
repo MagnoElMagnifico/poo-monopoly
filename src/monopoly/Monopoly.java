@@ -122,7 +122,7 @@ public class Monopoly {
         // @formatter:off
         switch (cmdNorm) {
             // Comandos de manejo del juego
-            case "salir", "quit"    -> System.exit(0);
+            case "salir", "quit", "exit"    -> System.exit(0);
             case "ayuda", "help"    -> System.out.print(msgAyuda);
             case "iniciar", "start" -> tablero.iniciar();
 
@@ -139,10 +139,12 @@ public class Monopoly {
             }
             case "salir carcel"               -> tablero.salirCarcel();
             case "cambiar modo"               -> tablero.cambiarModo();
-            case "lanzar", "lanzar dados",
-                 "siguiente", "sig", "next"   -> tablero.moverAvatar(new Dado()); // TODO?: que el comando next pase un dado null
+            case "lanzar", "lanzar dados"    -> tablero.moverAvatar(new Dado());
+            case  "siguiente", "sig", "next"   -> tablero.moverAvatar(); // TODO?: que el comando next pase un dado null
             case "acabar turno", "fin", "end" -> tablero.acabarTurno();
-            case "banca rota" -> tablero.bancarrota();
+            case "bancarrota" -> tablero.bancarrota();
+            case "pagar deuda" -> tablero.getJugadorTurno().pagarDeuda(tablero.getBanca());
+
 
             default -> this.cmdConArgumentos(cmdNorm);
         }
@@ -159,6 +161,7 @@ public class Monopoly {
         // @formatter:off
         String[] args = cmd.split(" ");
         switch (args[0]) {
+
             case "crear"        -> cmdCrear(args);
             case "comprar"      -> cmdComprar(args);
             case "describir"    -> cmdDescribir(args);

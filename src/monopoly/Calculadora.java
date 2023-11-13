@@ -99,6 +99,28 @@ public class Calculadora {
     }
 
     /**
+     * Calcula y devuelve el precio de edificar un edificio en la propiedad dada
+     */
+    public static long calcularPrecio(Edificio e) {
+        long precioSolar = e.getSolar().getPrecio();
+        // @formatter:off
+        return switch (e.getTipo()) {
+            case Casa, Hotel  -> (long) (0.6 * precioSolar);
+            case Piscina      -> (long) (0.4 * precioSolar);
+            case PistaDeporte -> (long) (1.25 * precioSolar);
+        };
+        // @formatter:on
+    }
+
+    public static long calcularHipoteca(Propiedad propiedad) {
+        return propiedad.getPrecio() / 2;
+    }
+
+    public static long calculardeshipoteca(Propiedad propiedad) {
+        return (long) (calcularHipoteca(propiedad) * 1.1);
+    }
+
+    /**
      * Aumenta el precio de todos los solares que
      * aún no se han vendido al cabo de 4 vueltas.
      */
@@ -120,24 +142,6 @@ public class Calculadora {
         }
 
         System.out.println("Se ha aumentado el precio de todas las casillas en venta\n");
-    }
-
-    /**
-     * Calcula y devuelve el precio de edificar un edificio en la propiedad dada
-     */
-    public static long calcularPrecio(Edificio e) {
-        long precioSolar = e.getSolar().getPrecio();
-        // @formatter:off
-        return switch (e.getTipo()) {
-            case Casa, Hotel  -> (long) (0.6 * precioSolar);
-            case Piscina      -> (long) (0.4 * precioSolar);
-            case PistaDeporte -> (long) (1.25 * precioSolar);
-        };
-        // @formatter:on
-    }
-
-    public static long calcularHipoteca(Propiedad propiedad) {
-        return propiedad.getPrecio() / 2;
     }
 
     /**

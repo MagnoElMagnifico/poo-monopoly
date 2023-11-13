@@ -131,8 +131,41 @@ public class Tablero {
             return;
         }
 
+        if (getJugadorTurno().isEndeudado()) {
+            Consola.error("Estas endeudado paga la deuda o declárate en bancarrota");
+            return;
+        }
+
         // Muestra el tablero si se ha movido el avatar con éxito
         if (getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora)) {
+            System.out.print(this);
+        }
+    }
+
+    public void moverAvatar() {
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
+        Avatar avatarTurno = getJugadorTurno().getAvatar();
+
+        if (avatarTurno.getTipo() != Avatar.TipoAvatar.Pelota) {
+            Consola.error("No puedes usar este comando no eres una pelota.");
+            return;
+        }
+
+        if (!avatarTurno.isMovimientoEspecial() || !avatarTurno.isPelotaMovimiento()) {
+            Consola.error("No puedes usar esto ahora vuelve más tarde.");
+            return;
+        }
+
+        if (getJugadorTurno().isEndeudado()) {
+            Consola.error("Estas endeudado paga la deuda o declárate en bancarrota");
+            return;
+        }
+
+        if (avatarTurno.mover(null, casillas, jugadores, calculadora)) {
             System.out.print(this);
         }
     }
@@ -149,8 +182,18 @@ public class Tablero {
         Jugador jugadorTurno = getJugadorTurno();
         Avatar avatarTurno = jugadorTurno.getAvatar();
 
-        if (jugadorTurno.getAvatar().getLanzamientosEnTurno() > 0 && !jugadorTurno.getAvatar().isMovimientoEspecial()) {
+        if (avatarTurno.getLanzamientosEnTurno() > 0 && !jugadorTurno.getAvatar().isMovimientoEspecial()) {
             Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientosEnTurno()));
+            return;
+        }
+
+        if (avatarTurno.getTipo() == Avatar.TipoAvatar.Pelota && avatarTurno.getLanzamientosEnTurno() > 0) {
+            Consola.error("Al jugador %s le quedan  tiros".formatted(jugadorTurno.getNombre()));
+            return;
+        }
+
+        if (jugadorTurno.isEndeudado()) {
+            Consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota".formatted(jugadorTurno.getNombre()));
             return;
         }
 
@@ -220,8 +263,8 @@ public class Tablero {
             return;
         }
 
+        // Especifico para el coche que solo puede comprar una vez por turno en modo especial
         if (!j.getAvatar().isPuedeComprar()) {
-            // TODO: pero por qué no se puede comprar? Explicar esto mejor
             Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
             return;
         }
@@ -378,8 +421,20 @@ public class Tablero {
     }
 
     public void bancarrota() {
+
         Jugador j = getJugadorTurno();
-        // TODO
+        if (j.setBancarrota(banca)) {
+            System.out.printf("El jugador: %s se declara en bancarrota\n%n", Consola.fmt(j.getNombre(), Color.Azul));
+            jugadores.remove(j);
+            turno--;
+            if (turno < 0) turno = jugadores.size() - 1;
+        }
+        if (jugadores.size() == 1) {
+            j = jugadores.get(0);
+            System.out.println(Consola.fmt("Felicidades %s, has ganado la partida".formatted(j.getNombre()), Color.Amarillo));
+            jugando = false;
+        }
+
     }
 
     /**
@@ -449,7 +504,9 @@ public class Tablero {
         // @formatter:on
     }
 
-    /** Muestra las estadísticas generales sobre la evolución del juego */
+    /**
+     * Muestra las estadísticas generales sobre la evolución del juego
+     */
     public void mostrarEstadisticas() {
         if (!jugando) {
             Consola.error("No se ha iniciado la partida");
@@ -545,7 +602,9 @@ public class Tablero {
         // @formatter:on
     }
 
-    /** Muestra las estadísticas de un jugador en concreto */
+    /**
+     * Muestra las estadísticas de un jugador en concreto
+     */
     public void mostrarEstadisticas(String nombreJugador) {
         Jugador jugador = null;
         for (Jugador j : jugadores) {

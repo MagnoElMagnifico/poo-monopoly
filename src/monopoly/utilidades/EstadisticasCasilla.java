@@ -18,11 +18,11 @@ public class EstadisticasCasilla {
     @Override
     public String toString() {
         return """
-               {
-                   alquiler total cobrado: %s
-                   número de estancias: %d
-               }
-               """.formatted(Consola.num(alquilerTotalCobrado), nEstancias);
+                {
+                    alquiler total cobrado: %s
+                    número de estancias: %d
+                }
+                """.formatted(Consola.num(alquilerTotalCobrado), nEstancias);
     }
 
     public void anadirEstancia() {

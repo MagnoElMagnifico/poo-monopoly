@@ -28,14 +28,15 @@ public class Avatar {
     // Estado
     private boolean encerrado;
     private boolean movimientoEspecial;
-    private boolean pelotaMovimiento;
-    private boolean puedeComprar;
-    private int dadoEspera;
+    private boolean pelotaMovimiento;  /* Solo para la pelota: se comprueba si está en movimiento */
+    private boolean puedeComprar;      /* Solo para el coche: no permite comprar solo una vez */
+    private int casillasRestantes;     /* Solo para la pelota: almacena el dado del turno */
+    private Dado pelotaDado;           /* Solo para la pelota: guarda el dado */
     private int doblesSeguidos;
     private int turnosEnCarcel;
     private int lanzamientosEnTurno;
-    private int lanzamientosEspeciales;
-    private int penalizacion;
+    private int lanzamientosEspeciales;  /* Solo para el coche almacena los movimientos que quedan en modo especial */
+    private int penalizacion;            /* Solo para el coche penalización si saca menos de 4 */
     // @formatter:on
 
     /**
@@ -56,12 +57,13 @@ public class Avatar {
         this.pelotaMovimiento = false;
         this.puedeComprar = true;
 
-        this.dadoEspera = 0;
+        this.casillasRestantes = 0;
         this.doblesSeguidos = 0;
         this.turnosEnCarcel = 0;
         this.lanzamientosEnTurno = 1;
         this.lanzamientosEspeciales = 0;
         this.penalizacion = 0;
+        this.pelotaDado = null;
     }
 
     @Override
@@ -114,10 +116,10 @@ public class Avatar {
         int posNuevaCasilla;
         if (movimientoEspecial) {
             posNuevaCasilla = switch (tipo) {
-                case Coche -> moverEspecialCoche(dado, casillas.size());
+                case Coche -> moverEspecialCoche(dado, calculadora, casillas.size());
                 case Esfinge -> moverEspecialEsfinge();
                 case Sombrero -> moverEspecialSombrero();
-                case Pelota -> moverEspecialPelota(dado, casillas.size());
+                case Pelota -> moverEspecialPelota(dado, calculadora, casillas.size());
             };
         } else {
             posNuevaCasilla = moverBasico(dado);
@@ -158,18 +160,37 @@ public class Avatar {
         historialCasillas.add(nuevaCasilla);
         nuevaCasilla.getEstadisticas().anadirEstancia();
 
-        // Mostrar información
-        System.out.printf("%s con avatar %s, avanza %s posiciones.\nAvanza desde %s hasta %s.\n",
-                Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
-                Consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
-                dado,
-                anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
+
+        // Mostrar informacion de la lepota si estáen movimiento especial
+        if (movimientoEspecial && tipo == TipoAvatar.Pelota && pelotaDado != null) {
+            System.out.printf("%s con avatar %s, avanza %s posiciones. Quedan %s\nAvanza desde %s hasta %s.\n",
+                    Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                    Consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
+                    pelotaDado, Consola.num(casillasRestantes),
+                    anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
+
+            if (casillasRestantes == 0) {
+                pelotaDado = null;
+            }
+        } else {
+            // Mostrar información
+            System.out.printf("%s con avatar %s, avanza %s posiciones.\nAvanza desde %s hasta %s.\n",
+                    Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                    Consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
+                    dado,
+                    anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
+        }
 
         // Aumentar los precios en caso de que el avatar pasase por la salida
         calculadora.aumentarPrecio(casillas, jugadores);
 
         // Realizar la acción de la casilla
-        nuevaCasilla.accion(jugador, dado);
+        if (movimientoEspecial && tipo == TipoAvatar.Pelota && pelotaDado != null) {
+            nuevaCasilla.accion(jugador, pelotaDado);
+        } else {
+            nuevaCasilla.accion(jugador, dado);
+        }
+
         return true;
     }
 
@@ -266,17 +287,19 @@ public class Avatar {
         return true;
     }
 
-    private int moverEspecialCoche(Dado dado, int nCasillas) {
+    private int moverEspecialCoche(Dado dado, Calculadora calculadora, int nCasillas) {
+        // Primera tirada
         if (lanzamientosEnTurno == 0) {
             lanzamientosEnTurno = 2;
             lanzamientosEspeciales = 4;
         }
-
+        // Lanzamos el error de que no quedan lanzamientos
         if (lanzamientosEspeciales == 0) {
             Consola.error("No quedan lanzamientos. El jugador debe terminar el turno");
             return -1;
         }
 
+        // 4 tiradas especiales
         lanzamientosEspeciales--;
 
         if (dado.getValor() < 4) {
@@ -288,6 +311,7 @@ public class Avatar {
 
         lanzamientosEnTurno++;
 
+        // Ultima(s) tirada con comportamiento normal
         if (lanzamientosEspeciales == 0) {
             lanzamientosEnTurno = 0;
             if (dado.isDoble()) {
@@ -304,12 +328,30 @@ public class Avatar {
                     irCarcel();
                     return -1;
                 }
+                System.out.println("Dados dobles! El jugador puede tirar otra vez");
                 lanzamientosEspeciales++;
                 lanzamientosEnTurno++;
             }
             return this.casilla.getPosicion() + dado.getValor();
         }
-
+        //Condicion para romper el coche penalizacion
+        if (dado.getValor() < 4) {
+            lanzamientosEspeciales = 0;
+            penalizacion = 2;
+            lanzamientosEnTurno = 0;
+            int cantidad = this.casilla.getPosicion() - dado.getValor();
+            if (cantidad < 0) {
+                if (!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
+                    Consola.error("No puedes devolver el abono de la carcel.");
+                } else {
+                    System.out.printf(
+                            "El jugador %s paga %s por retroceder por la casillas de salida.\n%n", Consola.fmt(jugador.getNombre(), Color.Azul),
+                            Consola.num(calculadora.calcularAbonoSalida()));
+                }
+                cantidad += nCasillas;
+            }
+            return cantidad;
+        }
         return this.casilla.getPosicion() + dado.getValor();
     }
 
@@ -323,30 +365,90 @@ public class Avatar {
         return -1;
     }
 
-    private int moverEspecialPelota(Dado dado, int nCasillas) {
+    private int moverEspecialPelota(Dado dado, Calculadora calculadora, int nCasillas) {
+        // Comportamieto normal
         if (!pelotaMovimiento) {
-            if (dado.getValor() <= 4) return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
+            if (dado.getValor() <= 4) {
+                int cantidad = this.casilla.getPosicion() - dado.getValor();
+                if (cantidad < 0) {
+                    if (!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
+                        Consola.error("No puedes devolver el abono de la carcel.");
+                    } else {
+                        System.out.printf(
+                                "El jugador %s paga %s por retroceder por la casillas de salida.\n%n", Consola.fmt(jugador.getNombre(), Color.Azul),
+                                Consola.num(calculadora.calcularAbonoSalida()));
+                    }
+                    cantidad += nCasillas;
+                }
+                return cantidad;
+            }
             if (dado.getValor() == 5) return this.casilla.getPosicion() + dado.getValor();
         }
 
+        // Hay que mover más de una vez. 1º vez
         if (lanzamientosEnTurno == 0) {
             lanzamientosEnTurno = 2;
-            dadoEspera = dado.getValor() - 5;
+            pelotaDado = dado;
+            casillasRestantes = dado.getValor() - 5;
             pelotaMovimiento = true;
             return this.casilla.getPosicion() + 5;
         }
 
+        // Resto de veces
         if (pelotaMovimiento) {
-            if (dadoEspera <= 2) {
+            // Ultima vez
+            if (casillasRestantes <= 2) {
                 lanzamientosEnTurno = 0;
+                int i = casillasRestantes;
+                casillasRestantes = 0;
                 pelotaMovimiento = false;
-                return this.casilla.getPosicion() + dadoEspera;
+                if (pelotaDado.isDoble()) {
+                    lanzamientosEnTurno++;
+                    doblesSeguidos++;
+                    if (doblesSeguidos >= 3) {
+                        System.out.printf("""
+                                        %s con avatar %s ha sacado %s.
+                                        Ya son 3 veces seguidas sacando dados dobles.
+                                        %s es arrestado por tener tanta suerte.
+                                        """,
+                                Consola.fmt(jugador.getNombre(), Color.Azul),
+                                Consola.fmt(Character.toString(id), Color.Azul),
+                                dado, jugador.getNombre());
+                        irCarcel();
+                        return -1;
+                    }
+                    System.out.println("Dados dobles! El jugador puede tirar otra vez");
+                }
+                return this.casilla.getPosicion() + i;
             }
+
+            // Resto de veces
+            casillasRestantes -= 2;
             lanzamientosEnTurno++;
-            dadoEspera -= 2;
+            if (casillasRestantes == 0) {
+                pelotaMovimiento = false;
+                lanzamientosEnTurno = 0;
+                if (pelotaDado.isDoble()) {
+                    lanzamientosEnTurno++;
+                    doblesSeguidos++;
+                    if (doblesSeguidos >= 3) {
+                        System.out.printf("""
+                                        %s con avatar %s ha sacado %s.
+                                        Ya son 3 veces seguidas sacando dados dobles.
+                                        %s es arrestado por tener tanta suerte.
+                                        """,
+                                Consola.fmt(jugador.getNombre(), Color.Azul),
+                                Consola.fmt(Character.toString(id), Color.Azul),
+                                dado, jugador.getNombre());
+                        irCarcel();
+                        return -1;
+                    }
+                    System.out.println("Dados dobles! El jugador puede tirar otra vez");
+                }
+            }
             return this.casilla.getPosicion() + 2;
         }
-
+        // Salio algo mal
         return -1;
     }
 
@@ -371,6 +473,10 @@ public class Avatar {
     }
 
     public void cambiarModo() {
+        if (lanzamientosEnTurno >= 2) {
+            Consola.error("No puedes cambiar de modo en mitad de un movimiento");
+            return;
+        }
         if (movimientoEspecial) {
             movimientoEspecial = false;
             System.out.printf("%s regresa al modo de movimiento básico\n", Consola.fmt(jugador.getNombre(), Consola.Color.Azul));
@@ -391,7 +497,9 @@ public class Avatar {
         return encerrado;
     }
 
-    /** Devuelve el número de lanzamientos restantes. No confundir con EstadisticasJugador.nTiradas */
+    /**
+     * Devuelve el número de lanzamientos restantes. No confundir con EstadisticasJugador.nTiradas
+     */
     public int getLanzamientosEnTurno() {
         return lanzamientosEnTurno;
     }
@@ -422,6 +530,10 @@ public class Avatar {
 
     public void setPuedeComprar(boolean puedeComprar) {
         this.puedeComprar = puedeComprar;
+    }
+
+    public boolean isPelotaMovimiento() {
+        return pelotaMovimiento;
     }
 
     /**

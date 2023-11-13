@@ -2,7 +2,6 @@ package monopoly.utilidades;
 
 import monopoly.casillas.Edificio;
 import monopoly.casillas.Propiedad;
-import monopoly.jugadores.Avatar;
 import monopoly.jugadores.Jugador;
 
 public class EstadisticasJugador {
@@ -21,7 +20,9 @@ public class EstadisticasJugador {
     private int nTiradas;
     // @formatter:on
 
-    /** Estadísticas para el jugador */
+    /**
+     * Estadísticas para el jugador
+     */
     public EstadisticasJugador(Jugador jugador) {
         this.jugador = jugador;
 
