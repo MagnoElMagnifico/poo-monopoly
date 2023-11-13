@@ -116,10 +116,10 @@ public class Avatar {
         int posNuevaCasilla;
         if (movimientoEspecial) {
             posNuevaCasilla = switch (tipo) {
-                case Coche -> moverEspecialCoche(dado, casillas.size());
+                case Coche -> moverEspecialCoche(dado, calculadora, casillas.size());
                 case Esfinge -> moverEspecialEsfinge();
                 case Sombrero -> moverEspecialSombrero();
-                case Pelota -> moverEspecialPelota(dado, casillas.size());
+                case Pelota -> moverEspecialPelota(dado, calculadora,casillas.size());
             };
         } else {
             posNuevaCasilla = moverBasico(dado);
@@ -178,7 +178,11 @@ public class Avatar {
         Calculadora.aumentarPrecio(casillas, jugadores);
 
         // Realizar la acción de la casilla
-        nuevaCasilla.accion(jugador, dado);
+        if (movimientoEspecial && tipo == TipoAvatar.Pelota && pelotaDado != null) {
+            nuevaCasilla.accion(jugador,pelotaDado);
+        } else {
+            nuevaCasilla.accion(jugador, dado);
+        }
         return true;
     }
 
@@ -274,7 +278,7 @@ public class Avatar {
         return true;
     }
 
-    private int moverEspecialCoche(Dado dado, int nCasillas) {
+    private int moverEspecialCoche(Dado dado, Calculadora calculadora, int nCasillas) {
         // Primera tirada
         if (lanzamientos == 0) {
             lanzamientos = 2;
@@ -317,7 +321,18 @@ public class Avatar {
             lanzamientosEspeciales = 0;
             penalizacion = 2;
             lanzamientos = 0;
-            return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
+            int cantidad = this.casilla.getPosicion() - dado.getValor();
+            if(cantidad<0){
+                if(!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
+                    Consola.error("No puedes devolver el abono de la carcel.");
+                } else {
+                    System.out.println("El jugador %s paga %s por retroceder por la casillas de salida.\n".formatted(
+                            Consola.fmt(jugador.getNombre(), Color.Azul),
+                            Consola.num(calculadora.calcularAbonoSalida())));
+                }
+                cantidad+=nCasillas;
+            }
+            return cantidad;
         }
         return this.casilla.getPosicion() + dado.getValor();
     }
@@ -332,10 +347,23 @@ public class Avatar {
         return -1;
     }
 
-    private int moverEspecialPelota(Dado dado, int nCasillas) {
+    private int moverEspecialPelota(Dado dado, Calculadora calculadora, int nCasillas) {
         // Comportamieto normal
         if (!pelotaMovimiento) {
-            if (dado.getValor() <= 4) return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
+            if (dado.getValor() <= 4) {
+                int cantidad = this.casilla.getPosicion() - dado.getValor();
+                if(cantidad<0){
+                    if(!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
+                        Consola.error("No puedes devolver el abono de la carcel.");
+                    } else {
+                        System.out.println("El jugador %s paga %s por retroceder por la casillas de salida.\n".formatted(
+                                Consola.fmt(jugador.getNombre(), Color.Azul),
+                                Consola.num(calculadora.calcularAbonoSalida())));
+                    }
+                    cantidad+=nCasillas;
+                }
+                return cantidad;
+            }
             if (dado.getValor() == 5) return this.casilla.getPosicion() + dado.getValor();
         }
         // Hay que mover más de una vez. 1º vez
@@ -491,6 +519,10 @@ public class Avatar {
 
     public void setPuedeComprar(boolean puedeComprar) {
         this.puedeComprar = puedeComprar;
+    }
+
+    public boolean isPelotaMovimiento() {
+        return pelotaMovimiento;
     }
 
     /**

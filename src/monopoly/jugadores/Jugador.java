@@ -92,13 +92,29 @@ public class Jugador {
         return edificios.toString();
     }
 
+    private String listarHipotecas() {
+        StringBuilder hipotecas =new StringBuilder();
+        hipotecas.append('[');
+        boolean primero = true;
+        for(Propiedad p : propiedades) {
+            if(p.isHipotecada()){
+                if(primero){
+                    primero =false;
+                }else {
+                    hipotecas.append(',');
+                }
+                hipotecas.append(p.getCasilla().getNombreFmt());
+            }
+        }
+        hipotecas.append(']');
+        return hipotecas.toString();
+    }
     @Override
     public String toString() {
         if (banca) {
             return "Jugador Especial: Banca\n";
         }
 
-        // TODO: hipotecas
         // @formatter:off
         return """
                 {
@@ -107,12 +123,15 @@ public class Jugador {
                     fortuna: %s
                     gastos: %s
                     propiedades: %s
+                    hipotecas: %s
                     edificios: %s
+                    
                 }""".formatted(nombre,
                                avatar.getId(),
                                Consola.num(fortuna),
                                Consola.num(gastos),
                                Consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()),
+                               listarHipotecas(),
                                listarEdificios());
         // @formatter:on
     }
@@ -498,6 +517,7 @@ public class Jugador {
                 banca.ingresar(cantidadDeuda);
                 endeudado = false;
                 cantidadDeuda = 0;
+                return;
             }
         } else {
             if (cobrar(cantidadDeuda)) {
@@ -506,8 +526,10 @@ public class Jugador {
                 endeudado = false;
                 jug = null;
                 cantidadDeuda = 0;
+                return;
             }
         }
+        Consola.error("No tienes dinero para pagar la deuda.");
     }
 
     public boolean setBancarrota(Jugador banca) {
