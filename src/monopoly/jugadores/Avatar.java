@@ -178,7 +178,11 @@ public class Avatar {
         Calculadora.aumentarPrecio(casillas, jugadores);
 
         // Realizar la acción de la casilla
-        nuevaCasilla.accion(jugador, dado);
+        if (movimientoEspecial && tipo == TipoAvatar.Pelota && pelotaDado != null) {
+            nuevaCasilla.accion(jugador,pelotaDado);
+        } else {
+            nuevaCasilla.accion(jugador, dado);
+        }
         return true;
     }
 
@@ -319,8 +323,12 @@ public class Avatar {
             lanzamientos = 0;
             int cantidad = this.casilla.getPosicion() - dado.getValor();
             if(cantidad<0){
-                if(getJugador().cobrar(calculadora.calcularAbonoSalida())) {
+                if(!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
                     Consola.error("No puedes devolver el abono de la carcel.");
+                } else {
+                    System.out.println("El jugador %s paga %s por retroceder por la casillas de salida.\n".formatted(
+                            Consola.fmt(jugador.getNombre(), Color.Azul),
+                            Consola.num(calculadora.calcularAbonoSalida())));
                 }
                 cantidad+=nCasillas;
             }
@@ -345,8 +353,12 @@ public class Avatar {
             if (dado.getValor() <= 4) {
                 int cantidad = this.casilla.getPosicion() - dado.getValor();
                 if(cantidad<0){
-                    if(getJugador().cobrar(calculadora.calcularAbonoSalida())) {
+                    if(!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
                         Consola.error("No puedes devolver el abono de la carcel.");
+                    } else {
+                        System.out.println("El jugador %s paga %s por retroceder por la casillas de salida.\n".formatted(
+                                Consola.fmt(jugador.getNombre(), Color.Azul),
+                                Consola.num(calculadora.calcularAbonoSalida())));
                     }
                     cantidad+=nCasillas;
                 }
@@ -507,6 +519,10 @@ public class Avatar {
 
     public void setPuedeComprar(boolean puedeComprar) {
         this.puedeComprar = puedeComprar;
+    }
+
+    public boolean isPelotaMovimiento() {
+        return pelotaMovimiento;
     }
 
     /**

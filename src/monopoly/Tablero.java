@@ -146,6 +146,27 @@ public class Tablero {
         }
     }
 
+    public void moverAvatar(){
+        if (!jugando) {
+            Consola.error("No se ha iniciado la partida");
+            return;
+        }
+        if(getJugadorTurno().getAvatar().getTipo()!=Avatar.TipoAvatar.Pelota){
+            Consola.error("No puedes usar este comando no eres una pelota.");
+            return;
+        }
+        if(!getJugadorTurno().getAvatar().isMovimientoEspecial() || !getJugadorTurno().getAvatar().isPelotaMovimiento()){
+            Consola.error("No puedes usar esto ahora vuelve más tarde.");
+            return;
+        }
+        if (getJugadorTurno().isEndeudado()) {
+            Consola.error("Estas endeudado paga la deuda o declárate en bancarrota");
+            return;
+        }
+        if (getJugadorTurno().getAvatar().mover(null, casillas, jugadores, calculadora)) {
+            System.out.print(this);
+        }
+    }
     /**
      * Termina el turno del jugador actual y calcula el siguiente
      */
@@ -237,9 +258,9 @@ public class Tablero {
             Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
             return;
         }
-
+        // Especifico para el coche que solo puede comprar una vez por turno en modo especial
         if (!j.getAvatar().isPuedeComprar()) {
-            // TODO: pero por qué no se puede comprar? Explicar esto mejor
+
             Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
             return;
         }
