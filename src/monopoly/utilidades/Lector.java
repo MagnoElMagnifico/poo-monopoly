@@ -146,7 +146,7 @@ public class Lector {
             }
 
             // Se limpia la línea y se separa en campos
-            String[] campos = linea.strip().replaceAll(" +", "").split(":");
+            String[] campos = linea.strip().replaceAll(" *: *", ":").replaceAll("  +", " ").split(":");
 
             if (campos.length != 3) {
                 Consola.error("[FATAL] ArchivoCartas línea %d: número de campos incorrecto, %d recibidos, 3 esperados".formatted(nLinea, campos.length));

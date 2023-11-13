@@ -5,6 +5,7 @@ import monopoly.jugadores.Jugador;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Consola.Estilo;
 import monopoly.utilidades.Dado;
+import monopoly.utilidades.EstadisticasCasilla;
 
 import java.util.ArrayList;
 
@@ -27,6 +28,7 @@ public class Casilla {
     // Si es una casilla especial, este campo está a `null`.
     private final Propiedad propiedad;
     private final ArrayList<Avatar> avatares;
+    private final EstadisticasCasilla estadisticas;
 
     private long fianza;       /* Solo en Carcel: Valor pagado para salir de la cárcel */
     private long abonoSalida;  /* Solo en Salida: Valor recibido al pasar por la salida */
@@ -44,6 +46,7 @@ public class Casilla {
         this.propiedad = new Propiedad(nombre, this, tipoPropiedad);
         this.grupo = grupo;
         this.avatares = new ArrayList<>();
+        this.estadisticas = new EstadisticasCasilla(this);
 
         // Los establece luego la Calculadora según el tipo
         fianza = -1;
@@ -63,6 +66,7 @@ public class Casilla {
         this.propiedad = null;
         this.grupo = grupo;
         this.avatares = new ArrayList<>();
+        this.estadisticas = new EstadisticasCasilla(this);
 
         // Los establece luego la Calculadora según el tipo
         fianza = -1;
@@ -197,6 +201,10 @@ public class Casilla {
 
     public ArrayList<Avatar> getAvatares() {
         return avatares;
+    }
+
+    public EstadisticasCasilla getEstadisticas() {
+        return estadisticas;
     }
 
     public long getFianza() {

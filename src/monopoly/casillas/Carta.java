@@ -58,32 +58,60 @@ public class Carta {
      * Función de ayuda que realiza las acciones de las cartas de Suerte
      */
     private void accionSuerte() {
+        Jugador jugadorTurno = tablero.getJugadorTurno();
+
+        // Se ingresa si la cantidad es positiva y se cobra si es negativa
+        long cantidad = 0;
+
         switch (id) {
-            case 3 -> tablero.getJugadorTurno().ingresar(500_000L);
-            case 6 -> tablero.getJugadorTurno().ingresar(1_000_000L);
-            case 7 -> {
-                if (!tablero.getJugadorTurno().cobrar(1_500_000L)) {
-                    Consola.error("El jugador no tiene suficiente dinero para completar su fortuna");
+            case 3 -> cantidad = 500_000L;
+            case 6 -> cantidad = 1_000_000L;
+            case 7 -> cantidad = -1_500_000L;
+            case 12 -> cantidad = -150_000L;
+            case 8 -> {
+                for (Propiedad p : jugadorTurno.getPropiedades()) {
+                    for (Edificio e : p.getEdificios()) {
+                        cantidad -= switch (e.getTipo()) {
+                            case Casa -> 4_000_000L;
+                            case Hotel -> 1_500_000L;
+                            case Piscina -> 200_000L;
+                            case PistaDeporte -> 750_000L;
+                        };
+                    }
                 }
             }
-            case 12 -> {
-                if (!tablero.getJugadorTurno().cobrar(150_000L)) {
-                    Consola.error("El jugador no tiene suficiente dinero para completar su fortuna");
-                }
-            }
-            // TODO: pagar por casa, hotel, piscina y pista de deportes
-            case 8 -> Consola.error("No implementado");
             case 10 -> {
-                if (!tablero.getJugadorTurno().cobrar(250_000L * tablero.getJugadores().size())) {
+                long cantidadPorJugador = 250_000L;
+                if (!jugadorTurno.cobrar(cantidadPorJugador * tablero.getJugadores().size())) {
                     Consola.error("El jugador no tiene suficiente dinero para completar su fortuna");
                 }
 
+                // NOTA: el pago a otros jugadores no se considera una tasa.
+                // No hace falta actualizar las estadísticas del jugadorTurno
+
+                // NOTA: se está ingresando el dinero a cada jugador incluso si el jugador no puede pagarlo
+
                 for (Jugador j : tablero.getJugadores()) {
-                    j.ingresar(250_000L);
+                    j.ingresar(cantidadPorJugador);
+                    j.getEstadisticas().anadirPremio(cantidadPorJugador);
                 }
+
+                return;
             }
 
             default -> Consola.error("[Carta] ID no soportado para realizar acción");
+        }
+
+        if (cantidad > 0) {
+            jugadorTurno.ingresar(cantidad);
+            jugadorTurno.getEstadisticas().anadirPremio(cantidad);
+        } else {
+            if (jugadorTurno.cobrar(-cantidad)) {
+                jugadorTurno.getEstadisticas().anadirTasa(-cantidad);
+                tablero.getBanca().ingresar(-cantidad);
+            } else {
+                Consola.error("El jugador no tiene suficiente dinero para completar su fortuna");
+            }
         }
     }
 
@@ -91,31 +119,49 @@ public class Carta {
      * Función de ayuda que realiza las acciones de las cartas de Comunidad
      */
     private void accionComunidad() {
+        Jugador jugadorTurno = tablero.getJugadorTurno();
+
+        // Se ingresa si la cantidad es positiva y se cobra si es negativa
+        long cantidad = 0;
+
         switch (id) {
-            case 4 -> tablero.getJugadorTurno().ingresar(2_000_000L);
-            case 6 -> tablero.getJugadorTurno().ingresar(500_000L);
-            case 9 -> tablero.getJugadorTurno().ingresar(1_000_000L);
-            case 1 -> {
-                if (!tablero.getJugadorTurno().cobrar(150_000L)) {
-                    Consola.error("El jugador no tiene suficiente dinero para completar su acción de comunidad");
-                }
-            }
-            case 5 -> {
-                if (!tablero.getJugadorTurno().cobrar(1_000_000L)) {
-                    Consola.error("El jugador no tiene suficiente dinero para completar su acción de comunidad");
-                }
-            }
+            case 4 -> cantidad = 2_000_000L;
+            case 6 -> cantidad = 500_000L;
+            case 9 -> cantidad = 1_000_000L;
+            case 1 -> cantidad = -150_000L;
+            case 5 -> cantidad = -1_000_000;
             case 8 -> {
-                if (!tablero.getJugadorTurno().cobrar(200_000L * tablero.getJugadores().size())) {
+                long cantidadPorJugador = 250_000L;
+                if (!jugadorTurno.cobrar(cantidadPorJugador * tablero.getJugadores().size())) {
                     Consola.error("El jugador no tiene suficiente dinero para completar su acción de comunidad");
                 }
 
+                // NOTA: el pago a otros jugadores no se considera una tasa.
+                // No hace falta actualizar las estadísticas del jugadorTurno
+
+                // NOTA: se está ingresando el dinero a cada jugador incluso si el jugador no puede pagarlo
+
                 for (Jugador j : tablero.getJugadores()) {
-                    j.ingresar(200_000L);
+                    j.ingresar(cantidadPorJugador);
+                    j.getEstadisticas().anadirPremio(cantidadPorJugador);
                 }
+
+                return;
             }
 
             default -> Consola.error("[Carta] ID no soportado para realizar acción");
+        }
+
+        if (cantidad > 0) {
+            jugadorTurno.ingresar(cantidad);
+            jugadorTurno.getEstadisticas().anadirPremio(cantidad);
+        } else {
+            if (jugadorTurno.cobrar(-cantidad)) {
+                jugadorTurno.getEstadisticas().anadirTasa(-cantidad);
+                tablero.getBanca().ingresar(-cantidad);
+            } else {
+                Consola.error("El jugador no tiene suficiente dinero para completar su acción de comunidad");
+            }
         }
     }
 

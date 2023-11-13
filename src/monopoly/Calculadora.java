@@ -18,10 +18,12 @@ public class Calculadora {
     public static final long PRECIO_GRUPO1 = 1_000_000;
     private long sumaSolares;
     private long nSolares;
+    private int nAumentosPrecio;
 
     public Calculadora(ArrayList<Casilla> casillas) {
         sumaSolares = 0;
         nSolares = 0;
+        nAumentosPrecio = 1;
 
         // Contar los solares y su precio total
         for (Casilla c : casillas) {
@@ -39,11 +41,6 @@ public class Calculadora {
      */
     public static long calcularAlquiler(Propiedad p) {
         long alquilerSolar = p.getPrecio() / 10;
-
-        // Si el dueño tiene el monopolio, el alquiler se duplica
-        if (tieneGrupo(p)) {
-            alquilerSolar *= 2;
-        }
 
         // Calcular el precio incluyendo los edificios (solo si es solar)
         long alquilerEdificio = 0;
@@ -72,6 +69,11 @@ public class Calculadora {
         }
         // @formatter:on
 
+        // Si el dueño tiene el monopolio, el alquiler se duplica
+        if (tieneGrupo(p)) {
+            alquilerSolar *= 2;
+        }
+
         return alquilerSolar + alquilerEdificio;
     }
 
@@ -97,32 +99,6 @@ public class Calculadora {
     }
 
     /**
-     * Aumenta el precio de todos los solares que
-     * aún no se han vendido al cabo de 4 vueltas.
-     */
-    public static void aumentarPrecio(ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores) {
-        for (Jugador jugador : jugadores) {
-            if (jugador.getAvatar().getVueltas() < 4) {
-                return;
-            }
-        }
-
-        for (Casilla c : casillas) {
-            // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-            if (c.isPropiedad() && (c.getPropiedad().getPropietario() == null || c.getPropiedad().getPropietario().isBanca())) {
-                Propiedad p = c.getPropiedad();
-                p.setPrecio((long) (p.getPrecio() * 1.05));
-            }
-        }
-
-        for (Jugador jugador : jugadores) {
-            jugador.getAvatar().resetVuelta();
-        }
-
-        System.out.println("Se ha aumentado el precio de todas las casillas en venta\n");
-    }
-
-    /**
      * Calcula y devuelve el precio de edificar un edificio en la propiedad dada
      */
     public static long calcularPrecio(Edificio e) {
@@ -142,6 +118,30 @@ public class Calculadora {
 
     public static long calculardeshipoteca(Propiedad propiedad) {
         return (long) (calcularHipoteca(propiedad) * 1.1);
+    }
+
+    /**
+     * Aumenta el precio de todos los solares que
+     * aún no se han vendido al cabo de 4 vueltas.
+     */
+    public void aumentarPrecio(ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores) {
+        for (Jugador jugador : jugadores) {
+            if (jugador.getEstadisticas().getVueltas() - 4 * nAumentosPrecio <= 0) {
+                return;
+            }
+        }
+
+        nAumentosPrecio++;
+
+        for (Casilla c : casillas) {
+            // Si la casilla se puede comprar y no tiene dueño, es que está en venta
+            if (c.isPropiedad() && (c.getPropiedad().getPropietario() == null || c.getPropiedad().getPropietario().isBanca())) {
+                Propiedad p = c.getPropiedad();
+                p.setPrecio((long) (p.getPrecio() * 1.05));
+            }
+        }
+
+        System.out.println("Se ha aumentado el precio de todas las casillas en venta\n");
     }
 
     /**

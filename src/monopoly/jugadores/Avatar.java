@@ -28,16 +28,15 @@ public class Avatar {
     // Estado
     private boolean encerrado;
     private boolean movimientoEspecial;
-    private boolean pelotaMovimiento;  /*Solo para la pelota se comprueba si esta en movimento*/
-    private boolean puedeComprar; /* Solo para el coche no permite permite comprar solo una vez*/
-    private int casillasRestantes; /*Solo para la pelota almacena el dado del turno*/
-    private Dado pelotaDado; /*Solo pafra la pelota guarda el dado */
+    private boolean pelotaMovimiento;  /* Solo para la pelota: se comprueba si está en movimiento */
+    private boolean puedeComprar;      /* Solo para el coche: no permite comprar solo una vez */
+    private int casillasRestantes;     /* Solo para la pelota: almacena el dado del turno */
+    private Dado pelotaDado;           /* Solo para la pelota: guarda el dado */
     private int doblesSeguidos;
-    private int estanciasCarcel;
-    private int lanzamientos;
-    private int lanzamientosEspeciales; /*Solo para el coche alamcena los movimentos que quedan en modo especial*/
-    private int penalizacion; /*Solo para el coche penalizacion si saca menos de 4 */
-    private int vueltas;
+    private int turnosEnCarcel;
+    private int lanzamientosEnTurno;
+    private int lanzamientosEspeciales;  /* Solo para el coche almacena los movimientos que quedan en modo especial */
+    private int penalizacion;            /* Solo para el coche penalización si saca menos de 4 */
     // @formatter:on
 
     /**
@@ -49,6 +48,7 @@ public class Avatar {
         this.jugador = jugador;
         this.casilla = casillaInicial;
         casillaInicial.anadirAvatar(this);
+        casillaInicial.getEstadisticas().anadirEstancia();
 
         this.historialCasillas = new ArrayList<>();
 
@@ -59,11 +59,10 @@ public class Avatar {
 
         this.casillasRestantes = 0;
         this.doblesSeguidos = 0;
-        this.estanciasCarcel = 0;
-        this.lanzamientos = 1;
+        this.turnosEnCarcel = 0;
+        this.lanzamientosEnTurno = 1;
         this.lanzamientosEspeciales = 0;
         this.penalizacion = 0;
-        this.vueltas = 0;
         this.pelotaDado = null;
     }
 
@@ -94,12 +93,13 @@ public class Avatar {
      * @return True si se ha movido con éxito, false si ha habido un error.
      */
     public boolean mover(Dado dado, ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores, Calculadora calculadora) {
-        if (lanzamientos <= 0) {
+        if (lanzamientosEnTurno <= 0) {
             Consola.error("No quedan lanzamientos. El jugador debe terminar el turno");
             return false;
         }
 
-        lanzamientos--;
+        lanzamientosEnTurno--;
+        jugador.getEstadisticas().anadirTirada();
 
         if (penalizacion != 0) {
             penalizacion--;
@@ -119,7 +119,7 @@ public class Avatar {
                 case Coche -> moverEspecialCoche(dado, calculadora, casillas.size());
                 case Esfinge -> moverEspecialEsfinge();
                 case Sombrero -> moverEspecialSombrero();
-                case Pelota -> moverEspecialPelota(dado, calculadora,casillas.size());
+                case Pelota -> moverEspecialPelota(dado, calculadora, casillas.size());
             };
         } else {
             posNuevaCasilla = moverBasico(dado);
@@ -135,11 +135,13 @@ public class Avatar {
         if (posNuevaCasilla >= casillas.size()) {
             posNuevaCasilla -= casillas.size();
 
-            this.anadirVuelta();
-            jugador.ingresar(calculadora.calcularAbonoSalida());
+            long abonoSalida = calculadora.calcularAbonoSalida();
+            jugador.ingresar(abonoSalida);
+            jugador.getEstadisticas().anadirAbonoSalida(abonoSalida);
+            jugador.getEstadisticas().anadirVuelta();
 
             // Aumentar los precios en caso de que el avatar pasase por la salida
-            Calculadora.aumentarPrecio(casillas, jugadores);
+            calculadora.aumentarPrecio(casillas, jugadores);
 
             System.out.printf("Como el avatar pasa por la casilla de Salida, %s recibe %s\n",
                     Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
@@ -156,6 +158,7 @@ public class Avatar {
 
         // Añadir la nueva casilla al historial
         historialCasillas.add(nuevaCasilla);
+        nuevaCasilla.getEstadisticas().anadirEstancia();
 
 
         // Mostrar informacion de la lepota si estáen movimiento especial
@@ -165,7 +168,10 @@ public class Avatar {
                     Consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
                     pelotaDado, Consola.num(casillasRestantes),
                     anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
-            if (casillasRestantes == 0) pelotaDado = null;
+
+            if (casillasRestantes == 0) {
+                pelotaDado = null;
+            }
         } else {
             // Mostrar información
             System.out.printf("%s con avatar %s, avanza %s posiciones.\nAvanza desde %s hasta %s.\n",
@@ -174,15 +180,17 @@ public class Avatar {
                     dado,
                     anteriorCasilla.getNombreFmt(), nuevaCasilla.getNombreFmt());
         }
+
         // Aumentar los precios en caso de que el avatar pasase por la salida
-        Calculadora.aumentarPrecio(casillas, jugadores);
+        calculadora.aumentarPrecio(casillas, jugadores);
 
         // Realizar la acción de la casilla
         if (movimientoEspecial && tipo == TipoAvatar.Pelota && pelotaDado != null) {
-            nuevaCasilla.accion(jugador,pelotaDado);
+            nuevaCasilla.accion(jugador, pelotaDado);
         } else {
             nuevaCasilla.accion(jugador, dado);
         }
+
         return true;
     }
 
@@ -205,7 +213,7 @@ public class Avatar {
                 irCarcel(); // TODO: no funciona: NullPointer porque cárcel no está definido para todas las casillas
                 return -1;
             } else {
-                lanzamientos++;
+                lanzamientosEnTurno++;
                 System.out.println("Dados dobles! El jugador puede tirar otra vez");
             }
         }
@@ -217,14 +225,14 @@ public class Avatar {
      * Realiza una tirada de dados cuando está en la cárcel
      */
     private void moverEstandoCarcel(Dado dado) {
-        estanciasCarcel++;
+        turnosEnCarcel++;
 
         if (dado.isDoble()) {
             System.out.println("Dados dobles! El jugador puede salir de la Cárcel");
-            lanzamientos++;
+            lanzamientosEnTurno++;
             encerrado = false;
-            estanciasCarcel = 0;
-        } else if (estanciasCarcel >= 3) {
+            turnosEnCarcel = 0;
+        } else if (turnosEnCarcel >= 3) {
             System.out.printf("%s con avatar %s no ha sacado dados dobles %s.\nAhora debe pagar obligatoriamente la fianza.\n",
                     Consola.fmt(jugador.getNombre(), Color.Azul),
                     Consola.fmt(Character.toString(id), Color.Azul),
@@ -243,9 +251,10 @@ public class Avatar {
      */
     public void irCarcel() {
         encerrado = true;
-        estanciasCarcel = 0;
-        lanzamientos = 0;
+        turnosEnCarcel = 0;
+        lanzamientosEnTurno = 0;
         lanzamientosEspeciales = 0;
+        jugador.getEstadisticas().anadirEstanciaCarcel();
 
         Casilla nuevaCasilla = this.casilla.getCarcel();
         this.casilla.quitarAvatar(this);
@@ -272,7 +281,7 @@ public class Avatar {
         }
 
         encerrado = false;
-        estanciasCarcel = 0;
+        turnosEnCarcel = 0;
 
         System.out.printf("El jugador %s paga %s para salir de la cárcel\n", jugador.getNombre(), Consola.num(casilla.getFianza()));
         return true;
@@ -280,8 +289,8 @@ public class Avatar {
 
     private int moverEspecialCoche(Dado dado, Calculadora calculadora, int nCasillas) {
         // Primera tirada
-        if (lanzamientos == 0) {
-            lanzamientos = 2;
+        if (lanzamientosEnTurno == 0) {
+            lanzamientosEnTurno = 2;
             lanzamientosEspeciales = 4;
         }
         // Lanzamos el error de que no quedan lanzamientos
@@ -292,10 +301,19 @@ public class Avatar {
 
         // 4 tiradas especiales
         lanzamientosEspeciales--;
-        lanzamientos++;
+
+        if (dado.getValor() < 4) {
+            lanzamientosEspeciales = 0;
+            penalizacion = 2;
+            lanzamientosEnTurno = 0;
+            return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
+        }
+
+        lanzamientosEnTurno++;
+
         // Ultima(s) tirada con comportamiento normal
         if (lanzamientosEspeciales == 0) {
-            lanzamientos = 0;
+            lanzamientosEnTurno = 0;
             if (dado.isDoble()) {
                 doblesSeguidos++;
                 if (doblesSeguidos >= 3) {
@@ -312,7 +330,7 @@ public class Avatar {
                 }
                 System.out.println("Dados dobles! El jugador puede tirar otra vez");
                 lanzamientosEspeciales++;
-                lanzamientos++;
+                lanzamientosEnTurno++;
             }
             return this.casilla.getPosicion() + dado.getValor();
         }
@@ -320,17 +338,17 @@ public class Avatar {
         if (dado.getValor() < 4) {
             lanzamientosEspeciales = 0;
             penalizacion = 2;
-            lanzamientos = 0;
+            lanzamientosEnTurno = 0;
             int cantidad = this.casilla.getPosicion() - dado.getValor();
-            if(cantidad<0){
-                if(!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
+            if (cantidad < 0) {
+                if (!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
                     Consola.error("No puedes devolver el abono de la carcel.");
                 } else {
-                    System.out.println("El jugador %s paga %s por retroceder por la casillas de salida.\n".formatted(
-                            Consola.fmt(jugador.getNombre(), Color.Azul),
-                            Consola.num(calculadora.calcularAbonoSalida())));
+                    System.out.printf(
+                            "El jugador %s paga %s por retroceder por la casillas de salida.\n%n", Consola.fmt(jugador.getNombre(), Color.Azul),
+                            Consola.num(calculadora.calcularAbonoSalida()));
                 }
-                cantidad+=nCasillas;
+                cantidad += nCasillas;
             }
             return cantidad;
         }
@@ -352,39 +370,40 @@ public class Avatar {
         if (!pelotaMovimiento) {
             if (dado.getValor() <= 4) {
                 int cantidad = this.casilla.getPosicion() - dado.getValor();
-                if(cantidad<0){
-                    if(!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
+                if (cantidad < 0) {
+                    if (!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
                         Consola.error("No puedes devolver el abono de la carcel.");
                     } else {
-                        System.out.println("El jugador %s paga %s por retroceder por la casillas de salida.\n".formatted(
-                                Consola.fmt(jugador.getNombre(), Color.Azul),
-                                Consola.num(calculadora.calcularAbonoSalida())));
+                        System.out.printf(
+                                "El jugador %s paga %s por retroceder por la casillas de salida.\n%n", Consola.fmt(jugador.getNombre(), Color.Azul),
+                                Consola.num(calculadora.calcularAbonoSalida()));
                     }
-                    cantidad+=nCasillas;
+                    cantidad += nCasillas;
                 }
                 return cantidad;
             }
             if (dado.getValor() == 5) return this.casilla.getPosicion() + dado.getValor();
         }
+
         // Hay que mover más de una vez. 1º vez
-        if (lanzamientos == 0) {
-            lanzamientos = 2;
+        if (lanzamientosEnTurno == 0) {
+            lanzamientosEnTurno = 2;
             pelotaDado = dado;
             casillasRestantes = dado.getValor() - 5;
             pelotaMovimiento = true;
             return this.casilla.getPosicion() + 5;
         }
+
         // Resto de veces
         if (pelotaMovimiento) {
-
             // Ultima vez
             if (casillasRestantes <= 2) {
-                lanzamientos = 0;
+                lanzamientosEnTurno = 0;
                 int i = casillasRestantes;
                 casillasRestantes = 0;
                 pelotaMovimiento = false;
                 if (pelotaDado.isDoble()) {
-                    lanzamientos++;
+                    lanzamientosEnTurno++;
                     doblesSeguidos++;
                     if (doblesSeguidos >= 3) {
                         System.out.printf("""
@@ -402,14 +421,15 @@ public class Avatar {
                 }
                 return this.casilla.getPosicion() + i;
             }
+
             // Resto de veces
             casillasRestantes -= 2;
-            lanzamientos++;
+            lanzamientosEnTurno++;
             if (casillasRestantes == 0) {
                 pelotaMovimiento = false;
-                lanzamientos = 0;
+                lanzamientosEnTurno = 0;
                 if (pelotaDado.isDoble()) {
-                    lanzamientos++;
+                    lanzamientosEnTurno++;
                     doblesSeguidos++;
                     if (doblesSeguidos >= 3) {
                         System.out.printf("""
@@ -453,7 +473,7 @@ public class Avatar {
     }
 
     public void cambiarModo() {
-        if (lanzamientos >= 2) {
+        if (lanzamientosEnTurno >= 2) {
             Consola.error("No puedes cambiar de modo en mitad de un movimiento");
             return;
         }
@@ -469,32 +489,23 @@ public class Avatar {
         }
     }
 
-    public int getEstanciasCarcel() {
-        return estanciasCarcel;
+    public int getTurnosEnCarcel() {
+        return turnosEnCarcel;
     }
 
     public boolean isEncerrado() {
         return encerrado;
     }
 
-    public int getVueltas() {
-        return vueltas;
-    }
-
-    public void anadirVuelta() {
-        this.vueltas++;
-    }
-
-    public void resetVuelta() {
-        this.vueltas = 0;
-    }
-
-    public int getLanzamientos() {
-        return lanzamientos;
+    /**
+     * Devuelve el número de lanzamientos restantes. No confundir con EstadisticasJugador.nTiradas
+     */
+    public int getLanzamientosEnTurno() {
+        return lanzamientosEnTurno;
     }
 
     public void resetLanzamientos() {
-        lanzamientos = 1;
+        lanzamientosEnTurno = 1;
     }
 
     public int getDoblesSeguidos() {
