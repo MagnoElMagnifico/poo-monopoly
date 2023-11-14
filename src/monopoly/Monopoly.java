@@ -143,7 +143,6 @@ public class Monopoly {
             case "siguiente", "sig", "next"   -> tablero.siguienteMovimiento();
             case "acabar turno", "fin", "end" -> tablero.acabarTurno();
             case "bancarrota"                 -> tablero.bancarrota();
-            case "pagar deuda"                -> tablero.getJugadorTurno().pagarDeuda(tablero.getBanca());
 
             default -> this.cmdConArgumentos(cmdNorm);
         }
@@ -201,11 +200,9 @@ public class Monopoly {
         Avatar.TipoAvatar tipo;
         switch (args[3]) {
             case "c", "coche"    -> tipo = Avatar.TipoAvatar.Coche;
-            case "e", "esfinge"  -> tipo = Avatar.TipoAvatar.Esfinge;
-            case "s", "sombrero" -> tipo = Avatar.TipoAvatar.Sombrero;
             case "p", "pelota"   -> tipo = Avatar.TipoAvatar.Pelota;
             default -> {
-                Consola.error("\"%s\": No es un tipo válido de Avatar (prueba con c, e, s, p)".formatted(args[3]));
+                Consola.error("\"%s\": No es un tipo válido de Avatar (prueba con c, p)".formatted(args[3]));
                 return;
             }
         }
