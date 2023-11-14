@@ -132,9 +132,10 @@ public class EstadisticasJugador {
 
         for (Propiedad p : jugador.getPropiedades()) {
             capital += p.getPrecio();
-
-            for (Edificio e : p.getEdificios()) {
-                capital += e.getValor();
+            if (p.getTipo()== Propiedad.TipoPropiedad.Solar){
+                for (Edificio e : p.getEdificios()) {
+                    capital += e.getValor();
+                }
             }
         }
 

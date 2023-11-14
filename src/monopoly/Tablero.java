@@ -270,7 +270,7 @@ public class Tablero {
         }
 
         if (j.comprar(c.getPropiedad())) {
-            if (j.getAvatar().isMovimientoEspecial() && j.getAvatar().getTipo() == Avatar.TipoAvatar.Pelota) {
+            if (j.getAvatar().isMovimientoEspecial() && j.getAvatar().getTipo() == Avatar.TipoAvatar.Coche) {
                 j.getAvatar().setPuedeComprar(false);
             }
             j.describirTransaccion();
