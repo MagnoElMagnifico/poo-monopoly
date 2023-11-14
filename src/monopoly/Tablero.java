@@ -11,6 +11,7 @@ import monopoly.utilidades.Consola.Color;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 
 /**
  * Clase que representa el tablero del juego.
@@ -26,6 +27,7 @@ public class Tablero {
     private final ArrayList<Jugador> jugadores;
     private final ArrayList<Casilla> casillas;
     private final ArrayList<Grupo> grupos;
+    private Casilla carcel;
     private int turno;
     private boolean jugando;
 
@@ -44,6 +46,17 @@ public class Tablero {
 
         this.calculadora = new Calculadora(casillas);
         this.calculadora.asignarValores(casillas, banca, Lector.leerCartas("src/cartas.txt", this));
+
+        // Buscar la casilla de cárcel
+        // Se necesita tener esta referencia para poder enviar rápidamente el avatar
+        // a la cárcel en caso de que saque dados dobles o caiga en IrCarcel.
+        carcel = null;
+        for (Casilla c : casillas) {
+            if (c.getTipo() == Casilla.TipoCasilla.Carcel) {
+                carcel = c;
+                break;
+            }
+        }
     }
 
     /**
@@ -131,20 +144,28 @@ public class Tablero {
             return;
         }
 
-        if (getJugadorTurno().isEndeudado()) {
-            Consola.error("Estas endeudado paga la deuda o declárate en bancarrota");
+        Jugador jugadorTurno = getJugadorTurno();
+
+        if (jugadorTurno.isEndeudado()) {
+            Consola.error("Estas endeudado: paga la deuda o declárate en bancarrota para poder avanzar");
             return;
         }
 
         // Muestra el tablero si se ha movido el avatar con éxito
-        if (getJugadorTurno().getAvatar().mover(dado, casillas, jugadores, calculadora)) {
+        if (jugadorTurno.getAvatar().mover(dado, this)) {
             System.out.print(this);
+            jugadorTurno.describirTransaccion();
         }
     }
 
-    public void moverAvatar() {
+    public void siguienteMovimiento() {
         if (!jugando) {
             Consola.error("No se ha iniciado la partida");
+            return;
+        }
+
+        if (getJugadorTurno().isEndeudado()) {
+            Consola.error("Estas endeudado: paga la deuda o declárate en bancarrota para poder avanzar");
             return;
         }
 
@@ -156,16 +177,11 @@ public class Tablero {
         }
 
         if (!avatarTurno.isMovimientoEspecial() || !avatarTurno.isPelotaMovimiento()) {
-            Consola.error("No puedes usar esto ahora vuelve más tarde.");
+            Consola.error("No puedes usar esto ahora. Vuelve más tarde.");
             return;
         }
 
-        if (getJugadorTurno().isEndeudado()) {
-            Consola.error("Estas endeudado paga la deuda o declárate en bancarrota");
-            return;
-        }
-
-        if (avatarTurno.mover(null, casillas, jugadores, calculadora)) {
+        if (avatarTurno.mover(null, this)) {
             System.out.print(this);
         }
     }
@@ -180,6 +196,12 @@ public class Tablero {
         }
 
         Jugador jugadorTurno = getJugadorTurno();
+
+        if (jugadorTurno.isEndeudado()) {
+            Consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota para poder avanzar".formatted(jugadorTurno.getNombre()));
+            return;
+        }
+
         Avatar avatarTurno = jugadorTurno.getAvatar();
 
         if (avatarTurno.getLanzamientosEnTurno() > 0 && !jugadorTurno.getAvatar().isMovimientoEspecial()) {
@@ -188,12 +210,7 @@ public class Tablero {
         }
 
         if (avatarTurno.getTipo() == Avatar.TipoAvatar.Pelota && avatarTurno.getLanzamientosEnTurno() > 0) {
-            Consola.error("Al jugador %s le quedan  tiros".formatted(jugadorTurno.getNombre()));
-            return;
-        }
-
-        if (jugadorTurno.isEndeudado()) {
-            Consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota".formatted(jugadorTurno.getNombre()));
+            Consola.error("Al jugador %s aún le quedan tiros especiales".formatted(jugadorTurno.getNombre()));
             return;
         }
 
@@ -204,8 +221,8 @@ public class Tablero {
         turno = (turno + 1) % jugadores.size();
 
         System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
-        System.out.print(this);
         jugadorTurno.describirTransaccion();
+        System.out.print(this);
     }
 
     /**
@@ -229,11 +246,11 @@ public class Tablero {
             return;
         }
 
-        Jugador j = getJugadorTurno();
+        Jugador jugadorTurno = getJugadorTurno();
 
-        if (j.getAvatar().salirCarcelPagando()) {
+        if (jugadorTurno.getAvatar().salirCarcelPagando()) {
             System.out.print(this);
-            j.describirTransaccion();
+            jugadorTurno.describirTransaccion();
         }
     }
 
@@ -249,31 +266,33 @@ public class Tablero {
             return;
         }
 
-        Jugador j = getJugadorTurno();
+        Jugador jugadorTurno = getJugadorTurno();
+        Avatar avatarTurno = jugadorTurno.getAvatar();
 
-        if (!j.getAvatar().getCasilla().getNombre().equalsIgnoreCase(nombre)) {
+        if (!avatarTurno.getCasilla().getNombre().equalsIgnoreCase(nombre)) {
             Consola.error("No se puede comprar otra casilla que no sea la actual");
             return;
         }
 
-        Casilla c = j.getAvatar().getCasilla();
+        Casilla casillaActual = avatarTurno.getCasilla();
 
-        if (!c.isPropiedad()) {
-            Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
+        if (!casillaActual.isPropiedad()) {
+            Consola.error("No se puede comprar la casilla \"%s\"".formatted(casillaActual.getNombre()));
             return;
         }
 
         // Especifico para el coche que solo puede comprar una vez por turno en modo especial
-        if (!j.getAvatar().isPuedeComprar()) {
-            Consola.error("No se puede comprar la casilla \"%s\"".formatted(c.getNombre()));
+        if (!avatarTurno.isPuedeComprar()) {
+            Consola.error("El jugador ya ha comprado una vez en este turno");
             return;
         }
 
-        if (j.comprar(c.getPropiedad())) {
-            if (j.getAvatar().isMovimientoEspecial() && j.getAvatar().getTipo() == Avatar.TipoAvatar.Pelota) {
-                j.getAvatar().setPuedeComprar(false);
+        if (jugadorTurno.comprar(casillaActual.getPropiedad())) {
+            // Si se realizó la compra correctamente y se usa el avatar tipo Pelota,
+            // se debe evitar que se compre otra vez en este mismo turno.
+            if (avatarTurno.isMovimientoEspecial() && avatarTurno.getTipo() == Avatar.TipoAvatar.Pelota) {
+                avatarTurno.setPuedeComprar(false);
             }
-            j.describirTransaccion();
         }
     }
 
@@ -286,9 +305,7 @@ public class Tablero {
             return;
         }
 
-        if (getJugadorTurno().comprar(tipoEdificio, cantidad)) {
-            getJugadorTurno().describirTransaccion();
-        }
+        getJugadorTurno().comprar(tipoEdificio, cantidad);
     }
 
     /**
@@ -305,6 +322,7 @@ public class Tablero {
         for (Casilla c : casillas) {
             if (c.isPropiedad() && c.getPropiedad().getTipo() == Propiedad.TipoPropiedad.Solar && c.getPropiedad().getNombre().equalsIgnoreCase(nombreSolar)) {
                 solar = c.getPropiedad();
+                break;
             }
         }
 
@@ -313,9 +331,7 @@ public class Tablero {
             return;
         }
 
-        if (getJugadorTurno().vender(tipoEdificio, solar, cantidad)) {
-            getJugadorTurno().describirTransaccion();
-        }
+        getJugadorTurno().vender(tipoEdificio, solar, cantidad);
     }
 
     public void hipotecar(String nombre) {
@@ -324,12 +340,21 @@ public class Tablero {
             return;
         }
 
-        Jugador j = getJugadorTurno();
+        // Buscar la propiedad
+        Propiedad p = null;
         for (Casilla c : casillas) {
-            if (c.getNombre().equalsIgnoreCase(nombre) && c.isPropiedad()) {
-                j.hipotecar(c.getPropiedad());
+            if (c.isPropiedad() && c.getNombre().equalsIgnoreCase(nombre)) {
+                p = c.getPropiedad();
+                break;
             }
         }
+
+        if (p == null) {
+            Consola.error("No se ha encontrado la propiedad \"%s\"".formatted(nombre));
+            return;
+        }
+
+        getJugadorTurno().hipotecar(p);
     }
 
     public void deshipotecar(String nombre) {
@@ -338,12 +363,21 @@ public class Tablero {
             return;
         }
 
-        Jugador j = getJugadorTurno();
+        // Buscar la propiedad
+        Propiedad p = null;
         for (Casilla c : casillas) {
-            if (c.getNombre().equalsIgnoreCase(nombre) && c.isPropiedad()) {
-                j.deshipotecar(c.getPropiedad());
+            if (c.isPropiedad() && c.getNombre().equalsIgnoreCase(nombre)) {
+                p = c.getPropiedad();
+                break;
             }
         }
+
+        if (p == null) {
+            Consola.error("No se ha encontrado la propiedad \"%s\"".formatted(nombre));
+            return;
+        }
+
+        getJugadorTurno().deshipotecar(p);
     }
 
     @Override
@@ -356,6 +390,18 @@ public class Tablero {
      */
     public ArrayList<Casilla> getCasillas() {
         return casillas;
+    }
+
+    public void listarCasillas() {
+        for (Casilla c : casillas) {
+            System.out.println(c);
+        }
+    }
+
+    public void listarJugadores() {
+        for (Jugador j : jugadores) {
+            System.out.println(j);
+        }
     }
 
     /**
@@ -421,20 +467,38 @@ public class Tablero {
     }
 
     public void bancarrota() {
-
-        Jugador j = getJugadorTurno();
-        if (j.setBancarrota(banca)) {
-            System.out.printf("El jugador: %s se declara en bancarrota\n%n", Consola.fmt(j.getNombre(), Color.Azul));
-            jugadores.remove(j);
-            turno--;
-            if (turno < 0) turno = jugadores.size() - 1;
+        // Pedir confirmación
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Esta seguro de que quiere abandonar la partida? (y/N): ");
+        if (Character.toLowerCase(scanner.nextLine().trim().charAt(0)) != 'y') {
+            System.out.println("Operación cancelada");
+            return;
         }
+
+        Jugador deudor = getJugadorTurno();
+        Jugador acreedor = deudor.getAcreedor();
+        if (acreedor == null) {
+            acreedor = banca;
+        }
+
+        // Dar sus propiedades al jugador que se debe el dinero
+        for (Propiedad p : deudor.getPropiedades()) {
+            p.setPropietario(acreedor);
+            acreedor.anadirPropiedad(p);
+            p.setHipotecada(false);
+        }
+
+        // Se borra el jugador
+        jugadores.remove(deudor);
+        System.out.printf("El jugador %s se declara en bancarrota y abandona la partida\n", Consola.fmt(deudor.getNombre(), Color.Azul));
+
         if (jugadores.size() == 1) {
-            j = jugadores.get(0);
-            System.out.println(Consola.fmt("Felicidades %s, has ganado la partida".formatted(j.getNombre()), Color.Amarillo));
+            // Fin de la partida
+            System.out.println(Consola.fmt("Felicidades %s, has ganado la partida".formatted(jugadores.get(0).getNombre()), Color.Amarillo));
             jugando = false;
+        } else {
+            System.out.printf("Ahora le toca a %s\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
         }
-
     }
 
     /**
@@ -620,5 +684,13 @@ public class Tablero {
         }
 
         System.out.print(jugador.getEstadisticas());
+    }
+
+    public Casilla getCarcel() {
+        return carcel;
+    }
+
+    public Calculadora getCalculadora() {
+        return calculadora;
     }
 }

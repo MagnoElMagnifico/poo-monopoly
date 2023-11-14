@@ -13,7 +13,6 @@ import monopoly.utilidades.EstadisticasJugador;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  * Clase que representa un Jugador. Almacena su información sobre su fortuna y propiedades.
@@ -26,15 +25,10 @@ public class Jugador {
     private final String nombre;
     private final Avatar avatar;
     private final boolean banca;
-    private final HashSet<Propiedad> propiedades;
-    private final EstadisticasJugador estadisticas;
     private long fortuna;
-    private long gastos;
-    private boolean endeudado;
-    private long cantidadDeuda;
-    private Jugador jugadorDeuda; /* Solo par al deuda jugador a quien le debes dinero*/
-    private boolean bancarrota;
-
+    private final HashSet<Propiedad> propiedades;
+    private Jugador acreedor;
+    private final EstadisticasJugador estadisticas;
 
     /**
      * Crea el jugador especial Banca
@@ -44,30 +38,22 @@ public class Jugador {
         this.avatar = null;
         this.banca = true;
         this.fortuna = 0;
-        this.gastos = 0;
         this.propiedades = new HashSet<>(28);
-        this.bancarrota = false;
+        this.acreedor = null;
         this.estadisticas = null;
-        this.jugadorDeuda = null;
-        this.endeudado = false;
-        this.cantidadDeuda = 0;
     }
 
     /**
      * Crea un Jugador dado su nombre, tipo de avatar e id
      */
     public Jugador(String nombre, TipoAvatar tipo, char id, Casilla casillaInicial, long fortuna) {
-        this.avatar = new Avatar(tipo, id, this, casillaInicial);
         this.nombre = nombre;
+        this.avatar = new Avatar(tipo, id, this, casillaInicial);
         this.banca = false;
         this.fortuna = fortuna;
-        this.gastos = 0;
         this.propiedades = new HashSet<>();
+        this.acreedor = null;
         this.estadisticas = new EstadisticasJugador(this);
-        this.bancarrota = false;
-        this.jugadorDeuda = null;
-        this.endeudado = false;
-        this.cantidadDeuda = 0;
     }
 
     private String listarEdificios() {
@@ -107,16 +93,13 @@ public class Jugador {
                     nombre: %s
                     avatar: %c
                     fortuna: %s
-                    gastos: %s
                     propiedades: %s
                     hipotecas: %s
                     edificios: %s
-                    
                 }""".formatted(nombre,
                                avatar.getId(),
                                Consola.num(fortuna),
-                               Consola.num(gastos),
-                               Consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()),
+                               Consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? null : p.getCasilla().getNombreFmt()),
                                Consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? p.getCasilla().getNombreFmt() : null),
                                listarEdificios());
         // @formatter:on
@@ -126,13 +109,19 @@ public class Jugador {
      * Devuelve un String con información sobre la fortuna, gastos y propiedades del jugador
      */
     public void describirTransaccion() {
+        // @formatter:off
         System.out.printf("""
                 {
                     fortuna: %s
                     gastos: %s
                     propiedades: %s
+                    edificios: %s
                 }
-                """, Consola.num(fortuna), Consola.num(gastos), Consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()));
+                """, Consola.num(fortuna),
+                     Consola.num(estadisticas.getGastos()),
+                     Consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()),
+                     listarEdificios());
+        // @formatter:on
     }
 
     @Override
@@ -164,11 +153,7 @@ public class Jugador {
         }
 
         // Comprobar que el jugador tiene fortuna suficiente
-        if (!cobrar(p.getPrecio())) {
-            // Se quita la deuda dado que se cancela el comando
-            cantidadDeuda = 0;
-            endeudado = false;
-
+        if (!cobrar(p.getPrecio(), false)) {
             Consola.error("%s no dispone de suficiente dinero para comprar %s".formatted(nombre, p.getCasilla().getNombreFmt()));
             return false;
         }
@@ -185,20 +170,9 @@ public class Jugador {
 
         // Actualizar los precios de los alquileres si se acaba de
         // completar un Monopolio
-        boolean tenerMonopolio = true;
-        for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
-            // Si se encuentra una propiedad cuyo propietario no es este jugador,
-            // es que no tiene el monopolio
-            if (!c.getPropiedad().getPropietario().equals(this)) {
-                tenerMonopolio = false;
-                break;
-            }
-        }
-
-        if (tenerMonopolio) {
+        if (Calculadora.tieneGrupo(p)) {
             for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
-                Propiedad propiedad = c.getPropiedad();
-                propiedad.actualizarAlquiler();
+                c.getPropiedad().actualizarAlquiler();
             }
 
             Grupo g = p.getCasilla().getGrupo();
@@ -208,13 +182,14 @@ public class Jugador {
                     """, Consola.fmt(nombre, Consola.Color.Azul), Consola.fmt(g.getNombre(), g.getCodigoColor()));
         }
 
+        describirTransaccion();
         return true;
     }
 
     /**
      * Comprueba las restricciones de construcción
      */
-    private boolean edificable(Propiedad solar, Edificio.TipoEdificio tipo, int cantidad) {
+    private static boolean edificable(Propiedad solar, Edificio.TipoEdificio tipo, int cantidad) {
         Grupo grupo = solar.getCasilla().getGrupo();
         final int maxEdificios = grupo.getNumeroCasillas();
 
@@ -314,11 +289,7 @@ public class Jugador {
         Edificio e = new Edificio(tipoEdificio, solar);
 
         // Comprobar que tiene el dinero
-        if (!cobrar(cantidad * e.getValor())) {
-            // Se quita la deuda dado que se cancela el comando
-            endeudado = false;
-            cantidadDeuda = 0;
-
+        if (!cobrar(cantidad * e.getValor(), false)) {
             Consola.error("El jugador no tiene los fondos suficientes para edificar.\nNecesita %s.".formatted(Consola.num(cantidad * e.getValor())));
             return false;
         }
@@ -344,6 +315,7 @@ public class Jugador {
             }
         }
 
+        describirTransaccion();
         return true;
     }
 
@@ -363,6 +335,7 @@ public class Jugador {
         ArrayList<Edificio> edificios = solar.getEdificios();
         int nBorrados = 0;
         long importeRecuperado = 0;
+
         for (int ii = 0; ii < edificios.size(); ii++) {
             if (edificios.get(ii).getTipo() == tipoEdificio) {
                 importeRecuperado += edificios.get(ii).getValor() / 2;
@@ -390,9 +363,10 @@ public class Jugador {
                 Ahora tiene una fortuna de %s.
                 """, nombre, cantidad, tipoEdificio, solar.getNombre(), Consola.num(importeRecuperado), Consola.num(fortuna));
 
-        // Acualizar el estado
+        // Actualizar el estado
         solar.actualizarAlquiler();
 
+        describirTransaccion();
         return true;
     }
 
@@ -410,13 +384,16 @@ public class Jugador {
             case Servicio -> p.getAlquiler() * dado.getValor() * 4;
         };
 
-        if (!cobrar(importe)) {
-            jugadorDeuda = p.getPropietario();
+        // Se debe cobrar todo el importe, aunque el jugador no pueda pagarlo.
+        // La cuenta se quedará en números negativos (es decir, está endeudado)
+        p.getPropietario().ingresar(importe);
+
+        if (!cobrar(importe, true)) {
+            acreedor = p.getPropietario();
             Consola.error("El jugador no tiene suficientes fondos para pagar el alquiler");
             return;
         }
 
-        p.getPropietario().ingresar(importe);
         System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(p.getAlquiler()), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
 
         estadisticas.anadirPagoAlquiler(importe);
@@ -430,20 +407,29 @@ public class Jugador {
      * @param cantidad Dinero a ingresar
      * @return True si la operación es correcta, false en otro caso
      */
-    public boolean cobrar(long cantidad) {
+    public boolean cobrar(long cantidad, boolean endeudar) {
         if (cantidad <= 0) {
+            Consola.error("[Jugador] Se intentó cobrar una cantidad nula o negativa a %s".formatted(nombre));
             return false;
         }
 
-        if (cantidad > fortuna) {
-            endeudado = true;
-            cantidadDeuda = cantidad;
-            return false;
+        // Si hay suficientes fondos, no hay problema
+        if (fortuna >= cantidad) {
+            fortuna -= cantidad;
+            estadisticas.anadirGastos(cantidad);
+            return true;
         }
 
-        fortuna -= cantidad;
-        gastos += cantidad;
-        return true;
+        // Si no hay suficientes fondos y se quiere endeudar al jugador,
+        // entonces se resta igualmente para conseguir una fortuna negativa.
+        if (endeudar) {
+            fortuna -= cantidad;
+            estadisticas.anadirGastos(cantidad);
+        }
+
+        // Si no se quiere endeudar, no se realiza el cobro.
+
+        return false;
     }
 
     /**
@@ -459,6 +445,11 @@ public class Jugador {
     }
 
     public void hipotecar(Propiedad propiedad) {
+        if (!propiedades.contains(propiedad)) {
+            Consola.error("No se puede hipotecar una propiedad que no te pertenece");
+            return;
+        }
+
         if (propiedad.isHipotecada()) {
             Consola.error("No se puede hipotecar, ya está hipotecada");
             return;
@@ -467,10 +458,19 @@ public class Jugador {
         propiedad.setHipotecada(true);
         long cantidad = Calculadora.calcularHipoteca(propiedad);
         ingresar(cantidad);
+
+        // NOTA: esta cantidad no se tiene en cuenta para las estadísticas
+
         System.out.printf("Se ha hipotecado %s por %s\n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
+        describirTransaccion();
     }
 
     public void deshipotecar(Propiedad propiedad) {
+        if (!propiedades.contains(propiedad)) {
+            Consola.error("No se puede hipotecar una propiedad que no te pertenece");
+            return;
+        }
+
         if (!propiedad.isHipotecada()) {
             Consola.error("No se puede deshipotecar, no está hipotecada");
             return;
@@ -478,73 +478,13 @@ public class Jugador {
 
         long cantidad = Calculadora.calcularHipoteca(propiedad);
 
-        if (!cobrar(cantidad)) {
+        if (!cobrar(cantidad, false)) {
             Consola.error("No tienes suficientes fondos para deshipotecar esa propiedad");
             return;
         }
 
         propiedad.setHipotecada(false);
         System.out.printf("Se ha deshipotecado %s por %s\n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
-    }
-
-    public void pagarDeuda(Jugador banca) {
-        if (!endeudado) {
-            Consola.error("El jugador %s no está endeudado.".formatted(nombre));
-            return;
-        }
-
-        if (jugadorDeuda == null) {
-            if (cobrar(cantidadDeuda)) {
-                System.out.printf("El jugador %s ha pagado %s de deuda\n", Consola.fmt(nombre, Consola.Color.Azul), Consola.num(cantidadDeuda));
-                banca.ingresar(cantidadDeuda);
-                endeudado = false;
-                cantidadDeuda = 0;
-                return;
-            }
-        } else {
-            if (cobrar(cantidadDeuda)) {
-                System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(cantidadDeuda), Consola.fmt(jugadorDeuda.getNombre(), Consola.Color.Azul));
-                jugadorDeuda.ingresar(cantidadDeuda);
-                endeudado = false;
-                jugadorDeuda = null;
-                cantidadDeuda = 0;
-                return;
-            }
-        }
-
-        Consola.error("No tienes dinero para pagar la deuda.");
-    }
-
-    public boolean setBancarrota(Jugador banca) {
-        if (bancarrota) {
-            Consola.error("Ya estas en bancarrota");
-            return false;
-        }
-        bancarrota = true;
-        if (jugadorDeuda == null) {
-
-            Iterator<Propiedad> iter = propiedades.iterator();
-
-            while (iter.hasNext()) {
-                Propiedad c = iter.next();
-                c.setPropietario(banca);
-                c.setHipotecada(false);
-                iter.remove();
-                banca.anadirPropiedad(c);
-            }
-        } else {
-            Iterator<Propiedad> iter = propiedades.iterator();
-
-            while (iter.hasNext()) {
-                Propiedad c = iter.next();
-                c.setPropietario(jugadorDeuda);
-                c.setHipotecada(false);
-                iter.remove();
-                jugadorDeuda.anadirPropiedad(c);
-            }
-        }
-
-        return true;
     }
 
     public boolean isBanca() {
@@ -561,10 +501,6 @@ public class Jugador {
 
     public long getFortuna() {
         return fortuna;
-    }
-
-    public long getGastos() {
-        return gastos;
     }
 
     public EstadisticasJugador getEstadisticas() {
@@ -584,7 +520,10 @@ public class Jugador {
     }
 
     public boolean isEndeudado() {
-        return endeudado;
+        return fortuna < 0;
     }
 
+    public Jugador getAcreedor() {
+        return acreedor;
+    }
 }

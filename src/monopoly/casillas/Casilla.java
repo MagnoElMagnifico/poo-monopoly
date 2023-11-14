@@ -82,7 +82,7 @@ public class Casilla {
         return switch (tipo) {
             case Propiedad -> propiedad.toString();
             case Salida -> """
-                    %s: Casilla de inicio del juego.
+                    \n%s: Casilla de inicio del juego.
                     Cada vez que un jugador pase por esta casilla recibirá %s.
                     """.formatted(getNombreFmt(), Consola.num(abonoSalida));
             case Carcel -> """
@@ -91,11 +91,11 @@ public class Casilla {
                         fianza: %s
                     }""".formatted(getNombreFmt(), Consola.num(fianza));
             case IrCarcel -> """
-                    %s: Si un jugador cae en esta casilla, se le enviará directamente
+                    \n%s: Si un jugador cae en esta casilla, se le enviará directamente
                     a la casilla Cárcel.
                     """.formatted(getNombreFmt());
             case Comunidad, Suerte -> """
-                    %s: Si un jugador cae en esta casilla, tendrá que escoger una carta y
+                    \n%s: Si un jugador cae en esta casilla, tendrá que escoger una carta y
                     se realizará su acción específica.
                     """.formatted(getNombreFmt());
             case Impuestos -> """
@@ -130,20 +130,24 @@ public class Casilla {
         }
 
         switch (tipo) {
-            case IrCarcel -> jugadorTurno.getAvatar().irCarcel();
+            case IrCarcel -> jugadorTurno.getAvatar().irCarcel(carcel);
             case Parking -> {
                 long bote = banca.getFortuna();
                 jugadorTurno.ingresar(bote);
-                banca.cobrar(bote);
+                jugadorTurno.getEstadisticas().anadirPremio(bote);
+                banca.cobrar(bote, false);
 
                 System.out.printf("El jugador recibe el bote de la banca: %s\n", Consola.num(bote));
             }
 
             case Impuestos -> {
-                if (!jugadorTurno.cobrar(impuestos)) {
+                if (!jugadorTurno.cobrar(impuestos, true)) {
                     Consola.error("El jugador no tiene suficientes fondos para pagar los impuestos");
                     return;
-                } else System.out.printf("El jugador paga de impuestos: %s\n", Consola.num(impuestos));
+                } else {
+                    System.out.printf("El jugador paga de impuestos: %s\n", Consola.num(impuestos));
+                    jugadorTurno.getEstadisticas().anadirTasa(impuestos);
+                }
 
                 banca.ingresar(impuestos);
                 System.out.printf("Se han cobrado %s de impuestos a la banca\n", impuestos);

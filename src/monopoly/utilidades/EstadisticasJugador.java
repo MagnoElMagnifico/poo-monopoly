@@ -14,6 +14,7 @@ public class EstadisticasJugador {
     private long pagoAlquileres;   /* Alquileres pagados a otros jugadores */
     private long abonosSalida;     /* Cantidad total de los abonos recibidos al completar una vuelta */
     private long premios;          /* Dinero recibido por premios */
+    private long gastos;           /* Dinero total gastado desde el inicio de la partida */
 
     private int vecesEncarcelado;
     private int nVueltas;
@@ -32,6 +33,7 @@ public class EstadisticasJugador {
         pagoAlquileres = 0;
         abonosSalida = 0;
         premios = 0;
+        gastos = 0;
 
         vecesEncarcelado = 0;
         nVueltas = 0;
@@ -50,6 +52,7 @@ public class EstadisticasJugador {
                    pago de alquileres: %s
                    abono total de salida: %s
                    premios de inversiones o bote: %s
+                   gastos: %s
                    veces en la cárcel: %d
                    número de vueltas: %s
                    número de tiradas: %s
@@ -61,6 +64,7 @@ public class EstadisticasJugador {
                              Consola.num(pagoAlquileres),
                              Consola.num(abonosSalida),
                              Consola.num(premios),
+                             Consola.num(gastos),
                              vecesEncarcelado,
                              nVueltas,
                              nTiradas);
@@ -89,6 +93,10 @@ public class EstadisticasJugador {
 
     public void anadirPremio(long cantidad) {
         premios += cantidad;
+    }
+
+    public void anadirGastos(long cantidad) {
+        gastos += cantidad;
     }
 
     public void anadirEstanciaCarcel() {
@@ -125,6 +133,10 @@ public class EstadisticasJugador {
 
     public long getPremios() {
         return premios;
+    }
+
+    public long getGastos() {
+        return gastos;
     }
 
     public long getCapital() {
