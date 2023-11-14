@@ -600,6 +600,7 @@ public class Tablero {
             }
         }
 
+        // Analizar todos los grupos
         Grupo grupoMasRentable = null;
         long maxGrupoAlquiler = -1;
 
@@ -616,7 +617,7 @@ public class Tablero {
             }
         }
 
-        //
+        // Analizar todos los jugadores
         Jugador masVueltas = null;
         int maxVueltas = -1;
 
