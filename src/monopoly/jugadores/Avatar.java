@@ -31,14 +31,14 @@ public class Avatar {
     // Estado
     private boolean encerrado;
     private int doblesSeguidos;
-    private int lanzamientosEnTurno;
+    private int lanzamientosEnTurno; /* Si es 0 se debe terminar el turno */
     private int turnosEnCarcel;
 
     // Estado movimiento especial
     private boolean movimientoEspecial;
-    private boolean puedeComprar;       /* Solo para el coche: no permite comprar más una vez */
+    private boolean puedeComprar;       /* Solo para el coche: no permite comprar más una vez por turno */
     private int lanzamientosEspeciales; /* Solo para el coche: almacena los movimientos que quedan en modo especial */
-    private int penalizacion;           /* Solo para el coche: penalización si saca menos de 4 */
+    private int penalizacion;           /* Solo para el coche: no puede tirar en los dos siguientes turnos si saca < 4 */
     private boolean pelotaMovimiento;   /* Solo para la pelota: se comprueba si está en movimiento */
     private int casillasRestantes;      /* Solo para la pelota: almacena el dado del turno */
     private Dado pelotaDado;            /* Solo para la pelota: guarda el dado entre distintos movimientos */
@@ -193,6 +193,23 @@ public class Avatar {
         return true;
     }
 
+    private boolean dadosDoblesSeguidos(Dado dado, Casilla carcel) {
+        if (doblesSeguidos >= 3) {
+            System.out.printf("""
+                            %s con avatar %s ha sacado %s.
+                            Ya son 3 veces seguidas sacando dados dobles.
+                            %s es arrestado por tener tanta suerte.
+                            """,
+                    Consola.fmt(jugador.getNombre(), Color.Azul),
+                    Consola.fmt(Character.toString(id), Color.Azul),
+                    dado, jugador.getNombre());
+            irCarcel(carcel);
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Función de ayuda que calcula la casilla siguiente cuando se usa el modo básico
      */
@@ -200,21 +217,12 @@ public class Avatar {
         if (dado.isDoble()) {
             doblesSeguidos++;
 
-            if (doblesSeguidos >= 3) {
-                System.out.printf("""
-                                %s con avatar %s ha sacado %s.
-                                Ya son 3 veces seguidas sacando dados dobles.
-                                %s es arrestado por tener tanta suerte.
-                                """,
-                        Consola.fmt(jugador.getNombre(), Color.Azul),
-                        Consola.fmt(Character.toString(id), Color.Azul),
-                        dado, jugador.getNombre());
-                irCarcel(carcel);
+            if (dadosDoblesSeguidos(dado, carcel)) {
                 return -1;
-            } else {
-                lanzamientosEnTurno++;
-                System.out.println("Dados dobles! El jugador puede tirar otra vez");
             }
+
+            lanzamientosEnTurno++;
+            System.out.println("Dados dobles! El jugador puede tirar otra vez");
         }
 
         return this.casilla.getPosicion() + dado.getValor();
@@ -236,7 +244,7 @@ public class Avatar {
                     Consola.fmt(jugador.getNombre(), Color.Azul),
                     Consola.fmt(Character.toString(id), Color.Azul),
                     dado);
-            salirCarcelPagando();
+            salirCarcelPagando(true);
         } else {
             System.out.printf("%s con avatar %s no ha sacado dados dobles %s.\nPuede pagar la fianza o permanecer encerrado.\n",
                     Consola.fmt(jugador.getNombre(), Color.Azul),
@@ -270,16 +278,16 @@ public class Avatar {
     /**
      * Saca el avatar de la cárcel pagando la fianza.
      *
+     * @param obligado True si obligatoriamente debe salir.
      * @return True si la operación ha sido exitosa, false en otro caso.
      */
-    public boolean salirCarcelPagando() {
+    public boolean salirCarcelPagando(boolean obligado) {
         if (!encerrado) {
             Consola.error("El jugador no está en la Cárcel");
             return false;
         }
 
-        // TODO: el jugador está encerrado y no puede pagar la fianza
-        if (!jugador.cobrar(casilla.getFianza(), false)) {
+        if (!jugador.cobrar(casilla.getFianza(), obligado)) {
             Consola.error("El jugador no tiene dinero suficiente para pagar la fianza");
             return false;
         }
@@ -297,6 +305,7 @@ public class Avatar {
             lanzamientosEnTurno = 2;
             lanzamientosEspeciales = 4;
         }
+
         // Lanzamos el error de que no quedan lanzamientos
         if (lanzamientosEspeciales == 0) {
             Consola.error("No quedan lanzamientos. El jugador debe terminar el turno");
@@ -306,67 +315,44 @@ public class Avatar {
         // 4 tiradas especiales
         lanzamientosEspeciales--;
 
-        if (dado.getValor() < 4) {
-            lanzamientosEspeciales = 0;
-            penalizacion = 2;
+        // Ultima(s) tirada con comportamiento normal
+        if (lanzamientosEspeciales == 0) {
             lanzamientosEnTurno = 0;
-            return (this.casilla.getPosicion() - dado.getValor() + nCasillas) % nCasillas;
+            lanzamientosEspeciales++;
+            return moverBasico(dado, carcel);
         }
 
         lanzamientosEnTurno++;
 
-        // Ultima(s) tirada con comportamiento normal
-        if (lanzamientosEspeciales == 0) {
-            lanzamientosEnTurno = 0;
-            if (dado.isDoble()) {
-                doblesSeguidos++;
-                if (doblesSeguidos >= 3) {
-                    System.out.printf("""
-                                    %s con avatar %s ha sacado %s.
-                                    Ya son 3 veces seguidas sacando dados dobles.
-                                    %s es arrestado por tener tanta suerte.
-                                    """,
-                            Consola.fmt(jugador.getNombre(), Color.Azul),
-                            Consola.fmt(Character.toString(id), Color.Azul),
-                            dado, jugador.getNombre());
-                    irCarcel(carcel);
-                    return -1;
-                }
-                System.out.println("Dados dobles! El jugador puede tirar otra vez");
-                lanzamientosEspeciales++;
-                lanzamientosEnTurno++;
-            }
-            return this.casilla.getPosicion() + dado.getValor();
-        }
-        //Condicion para romper el coche penalizacion
+        // Penalización por sacar menos de un 4
         if (dado.getValor() < 4) {
             lanzamientosEspeciales = 0;
             penalizacion = 2;
             lanzamientosEnTurno = 0;
+
             int cantidad = this.casilla.getPosicion() - dado.getValor();
+
+            // Si la casilla calculada es negativa, quiere decir que se pasa
+            // por la salida
             if (cantidad < 0) {
-                if (!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
-                    Consola.error("No puedes devolver el abono de la carcel.");
-                } else {
-                    System.out.printf(
-                            "El jugador %s paga %s por retroceder por la casillas de salida.\n%n", Consola.fmt(jugador.getNombre(), Color.Azul),
-                            Consola.num(calculadora.calcularAbonoSalida()));
-                }
                 cantidad += nCasillas;
+
+                if (!getJugador().cobrar(calculadora.calcularAbonoSalida(), true)) {
+                    Consola.error("No puedes devolver el abono de la cárcel.");
+                    return -1;
+                }
+
+                System.out.printf(
+                        "El jugador %s paga %s por retroceder por la casilla de salida.\n",
+                        Consola.fmt(jugador.getNombre(), Color.Azul),
+                        Consola.num(calculadora.calcularAbonoSalida()));
             }
+
             return cantidad;
         }
+
+        // En caso de que dado >= 4, se mueve como siempre
         return this.casilla.getPosicion() + dado.getValor();
-    }
-
-    private int moverEspecialEsfinge() {
-        // TODO
-        return -1;
-    }
-
-    private int moverEspecialSombrero() {
-        // TODO
-        return -1;
     }
 
     private int moverEspecialPelota(Dado dado, Calculadora calculadora, Casilla carcel, int nCasillas) {
@@ -375,7 +361,7 @@ public class Avatar {
             if (dado.getValor() <= 4) {
                 int cantidad = this.casilla.getPosicion() - dado.getValor();
                 if (cantidad < 0) {
-                    if (!getJugador().cobrar(calculadora.calcularAbonoSalida())) {
+                    if (!getJugador().cobrar(calculadora.calcularAbonoSalida(), true)) {
                         Consola.error("No puedes devolver el abono de la carcel.");
                     } else {
                         System.out.printf(

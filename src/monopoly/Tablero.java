@@ -248,7 +248,7 @@ public class Tablero {
 
         Jugador jugadorTurno = getJugadorTurno();
 
-        if (jugadorTurno.getAvatar().salirCarcelPagando()) {
+        if (jugadorTurno.getAvatar().salirCarcelPagando(false)) {
             System.out.print(this);
             jugadorTurno.describirTransaccion();
         }
