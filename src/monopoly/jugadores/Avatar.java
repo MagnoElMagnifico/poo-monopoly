@@ -191,20 +191,25 @@ public class Avatar {
                     Consola.num(tablero.getCalculadora().calcularAbonoSalida()));
 
         } else if (posNuevaCasilla < 0) {
-            // Si la casilla calculada es negativa, quiere decir que se pasa por la salida hacia atrás
-            long abonoSalida = tablero.getCalculadora().calcularAbonoSalida();
             jugador.getEstadisticas().quitarVuelta();
 
-            if (getJugador().cobrar(abonoSalida, true)) {
-                System.out.printf(
-                        "El jugador %s paga %s por retroceder por la casilla de salida.\n",
-                        Consola.fmt(jugador.getNombre(), Color.Azul),
-                        Consola.num(abonoSalida));
-            } else {
-                // En este caso, el avatar queda en la nueva casilla,
-                // pero no ha podido devolver el abono que recibió.
-                // Entonces, el jugador queda endeudado con la banca.
-                Consola.error("No puedes devolver el abono de la salida.");
+            // No tiene sentido cobrar un abono que aún no ha recibido
+            if (jugador.getEstadisticas().getVueltas() > 0) {
+                // Si la casilla calculada es negativa, quiere decir que se pasa por la salida hacia atrás
+                long abonoSalida = tablero.getCalculadora().calcularAbonoSalida();
+
+                if (getJugador().cobrar(abonoSalida, true)) {
+                    System.out.printf(
+                            "El jugador %s paga %s por retroceder por la casilla de salida.\n",
+                            Consola.fmt(jugador.getNombre(), Color.Azul),
+                            Consola.num(abonoSalida));
+                } else {
+                    // En este caso, el avatar queda en la nueva casilla,
+                    // pero no ha podido devolver el abono que recibió.
+                    // Entonces, el jugador queda endeudado con la banca.
+                    Consola.error("No puedes devolver el abono de la salida.");
+                }
+
             }
         }
 
