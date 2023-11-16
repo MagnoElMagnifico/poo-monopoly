@@ -126,7 +126,7 @@ public class Calculadora {
      */
     public void aumentarPrecio(ArrayList<Casilla> casillas, ArrayList<Jugador> jugadores) {
         for (Jugador jugador : jugadores) {
-            if (jugador.getEstadisticas().getVueltas() - 4 * nAumentosPrecio <= 0) {
+            if (jugador.getEstadisticas().getVueltas() - 4 * nAumentosPrecio < 0) {
                 return;
             }
         }
@@ -141,7 +141,7 @@ public class Calculadora {
             }
         }
 
-        System.out.println("Se ha aumentado el precio de todas las casillas en venta\n");
+        System.out.println("Se ha aumentado el precio de todas las casillas en venta");
     }
 
     /**
