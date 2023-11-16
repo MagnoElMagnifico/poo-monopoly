@@ -347,7 +347,7 @@ public class Tablero {
 
     public void listarCasillas() {
         for (Casilla c : casillas) {
-            System.out.println(c);
+            c.listar();
         }
     }
 
@@ -466,7 +466,7 @@ public class Tablero {
         for (Casilla casilla : casillas) {
             // Si la casilla se puede comprar y no tiene dueño, es que está en venta
             if (casilla.isPropiedad() && (casilla.getPropiedad().getPropietario() == null || casilla.getPropiedad().getPropietario() == banca)) {
-                System.out.println(casilla.getPropiedad());
+                casilla.getPropiedad().listar();
             }
         }
     }

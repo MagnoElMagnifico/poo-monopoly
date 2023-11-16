@@ -2,6 +2,7 @@ package monopoly;
 
 import monopoly.casillas.*;
 import monopoly.casillas.Propiedad.TipoPropiedad;
+import monopoly.casillas.Edificio.TipoEdificio;
 import monopoly.jugadores.Jugador;
 
 import java.util.ArrayList;
@@ -29,11 +30,26 @@ public class Calculadora {
         for (Casilla c : casillas) {
             if (c.isPropiedad()) {
                 if (c.getPropiedad().getTipo() == TipoPropiedad.Solar) {
-                    sumaSolares += calcularPrecio(c.getPropiedad());
+                    sumaSolares += precio(c.getPropiedad());
                     nSolares++;
                 }
             }
         }
+    }
+
+    public static long alquilerEdificio(Propiedad p, TipoEdificio tipo, int cantidad) {
+        long alquilerSolar = p.getAlquiler();
+        return switch (tipo) {
+            case Casa -> switch (cantidad) {
+                case 0  ->  0;
+                case 1  ->  5 * alquilerSolar;
+                case 2  -> 15 * alquilerSolar;
+                case 3  -> 35 * alquilerSolar;
+                default -> 50 * alquilerSolar;
+            };
+            case Hotel -> 70 * alquilerSolar * cantidad;
+            case Piscina, PistaDeporte -> 25 * alquilerSolar * cantidad;
+        };
     }
 
     /**
@@ -44,28 +60,29 @@ public class Calculadora {
 
         // Calcular el precio incluyendo los edificios (solo si es solar)
         long alquilerEdificio = 0;
+
         if (p.getTipo() == TipoPropiedad.Solar) {
             int nCasas = 0;
+            int nHoteles = 0;
+            int nPiscinas = 0;
+            int nPistas = 0;
 
+            // Contar el número de edificios de cada tipo.
+            // No se usa Propiedad.contarEdificios porque se iteraría 4 veces
+            // sobre los mismos datos. De esta forma solo se itera 1 vez.
             for (Edificio e : p.getEdificios()) {
-                // @formatter:off
                 switch (e.getTipo()) {
-                    case Hotel                 -> alquilerEdificio += 70 * alquilerSolar;
-                    case Piscina, PistaDeporte -> alquilerEdificio += 25 * alquilerSolar;
+                    case Hotel -> nHoteles++;
+                    case Piscina -> nPiscinas++;
+                    case PistaDeporte -> nPistas++;
                     case Casa -> nCasas++;
                 }
-                // @formatter:on
             }
 
-            // @formatter:off
-            // Añadir el alquiler dado por las casas
-            alquilerEdificio += switch (nCasas) {
-                case 0  ->  0;
-                case 1  ->  5 * alquilerSolar;
-                case 2  -> 15 * alquilerSolar;
-                case 3  -> 35 * alquilerSolar;
-                default -> 50 * alquilerSolar;
-            };
+            alquilerEdificio += alquilerEdificio(p, TipoEdificio.Casa, nCasas);
+            alquilerEdificio += alquilerEdificio(p, TipoEdificio.Hotel, nHoteles);
+            alquilerEdificio += alquilerEdificio(p, TipoEdificio.Piscina, nPiscinas);
+            alquilerEdificio += alquilerEdificio(p, TipoEdificio.PistaDeporte, nPistas);
         }
         // @formatter:on
 
@@ -101,10 +118,10 @@ public class Calculadora {
     /**
      * Calcula y devuelve el precio de edificar un edificio en la propiedad dada
      */
-    public static long calcularPrecio(Edificio e) {
-        long precioSolar = e.getSolar().getPrecio();
+    public static long precio(Edificio.TipoEdificio tipo, Propiedad solar) {
+        long precioSolar = solar.getPrecio();
         // @formatter:off
-        return switch (e.getTipo()) {
+        return switch (tipo) {
             case Casa, Hotel  -> (long) (0.6 * precioSolar);
             case Piscina      -> (long) (0.4 * precioSolar);
             case PistaDeporte -> (long) (1.25 * precioSolar);
@@ -168,7 +185,7 @@ public class Calculadora {
                     banca.anadirPropiedad(p);
                     p.setPropietario(banca);
 
-                    p.setPrecio(calcularPrecio(p));
+                    p.setPrecio(precio(p));
                     p.actualizarAlquiler();
                 }
                 case Salida -> c.setAbonoSalida(calcularAbonoSalida());
@@ -207,7 +224,7 @@ public class Calculadora {
     /**
      * Calcula y devuelve el precio de una propiedad
      */
-    public long calcularPrecio(Propiedad p) {
+    public long precio(Propiedad p) {
         Grupo g = p.getCasilla().getGrupo();
 
         // @formatter:off
