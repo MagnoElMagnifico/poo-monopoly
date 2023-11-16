@@ -116,7 +116,7 @@ public class Calculadora {
         return propiedad.getPrecio() / 2;
     }
 
-    public static long calculardeshipoteca(Propiedad propiedad) {
+    public static long calcularDeshipoteca(Propiedad propiedad) {
         return (long) (calcularHipoteca(propiedad) * 1.1);
     }
 

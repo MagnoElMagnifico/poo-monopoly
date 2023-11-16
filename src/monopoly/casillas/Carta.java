@@ -82,7 +82,7 @@ public class Carta {
             }
             case 10 -> {
                 long cantidadPorJugador = 250_000L;
-                if (!jugadorTurno.cobrar(cantidadPorJugador * tablero.getJugadores().size())) {
+                if (!jugadorTurno.cobrar(cantidadPorJugador * tablero.getJugadores().size(), true)) {
                     Consola.error("El jugador no tiene suficiente dinero para completar su fortuna");
                 }
 
@@ -106,7 +106,7 @@ public class Carta {
             jugadorTurno.ingresar(cantidad);
             jugadorTurno.getEstadisticas().anadirPremio(cantidad);
         } else {
-            if (jugadorTurno.cobrar(-cantidad)) {
+            if (jugadorTurno.cobrar(-cantidad, true)) {
                 jugadorTurno.getEstadisticas().anadirTasa(-cantidad);
                 tablero.getBanca().ingresar(-cantidad);
             } else {
@@ -132,7 +132,7 @@ public class Carta {
             case 5 -> cantidad = -1_000_000;
             case 8 -> {
                 long cantidadPorJugador = 250_000L;
-                if (!jugadorTurno.cobrar(cantidadPorJugador * tablero.getJugadores().size())) {
+                if (!jugadorTurno.cobrar(cantidadPorJugador * tablero.getJugadores().size(), true)) {
                     Consola.error("El jugador no tiene suficiente dinero para completar su acción de comunidad");
                 }
 
@@ -156,7 +156,7 @@ public class Carta {
             jugadorTurno.ingresar(cantidad);
             jugadorTurno.getEstadisticas().anadirPremio(cantidad);
         } else {
-            if (jugadorTurno.cobrar(-cantidad)) {
+            if (jugadorTurno.cobrar(-cantidad, true)) {
                 jugadorTurno.getEstadisticas().anadirTasa(-cantidad);
                 tablero.getBanca().ingresar(-cantidad);
             } else {

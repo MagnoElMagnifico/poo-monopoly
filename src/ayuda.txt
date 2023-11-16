@@ -6,24 +6,36 @@ COMANDOS
     lanzar, lanzar dados          El jugador actual lanza 2 dados y mueve su avatar.
     acabar turno, fin, end        Termina el turno del jugador actual.
     salir carcel                  Saca el jugador actual de la cárcel pagando la fianza.
+<<<<<<< HEAD
     Bancarrota                     Declara al jugador actual en bancarota.
     salir, quit, exit             Cierra el programa.
     cambiar modo                  Cambia el modo del avatar del jugador con el turno.
     siguiente, sig, next          Avanza las casillas necesarias en el modo especial del avatar tipo pelota.
     pgar deuda                    Paga la deuda pendiente si tienes alguna.
+=======
+    bancarrota                    Declara al jugador actual en bancarrota.
+    cambiar modo                  Cambia el modo del avatar del jugador con el turno.
+    siguiente, sig, next          Avanza las casillas necesarias en el modo especial del avatar tipo pelota.
+    pagar deuda                   Paga la deuda acumulada. Si esto no se hace, el jugador no podrá avanzar.
+    salir, quit                   Cierra el programa.
+>>>>>>> test
 
 COMANDOS CON ARGUMENTOS
     crear jugador <nombre> <tipo>
           Crea un jugador dado su nombre y tipo. Este último puede ser uno de los
           4 siguientes:
               - Coche (alias c)
-              - Esfinge (alias e)
-              - Sombrero (alias s)
               - Pelota (alias p)
+              - Esfinge (alias e)     -> No implementado
+              - Sombrero (alias s)    -> No implementado
 
-    listar <casillas | enventa | jugadores | avatares>
-          Muestra información sobre las Casillas, la propiedades EnVenta, Jugadores
-          del juego y sus Avatares.
+    listar { casillas | enventa | jugadores | avatares | edificios }
+          Muestra información sobre las Casillas, la propiedades EnVenta, los edificios
+          construidos, Jugadores del juego y sus Avatares.
+
+    listar edificios <nombre-grupo>
+          Muestra información detallada sobre las edificaciones realizadas sobre un grupo.
+          Además indica qué edificios a mayores se pueden construir.
 
     describir <nombre-casilla>
           Muestra información sobre una casilla en concreto.
@@ -40,32 +52,24 @@ COMANDOS CON ARGUMENTOS
           NOTA: solo se puede comprar la propiedad en la que está su avatar y si no
           tiene dueño.
 
+
+    edificar { casa | hotel | piscina | pistadeporte } [<cantidad>]
+          Construye un edificio en el solar actual.
+
+    vender { casa | hotel | piscina | pistadeporte } <nombre-solar> [<cantidad>]
+          Vende un edificio previamente construido por la mitad de su valor de compra
+          original.
+
+
     hipotecar <nombre-propiedad>
           Permite al jugador actual hipotecar una propiedad.
 
     deshipotecar <nombre-propiedad>
           Permite al jugador actual deshipotecar una propiedad.
 
-    edificar <tipo-edificio> <cantidad>
-          Permite al jugador edificar en la casilla actual.
-          Máximos de los edificios por grupo y condiciones de edificación:
-              Casa: 4* numero de solares, sin condición
-              Hotel: numero de solares, se necesitan 4 casas
-              Piscina: Numero de solares, se necesita 1 hotel y 2 casas
-              Pista: Numero de solares, se necesita 1 hotel y 2 casas
 
-          NOTA: solo se puede edifiar si tienes monopoly o has caido 2 veces en el
-          mismo solar.
-
-    vender <tipo-edificio> <nombre-propiedad> <cantidad>
-          Permite vender las edificaciones construidas en un solar.
-
-          NOTA: se puede vender cuando el jugador lo considere.
-
-    estadisticas  <nombre-jugador || "   "  >
-          Permite visualizar las estadisticas de un jugador o de la partida.
-
-
+    estadisticas <nombre-jugador>
+          Muestra unas estadísticas sobre un jugador en concreto.
 
 COMANDOS DEBUG
     Solo para probar el funcionamiento del juego.
@@ -73,9 +77,8 @@ COMANDOS DEBUG
     exec <archivo>
            Permite ejecutar un archivo que contiene un comando por línea.
 
-    mover <n1> <n2>
-           Simula una tirada de un dado. Si desea moverse un determinado número de casillas,
-           use n2 = 0.
+    mover <n1> [<n2>]
+           Simula una tirada de un dado.
 
 NOTAS
     - Los comandos no distinguen mayúsculas de minúsculas: "AyUda" es lo mismo que "ayuda".

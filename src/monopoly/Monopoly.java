@@ -122,7 +122,7 @@ public class Monopoly {
         // @formatter:off
         switch (cmdNorm) {
             // Comandos de manejo del juego
-            case "salir", "quit", "exit"    -> System.exit(0);
+            case "salir", "quit", "exit" -> System.exit(0);
             case "ayuda", "help"    -> System.out.print(msgAyuda);
             case "iniciar", "start" -> tablero.iniciar();
 
@@ -139,12 +139,12 @@ public class Monopoly {
             }
             case "salir carcel"               -> tablero.salirCarcel();
             case "cambiar modo"               -> tablero.cambiarModo();
-            case "lanzar", "lanzar dados"    -> tablero.moverAvatar(new Dado());
-            case  "siguiente", "sig", "next"   -> tablero.moverAvatar();
-            case "acabar turno", "fin", "end" -> tablero.acabarTurno();
-            case "bancarrota" -> tablero.bancarrota();
-            case "pagar deuda" -> tablero.getJugadorTurno().pagarDeuda(tablero.getBanca());
 
+            case "lanzar", "lanzar dados"     -> tablero.moverAvatar(new Dado());
+            case "siguiente", "sig", "next"   -> tablero.moverAvatar(null);
+
+            case "acabar turno", "fin", "end" -> tablero.acabarTurno();
+            case "bancarrota"                 -> tablero.bancarrota();
 
             default -> this.cmdConArgumentos(cmdNorm);
         }
@@ -161,7 +161,6 @@ public class Monopoly {
         // @formatter:off
         String[] args = cmd.split(" ");
         switch (args[0]) {
-
             case "crear"        -> cmdCrear(args);
             case "comprar"      -> cmdComprar(args);
             case "describir"    -> cmdDescribir(args);
@@ -203,11 +202,9 @@ public class Monopoly {
         Avatar.TipoAvatar tipo;
         switch (args[3]) {
             case "c", "coche"    -> tipo = Avatar.TipoAvatar.Coche;
-            case "e", "esfinge"  -> tipo = Avatar.TipoAvatar.Esfinge;
-            case "s", "sombrero" -> tipo = Avatar.TipoAvatar.Sombrero;
             case "p", "pelota"   -> tipo = Avatar.TipoAvatar.Pelota;
             default -> {
-                Consola.error("\"%s\": No es un tipo válido de Avatar (prueba con c, e, s, p)".formatted(args[3]));
+                Consola.error("\"%s\": No es un tipo válido de Avatar (prueba con c, p)".formatted(args[3]));
                 return;
             }
         }
@@ -348,14 +345,16 @@ public class Monopoly {
      */
     private void cmdListar(String[] args) {
         if (args.length == 2) {
+            // @formatter:off
             switch (args[1]) {
-                case "casillas" -> System.out.println(tablero.getCasillas());
-                case "jugadores" -> System.out.println(tablero.getJugadores());
-                case "enventa" -> tablero.listarEnVenta();
-                case "avatares" -> tablero.listarAvatares();
+                case "casillas"  -> tablero.listarCasillas();
+                case "jugadores" -> tablero.listarJugadores();
+                case "enventa"   -> tablero.listarEnVenta();
+                case "avatares"  -> tablero.listarAvatares();
                 case "edificios" -> tablero.listarEdificios();
                 default -> Consola.error("Listar \"%s\" no está soportado".formatted(args[1]));
             }
+            // @formatter:on
             return;
         }
 

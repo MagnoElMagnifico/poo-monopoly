@@ -75,13 +75,15 @@ public class Propiedad {
                     alquiler: %s
                     propietario: %s
                     edificios: %s
+                    hipotecada?: %s
                 }""".formatted(tipo,
                                nombre,
                                casilla.getGrupo().getNombre(),
                                Consola.num(precio),
                                Consola.num(alquiler),
                                propietario.getNombre(),
-                               Consola.listar(edificios.iterator(), Edificio::getNombreFmt));
+                               Consola.listar(edificios.iterator(), Edificio::getNombreFmt),
+                               hipotecada? "Sí" : "No");
         // @formatter:on
     }
 
@@ -99,11 +101,13 @@ public class Propiedad {
                    precio: %s
                    alquiler: %s
                    propietario: %s
+                   hipotecada?: %s
                }""".formatted(nombre,
                               tipo,
                               Consola.num(precio),
                               Consola.num(alquiler),
-                              propietario == null ? "Banca" : propietario.getNombre());
+                              propietario == null ? "Banca" : propietario.getNombre(),
+                              hipotecada? "Sí" : "No");
         // @formatter:on
     }
 
