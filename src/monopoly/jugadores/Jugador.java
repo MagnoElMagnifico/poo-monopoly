@@ -25,10 +25,10 @@ public class Jugador {
     private final String nombre;
     private final Avatar avatar;
     private final boolean banca;
-    private long fortuna;
     private final HashSet<Propiedad> propiedades;
-    private Jugador acreedor;
     private final EstadisticasJugador estadisticas;
+    private long fortuna;
+    private Jugador acreedor;
 
     /**
      * Crea el jugador especial Banca
@@ -54,6 +54,68 @@ public class Jugador {
         this.propiedades = new HashSet<>();
         this.acreedor = null;
         this.estadisticas = new EstadisticasJugador(this);
+    }
+
+    /**
+     * Comprueba las restricciones de construcción
+     */
+    private static boolean edificable(Propiedad solar, Edificio.TipoEdificio tipo, int cantidad) {
+        Grupo grupo = solar.getCasilla().getGrupo();
+        final int maxEdificios = grupo.getNumeroCasillas();
+
+        switch (tipo) {
+            case Casa -> {
+                // Si no hay el máximo de edificios, se puede tener hasta 4 casas.
+                // Sino, solo hasta maxEdificios.
+                if (grupo.contarEdificios(TipoEdificio.Hotel) < maxEdificios) {
+                    if (solar.contarEdificios(TipoEdificio.Casa) + cantidad > 4) {
+                        Consola.error("No se pueden edificar más de 4 casas en un solar cuando no hay el máximo de hoteles");
+                        return false;
+                    }
+                } else if (grupo.contarEdificios(TipoEdificio.Casa) + cantidad > maxEdificios) {
+                    Consola.error("No se pueden edificar más de %d casas en un grupo cuando hay el número máximo de hoteles".formatted(maxEdificios));
+                    return false;
+                }
+            }
+
+            case Hotel -> {
+                if (grupo.contarEdificios(TipoEdificio.Hotel) + cantidad > maxEdificios) {
+                    Consola.error("No se pueden edificar más de %d hoteles en este grupo".formatted(maxEdificios));
+                    return false;
+                }
+
+                if (solar.contarEdificios(TipoEdificio.Casa) < 4 * cantidad) {
+                    Consola.error("Se necesitan 4 casas en el solar para edificar un hotel");
+                    return false;
+                }
+            }
+
+            case Piscina -> {
+                if (grupo.contarEdificios(TipoEdificio.Piscina) + cantidad > maxEdificios) {
+                    Consola.error("No se pueden edificar más de %d piscinas en este grupo".formatted(maxEdificios));
+                    return false;
+                }
+
+                if (grupo.contarEdificios(TipoEdificio.Hotel) < 1 || grupo.contarEdificios(Edificio.TipoEdificio.Casa) < 2) {
+                    Consola.error("Se necesita 1 hotel y 2 casas en el grupo para edificar una piscina");
+                    return false;
+                }
+            }
+
+            case PistaDeporte -> {
+                if (grupo.contarEdificios(TipoEdificio.PistaDeporte) + cantidad >= maxEdificios) {
+                    Consola.error("No se pueden edificar más de %d pistas de deporte en este grupo".formatted(maxEdificios));
+                    return false;
+                }
+
+                if (grupo.contarEdificios(TipoEdificio.Hotel) < 2) {
+                    Consola.error("Se necesitan 2 hoteles en el grupo para construir una pista de deporte");
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private String listarEdificios() {
@@ -190,68 +252,6 @@ public class Jugador {
 
         avatar.noPuedeComprar();
         describirTransaccion();
-        return true;
-    }
-
-    /**
-     * Comprueba las restricciones de construcción
-     */
-    private static boolean edificable(Propiedad solar, Edificio.TipoEdificio tipo, int cantidad) {
-        Grupo grupo = solar.getCasilla().getGrupo();
-        final int maxEdificios = grupo.getNumeroCasillas();
-
-        switch (tipo) {
-            case Casa -> {
-                // Si no hay el máximo de edificios, se puede tener hasta 4 casas.
-                // Sino, solo hasta maxEdificios.
-                if (grupo.contarEdificios(TipoEdificio.Hotel) < maxEdificios) {
-                    if (solar.contarEdificios(TipoEdificio.Casa) + cantidad > 4) {
-                        Consola.error("No se pueden edificar más de 4 casas en un solar cuando no hay el máximo de hoteles");
-                        return false;
-                    }
-                } else if (grupo.contarEdificios(TipoEdificio.Casa) + cantidad > maxEdificios) {
-                    Consola.error("No se pueden edificar más de %d casas en un grupo cuando hay el número máximo de hoteles".formatted(maxEdificios));
-                    return false;
-                }
-            }
-
-            case Hotel -> {
-                if (grupo.contarEdificios(TipoEdificio.Hotel) + cantidad > maxEdificios) {
-                    Consola.error("No se pueden edificar más de %d hoteles en este grupo".formatted(maxEdificios));
-                    return false;
-                }
-
-                if (solar.contarEdificios(TipoEdificio.Casa) < 4 * cantidad) {
-                    Consola.error("Se necesitan 4 casas en el solar para edificar un hotel");
-                    return false;
-                }
-            }
-
-            case Piscina -> {
-                if (grupo.contarEdificios(TipoEdificio.Piscina) + cantidad > maxEdificios) {
-                    Consola.error("No se pueden edificar más de %d piscinas en este grupo".formatted(maxEdificios));
-                    return false;
-                }
-
-                if (grupo.contarEdificios(TipoEdificio.Hotel) < 1 || grupo.contarEdificios(Edificio.TipoEdificio.Casa) < 2) {
-                    Consola.error("Se necesita 1 hotel y 2 casas en el grupo para edificar una piscina");
-                    return false;
-                }
-            }
-
-            case PistaDeporte -> {
-                if (grupo.contarEdificios(TipoEdificio.PistaDeporte) + cantidad >= maxEdificios) {
-                    Consola.error("No se pueden edificar más de %d pistas de deporte en este grupo".formatted(maxEdificios));
-                    return false;
-                }
-
-                if (grupo.contarEdificios(TipoEdificio.Hotel) < 2) {
-                    Consola.error("Se necesitan 2 hoteles en el grupo para construir una pista de deporte");
-                    return false;
-                }
-            }
-        }
-
         return true;
     }
 
@@ -495,7 +495,9 @@ public class Jugador {
         System.out.printf("Se ha deshipotecado %s por %s\n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
     }
 
-    /** Determina si */
+    /**
+     * Determina si
+     */
     public boolean acabarTurno() {
         if (isEndeudado()) {
             Consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota para poder avanzar".formatted(nombre));

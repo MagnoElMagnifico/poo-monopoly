@@ -1,6 +1,5 @@
 package monopoly.jugadores;
 
-import monopoly.Calculadora;
 import monopoly.Tablero;
 import monopoly.casillas.Casilla;
 import monopoly.utilidades.Consola;
@@ -168,12 +167,12 @@ public class Avatar {
 
         // Mostrar información
         System.out.printf("""
-                %s, con avatar %s, %s %d posiciones.
-                Viaja desde %s hasta %s.
-                """,
+                        %s, con avatar %s, %s %d posiciones.
+                        Viaja desde %s hasta %s.
+                        """,
                 Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
                 Consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
-                movimientoDelta > 0? "avanza" : "retrocede",
+                movimientoDelta > 0 ? "avanza" : "retrocede",
                 Math.abs(movimientoDelta),
                 casilla.getNombreFmt(),
                 nuevaCasilla.getNombreFmt());
@@ -220,7 +219,7 @@ public class Avatar {
         nuevaCasilla.getEstadisticas().anadirEstancia();
 
         // Realizar la acción de la casilla
-        nuevaCasilla.accion(jugador, dado == null? pelotaDado : dado);
+        nuevaCasilla.accion(jugador, dado == null ? pelotaDado : dado);
         return true;
     }
 
@@ -321,7 +320,7 @@ public class Avatar {
     private int moverEspecialCoche(Dado dado, Casilla carcel) {
         // Si ha salido un dado doble, se mueve de forma básica
         if (doblesSeguidos != 0) {
-            return irCarcelDadosDobles(dado, carcel)? Integer.MAX_VALUE : casilla.getPosicion() + dado.getValor();
+            return irCarcelDadosDobles(dado, carcel) ? Integer.MAX_VALUE : casilla.getPosicion() + dado.getValor();
         }
 
         // Penalización por sacar menos de un 4
@@ -352,7 +351,7 @@ public class Avatar {
     private int moverEspecialPelota(Dado dado, Casilla carcel) {
         // Si ha salido un dado doble, se mueve de forma básica
         if (doblesSeguidos != 0) {
-            return irCarcelDadosDobles(dado, carcel)? Integer.MAX_VALUE : casilla.getPosicion() + dado.getValor();
+            return irCarcelDadosDobles(dado, carcel) ? Integer.MAX_VALUE : casilla.getPosicion() + dado.getValor();
         }
 
         // Primera tirada
@@ -362,14 +361,14 @@ public class Avatar {
             // Si es menor que 4 se mueve hacia atrás
             if (valorDado < 4) {
                 // Como es la última tirada, se tiene en cuenta si los dados han sido dobles
-                return irCarcelDadosDobles(dado, carcel)? Integer.MAX_VALUE : casilla.getPosicion() - valorDado;
+                return irCarcelDadosDobles(dado, carcel) ? Integer.MAX_VALUE : casilla.getPosicion() - valorDado;
             }
 
             // Si el resultado es 4 o 5, como no hay impares de por medio
             // se realiza un movimiento normal (no hay que hacer ningún salto)
             if (valorDado <= 5) {
                 // Como es la última tirada, se tiene en cuenta si los dados han sido dobles
-                return irCarcelDadosDobles(dado, carcel)? Integer.MAX_VALUE : casilla.getPosicion() + valorDado;
+                return irCarcelDadosDobles(dado, carcel) ? Integer.MAX_VALUE : casilla.getPosicion() + valorDado;
             }
 
             // En otro caso, guardamos la posición final que marcan los dados
@@ -503,7 +502,9 @@ public class Avatar {
         }
     }
 
-    /** Se cambia el turno, por tanto se tiene que resetear el estado. Devuelve false en caso de que no se pueda terminar aún, porque quedan acciones que realizar */
+    /**
+     * Se cambia el turno, por tanto se tiene que resetear el estado. Devuelve false en caso de que no se pueda terminar aún, porque quedan acciones que realizar
+     */
     public boolean acabarTurno() {
         if (lanzamientosRestantes > 0 && penalizacion == 0) {
             Consola.error("A %s aún le quedan %d tiros".formatted(jugador.getNombre(), lanzamientosRestantes));
