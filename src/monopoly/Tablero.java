@@ -174,10 +174,12 @@ public class Tablero {
 
         // Mostrar los cambios
         jugadorTurno.describirTransaccion();
-        System.out.print(this);
 
         // Finalmente seleccionar el nuevo jugador
         turno = (turno + 1) % jugadores.size();
+
+        // Mostrar el tablero para el nuevo turno
+        System.out.print(this);
         System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
     }
 

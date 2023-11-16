@@ -98,6 +98,11 @@ public class Avatar {
             return false;
         }
 
+        if (dado == null && (!movimientoEspecial || tipo != TipoAvatar.Pelota)) {
+            Consola.error("No puedes usar el comando siguiente si no estás usando el avatar Pelota");
+            return false;
+        }
+
         if (dado != null && pelotaDado != null) {
             Consola.error("No puedes lanzar más dados. Prueba con el comando siguiente");
             return false;
@@ -108,18 +113,12 @@ public class Avatar {
             return false;
         }
 
-        if (dado == null && (!movimientoEspecial || tipo != TipoAvatar.Pelota)) {
-            Consola.error("No puedes usar el comando siguiente si no estás usando el avatar Pelota");
-            return false;
-        }
-
         if (dado == null && doblesSeguidos != 0) {
             Consola.error("No puedes usar el comando siguiente después de obtener dados dobles. Prueba con lanzar.");
             return false;
         }
 
         // Penalización de turnos para el coche
-        // TODO: probar penalización + IrCarcel
         if (penalizacion != 0) {
             Consola.error("Restaurando avatar: espera %d turno(s) para poder moverte".formatted(penalizacion));
             return false;
@@ -229,13 +228,9 @@ public class Avatar {
 
             if (doblesSeguidos >= 3) {
                 System.out.printf("""
-                                %s con avatar %s ha sacado %s.
                                 Ya son 3 veces seguidas sacando dados dobles.
                                 %s es arrestado por tener tanta suerte.
-                                """,
-                        Consola.fmt(jugador.getNombre(), Color.Azul),
-                        Consola.fmt(Character.toString(id), Color.Azul),
-                        dado, jugador.getNombre());
+                                """, jugador.getNombre());
                 irCarcel(carcel);
                 return true;
             }
@@ -255,20 +250,18 @@ public class Avatar {
 
         if (dado.isDoble()) {
             System.out.println("Dados dobles! El jugador puede salir de la Cárcel");
-            lanzamientosRestantes++;
+            lanzamientosRestantes = movimientoEspecial && tipo == TipoAvatar.Coche? 4 : 1;
             encerrado = false;
             turnosEnCarcel = 0;
         } else if (turnosEnCarcel >= 3) {
-            System.out.printf("%s con avatar %s no ha sacado dados dobles %s.\nAhora debe pagar obligatoriamente la fianza.\n",
+            System.out.printf("%s con avatar %s no ha sacado dados dobles.\nAhora debe pagar obligatoriamente la fianza.\n",
                     Consola.fmt(jugador.getNombre(), Color.Azul),
-                    Consola.fmt(Character.toString(id), Color.Azul),
-                    dado);
+                    Consola.fmt(Character.toString(id), Color.Azul));
             salirCarcelPagando(true);
         } else {
-            System.out.printf("%s con avatar %s no ha sacado dados dobles %s.\nPuede pagar la fianza o permanecer encerrado.\n",
+            System.out.printf("%s con avatar %s no ha sacado dados dobles.\nPuede pagar la fianza o permanecer encerrado.\n",
                     Consola.fmt(jugador.getNombre(), Color.Azul),
-                    Consola.fmt(Character.toString(id), Color.Azul),
-                    dado);
+                    Consola.fmt(Character.toString(id), Color.Azul));
         }
     }
 
@@ -312,6 +305,7 @@ public class Avatar {
 
         encerrado = false;
         turnosEnCarcel = 0;
+        lanzamientosRestantes = movimientoEspecial && tipo == TipoAvatar.Coche? 4 : 1;
 
         System.out.printf("El jugador %s paga %s para salir de la cárcel\n", jugador.getNombre(), Consola.num(casilla.getFianza()));
         return true;
@@ -511,7 +505,7 @@ public class Avatar {
             return false;
         }
 
-        if (movimientoEspecial && tipo == TipoAvatar.Coche) {
+        if (movimientoEspecial && tipo == TipoAvatar.Coche && !encerrado) {
             lanzamientosRestantes = 4;
         } else {
             lanzamientosRestantes = 1;
