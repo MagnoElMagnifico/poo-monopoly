@@ -393,6 +393,9 @@ public class Avatar {
 
             // Como es la última tirada, se tiene en cuenta si los dados han sido dobles
             if (irCarcelDadosDobles(pelotaDado, carcel)) {
+                // Se borra el dado del turno anterior para que se pueda volver a usar lanzar
+                pelotaDado = null;
+
                 return Integer.MAX_VALUE;
             }
 
@@ -431,11 +434,10 @@ public class Avatar {
             return;
         }
 
-        // TODO: para pelota no funciona
         // Mismo razonamiento que antes pero con la pelota: no se puede cambiar al
         // modo básico si todavía no se lanzó (pelotaDado es null, todavía no se
         // asignó) o si no quedan lanzamientos.
-        if (movimientoEspecial && tipo == TipoAvatar.Pelota && (pelotaDado != null || lanzamientosRestantes != 0)) {
+        if (movimientoEspecial && tipo == TipoAvatar.Pelota && pelotaDado != null && lanzamientosRestantes != 0) {
             Consola.error("No puedes cambiar de modo en mitad de un movimiento especial");
             return;
         }
