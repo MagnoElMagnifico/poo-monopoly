@@ -57,7 +57,9 @@ public class Calculadora {
         } else {
             alquilerSolar = p.getPrecio() / 10;
         }
-
+        if(p.getTipo()==TipoPropiedad.Servicio){
+            alquilerSolar= (long) ((p.getPrecio()*2.85)/200);
+        }
         // Calcular el precio incluyendo los edificios (solo si es solar)
         long alquilerEdificio = 0;
         if (p.getTipo() == TipoPropiedad.Solar) {

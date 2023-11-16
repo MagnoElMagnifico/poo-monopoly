@@ -102,8 +102,8 @@ public class Propiedad {
                    alquiler: %s
                    propietario: %s
                    hipotecada?: %s
-               }""".formatted(nombre,
-                              tipo,
+               }""".formatted(tipo,
+                              nombre,
                               Consola.num(precio),
                               Consola.num(alquiler),
                               propietario == null ? "Banca" : propietario.getNombre(),

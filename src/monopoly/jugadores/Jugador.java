@@ -390,10 +390,21 @@ public class Jugador {
             return;
         }
 
-        // TODO: alquiler servicio y operacion transporte
-        long importe = switch (p.getTipo()) {
-            case Solar, Transporte -> p.getAlquiler();
-            case Servicio -> p.getAlquiler() * dado.getValor() * 4;
+
+        long importe=0;
+        switch (p.getTipo()) {
+            case Solar, Transporte -> importe=p.getAlquiler();
+            case Servicio -> {
+                long i=0;
+                for(Propiedad pr : p.getPropietario().getPropiedades()){
+
+                    if(pr.getTipo()== Propiedad.TipoPropiedad.Servicio){
+                        i++;
+                    }
+                    if(i==1){importe=p.getAlquiler()*dado.getValor()*4;}
+                    else {importe=p.getAlquiler()*dado.getValor()*10;}
+                }
+            }
         };
 
         // Se debe cobrar todo el importe, aunque el jugador no pueda pagarlo.
@@ -406,7 +417,7 @@ public class Jugador {
             return;
         }
 
-        System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(p.getAlquiler()), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
+        System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(importe), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
 
         estadisticas.anadirPagoAlquiler(importe);
         p.getCasilla().getEstadisticas().anadirCobroAlquiler(importe);
