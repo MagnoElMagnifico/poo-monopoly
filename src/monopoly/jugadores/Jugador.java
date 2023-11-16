@@ -139,6 +139,12 @@ public class Jugador {
      * @return True cuando la operación resultó exitosa, false en otro caso.
      */
     public boolean comprar(Propiedad p) {
+        // Movimientos especiales del avatar: Comprobar que no se haya comprado ya en este turno
+        if (!avatar.isPuedeComprar()) {
+            Consola.error("El jugador %s ya ha realizado una compra en este turno".formatted(nombre));
+            return false;
+        }
+
         // Comprobar que el jugador no haya comprado ya la casilla
         if (propiedades.contains(p)) {
             Consola.error("El jugador %s ya ha comprado la casilla %s.".formatted(nombre, p.getCasilla().getNombreFmt()));
@@ -182,6 +188,7 @@ public class Jugador {
                     """, Consola.fmt(nombre, Consola.Color.Azul), Consola.fmt(g.getNombre(), g.getCodigoColor()));
         }
 
+        avatar.noPuedeComprar();
         describirTransaccion();
         return true;
     }
@@ -379,6 +386,7 @@ public class Jugador {
             return;
         }
 
+        // TODO: alquiler servicio y operacion transporte
         long importe = switch (p.getTipo()) {
             case Solar, Transporte -> p.getAlquiler();
             case Servicio -> p.getAlquiler() * dado.getValor() * 4;
@@ -485,6 +493,16 @@ public class Jugador {
 
         propiedad.setHipotecada(false);
         System.out.printf("Se ha deshipotecado %s por %s\n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
+    }
+
+    /** Determina si */
+    public boolean acabarTurno() {
+        if (isEndeudado()) {
+            Consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota para poder avanzar".formatted(nombre));
+            return false;
+        }
+
+        return avatar.acabarTurno();
     }
 
     public boolean isBanca() {

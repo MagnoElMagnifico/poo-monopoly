@@ -150,7 +150,7 @@ public class Casilla {
                 }
 
                 banca.ingresar(impuestos);
-                System.out.printf("Se han cobrado %s de impuestos a la banca\n", impuestos);
+                System.out.printf("Se han cobrado %s de impuestos a la banca\n", Consola.num(impuestos));
             }
 
             case Carcel -> System.out.println("El avatar se coloca en la Cárcel. Solo está de visita");
@@ -177,7 +177,7 @@ public class Casilla {
                 case Servicio, Transporte -> Estilo.Cursiva;
             };
 
-            return Consola.fmt("%s, %s".formatted(propiedad.getNombre(), grupo.getNombre()), grupo.getCodigoColor(), estilo);
+            return Consola.fmt("%s - %s".formatted(propiedad.getNombre(), grupo.getNombre()), grupo.getCodigoColor(), estilo);
         }
 
         return Consola.fmt(tipo.toString(), grupo.getCodigoColor(), Estilo.Negrita);

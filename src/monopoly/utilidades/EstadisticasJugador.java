@@ -107,6 +107,10 @@ public class EstadisticasJugador {
         nVueltas++;
     }
 
+    public void quitarVuelta() {
+        nVueltas--;
+    }
+
     public void anadirTirada() {
         nTiradas++;
     }

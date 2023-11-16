@@ -153,36 +153,7 @@ public class Tablero {
 
         // Muestra el tablero si se ha movido el avatar con éxito
         if (jugadorTurno.getAvatar().mover(dado, this)) {
-            System.out.print(this);
-            jugadorTurno.describirTransaccion();
-        }
-    }
-
-    public void siguienteMovimiento() {
-        if (!jugando) {
-            Consola.error("No se ha iniciado la partida");
-            return;
-        }
-
-        if (getJugadorTurno().isEndeudado()) {
-            Consola.error("Estas endeudado: paga la deuda o declárate en bancarrota para poder avanzar");
-            return;
-        }
-
-        Avatar avatarTurno = getJugadorTurno().getAvatar();
-
-        if (avatarTurno.getTipo() != Avatar.TipoAvatar.Pelota) {
-            Consola.error("No puedes usar este comando no eres una pelota.");
-            return;
-        }
-
-        if (!avatarTurno.isMovimientoEspecial() || !avatarTurno.isPelotaMovimiento()) {
-            Consola.error("No puedes usar esto ahora. Vuelve más tarde.");
-            return;
-        }
-
-        if (avatarTurno.mover(null, this)) {
-            System.out.print(this);
+            System.out.printf("\n%s", this);
         }
     }
 
@@ -197,32 +168,17 @@ public class Tablero {
 
         Jugador jugadorTurno = getJugadorTurno();
 
-        if (jugadorTurno.isEndeudado()) {
-            Consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota para poder avanzar".formatted(jugadorTurno.getNombre()));
+        if (!jugadorTurno.acabarTurno()) {
             return;
         }
 
-        Avatar avatarTurno = jugadorTurno.getAvatar();
-
-        if (avatarTurno.getLanzamientosEnTurno() > 0 && !jugadorTurno.getAvatar().isMovimientoEspecial()) {
-            Consola.error("Al jugador %s le quedan %d tiros".formatted(jugadorTurno.getNombre(), avatarTurno.getLanzamientosEnTurno()));
-            return;
-        }
-
-        if (avatarTurno.getTipo() == Avatar.TipoAvatar.Pelota && avatarTurno.getLanzamientosEnTurno() > 0) {
-            Consola.error("Al jugador %s aún le quedan tiros especiales".formatted(jugadorTurno.getNombre()));
-            return;
-        }
-
-        avatarTurno.resetDoblesSeguidos();
-        avatarTurno.resetLanzamientos();
-        avatarTurno.setPuedeComprar(true);
-
-        turno = (turno + 1) % jugadores.size();
-
-        System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
+        // Mostrar los cambios
         jugadorTurno.describirTransaccion();
         System.out.print(this);
+
+        // Finalmente seleccionar el nuevo jugador
+        turno = (turno + 1) % jugadores.size();
+        System.out.printf("Se ha cambiado el turno.\nAhora le toca a %s.\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
     }
 
     /**
@@ -287,13 +243,7 @@ public class Tablero {
             return;
         }
 
-        if (jugadorTurno.comprar(casillaActual.getPropiedad())) {
-            // Si se realizó la compra correctamente y se usa el avatar tipo Pelota,
-            // se debe evitar que se compre otra vez en este mismo turno.
-            if (avatarTurno.isMovimientoEspecial() && avatarTurno.getTipo() == Avatar.TipoAvatar.Pelota) {
-                avatarTurno.setPuedeComprar(false);
-            }
-        }
+        jugadorTurno.comprar(casillaActual.getPropiedad());
     }
 
     /**
