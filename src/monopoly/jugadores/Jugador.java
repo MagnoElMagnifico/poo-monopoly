@@ -249,7 +249,11 @@ public class Jugador {
                     Ahora los alquileres de ese grupo valen el doble.
                     """, Consola.fmt(nombre, Consola.Color.Azul), Consola.fmt(g.getNombre(), g.getCodigoColor()));
         }
-
+        if(p.getTipo()== Propiedad.TipoPropiedad.Transporte){
+            for(Casilla c : p.getCasilla().getGrupo().getCasillas()){
+                c.getPropiedad().actualizarAlquiler();
+            }
+        }
         avatar.noPuedeComprar();
         describirTransaccion();
         return true;
