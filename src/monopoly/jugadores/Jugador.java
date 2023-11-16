@@ -40,7 +40,7 @@ public class Jugador {
         this.fortuna = 0;
         this.propiedades = new HashSet<>(28);
         this.acreedor = null;
-        this.estadisticas = null;
+        this.estadisticas = new EstadisticasJugador(this);
     }
 
     /**
