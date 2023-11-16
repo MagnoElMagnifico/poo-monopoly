@@ -72,6 +72,11 @@ COMANDOS DEBUG
     mover <n1> [<n2>]
            Simula una tirada de un dado.
 
+    fortuna <nombre-jugador> <cantidad>
+           Cobra o ingresa la cantidad dada al jugador indicado.
+           Si la cantidad es positiva se ingresa.
+           Si la cantidad es negativa se cobra.
+
 NOTAS
     - Los comandos no distinguen mayúsculas de minúsculas: "AyUda" es lo mismo que "ayuda".
     - Se ignoran los espacios en blanco no necesarios: "lanzar     dados" es lo

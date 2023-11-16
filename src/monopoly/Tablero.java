@@ -63,19 +63,20 @@ public class Tablero {
      * Iniciar la partida: a partir de ahora se pueden lanzar
      * los dados, pero no se pueden añadir más jugadores.
      */
-    public void iniciar() {
+    public boolean iniciar() {
         if (jugando) {
             Consola.error("La partida ya está iniciada");
-            return;
+            return false;
         }
 
         if (jugadores.size() < 2) {
             Consola.error("No hay suficientes jugadores para empezar (mínimo 2)");
-            return;
+            return false;
         }
 
         jugando = true;
-        System.out.print(Consola.fmt("Se ha iniciado la partida.\nA JUGAR!\n", Color.Verde));
+        System.out.print(Consola.fmt("Se ha iniciado la partida\n", Color.Amarillo));
+        return true;
     }
 
     /**
@@ -418,13 +419,14 @@ public class Tablero {
         }
     }
 
-    public void bancarrota() {
+    public boolean bancarrota() {
         // Pedir confirmación
         Scanner scanner = new Scanner(System.in);
         System.out.print("Esta seguro de que quiere abandonar la partida? (y/N): ");
-        if (Character.toLowerCase(scanner.nextLine().trim().charAt(0)) != 'y') {
+        String respuesta = scanner.nextLine();
+        if (respuesta.isBlank() || Character.toLowerCase(respuesta.trim().charAt(0)) != 'y') {
             System.out.println("Operación cancelada");
-            return;
+            return false;
         }
 
         Jugador deudor = getJugadorTurno();
@@ -441,6 +443,7 @@ public class Tablero {
         }
 
         // Se borra el jugador
+        deudor.getAvatar().getCasilla().quitarAvatar(deudor.getAvatar());
         jugadores.remove(deudor);
         System.out.printf("El jugador %s se declara en bancarrota y abandona la partida\n", Consola.fmt(deudor.getNombre(), Color.Azul));
 
@@ -448,9 +451,12 @@ public class Tablero {
             // Fin de la partida
             System.out.println(Consola.fmt("Felicidades %s, has ganado la partida".formatted(jugadores.get(0).getNombre()), Color.Amarillo));
             jugando = false;
+            return true;
         } else {
             System.out.printf("Ahora le toca a %s\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
         }
+
+        return false;
     }
 
     /**

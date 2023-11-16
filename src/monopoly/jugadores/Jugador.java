@@ -160,7 +160,7 @@ public class Jugador {
                     edificios: %s
                 }""".formatted(nombre,
                                avatar.getId(),
-                               Consola.num(fortuna),
+                               Consola.fmt(Consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
                                Consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? null : p.getCasilla().getNombreFmt()),
                                Consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? p.getCasilla().getNombreFmt() : null),
                                listarEdificios());
@@ -179,7 +179,7 @@ public class Jugador {
                     propiedades: %s
                     edificios: %s
                 }
-                """, Consola.num(fortuna),
+                """, Consola.fmt(Consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
                      Consola.num(estadisticas.getGastos()),
                      Consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()),
                      listarEdificios());
@@ -204,6 +204,11 @@ public class Jugador {
         // Movimientos especiales del avatar: Comprobar que no se haya comprado ya en este turno
         if (!avatar.isPuedeComprar()) {
             Consola.error("El jugador %s ya ha realizado una compra en este turno".formatted(nombre));
+            return false;
+        }
+
+        if (isEndeudado()) {
+            Consola.error("No puedes comprar nada si estas endeudado");
             return false;
         }
 
@@ -262,6 +267,11 @@ public class Jugador {
      */
     public boolean comprar(TipoEdificio tipoEdificio, int cantidad) {
         Casilla casilla = avatar.getCasilla();
+
+        if (isEndeudado()) {
+            Consola.error("No puedes edificar si estas endeudado");
+            return false;
+        }
 
         if (!casilla.isPropiedad() || casilla.getPropiedad().getTipo() != Propiedad.TipoPropiedad.Solar) {
             Consola.error("No se puede edificar en una casilla que no sea un solar");
