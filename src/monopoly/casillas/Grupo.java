@@ -46,7 +46,7 @@ public class Grupo {
 
     public void listarEdificios() {
         for (Casilla c : casillas) {
-            if (c.isPropiedad()) {
+            if (c.isPropiedad() && c.getPropiedad().getTipo() == Propiedad.TipoPropiedad.Solar) {
                 Propiedad p = c.getPropiedad();
 
                 System.out.printf("""

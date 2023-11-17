@@ -243,22 +243,27 @@ public class Jugador {
 
         // Actualizar los precios de los alquileres si se acaba de
         // completar un Monopolio
-        if (Calculadora.tieneGrupo(p)) {
-            for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
-                c.getPropiedad().actualizarAlquiler();
-            }
+        switch (p.getTipo()) {
+            case Solar -> {
+                if (Calculadora.tieneGrupo(p)) {
+                    for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
+                        c.getPropiedad().actualizarAlquiler();
+                    }
 
-            Grupo g = p.getCasilla().getGrupo();
-            System.out.printf("""
+                    Grupo g = p.getCasilla().getGrupo();
+                    System.out.printf("""
                     Con esta casilla, %s completa el Monopolio de %s!
                     Ahora los alquileres de ese grupo valen el doble.
                     """, Consola.fmt(nombre, Consola.Color.Azul), Consola.fmt(g.getNombre(), g.getCodigoColor()));
-        }
-        if (p.getTipo() == Propiedad.TipoPropiedad.Transporte) {
-            for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
-                c.getPropiedad().actualizarAlquiler();
+                }
+            }
+            case Servicio, Transporte -> {
+                for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
+                    c.getPropiedad().actualizarAlquiler();
+                }
             }
         }
+
         avatar.noPuedeComprar();
         describirTransaccion();
         return true;

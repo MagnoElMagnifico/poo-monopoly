@@ -18,8 +18,6 @@ COMANDOS CON ARGUMENTOS
           4 siguientes:
               - Coche (alias c)
               - Pelota (alias p)
-              - Esfinge (alias e)     -> No implementado
-              - Sombrero (alias s)    -> No implementado
 
     listar { casillas | enventa | jugadores | avatares | edificios }
           Muestra información sobre las Casillas, la propiedades EnVenta, los edificios
@@ -37,6 +35,7 @@ COMANDOS CON ARGUMENTOS
 
     describir avatar <id>
           Muestra información sobre un avatar en concreto.
+
 
     comprar <nombre-propiedad>
           Permite al jugador actual comprar una propiedad.
