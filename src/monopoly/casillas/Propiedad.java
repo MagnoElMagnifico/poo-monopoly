@@ -240,8 +240,48 @@ public class Propiedad {
         return hipotecada;
     }
 
-    public void setHipotecada(boolean hipotecada) {
-        this.hipotecada = hipotecada;
+    public void hipotecar() {
+        if (propietario == null || propietario.isBanca()) {
+            Consola.error("No se puede hipotecar una propiedad sin dueño");
+            return;
+        }
+
+        if (hipotecada) {
+            Consola.error("No se puede hipotecar, ya está hipotecada");
+            return;
+        }
+
+        if (tipo == TipoPropiedad.Solar && !edificios.isEmpty()) {
+            Consola.error("No se puede hipotecar una propiedad con edificios");
+            return;
+        }
+
+        hipotecada = true;
+        long cantidad = Calculadora.calcularHipoteca(this);
+        propietario.ingresar(cantidad);
+
+        // NOTA: esta cantidad no se tiene en cuenta para las estadísticas
+
+        System.out.printf("Se ha hipotecado %s por %s\n", casilla.getNombreFmt(), Consola.num(cantidad));
+        propietario.describirTransaccion();
+    }
+
+    public void deshipotecar() {
+        if (!hipotecada) {
+            Consola.error("No se puede deshipotecar, no está hipotecada");
+            return;
+        }
+
+        long cantidad = Calculadora.calcularHipoteca(this);
+
+        if (!propietario.cobrar(cantidad, false)) {
+            Consola.error("No tienes suficientes fondos para deshipotecar esa propiedad");
+            return;
+        }
+
+        hipotecada = false;
+        System.out.printf("Se ha deshipotecado %s por %s\n", casilla.getNombreFmt(), Consola.num(cantidad));
+        propietario.describirTransaccion();
     }
 
     /**

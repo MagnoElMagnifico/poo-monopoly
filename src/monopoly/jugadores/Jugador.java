@@ -462,49 +462,6 @@ public class Jugador {
         fortuna += cantidad;
     }
 
-    public void hipotecar(Propiedad propiedad) {
-        if (!propiedades.contains(propiedad)) {
-            Consola.error("No se puede hipotecar una propiedad que no te pertenece");
-            return;
-        }
-
-        if (propiedad.isHipotecada()) {
-            Consola.error("No se puede hipotecar, ya está hipotecada");
-            return;
-        }
-
-        propiedad.setHipotecada(true);
-        long cantidad = Calculadora.calcularHipoteca(propiedad);
-        ingresar(cantidad);
-
-        // NOTA: esta cantidad no se tiene en cuenta para las estadísticas
-
-        System.out.printf("Se ha hipotecado %s por %s\n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
-        describirTransaccion();
-    }
-
-    public void deshipotecar(Propiedad propiedad) {
-        if (!propiedades.contains(propiedad)) {
-            Consola.error("No se puede hipotecar una propiedad que no te pertenece");
-            return;
-        }
-
-        if (!propiedad.isHipotecada()) {
-            Consola.error("No se puede deshipotecar, no está hipotecada");
-            return;
-        }
-
-        long cantidad = Calculadora.calcularHipoteca(propiedad);
-
-        if (!cobrar(cantidad, false)) {
-            Consola.error("No tienes suficientes fondos para deshipotecar esa propiedad");
-            return;
-        }
-
-        propiedad.setHipotecada(false);
-        System.out.printf("Se ha deshipotecado %s por %s\n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
-    }
-
     /**
      * Determina si
      */

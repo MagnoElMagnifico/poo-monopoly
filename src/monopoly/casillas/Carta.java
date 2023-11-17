@@ -70,14 +70,21 @@ public class Carta {
             case 12 -> cantidad = -150_000L;
             case 8 -> {
                 for (Propiedad p : jugadorTurno.getPropiedades()) {
-                    for (Edificio e : p.getEdificios()) {
-                        cantidad -= switch (e.getTipo()) {
-                            case Casa -> 4_000_000L;
-                            case Hotel -> 1_500_000L;
-                            case Piscina -> 200_000L;
-                            case PistaDeporte -> 750_000L;
-                        };
+                    if (p.getTipo() == Propiedad.TipoPropiedad.Solar) {
+                        for (Edificio e : p.getEdificios()) {
+                            cantidad -= switch (e.getTipo()) {
+                                case Casa -> 4_000_000L;
+                                case Hotel -> 1_500_000L;
+                                case Piscina -> 200_000L;
+                                case PistaDeporte -> 750_000L;
+                            };
+                        }
                     }
+                }
+
+                if (cantidad == 0) {
+                    System.out.println("El jugador no tiene edificios, por lo que no tiene que pagar nada.");
+                    return;
                 }
             }
             case 10 -> {
@@ -92,6 +99,11 @@ public class Carta {
                 // NOTA: se está ingresando el dinero a cada jugador incluso si el jugador no puede pagarlo
 
                 for (Jugador j : tablero.getJugadores()) {
+                    // No ingresar la cantidad a sí mismo
+                    if (j.equals(jugadorTurno)) {
+                        continue;
+                    }
+
                     j.ingresar(cantidadPorJugador);
                     j.getEstadisticas().anadirPremio(cantidadPorJugador);
                 }
@@ -132,7 +144,7 @@ public class Carta {
             case 5 -> cantidad = -1_000_000;
             case 8 -> {
                 long cantidadPorJugador = 250_000L;
-                if (!jugadorTurno.cobrar(cantidadPorJugador * tablero.getJugadores().size(), true)) {
+                if (!jugadorTurno.cobrar(cantidadPorJugador * (tablero.getJugadores().size() - 1), true)) {
                     Consola.error("El jugador no tiene suficiente dinero para completar su acción de comunidad");
                 }
 
@@ -142,6 +154,11 @@ public class Carta {
                 // NOTA: se está ingresando el dinero a cada jugador incluso si el jugador no puede pagarlo
 
                 for (Jugador j : tablero.getJugadores()) {
+                    // No ingresar la cantidad a sí mismo
+                    if (j.equals(jugadorTurno)) {
+                        continue;
+                    }
+
                     j.ingresar(cantidadPorJugador);
                     j.getEstadisticas().anadirPremio(cantidadPorJugador);
                 }

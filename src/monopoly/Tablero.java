@@ -307,7 +307,12 @@ public class Tablero {
             return;
         }
 
-        getJugadorTurno().hipotecar(p);
+        if (!getJugadorTurno().getPropiedades().contains(p)) {
+            Consola.error("No puedes hipotecar una propiedad que no te pertenece");
+            return;
+        }
+
+        p.hipotecar();
     }
 
     public void deshipotecar(String nombre) {
@@ -330,7 +335,12 @@ public class Tablero {
             return;
         }
 
-        getJugadorTurno().deshipotecar(p);
+        if (!getJugadorTurno().getPropiedades().contains(p)) {
+            Consola.error("No puedes deshipotecar una propiedad que no te pertenece");
+            return;
+        }
+
+        p.deshipotecar();
     }
 
     @Override
@@ -439,7 +449,6 @@ public class Tablero {
         for (Propiedad p : deudor.getPropiedades()) {
             p.setPropietario(acreedor);
             acreedor.anadirPropiedad(p);
-            p.setHipotecada(false);
         }
 
         // Se borra el jugador

@@ -46,6 +46,7 @@ public class EstadisticasJugador {
         return """
                {
                    jugador: %s
+                   capital: %s
                    dinero invertido: %s
                    pago de tasas e impuestos: %s
                    cobro de alquileres: %s
@@ -58,6 +59,7 @@ public class EstadisticasJugador {
                    número de tiradas: %s
                }
                """.formatted(jugador.getNombre(),
+                             Consola.num(getCapital()),
                              Consola.num(inversiones),
                              Consola.num(pagoTasas),
                              Consola.num(cobroAlquileres),

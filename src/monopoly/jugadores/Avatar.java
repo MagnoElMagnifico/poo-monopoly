@@ -125,11 +125,14 @@ public class Avatar {
         }
 
         lanzamientosRestantes--;
-        jugador.getEstadisticas().anadirTirada();
 
         // Mostrar la representación de los dados
         if (dado != null) {
             System.out.println(dado);
+
+            // Cuando el dado no es null, es que se ha lanzado un nuevo dado.
+            // De esta forma, el comando siguiente no se considera una tirada.
+            jugador.getEstadisticas().anadirTirada();
         }
 
         if (encerrado) {
@@ -287,6 +290,9 @@ public class Avatar {
         casilla.quitarAvatar(this);
         casilla = carcel;
         carcel.anadirAvatar(this);
+
+        historialCasillas.add(carcel);
+        carcel.getEstadisticas().anadirEstancia();
 
         System.out.println("Por tanto, el avatar termina en la Cárcel");
     }
@@ -456,13 +462,14 @@ public class Avatar {
                     Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
                     Consola.fmt(Character.toString(id), Consola.Color.Azul),
                     tipo);
+        }
 
-            // Si todavía no se tiró y se quiere usar el avatar de coche,
-            // hay que poner los lanzamientos a 4, dado que en todos los
-            // otros casos es 1.
-            if (tipo == TipoAvatar.Coche && lanzamientosRestantes == 1) {
-                lanzamientosRestantes = 4;
-            }
+        // Actualizar los lanzamientos restantes.
+        // De lo contrario, el avatar coche puede conseguir 4 lanzamientos
+        // básicos si cambia dos veces de modo.
+        // No se cambia si ya se gastaron todos los tiros en el turno.
+        if (lanzamientosRestantes != 0) {
+            lanzamientosRestantes = movimientoEspecial && tipo == TipoAvatar.Coche ? 4 : 1;
         }
     }
 
