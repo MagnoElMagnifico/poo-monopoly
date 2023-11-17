@@ -626,7 +626,7 @@ public class Tablero {
                 }
                 """,
                 casillaMasRentable.getNombreFmt(), Consola.num(maxAlquilerCobrado),
-                grupoMasRentable.getNombre(), Consola.num(maxGrupoAlquiler),
+                Consola.fmt(grupoMasRentable.getNombre(), grupoMasRentable.getCodigoColor()), Consola.num(maxGrupoAlquiler),
                 masFrecuentada.getNombreFmt(), maxEstancias,
                 masVueltas.getNombre(), maxVueltas,
                 masTiradas.getNombre(), maxTiradas,

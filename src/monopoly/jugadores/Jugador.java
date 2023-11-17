@@ -280,6 +280,11 @@ public class Jugador {
 
         Propiedad solar = casilla.getPropiedad();
 
+        if (solar.isHipotecada()) {
+            Consola.error("No puedes edificar sobre una propiedad hipotecada");
+            return false;
+        }
+
         if (!solar.getPropietario().equals(this)) {
             Consola.error("No se puede edificar en una propiedad que no te pertenece");
             return false;
