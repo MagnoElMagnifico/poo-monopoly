@@ -77,6 +77,15 @@ public class Casilla {
         mazo = null;
     }
 
+    public void listar() {
+        if (tipo == TipoCasilla.Propiedad) {
+            propiedad.listar();
+            return;
+        }
+
+        System.out.println(toString());
+    }
+
     @Override
     public String toString() {
         return switch (tipo) {

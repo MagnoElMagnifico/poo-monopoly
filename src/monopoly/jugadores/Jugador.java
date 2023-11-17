@@ -160,7 +160,7 @@ public class Jugador {
                     edificios: %s
                 }""".formatted(nombre,
                                avatar.getId(),
-                               Consola.num(fortuna),
+                               Consola.fmt(Consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
                                Consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? null : p.getCasilla().getNombreFmt()),
                                Consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? p.getCasilla().getNombreFmt() : null),
                                listarEdificios());
@@ -179,7 +179,7 @@ public class Jugador {
                     propiedades: %s
                     edificios: %s
                 }
-                """, Consola.num(fortuna),
+                """, Consola.fmt(Consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
                      Consola.num(estadisticas.getGastos()),
                      Consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()),
                      listarEdificios());
@@ -204,6 +204,11 @@ public class Jugador {
         // Movimientos especiales del avatar: Comprobar que no se haya comprado ya en este turno
         if (!avatar.isPuedeComprar()) {
             Consola.error("El jugador %s ya ha realizado una compra en este turno".formatted(nombre));
+            return false;
+        }
+
+        if (isEndeudado()) {
+            Consola.error("No puedes comprar nada si estas endeudado");
             return false;
         }
 
@@ -267,12 +272,22 @@ public class Jugador {
     public boolean comprar(TipoEdificio tipoEdificio, int cantidad) {
         Casilla casilla = avatar.getCasilla();
 
+        if (isEndeudado()) {
+            Consola.error("No puedes edificar si estas endeudado");
+            return false;
+        }
+
         if (!casilla.isPropiedad() || casilla.getPropiedad().getTipo() != Propiedad.TipoPropiedad.Solar) {
             Consola.error("No se puede edificar en una casilla que no sea un solar");
             return false;
         }
 
         Propiedad solar = casilla.getPropiedad();
+
+        if (solar.isHipotecada()) {
+            Consola.error("No puedes edificar sobre una propiedad hipotecada");
+            return false;
+        }
 
         if (!solar.getPropietario().equals(this)) {
             Consola.error("No se puede edificar en una propiedad que no te pertenece");
@@ -465,49 +480,6 @@ public class Jugador {
         }
 
         fortuna += cantidad;
-    }
-
-    public void hipotecar(Propiedad propiedad) {
-        if (!propiedades.contains(propiedad)) {
-            Consola.error("No se puede hipotecar una propiedad que no te pertenece");
-            return;
-        }
-
-        if (propiedad.isHipotecada()) {
-            Consola.error("No se puede hipotecar, ya está hipotecada");
-            return;
-        }
-
-        propiedad.setHipotecada(true);
-        long cantidad = Calculadora.calcularHipoteca(propiedad);
-        ingresar(cantidad);
-
-        // NOTA: esta cantidad no se tiene en cuenta para las estadísticas
-
-        System.out.printf("Se ha hipotecado %s por %s\n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
-        describirTransaccion();
-    }
-
-    public void deshipotecar(Propiedad propiedad) {
-        if (!propiedades.contains(propiedad)) {
-            Consola.error("No se puede hipotecar una propiedad que no te pertenece");
-            return;
-        }
-
-        if (!propiedad.isHipotecada()) {
-            Consola.error("No se puede deshipotecar, no está hipotecada");
-            return;
-        }
-
-        long cantidad = Calculadora.calcularHipoteca(propiedad);
-
-        if (!cobrar(cantidad, false)) {
-            Consola.error("No tienes suficientes fondos para deshipotecar esa propiedad");
-            return;
-        }
-
-        propiedad.setHipotecada(false);
-        System.out.printf("Se ha deshipotecado %s por %s\n", propiedad.getCasilla().getNombreFmt(), Consola.num(cantidad));
     }
 
     /**

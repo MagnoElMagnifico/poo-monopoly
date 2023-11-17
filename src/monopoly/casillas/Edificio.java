@@ -30,7 +30,7 @@ public class Edificio {
         this.id = ultimoId++;
         this.tipo = tipo;
         this.solar = solar;
-        this.valor = Calculadora.calcularPrecio(this);
+        this.valor = Calculadora.precio(tipo, solar);
     }
 
     @Override

@@ -63,19 +63,20 @@ public class Tablero {
      * Iniciar la partida: a partir de ahora se pueden lanzar
      * los dados, pero no se pueden añadir más jugadores.
      */
-    public void iniciar() {
+    public boolean iniciar() {
         if (jugando) {
             Consola.error("La partida ya está iniciada");
-            return;
+            return false;
         }
 
         if (jugadores.size() < 2) {
             Consola.error("No hay suficientes jugadores para empezar (mínimo 2)");
-            return;
+            return false;
         }
 
         jugando = true;
-        System.out.print(Consola.fmt("Se ha iniciado la partida.\nA JUGAR!\n", Color.Verde));
+        System.out.print(Consola.fmt("Se ha iniciado la partida\n", Color.Amarillo));
+        return true;
     }
 
     /**
@@ -308,7 +309,12 @@ public class Tablero {
             return;
         }
 
-        getJugadorTurno().hipotecar(p);
+        if (!getJugadorTurno().getPropiedades().contains(p)) {
+            Consola.error("No puedes hipotecar una propiedad que no te pertenece");
+            return;
+        }
+
+        p.hipotecar();
     }
 
     public void deshipotecar(String nombre) {
@@ -331,7 +337,12 @@ public class Tablero {
             return;
         }
 
-        getJugadorTurno().deshipotecar(p);
+        if (!getJugadorTurno().getPropiedades().contains(p)) {
+            Consola.error("No puedes deshipotecar una propiedad que no te pertenece");
+            return;
+        }
+
+        p.deshipotecar();
     }
 
     @Override
@@ -348,7 +359,7 @@ public class Tablero {
 
     public void listarCasillas() {
         for (Casilla c : casillas) {
-            System.out.println(c);
+            c.listar();
         }
     }
 
@@ -420,13 +431,14 @@ public class Tablero {
         }
     }
 
-    public void bancarrota() {
+    public boolean bancarrota() {
         // Pedir confirmación
         Scanner scanner = new Scanner(System.in);
         System.out.print("Esta seguro de que quiere abandonar la partida? (y/N): ");
-        if (Character.toLowerCase(scanner.nextLine().trim().charAt(0)) != 'y') {
+        String respuesta = scanner.nextLine();
+        if (respuesta.isBlank() || Character.toLowerCase(respuesta.trim().charAt(0)) != 'y') {
             System.out.println("Operación cancelada");
-            return;
+            return false;
         }
 
         Jugador deudor = getJugadorTurno();
@@ -439,10 +451,10 @@ public class Tablero {
         for (Propiedad p : deudor.getPropiedades()) {
             p.setPropietario(acreedor);
             acreedor.anadirPropiedad(p);
-            p.setHipotecada(false);
         }
 
         // Se borra el jugador
+        deudor.getAvatar().getCasilla().quitarAvatar(deudor.getAvatar());
         jugadores.remove(deudor);
         System.out.printf("El jugador %s se declara en bancarrota y abandona la partida\n", Consola.fmt(deudor.getNombre(), Color.Azul));
 
@@ -450,9 +462,12 @@ public class Tablero {
             // Fin de la partida
             System.out.println(Consola.fmt("Felicidades %s, has ganado la partida".formatted(jugadores.get(0).getNombre()), Color.Amarillo));
             jugando = false;
+            return true;
         } else {
             System.out.printf("Ahora le toca a %s\n", Consola.fmt(getJugadorTurno().getNombre(), Color.Azul));
         }
+
+        return false;
     }
 
     /**
@@ -462,7 +477,7 @@ public class Tablero {
         for (Casilla casilla : casillas) {
             // Si la casilla se puede comprar y no tiene dueño, es que está en venta
             if (casilla.isPropiedad() && (casilla.getPropiedad().getPropietario() == null || casilla.getPropiedad().getPropietario() == banca)) {
-                System.out.println(casilla.getPropiedad());
+                casilla.getPropiedad().listar();
             }
         }
     }
@@ -613,7 +628,7 @@ public class Tablero {
                 }
                 """,
                 casillaMasRentable.getNombreFmt(), Consola.num(maxAlquilerCobrado),
-                grupoMasRentable.getNombre(), Consola.num(maxGrupoAlquiler),
+                Consola.fmt(grupoMasRentable.getNombre(), grupoMasRentable.getCodigoColor()), Consola.num(maxGrupoAlquiler),
                 masFrecuentada.getNombreFmt(), maxEstancias,
                 masVueltas.getNombre(), maxVueltas,
                 masTiradas.getNombre(), maxTiradas,
