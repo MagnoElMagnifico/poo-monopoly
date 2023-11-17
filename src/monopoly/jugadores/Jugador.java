@@ -254,8 +254,8 @@ public class Jugador {
                     Ahora los alquileres de ese grupo valen el doble.
                     """, Consola.fmt(nombre, Consola.Color.Azul), Consola.fmt(g.getNombre(), g.getCodigoColor()));
         }
-        if(p.getTipo()== Propiedad.TipoPropiedad.Transporte){
-            for(Casilla c : p.getCasilla().getGrupo().getCasillas()){
+        if (p.getTipo() == Propiedad.TipoPropiedad.Transporte) {
+            for (Casilla c : p.getCasilla().getGrupo().getCasillas()) {
                 c.getPropiedad().actualizarAlquiler();
             }
         }
@@ -405,22 +405,8 @@ public class Jugador {
             return;
         }
 
-
-        long importe=0;
-        switch (p.getTipo()) {
-            case Solar, Transporte -> importe=p.getAlquiler();
-            case Servicio -> {
-                long i=0;
-                for(Propiedad pr : p.getPropietario().getPropiedades()){
-
-                    if(pr.getTipo()== Propiedad.TipoPropiedad.Servicio){
-                        i++;
-                    }
-                    if(i==1){importe=p.getAlquiler()*dado.getValor()*4;}
-                    else {importe=p.getAlquiler()*dado.getValor()*10;}
-                }
-            }
-        };
+        // Se multiplica el alquiler por el valor de los dados en caso de que sea un servicio
+        long importe = p.getTipo() == Propiedad.TipoPropiedad.Servicio ? p.getAlquiler() * dado.getValor() : p.getAlquiler();
 
         // Se debe cobrar todo el importe, aunque el jugador no pueda pagarlo.
         // La cuenta se quedará en números negativos (es decir, está endeudado)

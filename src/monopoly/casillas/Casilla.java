@@ -83,7 +83,7 @@ public class Casilla {
             return;
         }
 
-        System.out.println(toString());
+        System.out.println(this);
     }
 
     @Override

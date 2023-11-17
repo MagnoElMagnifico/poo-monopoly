@@ -1,9 +1,10 @@
 package monopoly;
 
 import monopoly.casillas.*;
-import monopoly.casillas.Propiedad.TipoPropiedad;
 import monopoly.casillas.Edificio.TipoEdificio;
+import monopoly.casillas.Propiedad.TipoPropiedad;
 import monopoly.jugadores.Jugador;
+import monopoly.utilidades.Consola;
 
 import java.util.ArrayList;
 
@@ -41,10 +42,10 @@ public class Calculadora {
         long alquilerSolar = p.getAlquiler();
         return switch (tipo) {
             case Casa -> switch (cantidad) {
-                case 0  ->  0;
-                case 1  ->  5 * alquilerSolar;
-                case 2  -> 15 * alquilerSolar;
-                case 3  -> 35 * alquilerSolar;
+                case 0 -> 0;
+                case 1 -> 5 * alquilerSolar;
+                case 2 -> 15 * alquilerSolar;
+                case 3 -> 35 * alquilerSolar;
                 default -> 50 * alquilerSolar;
             };
             case Hotel -> 70 * alquilerSolar * cantidad;
@@ -56,26 +57,53 @@ public class Calculadora {
      * Calcula y devuelve el precio del alquiler de una propiedad
      */
     public static long calcularAlquiler(Propiedad p) {
-        long alquilerSolar;
-        // Calcular el alquiler de las casillas de transporte
-        if(p.getTipo()==TipoPropiedad.Transporte){
-            int ntransportes=0;
+        long alquilerPropiedad = switch (p.getTipo()) {
+            case Solar -> p.getPrecio() / 10;
+            case Transporte -> {
+                // Contar el número de transportes que posee el jugador
+                int nTransportes = 0;
 
-            Grupo g = p.getCasilla().getGrupo();
-            Jugador propietario = p.getPropietario();
-            for (Casilla c : g.getCasillas()) {
-                if (propietario.getPropiedades().contains(c.getPropiedad())) {
-                    ntransportes++;
+                Grupo g = p.getCasilla().getGrupo();
+                Jugador propietario = p.getPropietario();
+
+                for (Casilla c : g.getCasillas()) {
+                    if (c.isPropiedad() && c.getPropiedad().getTipo() == TipoPropiedad.Transporte && propietario.getPropiedades().contains(c.getPropiedad())) {
+                        nTransportes++;
+                    }
                 }
-            }
-            alquilerSolar=p.getPrecio()*ntransportes;
 
-        } else {
-            alquilerSolar = p.getPrecio() / 10;
-        }
-        if(p.getTipo()==TipoPropiedad.Servicio){
-            alquilerSolar= (long) ((p.getPrecio()*2.85)/200);
-        }
+                // Finalmente, el alquiler es el factor de transporte por el
+                // porcentaje que el jugador posea.
+                yield (long) ((float) p.getPrecio() * (float) nTransportes / (float) g.getNumeroCasillas());
+            }
+
+            case Servicio -> {
+                // Contar el número de servicios
+                int nServicios = 0;
+
+                Grupo g = p.getCasilla().getGrupo();
+                Jugador propietario = p.getPropietario();
+
+                for (Casilla c : g.getCasillas()) {
+                    if (c.isPropiedad() && c.getPropiedad().getTipo() == TipoPropiedad.Servicio && propietario.getPropiedades().contains(c.getPropiedad())) {
+                        nServicios++;
+                    }
+                }
+
+                // Finalmente, si posee solo 1 servicio, se multiplica por 4. Si tiene los dos, se multiplica por 10.
+                yield switch (nServicios) {
+                    case 1 -> (long) ((p.getPrecio() * 2.85) / 200) * 4;
+                    case 2 -> (long) ((p.getPrecio() * 2.85) / 200) * 10;
+                    default -> {
+                        Consola.error("[Calculadora] Estado imposible: nServicios es no es 1 ni 2");
+                        yield 0;
+                    }
+                };
+                // El factor de servicio será 200 veces inferior a la cantidad que recibirá el jugador cada vez que completa
+                // una vuelta al tablero
+            }
+        };
+
         // Calcular el precio incluyendo los edificios (solo si es solar)
         long alquilerEdificio = 0;
 
@@ -102,14 +130,13 @@ public class Calculadora {
             alquilerEdificio += alquilerEdificio(p, TipoEdificio.Piscina, nPiscinas);
             alquilerEdificio += alquilerEdificio(p, TipoEdificio.PistaDeporte, nPistas);
         }
-        // @formatter:on
-        if(p.getTipo()==TipoPropiedad.Solar) {
-            // Si el dueño tiene el monopolio, el alquiler se duplica
-            if (tieneGrupo(p)) {
-                alquilerSolar *= 2;
-            }
+
+        // Si el dueño tiene el monopolio, el alquiler se duplica
+        if (p.getTipo() == TipoPropiedad.Solar && tieneGrupo(p)) {
+            alquilerPropiedad *= 2;
         }
-            return alquilerSolar + alquilerEdificio;
+
+        return alquilerPropiedad + alquilerEdificio;
     }
 
     /**

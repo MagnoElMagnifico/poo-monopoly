@@ -56,7 +56,7 @@ public class Monopoly {
             """;
     // http://www.patorjk.com/software/taag/#p=display&f=Roman&t=Fin%20de%20Partida
     private final static String MSG_FIN = """
-            
+                        
             oooooooooooo  o8o                         .o8                 ooooooooo.                          .    o8o        .o8           \s
             `888'     `8  `"'                        "888                 `888   `Y88.                      .o8    `"'       "888           \s
              888         oooo  ooo. .oo.         .oooo888   .ooooo.        888   .d88'  .oooo.   oooo d8b .o888oo oooo   .oooo888   .oooo.  \s

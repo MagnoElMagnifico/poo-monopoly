@@ -1,9 +1,9 @@
 package monopoly.casillas;
 
 import monopoly.Calculadora;
+import monopoly.casillas.Edificio.TipoEdificio;
 import monopoly.jugadores.Jugador;
 import monopoly.utilidades.Consola;
-import monopoly.casillas.Edificio.TipoEdificio;
 
 import java.util.ArrayList;
 
@@ -27,7 +27,8 @@ public class Propiedad {
     private final TipoPropiedad tipo;
     private final ArrayList<Edificio> edificios;
     private long precio;
-    private long alquiler;
+    private long alquiler;       /* En caso del Servicio almacena el factor de servicio; y en
+                                 caso de transporte, el factor de transporte */
     private boolean hipotecada;
     private Jugador propietario;
 
@@ -272,7 +273,7 @@ public class Propiedad {
             return;
         }
 
-        long cantidad = Calculadora.calcularHipoteca(this);
+        long cantidad = Calculadora.calcularDeshipoteca(this);
 
         if (!propietario.cobrar(cantidad, false)) {
             Consola.error("No tienes suficientes fondos para deshipotecar esa propiedad");

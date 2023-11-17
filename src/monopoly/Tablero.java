@@ -246,9 +246,7 @@ public class Tablero {
             return;
         }
 
-
         jugadorTurno.comprar(casillaActual.getPropiedad());
-
     }
 
     /**

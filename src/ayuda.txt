@@ -6,19 +6,11 @@ COMANDOS
     lanzar, lanzar dados          El jugador actual lanza 2 dados y mueve su avatar.
     acabar turno, fin, end        Termina el turno del jugador actual.
     salir carcel                  Saca el jugador actual de la cárcel pagando la fianza.
-<<<<<<< HEAD
-    Bancarrota                     Declara al jugador actual en bancarota.
-    salir, quit, exit             Cierra el programa.
-    cambiar modo                  Cambia el modo del avatar del jugador con el turno.
-    siguiente, sig, next          Avanza las casillas necesarias en el modo especial del avatar tipo pelota.
-    pgar deuda                    Paga la deuda pendiente si tienes alguna.
-=======
     bancarrota                    Declara al jugador actual en bancarrota.
     cambiar modo                  Cambia el modo del avatar del jugador con el turno.
     siguiente, sig, next          Avanza las casillas necesarias en el modo especial del avatar tipo pelota.
     pagar deuda                   Paga la deuda acumulada. Si esto no se hace, el jugador no podrá avanzar.
     salir, quit                   Cierra el programa.
->>>>>>> test
 
 COMANDOS CON ARGUMENTOS
     crear jugador <nombre> <tipo>
@@ -52,7 +44,6 @@ COMANDOS CON ARGUMENTOS
           NOTA: solo se puede comprar la propiedad en la que está su avatar y si no
           tiene dueño.
 
-
     edificar { casa | hotel | piscina | pistadeporte } [<cantidad>]
           Construye un edificio en el solar actual.
 
@@ -67,6 +58,9 @@ COMANDOS CON ARGUMENTOS
     deshipotecar <nombre-propiedad>
           Permite al jugador actual deshipotecar una propiedad.
 
+
+    estadisticas
+           Muestra unas estadísticas generales sobre el progreso del juego.
 
     estadisticas <nombre-jugador>
           Muestra unas estadísticas sobre un jugador en concreto.

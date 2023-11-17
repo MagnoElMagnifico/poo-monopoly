@@ -236,9 +236,9 @@ public class Avatar {
 
             if (doblesSeguidos >= 3) {
                 System.out.printf("""
-                                Ya son 3 veces seguidas sacando dados dobles.
-                                %s es arrestado por tener tanta suerte.
-                                """, jugador.getNombre());
+                        Ya son 3 veces seguidas sacando dados dobles.
+                        %s es arrestado por tener tanta suerte.
+                        """, jugador.getNombre());
                 irCarcel(carcel);
                 return true;
             }
@@ -258,7 +258,7 @@ public class Avatar {
 
         if (dado.isDoble()) {
             System.out.println("Dados dobles! El jugador puede salir de la Cárcel");
-            lanzamientosRestantes = movimientoEspecial && tipo == TipoAvatar.Coche? 4 : 1;
+            lanzamientosRestantes = movimientoEspecial && tipo == TipoAvatar.Coche ? 4 : 1;
             encerrado = false;
             turnosEnCarcel = 0;
         } else if (turnosEnCarcel >= 3) {
@@ -316,7 +316,7 @@ public class Avatar {
 
         encerrado = false;
         turnosEnCarcel = 0;
-        lanzamientosRestantes = movimientoEspecial && tipo == TipoAvatar.Coche? 4 : 1;
+        lanzamientosRestantes = movimientoEspecial && tipo == TipoAvatar.Coche ? 4 : 1;
 
         System.out.printf("El jugador %s paga %s para salir de la cárcel\n", jugador.getNombre(), Consola.num(casilla.getFianza()));
         return true;
