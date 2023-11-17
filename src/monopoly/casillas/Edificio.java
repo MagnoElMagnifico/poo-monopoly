@@ -40,7 +40,7 @@ public class Edificio {
                 {
                     id: %s
                     propietario: %s
-                    casilla: %s
+                    solar: %s
                     grupo: %s
                     valor: %s
                 }""".formatted(getNombreFmt(),

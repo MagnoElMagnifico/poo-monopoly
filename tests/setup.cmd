@@ -1,4 +1,4 @@
-crear jugador jug1 Coche
-crear jugador jug2 Pelota
+crear jugador Coche Coche
+crear jugador Pelota Pelota
 iniciar
 ver tablero

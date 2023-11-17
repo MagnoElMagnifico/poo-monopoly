@@ -40,8 +40,26 @@ public class Calculadora {
      * Calcula y devuelve el precio del alquiler de una propiedad
      */
     public static long calcularAlquiler(Propiedad p) {
-        long alquilerSolar = p.getPrecio() / 10;
+        long alquilerSolar;
+        // Calcular el alquiler de las casillas de transporte
+        if(p.getTipo()==TipoPropiedad.Transporte){
+            int ntransportes=0;
 
+            Grupo g = p.getCasilla().getGrupo();
+            Jugador propietario = p.getPropietario();
+            for (Casilla c : g.getCasillas()) {
+                if (propietario.getPropiedades().contains(c.getPropiedad())) {
+                    ntransportes++;
+                }
+            }
+            alquilerSolar=p.getPrecio()*ntransportes;
+
+        } else {
+            alquilerSolar = p.getPrecio() / 10;
+        }
+        if(p.getTipo()==TipoPropiedad.Servicio){
+            alquilerSolar= (long) ((p.getPrecio()*2.85)/200);
+        }
         // Calcular el precio incluyendo los edificios (solo si es solar)
         long alquilerEdificio = 0;
         if (p.getTipo() == TipoPropiedad.Solar) {
@@ -68,13 +86,13 @@ public class Calculadora {
             };
         }
         // @formatter:on
-
-        // Si el dueño tiene el monopolio, el alquiler se duplica
-        if (tieneGrupo(p)) {
-            alquilerSolar *= 2;
+        if(p.getTipo()==TipoPropiedad.Solar) {
+            // Si el dueño tiene el monopolio, el alquiler se duplica
+            if (tieneGrupo(p)) {
+                alquilerSolar *= 2;
+            }
         }
-
-        return alquilerSolar + alquilerEdificio;
+            return alquilerSolar + alquilerEdificio;
     }
 
     /**
@@ -116,7 +134,7 @@ public class Calculadora {
         return propiedad.getPrecio() / 2;
     }
 
-    public static long calculardeshipoteca(Propiedad propiedad) {
+    public static long calcularDeshipoteca(Propiedad propiedad) {
         return (long) (calcularHipoteca(propiedad) * 1.1);
     }
 
