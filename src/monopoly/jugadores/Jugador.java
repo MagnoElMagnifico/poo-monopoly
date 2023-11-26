@@ -6,7 +6,6 @@ import monopoly.casillas.Edificio;
 import monopoly.casillas.Edificio.TipoEdificio;
 import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
-import monopoly.jugadores.Avatar.TipoAvatar;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Dado;
 import monopoly.utilidades.EstadisticasJugador;
@@ -46,9 +45,9 @@ public class Jugador {
     /**
      * Crea un Jugador dado su nombre, tipo de avatar e id
      */
-    public Jugador(String nombre, TipoAvatar tipo, char id, Casilla casillaInicial, long fortuna) {
+    public Jugador(String nombre, char id, Casilla casillaInicial, long fortuna) {
         this.nombre = nombre;
-        this.avatar = new Avatar(tipo, id, this, casillaInicial);
+        this.avatar = new Avatar(id,this, casillaInicial);
         this.banca = false;
         this.fortuna = fortuna;
         this.propiedades = new HashSet<>();
