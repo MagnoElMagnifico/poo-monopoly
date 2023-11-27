@@ -110,4 +110,21 @@ public class Pelota extends Avatar{
         }
         super.cambiarModo();
     }
+
+    @Override
+    public boolean acabarTurno() {
+        int lanzamientosRestantes = getLanzamientosRestantes();
+        Jugador jugador = getJugador();
+        if (lanzamientosRestantes > 0) {
+            Consola.error("A %s aún le quedan %d tiros".formatted(jugador.getNombre(), lanzamientosRestantes));
+            return false;
+        }
+        setLanzamientosRestantes(1);
+        setDoblesSeguidos(0);
+
+        pelotaDado = null;
+        pelotaPosFinal = 0;
+
+        return true;
+    }
 }

@@ -81,4 +81,39 @@ public class Coche extends Avatar{
             setLanzamientosRestantes(isMovimientoEspecial()  ? 4 : 1);
         }
     }
+
+    @Override
+    public boolean acabarTurno() {
+        int lanzamientosRestantes= getLanzamientosRestantes();
+        Jugador jugador = getJugador();
+        if (lanzamientosRestantes > 0 && penalizacion == 0) {
+            Consola.error("A %s aún le quedan %d tiros".formatted(jugador.getNombre(), lanzamientosRestantes));
+            return false;
+        }
+
+        if (isMovimientoEspecial() && !isEncerrado()) {
+            setLanzamientosRestantes(4);
+        } else {
+            setLanzamientosRestantes(1);
+        }
+
+        if (penalizacion != 0) {
+            penalizacion--;
+        }
+
+        setDoblesSeguidos(0);
+        puedeComprar = true;
+
+        return true;
+    }
+
+    public boolean isPuedeComprar() {
+        return puedeComprar;
+    }
+
+    public void noPuedeComprar() {
+        if (isMovimientoEspecial()) {
+            this.puedeComprar = false;
+        }
+    }
 }

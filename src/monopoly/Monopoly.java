@@ -255,9 +255,10 @@ public class Monopoly {
 
         // @formatter:off
         //Avatar.TipoAvatar tipo;
+        Avatar.TipoAvatar tipo;
         switch (args[3]) {
-            //case "c", "coche"    -> tipo = Avatar.TipoAvatar.Coche;
-            //case "p", "pelota"   -> tipo = Avatar.TipoAvatar.Pelota;
+            case "c", "coche"    -> tipo = Avatar.TipoAvatar.Coche;
+            case "p", "pelota"   -> tipo = Avatar.TipoAvatar.Pelota;
             default -> {
                 Consola.error("\"%s\": No es un tipo válido de Avatar (prueba con c, p)".formatted(args[3]));
                 return;
@@ -265,7 +266,7 @@ public class Monopoly {
         }
         // @formatter:on
 
-        //tablero.anadirJugador(nombre, tipo);
+        tablero.anadirJugador(nombre, tipo);
     }
 
     /**

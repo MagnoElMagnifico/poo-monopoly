@@ -319,6 +319,8 @@ public abstract class Avatar {
         return doblesSeguidos;
     }
 
+    public void setDoblesSeguidos(int n) { doblesSeguidos=n;}
+
     public boolean isMovimientoEspecial() {
         return movimientoEspecial;
     }
@@ -326,6 +328,16 @@ public abstract class Avatar {
 
     public ArrayList<Casilla> getHistorialCasillas() {
         return historialCasillas;
+    }
+
+    public  abstract boolean acabarTurno();
+
+
+    /**
+     * Tipos de avatares posibles
+     */
+    public enum TipoAvatar {
+        Coche, Esfinge, Sombrero, Pelota
     }
 
 }
