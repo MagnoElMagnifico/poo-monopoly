@@ -30,7 +30,35 @@ public class Coche extends Avatar{
 
     @Override
     public int moverEspecial(Dado dado, Casilla carcel) {
-        return 0;
+        Casilla casilla =getCasilla();
+        // Si ha salido un dado doble, se mueve de forma básica
+        if (getDoblesSeguidos() != 0) {
+            return irCarcelDadosDobles(dado, carcel) ? Integer.MAX_VALUE : casilla.getPosicion() + dado.getValor();
+        }
+
+        // Penalización por sacar menos de un 4
+        if (dado.getValor() < 4) {
+            // Dos turnos de penalización en los que no se puede lanzar
+            // (se restará 1 al cambiar de turno).
+            penalizacion = 3;
+            // Se ponen los lanzamientos restantes a 0, indicando que debe terminar el turno
+            setLanzamientosRestantes(0);
+
+            System.out.printf("Se aplica una penalización de %s por sacar un valor tan bajo.\n", Consola.fmt("2 turnos", Consola.Color.Azul));
+
+            // Se retrocede el valor de los dados
+            // Aunque sea la última tirada no se tienen en cuenta los dados dobles
+            // porque se ha aplicado una penalización
+            return casilla.getPosicion() - dado.getValor();
+        }
+
+        // En caso de que sea la última tirada, se tiene en cuenta los dados dobles
+        // Cuando se tire otra vez, también pasará por aquí
+        if (getLanzamientosRestantes() == 0 && irCarcelDadosDobles(dado, carcel)) {
+            return Integer.MAX_VALUE;
+        }
+
+        return casilla.getPosicion() + dado.getValor();
     }
 
     @Override

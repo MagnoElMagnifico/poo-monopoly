@@ -176,7 +176,7 @@ public abstract class Avatar {
 
     public abstract int moverEspecial(Dado dado,Casilla carcel);
 
-    private boolean irCarcelDadosDobles(Dado dado, Casilla carcel) {
+    public boolean irCarcelDadosDobles(Dado dado, Casilla carcel) {
         if (dado.isDoble()) {
             doblesSeguidos++;
 
@@ -322,6 +322,7 @@ public abstract class Avatar {
     public boolean isMovimientoEspecial() {
         return movimientoEspecial;
     }
+
 
     public ArrayList<Casilla> getHistorialCasillas() {
         return historialCasillas;
