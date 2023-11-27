@@ -254,6 +254,7 @@ public class Monopoly {
         String nombre = args[2].substring(0, 1).toUpperCase() + args[2].substring(1);
 
         // @formatter:off
+        //Avatar.TipoAvatar tipo;
         Avatar.TipoAvatar tipo;
         switch (args[3]) {
             case "c", "coche"    -> tipo = Avatar.TipoAvatar.Coche;
