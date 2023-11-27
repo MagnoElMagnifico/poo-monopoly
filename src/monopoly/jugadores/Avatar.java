@@ -51,9 +51,130 @@ public abstract class Avatar {
         return obj instanceof Avatar && ((Avatar) obj).getId() == this.id;
     }
 
-    public abstract boolean mover(Dado dado,Tablero tablero);
+    public boolean mover(Dado dado, Tablero tablero, Dado pelotaDado) {
+        if (lanzamientosRestantes <= 0) {
+            Consola.error("No quedan lanzamientos. El jugador debe terminar el turno");
+            return false;
+        }
 
-    public abstract Casilla moverEspecial(Dado dado,Casilla carcel);
+
+
+        if (dado == null && encerrado) {
+            Consola.error("No puedes usar el comando siguiente cuando estás encerrado");
+            return false;
+        }
+
+        if (dado == null && doblesSeguidos != 0) {
+            Consola.error("No puedes usar el comando siguiente después de obtener dados dobles. Prueba con lanzar.");
+            return false;
+        }
+
+
+
+        lanzamientosRestantes--;
+
+        // Mostrar la representación de los dados
+        if (dado != null) {
+            System.out.println(dado);
+
+            // Cuando el dado no es null, es que se ha lanzado un nuevo dado.
+            // De esta forma, el comando siguiente no se considera una tirada.
+            jugador.getEstadisticas().anadirTirada();
+        }
+
+        if (encerrado) {
+            moverEstandoCarcel(dado);
+            return false;
+        }
+
+        // Obtener la nueva casilla
+        int posNuevaCasilla;
+        if (movimientoEspecial) {
+            posNuevaCasilla = moverEspecial(dado,tablero.getCarcel());
+        } else {
+            // Movimiento básico
+            if (irCarcelDadosDobles(dado, tablero.getCarcel())) {
+                posNuevaCasilla = Integer.MAX_VALUE;
+            } else {
+                posNuevaCasilla = casilla.getPosicion() + dado.getValor();
+            }
+        }
+
+        // Los métodos anteriores devuelven MAX_INT cuando ellos mismos
+        // ya han movido el avatar (se ha enviado directamente a la cárcel);
+        // por tanto, no hay que hacer nada.
+        if (posNuevaCasilla == Integer.MAX_VALUE) {
+            return true;
+        }
+
+        int movimientoDelta = posNuevaCasilla - casilla.getPosicion();
+        Casilla nuevaCasilla = tablero.getCasillas().get(Math.floorMod(posNuevaCasilla, tablero.getCasillas().size()));
+
+        // Mostrar información
+        System.out.printf("""
+                        %s, con avatar %s, %s %d posiciones.
+                        Viaja desde %s hasta %s.
+                        """,
+                Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                Consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
+                movimientoDelta > 0 ? "avanza" : "retrocede",
+                Math.abs(movimientoDelta),
+                casilla.getNombreFmt(),
+                nuevaCasilla.getNombreFmt());
+
+        // Se pasa por la casilla de salida
+        if (posNuevaCasilla >= tablero.getCasillas().size()) {
+            long abonoSalida = tablero.getCalculadora().calcularAbonoSalida();
+            jugador.ingresar(abonoSalida);
+            jugador.getEstadisticas().anadirAbonoSalida(abonoSalida);
+            jugador.getEstadisticas().anadirVuelta();
+
+            // Aumentar los precios en caso de que todos los avatares pasasen por la salida
+            tablero.getCalculadora().aumentarPrecio(tablero.getCasillas(), tablero.getJugadores());
+
+            System.out.printf("Como el avatar pasa por la casilla de Salida, %s recibe %s\n",
+                    Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                    Consola.num(tablero.getCalculadora().calcularAbonoSalida()));
+
+        } else if (posNuevaCasilla < 0) {
+            jugador.getEstadisticas().quitarVuelta();
+
+            // No tiene sentido cobrar un abono que aún no ha recibido
+            if (jugador.getEstadisticas().getVueltas() > 0) {
+                // Si la casilla calculada es negativa, quiere decir que se pasa por la salida hacia atrás
+                long abonoSalida = tablero.getCalculadora().calcularAbonoSalida();
+
+                if (getJugador().cobrar(abonoSalida, true)) {
+                    System.out.printf(
+                            "El jugador %s paga %s por retroceder por la casilla de salida.\n",
+                            Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                            Consola.num(abonoSalida));
+                } else {
+                    // En este caso, el avatar queda en la nueva casilla,
+                    // pero no ha podido devolver el abono que recibió.
+                    // Entonces, el jugador queda endeudado con la banca.
+                    Consola.error("No puedes devolver el abono de la salida.");
+                }
+
+            }
+        }
+
+        // Quitar el avatar de la casilla actual y añadirlo a la nueva
+        casilla.quitarAvatar(this);
+        casilla = nuevaCasilla;
+        nuevaCasilla.anadirAvatar(this);
+
+        // Añadir la nueva casilla al historial
+        historialCasillas.add(nuevaCasilla);
+        nuevaCasilla.getEstadisticas().anadirEstancia();
+
+        // Realizar la acción de la casilla
+        nuevaCasilla.accion(jugador, pelotaDado == null ? dado : pelotaDado);
+        return true;
+    }
+
+
+    public abstract int moverEspecial(Dado dado,Casilla carcel);
 
     private boolean irCarcelDadosDobles(Dado dado, Casilla carcel) {
         if (dado.isDoble()) {
@@ -147,6 +268,23 @@ public abstract class Avatar {
         return true;
     }
 
+    public void cambiarModo() {
+
+
+        if (movimientoEspecial) {
+            movimientoEspecial = false;
+            System.out.printf("%s regresa al modo de movimiento básico\n", Consola.fmt(jugador.getNombre(), Consola.Color.Azul));
+        } else {
+            movimientoEspecial = true;
+            System.out.printf("A partir de ahora %s (%s), de tipo %s, se moverá de modo avanzado\n",
+                    Consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                    Consola.fmt(Character.toString(id), Consola.Color.Azul),
+                    this.getClass());
+        }
+
+
+    }
+
     public char getId() {
         return id;
     }
@@ -159,7 +297,6 @@ public abstract class Avatar {
         return jugador;
     }
 
-    public abstract void cambiarModo();
 
     public int getTurnosEnCarcel() {
         return turnosEnCarcel;
@@ -175,6 +312,8 @@ public abstract class Avatar {
     public int getLanzamientosRestantes() {
         return lanzamientosRestantes;
     }
+
+    public void setLanzamientosRestantes(int n) {lanzamientosRestantes=n;}
 
     public int getDoblesSeguidos() {
         return doblesSeguidos;
