@@ -1,11 +1,11 @@
 package monopoly.jugadores;
 
 import monopoly.Calculadora;
-import monopoly.casillas.Casilla;
-import monopoly.casillas.Edificio;
-import monopoly.casillas.Edificio.TipoEdificio;
-import monopoly.casillas.Grupo;
-import monopoly.casillas.Propiedad;
+import monopoly.casilla.Casilla;
+import monopoly.casilla.Edificio;
+import monopoly.casilla.Edificio.TipoEdificio;
+import monopoly.casilla.propiedad.Grupo;
+import monopoly.casilla.propiedad.Propiedad;
 import monopoly.jugadores.Avatar.TipoAvatar;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Dado;

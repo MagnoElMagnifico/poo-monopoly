@@ -1,4 +1,4 @@
-package monopoly.casillas;
+package monopoly.casilla;
 
 import monopoly.utilidades.Consola;
 

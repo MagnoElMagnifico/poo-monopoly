@@ -69,6 +69,32 @@ public interface Consola {
     }
 
     /**
+     * Permite describir una colección de elementos.
+     * <p>
+     * Se iterará elemento a elemento y se ejecutará la función dada por cada uno de ellos.
+     * En caso de que la función devuelva <code>true</code>, entonces se describirá el elemento
+     * en concreto.
+     * <p>
+     * Describir un elemento consiste en llamar a su función <code>toString</code>.
+     * <p>
+     * Por ejemplo:
+     * <pre>
+     *     // describir casillas en venta
+     *     Consola.listar(casillas, (c) -> c instanceof Propiedad && !((Propiedad) c).getPropietario() instanceof Banca);
+     * </pre>
+     *
+     * @param elementos Colección de elementos a describir
+     * @param funcion   Se evalúa por cada elemento para determinar si se describe o no.
+     */
+    default <T> void describir(Collection<T> elementos, Function<T, Boolean> funcion) {
+        for (T e : elementos) {
+            if (funcion.apply(e)) {
+                imprimir(e.toString());
+            }
+        }
+    }
+
+    /**
      * Genera un mensaje de error para notificar al usuario sobre
      * algún problema inesperado o alguna acción que no se ha podido
      * realizar con éxito.

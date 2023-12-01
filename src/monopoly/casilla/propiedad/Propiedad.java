@@ -1,7 +1,7 @@
-package monopoly.casillas;
+package monopoly.casilla;
 
 import monopoly.Calculadora;
-import monopoly.casillas.Edificio.TipoEdificio;
+import monopoly.casilla.Edificio.TipoEdificio;
 import monopoly.jugadores.Jugador;
 import monopoly.utilidades.Consola;
 

@@ -1,6 +1,7 @@
-package monopoly.casillas;
+package monopoly.casilla;
 
 import monopoly.Calculadora;
+import monopoly.casilla.propiedad.Propiedad;
 import monopoly.utilidades.Consola;
 
 /**

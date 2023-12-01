@@ -1,7 +1,7 @@
 package monopoly.jugadores;
 
 import monopoly.Tablero;
-import monopoly.casillas.Casilla;
+import monopoly.casilla.Casilla;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Consola.Color;
 import monopoly.utilidades.Dado;
