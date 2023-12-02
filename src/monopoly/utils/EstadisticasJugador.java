@@ -1,8 +1,8 @@
-package monopoly.utilidades;
+package monopoly.utils;
 
-import monopoly.casillas.Edificio;
-import monopoly.casillas.Propiedad;
-import monopoly.jugadores.Jugador;
+import monopoly.casilla.edificio.Edificio;
+import monopoly.casilla.propiedad.Propiedad;
+import monopoly.jugador.Jugador;
 
 public class EstadisticasJugador {
     // @formatter:off

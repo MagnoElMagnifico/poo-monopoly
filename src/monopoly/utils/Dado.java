@@ -1,4 +1,4 @@
-package monopoly.utilidades;
+package monopoly.utils;
 
 import java.util.Random;
 

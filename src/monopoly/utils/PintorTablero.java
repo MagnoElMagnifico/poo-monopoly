@@ -1,9 +1,9 @@
-package monopoly.utilidades;
+package monopoly.utils;
 
 import monopoly.Tablero;
-import monopoly.casillas.Casilla;
-import monopoly.jugadores.Avatar;
-import monopoly.utilidades.Consola.Estilo;
+import monopoly.casilla.Casilla;
+import monopoly.jugador.Avatar;
+import monopoly.utils.Consola.Estilo;
 
 import java.util.ArrayList;
 

@@ -1,6 +1,6 @@
-package monopoly.utilidades;
+package monopoly.utils;
 
-import monopoly.casillas.Casilla;
+import monopoly.casilla.Casilla;
 
 public class EstadisticasCasilla {
     private final Casilla casilla;
