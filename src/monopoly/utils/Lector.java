@@ -1,14 +1,10 @@
 package monopoly.utils;
 
 import monopoly.JuegoConsts;
-import monopoly.Tablero;
 import monopoly.casilla.carta.Carta;
 import monopoly.casilla.carta.Carta.TipoCarta;
 import monopoly.casilla.Casilla;
-import monopoly.casilla.Casilla.TipoCasilla;
 import monopoly.casilla.propiedad.Grupo;
-import monopoly.casilla.carta.Mazo;
-import monopoly.casilla.propiedad.Propiedad.TipoPropiedad;
 import monopoly.error.ErrorFatalConfig;
 
 import java.io.File;
