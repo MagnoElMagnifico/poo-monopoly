@@ -5,13 +5,12 @@ package monopoly.error;
  *
  * <li>Comando no válido</li>
  * <li>Se esperaban X parámetros, se recibieron Y</li>
- * <li>No se encontró X (listar, describir)</li>
  *
  * @see monopoly.Juego
  */
-public class ErrorComandoFormato extends ErrorFatal {
-    public ErrorComandoFormato(String mensaje) {
-        super(mensaje);
+public class ErrorComandoFormato extends ErrorComando {
+    public ErrorComandoFormato(String comando) {
+        super("\"%s\": comando no válido".formatted(comando));
     }
 
     public ErrorComandoFormato(int esperados, int recibidos) {
