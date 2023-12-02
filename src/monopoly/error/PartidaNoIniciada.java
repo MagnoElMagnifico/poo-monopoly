@@ -1,6 +1,6 @@
-package monopoly.errores;
+package monopoly.error;
 
-public class PartidaNoIniciada extends ErrorComando{
+public class PartidaNoIniciada extends ErrorComando {
 
     public PartidaNoIniciada(String mensaje) {
         super(mensaje);

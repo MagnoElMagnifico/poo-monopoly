@@ -1,13 +1,13 @@
-package monopoly.errores;
+package monopoly.error;
 
 import monopoly.utilidades.Consola;
 
-public class ErrorJuego extends Exception{
-    public ErrorJuego(String mensaje){
+public class ErrorJuego extends Exception {
+    public ErrorJuego(String mensaje) {
         super(mensaje);
     }
 
-    public void imprimirMsg(){
+    public void imprimirMsg() {
         Consola.error(getMessage());
     }
 }

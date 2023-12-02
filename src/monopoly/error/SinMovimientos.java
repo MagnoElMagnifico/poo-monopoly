@@ -1,4 +1,4 @@
-package monopoly.errores;
+package monopoly.error;
 
 public class SinMovimientos extends ErrorComando {
     public SinMovimientos(String mensaje) {
