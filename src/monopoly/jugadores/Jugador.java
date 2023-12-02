@@ -6,7 +6,6 @@ import monopoly.casillas.Edificio;
 import monopoly.casillas.Edificio.TipoEdificio;
 import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
-import monopoly.jugadores.Avatar.TipoAvatar;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Dado;
 import monopoly.utilidades.EstadisticasJugador;
@@ -46,9 +45,14 @@ public class Jugador {
     /**
      * Crea un Jugador dado su nombre, tipo de avatar e id
      */
-    public Jugador(String nombre, TipoAvatar tipo, char id, Casilla casillaInicial, long fortuna) {
+    public Jugador(String nombre, Avatar.TipoAvatar tipo, char id, Casilla casillaInicial, long fortuna) {
         this.nombre = nombre;
-        this.avatar = new Avatar(tipo, id, this, casillaInicial);
+        switch(tipo){
+            case Pelota -> this.avatar = new Pelota(id,this, casillaInicial);
+            case Coche ->  this.avatar = new Coche(id,this,casillaInicial);
+            default -> this.avatar = new Coche(id,this,casillaInicial);
+        }
+
         this.banca = false;
         this.fortuna = fortuna;
         this.propiedades = new HashSet<>();
@@ -201,11 +205,6 @@ public class Jugador {
      * @return True cuando la operación resultó exitosa, false en otro caso.
      */
     public boolean comprar(Propiedad p) {
-        // Movimientos especiales del avatar: Comprobar que no se haya comprado ya en este turno
-        if (!avatar.isPuedeComprar()) {
-            Consola.error("El jugador %s ya ha realizado una compra en este turno".formatted(nombre));
-            return false;
-        }
 
         if (isEndeudado()) {
             Consola.error("No puedes comprar nada si estas endeudado");
@@ -229,6 +228,19 @@ public class Jugador {
         if (!cobrar(p.getPrecio(), false)) {
             Consola.error("%s no dispone de suficiente dinero para comprar %s".formatted(nombre, p.getCasilla().getNombreFmt()));
             return false;
+        }
+
+        Coche coche;
+        if(avatar instanceof Coche){
+            coche = (Coche) avatar;
+            // Movimientos especiales del avatar: Comprobar que no se haya comprado ya en este turno
+            if (!coche.isPuedeComprar()) {
+                Consola.error("El jugador %s ya ha realizado una compra en este turno".formatted(nombre));
+                return false;
+            }
+            else{
+                coche.noPuedeComprar();
+            }
         }
         estadisticas.anadirInversion(p.getPrecio());
 
@@ -264,7 +276,6 @@ public class Jugador {
             }
         }
 
-        avatar.noPuedeComprar();
         describirTransaccion();
         return true;
     }

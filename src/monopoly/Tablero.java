@@ -5,6 +5,7 @@ import monopoly.casillas.Edificio;
 import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar;
+import monopoly.jugadores.Coche;
 import monopoly.jugadores.Jugador;
 import monopoly.utilidades.*;
 import monopoly.utilidades.Consola.Color;
@@ -153,7 +154,7 @@ public class Tablero {
         }
 
         // Muestra el tablero si se ha movido el avatar con éxito
-        if (jugadorTurno.getAvatar().mover(dado, this)) {
+        if (jugadorTurno.getAvatar().mover(dado, this, null)) {
             System.out.printf("\n%s", this);
         }
     }
@@ -241,10 +242,13 @@ public class Tablero {
         }
 
         // Especifico para el coche que solo puede comprar una vez por turno en modo especial
-        if (!avatarTurno.isPuedeComprar()) {
-            Consola.error("El jugador ya ha comprado una vez en este turno");
-            return;
+        if(avatarTurno instanceof Coche){
+            if (((Coche) avatarTurno).isPuedeComprar()) {
+                Consola.error("El jugador ya ha comprado una vez en este turno");
+                return;
+            }
         }
+
 
         jugadorTurno.comprar(casillaActual.getPropiedad());
     }
