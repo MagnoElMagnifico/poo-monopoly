@@ -1,6 +1,7 @@
 package monopoly.jugadores;
 
 import monopoly.Calculadora;
+import monopoly.Tratos.Trato;
 import monopoly.casillas.Casilla;
 import monopoly.casillas.Edificio;
 import monopoly.casillas.Edificio.TipoEdificio;
