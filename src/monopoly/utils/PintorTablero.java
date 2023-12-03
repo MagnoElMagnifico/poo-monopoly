@@ -1,9 +1,9 @@
 package monopoly.utils;
 
-import monopoly.Tablero;
+import monopoly.Juego;
 import monopoly.casilla.Casilla;
 import monopoly.jugador.Avatar;
-import monopoly.utils.Consola.Estilo;
+import monopoly.Consola.Estilo;
 
 import java.util.ArrayList;
 
@@ -11,8 +11,7 @@ import java.util.ArrayList;
  * Clase de ayuda a Tablero para poder dibujar el tablero por pantalla.
  *
  * @author Marcos Granja Grille
- * @date 6-10-2023
- * @see monopoly.Tablero
+ * @see monopoly.Juego
  * @see Casilla
  */
 public class PintorTablero {
@@ -79,13 +78,13 @@ public class PintorTablero {
     private static void pintarCelda(StringBuilder dst, Casilla c, Avatar avatarActual) {
         dst.append(VERT);
 
-        dst.append(Consola.fmt(celda(c.getNombre()), c.getGrupo().getCodigoColor()));
+        dst.append(celda(c.getNombreFmt()));
 
         for (int i = 0; i < TAM_AVATAR; i++) {
             if (i < c.getAvatares().size()) {
                 Avatar a = c.getAvatares().get(i);
                 if (avatarActual.equals(a)) {
-                    dst.append(Consola.fmt(Character.toString(a.getId()), 1, Estilo.ParpadeoLento));
+                    dst.append(Juego.consola.fmt(Character.toString(a.getId()), 1, Estilo.ParpadeoLento));
                 } else {
                     dst.append(a.getId());
                 }
@@ -101,10 +100,7 @@ public class PintorTablero {
      * NOTA: solo se accede al <code>ArrayList</code> de las casillas y
      * al jugador actual (para poder mostrarlo con un estilo diferente).
      */
-    public static String pintarTablero(Tablero tablero) {
-        ArrayList<Casilla> casillas = tablero.getCasillas();
-        Avatar avatarActual = tablero.getJugadorTurno() == null ? null : tablero.getJugadorTurno().getAvatar();
-
+    public static String pintarTablero(ArrayList<Casilla> casillas, Avatar avatarActual) {
         // Número de casillas por lado:
         // Es el total de casillas entre cada lado (4) más la casilla
         // extra que pertenece al lado siguiente.
