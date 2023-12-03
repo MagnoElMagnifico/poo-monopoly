@@ -28,6 +28,7 @@ public class Jugador {
     private final EstadisticasJugador estadisticas;
     private long fortuna;
     private Jugador acreedor;
+    private HashSet<Trato> tratos;
 
     /**
      * Crea el jugador especial Banca
@@ -58,6 +59,7 @@ public class Jugador {
         this.propiedades = new HashSet<>();
         this.acreedor = null;
         this.estadisticas = new EstadisticasJugador(this);
+        this.tratos =new HashSet<>();
     }
 
     /**
