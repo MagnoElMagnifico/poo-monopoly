@@ -16,6 +16,11 @@ public abstract class Trato {
         this.aceptador = aceptador;
     }
 
+    @Override
+    public String toString() {
+        return "%s: %s ofrece un trato a %s:\n".formatted(nombre,interesado.getNombre(),aceptador.getNombre());
+    }
+
     public Jugador getInteresado() {
         return interesado;
     }

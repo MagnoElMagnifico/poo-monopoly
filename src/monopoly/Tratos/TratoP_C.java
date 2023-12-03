@@ -2,6 +2,7 @@ package monopoly.Tratos;
 
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Jugador;
+import monopoly.utilidades.Consola;
 
 public class TratoP_C extends Trato{
     private final Propiedad inter;
@@ -13,6 +14,14 @@ public class TratoP_C extends Trato{
         this.inter=inter;
     }
 
+    @Override
+    public String toString() {
+        return """
+                %s
+                Cambiar %s por %s
+                
+                """.formatted(super.toString(),inter.getCasilla().getNombreFmt(), Consola.num(cantidad));
+    }
 
     @Override
     public void aceptar() {
