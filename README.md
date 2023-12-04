@@ -93,7 +93,7 @@ Definidas en el paquete `monopoly`:
   
 -----------------------------------------------------------
 
-Definidas en el paquete `monopoly.utilidades`:
+Definidas en el paquete `monopoly.utils`:
 
 - **Dado**: Representa un lanzamiento de un dado
 - **Consola**: Clase de ayuda para escribir por pantalla con colores y distintos
