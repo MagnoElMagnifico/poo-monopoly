@@ -8,6 +8,7 @@ import monopoly.casilla.especial.CasillaIrCarcel;
 import monopoly.casilla.especial.CasillaSalida;
 import monopoly.casilla.propiedad.*;
 import monopoly.error.ErrorFatalConfig;
+import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
 import monopoly.jugador.Jugador;
 
@@ -23,10 +24,14 @@ import java.util.Scanner;
  * Formato esperado:
  *
  * <pre>
- *     nombre, tipo, precio, códigoColor,
- *     nombre, códigoColor,
+ *     grupo: Nombre, CodColor    # Grupo de propiedades (grupos especiales: Transporte, Servicios)
+ *     CasillaEspecial            # Salida, Cárcel, IrCárcel, Parking, Impuestos
+ *     Nombre, NúmeroGrupo        # Propiedad: solar (se empieza a contar desde 1)
+ *     Nombre, Transporte         # Propiedad: transporte
+ *     Nombre, Servicio           # Propiedad: servicio
  *     ...
  * </pre>
+ *
  * <p>
  * También se usa para leer el nombre y descripción de las
  * Cartas de Comunidad y Suerte.
@@ -35,9 +40,10 @@ import java.util.Scanner;
  *
  * <pre>
  *     S:X:descripción
- *     C:X: descripción
+ *     C : X : descripción
  *     ...
  * </pre>
+ *
  * Finalmente, termina asignando los valores requeridos a cada
  * objeto.
  *
@@ -66,7 +72,7 @@ public class Lector {
     private Grupo transportes;
     private Grupo servicios;
 
-    public Lector(Juego juego) throws ErrorFatalConfig {
+    public Lector(Juego juego) throws ErrorFatalConfig, ErrorFatalLogico {
         // @formatter:off
         casillas        = new ArrayList<>(JuegoConsts.N_CASILLAS);
         grupos          = new ArrayList<>(JuegoConsts.N_GRUPOS);
@@ -96,6 +102,15 @@ public class Lector {
         carcel.setFianza(abonoSalida / 4);
         for (CasillaImpuesto i : impuestos) {
             i.setImpuestos(abonoSalida);
+        }
+
+        // Precios que dependen del abono de salida
+        for (Propiedad s : servicios.getPropiedades()) {
+            ((Servicio) s).setPrecio((long) (0.75 * (float) abonoSalida));
+        }
+
+        for (Propiedad t : transportes.getPropiedades()) {
+            ((Transporte) t).setPrecio(abonoSalida);
         }
     }
 
@@ -212,7 +227,7 @@ public class Lector {
      * @throws ErrorFatalConfig Si no se encuentra el archivo o si el
      *                          formato no es correcto.
      */
-    private void leerCasillas(Banca banca) throws ErrorFatalConfig {
+    private void leerCasillas(Banca banca) throws ErrorFatalConfig, ErrorFatalLogico {
         // https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
         try (Scanner scanner = abrirArchivo(JuegoConsts.CONFIG_CASILLAS)) {
             for (int nLinea = 1; scanner.hasNextLine(); nLinea++) {
@@ -232,7 +247,7 @@ public class Lector {
                     continue;
                 }
 
-                if (campos[0].startsWith("grupo:")) {
+                if (campos[0].startsWith("grupo:") || campos[0].startsWith("Grupo:")) {
                     declaracionGrupo(campos, nLinea);
                     continue;
                 }
@@ -303,7 +318,7 @@ public class Lector {
         }
     }
 
-    private void declaracionPropiedad(String[] campos, Jugador banca, int nLinea) throws ErrorFatalConfig {
+    private void declaracionPropiedad(String[] campos, Jugador banca, int nLinea) throws ErrorFatalConfig, ErrorFatalLogico {
         // Declaración de un Transporte o Servicio: "Nombre, Grupo"
         switch (campos[1]) {
             case "T", "Transporte", "transporte", "Transportes", "transportes" -> {
@@ -330,7 +345,7 @@ public class Lector {
 
         // Declaración de un Solar: "Nombre, numGrupo"
         try {
-            int nGrupo = Integer.parseInt(campos[1]);
+            int nGrupo = Integer.parseInt(campos[1]) + 1;
 
             if (nGrupo > grupos.size()) {
                 throw new ErrorFatalConfig("Número de grupo demasiado grande", JuegoConsts.CONFIG_CASILLAS, nLinea);

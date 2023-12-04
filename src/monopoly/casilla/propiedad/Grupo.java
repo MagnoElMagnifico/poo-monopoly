@@ -2,7 +2,8 @@ package monopoly.casilla.propiedad;
 
 import monopoly.Juego;
 import monopoly.casilla.Casilla;
-import monopoly.casilla.edificio.Edificio;
+import monopoly.jugador.Banca;
+import monopoly.jugador.Jugador;
 
 import java.util.ArrayList;
 
@@ -93,6 +94,28 @@ public class Grupo {
         }
 
         return obj instanceof Grupo && ((Grupo) obj).nombre.equals(this.nombre);
+    }
+
+    public boolean isMonopolio(Jugador jugador) {
+        // Los monopolios no aplican a la banca
+        if (jugador instanceof Banca) {
+            return false;
+        }
+
+        return contarPropiedades(jugador) == propiedades.size();
+    }
+
+    public int contarPropiedades(Jugador jugador) {
+        // Contar cuantos servicios posee el jugador
+        int nPropiedades = 0;
+
+        for (Propiedad p : propiedades) {
+            if (p.perteneceAJugador(jugador)) {
+                nPropiedades++;
+            }
+        }
+
+        return nPropiedades;
     }
 
     public void anadirPropiedad(Propiedad propiedad) {

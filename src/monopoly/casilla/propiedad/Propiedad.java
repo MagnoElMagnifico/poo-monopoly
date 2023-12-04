@@ -39,17 +39,25 @@ public abstract class Propiedad extends Casilla {
     }
 
     /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
-    public abstract long getPrecio();
+    public abstract long getPrecio() throws ErrorFatalLogico;
 
-    /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
-    public abstract long getAlquiler();
+    /**
+     * Alquiler base de la propiedad.
+     * <br>
+     * <b>NOTA</b>: requerida por la especificación de la entrega 3.
+     */
+    public abstract long getAlquiler() throws ErrorFatalLogico;
 
-    /** Multiplica el precio actual por el factor dado para aumentarlo o disminuirlo */
-    public abstract void factorPrecio(float factor) throws ErrorFatalLogico;
+    /** Devuelve el importe real que se cobra al jugador que cae en esta propiedad */
+    public abstract long getAlquiler(Jugador jugador, Dado dado) throws ErrorFatalLogico;
 
-    public abstract long getCosteHipoteca();
+    public long getCosteHipoteca() throws ErrorFatalLogico {
+        return getPrecio() / 2;
+    }
 
-    public abstract long getCosteDeshipoteca();
+    public long getCosteDeshipoteca() throws ErrorFatalLogico {
+        return (long) (1.1 * (float) getCosteHipoteca());
+    }
 
     /** Para las estadísticas */
     public abstract long getAlquilerTotalCobrado();
@@ -86,33 +94,35 @@ public abstract class Propiedad extends Casilla {
     }
 
     @Override
+    public String getNombre() {
+        return nombre;
+    }
+
+    @Override
+    public String getNombreFmt() {
+        return Juego.consola.fmt("%s - %s".formatted(getNombre(), grupo.getNombre()), grupo.getCodigoColor());
+    }
+
+    @Override
     public void accion(Jugador jugadorTurno, Dado dado) {
         if (propietario instanceof Banca || propietario.equals(jugadorTurno) || hipotecada) {
             return;
         }
 
         // Se multiplica el alquiler por el valor de los dados en caso de que sea un servicio
-        long importe = p.getTipo() == Propiedad.TipoPropiedad.Servicio ? p.getAlquiler() * dado.getValor() : p.getAlquiler();
+        long importe = getAlquiler(jugadorTurno, dado);
 
         // Se debe cobrar todo el importe, aunque el jugador no pueda pagarlo.
         // La cuenta se quedará en números negativos (es decir, está endeudado)
         propietario.ingresar(importe);
 
-        if (!cobrar(importe, true)) {
-            acreedor = p.getPropietario();
-            Juego.consola.error("El jugador no tiene suficientes fondos para pagar el alquiler");
-            return;
-        }
+        jugadorTurno.cobrar(importe);
 
         Juego.consola.imprimir("Se han pagado %s de alquiler a %s\n".formatted(Juego.consola.num(importe), Juego.consola.fmt(propietario.getNombre(), Consola.Color.Azul)));
 
         getAlquilerTotalCobrado();
         jugadorTurno.getEstadisticas().anadirPagoAlquiler(importe);
         propietario.getEstadisticas().anadirCobroAlquiler(importe);
-    }
-
-    public void setPropietario(Jugador jugador) {
-        propietario = jugador;
     }
 
     /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
@@ -172,11 +182,6 @@ public abstract class Propiedad extends Casilla {
         propietario.describirTransaccion();
     }
 
-    @Override
-    public String getNombre() {
-        return nombre;
-    }
-
     public boolean isHipotecada() {
         return hipotecada;
     }
@@ -187,5 +192,9 @@ public abstract class Propiedad extends Casilla {
 
     public Jugador getPropietario() {
         return propietario;
+    }
+
+    public void setPropietario(Jugador jugador) {
+        propietario = jugador;
     }
 }

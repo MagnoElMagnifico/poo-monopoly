@@ -16,13 +16,13 @@ import java.util.ArrayList;
  */
 public class Solar extends Propiedad {
     private long precio;
-    private long alquiler;
+    private long alquilerTotalCobrado;
 
     public Solar(int posicion, Grupo grupo, String nombre, Jugador banca) {
         super(posicion, grupo, nombre, banca);
 
         precio = (long) (0.3 * grupo.getNumero() * JuegoConsts.PRECIO_SOLAR1 + JuegoConsts.PRECIO_SOLAR1);
-        alquiler = precio / 10;
+        alquilerTotalCobrado = 0;
     }
 
     @Override
@@ -76,7 +76,6 @@ public class Solar extends Propiedad {
 
     }
 
-
     @Override
     public long getPrecio() {
         return precio;
@@ -84,10 +83,23 @@ public class Solar extends Propiedad {
 
     @Override
     public long getAlquiler() {
-        return alquiler;
+        long alquilerSolar = precio / 10;
+
+        // TODO: edificios
+        long alquilerEdificios = 0;
+
+        if (getGrupo().isMonopolio(getPropietario())) {
+            alquilerSolar *= 2;
+        }
+
+        return alquilerSolar + alquilerEdificios;
     }
 
     @Override
+    public long getAlquiler(Jugador jugador, Dado dado) {
+        return getAlquiler();
+    }
+
     public void factorPrecio(float factor) throws ErrorFatalLogico {
         if (factor <= 0.0) {
             throw new ErrorFatalLogico("El factor no puede ser negativo o nulo");
@@ -97,23 +109,8 @@ public class Solar extends Propiedad {
     }
 
     @Override
-    public long getCosteHipoteca() {
-        return 0;
-    }
-
-    @Override
-    public long getCosteDeshipoteca() {
-        return 0;
-    }
-
-    @Override
     public long getAlquilerTotalCobrado() {
-        return 0;
-    }
-
-    @Override
-    public String getNombreFmt() {
-        return null;
+        return alquilerTotalCobrado;
     }
 
     /*
