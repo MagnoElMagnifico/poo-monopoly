@@ -23,7 +23,7 @@ import java.util.HashSet;
 public class Jugador {
     private final String nombre;
     private final Avatar avatar;
-    private final boolean banca;
+    // private final boolean banca;
     private final HashSet<Propiedad> propiedades;
     private final EstadisticasJugador estadisticas;
     private long fortuna;
@@ -35,7 +35,6 @@ public class Jugador {
     public Jugador() {
         this.nombre = "Banca";
         this.avatar = null;
-        this.banca = true;
         this.fortuna = 0;
         this.propiedades = new HashSet<>(28);
         this.acreedor = null;
@@ -53,7 +52,7 @@ public class Jugador {
             default -> this.avatar = new Coche(id,this,casillaInicial);
         }
 
-        this.banca = false;
+
         this.fortuna = fortuna;
         this.propiedades = new HashSet<>();
         this.acreedor = null;
@@ -149,9 +148,7 @@ public class Jugador {
 
     @Override
     public String toString() {
-        if (banca) {
-            return "Jugador Especial: Banca\n";
-        }
+
 
         // @formatter:off
         return """
@@ -218,7 +215,7 @@ public class Jugador {
         }
 
         // Comprobar que no sea propiedad de otro jugador
-        if (!p.getPropietario().isBanca()) {
+        if (!(p.getPropietario() instanceof Banca)) {
             Consola.error("No se pueden comprar propiedades de otro jugador");
             System.out.printf("%s pertenece a %s\n", p.getCasilla().getNombreFmt(), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
             return false;
@@ -417,7 +414,7 @@ public class Jugador {
      * al dueño de la casilla en donde se encuentra
      */
     public void pagarAlquiler(Propiedad p, Dado dado) {
-        if (p.getPropietario().isBanca() || p.getPropietario().equals(this) || p.isHipotecada()) {
+        if (p.getPropietario() instanceof Banca || p.getPropietario().equals(this) || p.isHipotecada()) {
             return;
         }
 
@@ -496,9 +493,6 @@ public class Jugador {
         return avatar.acabarTurno();
     }
 
-    public boolean isBanca() {
-        return banca;
-    }
 
     public String getNombre() {
         return nombre;

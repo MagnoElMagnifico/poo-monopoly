@@ -5,6 +5,7 @@ import monopoly.casillas.Edificio;
 import monopoly.casillas.Grupo;
 import monopoly.casillas.Propiedad;
 import monopoly.jugadores.Avatar;
+import monopoly.jugadores.Banca;
 import monopoly.jugadores.Coche;
 import monopoly.jugadores.Jugador;
 import monopoly.utilidades.*;
@@ -41,7 +42,7 @@ public class Tablero {
         this.turno = 0;
         this.jugando = false;
 
-        this.banca = new Jugador();
+        this.banca = new Banca();
         this.casillas = casillas;
         this.grupos = grupos;
 

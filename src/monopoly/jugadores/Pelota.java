@@ -5,7 +5,7 @@ import monopoly.casillas.Casilla;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Dado;
 
-public class Pelota extends Avatar{
+public class Pelota extends Avatar {
 
     private Dado pelotaDado;            /* Solo para la pelota: guarda el dado usado en el tiro inicial (solo para calcular el alquiler de los transportes) */
     private int pelotaPosFinal;         /* Solo para la pelota: guarda la posición final a la que se tiene que llegar */

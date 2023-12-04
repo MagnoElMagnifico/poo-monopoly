@@ -1,11 +1,11 @@
 package monopoly.jugadores;
 
+import java.util.ArrayList;
+
 import monopoly.Tablero;
 import monopoly.casillas.Casilla;
 import monopoly.utilidades.Consola;
 import monopoly.utilidades.Dado;
-
-import java.util.ArrayList;
 
 public abstract class Avatar {
     // @formatter:off
@@ -174,7 +174,7 @@ public abstract class Avatar {
     }
 
 
-    public abstract int moverEspecial(Dado dado,Casilla carcel);
+    public abstract int moverEspecial(Dado dado, Casilla carcel);
 
     public boolean irCarcelDadosDobles(Dado dado, Casilla carcel) {
         if (dado.isDoble()) {

@@ -1,11 +1,12 @@
 package monopoly.casillas;
 
+import java.util.ArrayList;
+
 import monopoly.Calculadora;
-import monopoly.casillas.Edificio.TipoEdificio;
+import monopoly.casillas.edificios.Edificio;
+//import monopoly.casillas.Edificio.TipoEdificio;
 import monopoly.jugadores.Jugador;
 import monopoly.utilidades.Consola;
-
-import java.util.ArrayList;
 
 /**
  * Representa una casilla que se puede comprar por un jugador.
