@@ -1,8 +1,8 @@
 package monopoly.Tratos;
 
-import monopoly.casillas.Propiedad;
-import monopoly.errores.ErrorComando;
-import monopoly.jugadores.Jugador;
+import monopoly.casilla.propiedad.Propiedad;
+import monopoly.error.ErrorComando;
+import monopoly.jugador.Jugador;
 
 public class TratoP_P extends Trato{
     private final Propiedad inter;
@@ -19,7 +19,7 @@ public class TratoP_P extends Trato{
                 %s
                 Cambiar %s por %s
                 
-                """.formatted(super.toString(),inter.getCasilla().getNombreFmt(),acept.getCasilla().getNombreFmt());
+                """.formatted(super.toString(),inter.getNombreFmt(),acept.getNombreFmt());
     }
 
     @Override

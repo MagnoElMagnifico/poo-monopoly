@@ -1,8 +1,9 @@
 package monopoly.Tratos;
 
-import monopoly.casillas.Propiedad;
-import monopoly.jugadores.Jugador;
-import monopoly.utilidades.Consola;
+
+import monopoly.casilla.propiedad.Propiedad;
+import monopoly.error.ErrorComando;
+import monopoly.jugador.Jugador;
 
 public class TratoP_PC extends Trato{
     private final Propiedad inter;

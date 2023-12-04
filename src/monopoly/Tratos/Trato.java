@@ -2,11 +2,12 @@ package monopoly.Tratos;
 
 import monopoly.casilla.propiedad.Propiedad;
 import monopoly.error.ErrorComando;
-import monopoly.jugador.Avatar;
+import monopoly.error.ErrorComandoFortuna;
 import monopoly.jugador.Jugador;
 
 public abstract class Trato {
-    private final String nombre;
+    private
+    private final String nombre;  // tiene que ser único
     private final Jugador interesado; // quien propone el trato
     private final Jugador aceptador; // quien decide si acepta o no
 
@@ -40,7 +41,7 @@ public abstract class Trato {
         return aceptador;
     }
 
-    public abstract void aceptar();
+    public abstract void aceptar() throws ErrorComandoFortuna;
 
     public String getNombre() {
         return nombre;

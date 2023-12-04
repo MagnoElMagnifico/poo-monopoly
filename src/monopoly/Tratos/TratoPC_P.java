@@ -1,8 +1,9 @@
 package monopoly.Tratos;
 
-import monopoly.casillas.Propiedad;
-import monopoly.jugadores.Jugador;
-import monopoly.utilidades.Consola;
+import monopoly.Juego;
+import monopoly.casilla.propiedad.Propiedad;
+import monopoly.error.ErrorComando;
+import monopoly.jugador.Jugador;
 
 public class TratoPC_P extends Trato{
     private final Propiedad inter;
@@ -23,14 +24,14 @@ public class TratoPC_P extends Trato{
                 
                 """.formatted(
                         super.toString(),
-                        inter.getCasilla().getNombreFmt(), Consola.num(cantidad), acept.getCasilla().getNombreFmt());
+                        inter.getNombreFmt(), Juego.consola.num(cantidad), acept.getNombreFmt());
     }
 
     @Override
     public void aceptar() {
         Jugador j1 = getInteresado();
         Jugador j2 = getAceptador();
-        if(!j1.cobrar(cantidad,false)) return;
+        if(j1.cobrar(cantidad)) return;
         j1.anadirPropiedad(acept);
         j2.anadirPropiedad(inter);
         j1.quitarPropiedad(inter);

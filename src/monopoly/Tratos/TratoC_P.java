@@ -1,8 +1,10 @@
 package monopoly.Tratos;
 
+import monopoly.Juego;
 import monopoly.casilla.propiedad.Propiedad;
+import monopoly.error.ErrorComando;
+import monopoly.error.ErrorComandoFortuna;
 import monopoly.jugador.Jugador;
-import monopoly.utils.Consola;
 
 public class TratoC_P extends Trato{
     private final Propiedad acept;
@@ -20,11 +22,11 @@ public class TratoC_P extends Trato{
                 %s
                 Cambiar %s por %s
                 
-                """.formatted(super.toString(), Consola.num(cantidad),acept.getNombreFmt());
+                """.formatted(super.toString(), Juego.consola.num(cantidad),acept.getNombreFmt());
     }
 
     @Override
-    public void aceptar() {
+    public void aceptar() throws ErrorComandoFortuna {
         Jugador j1 = getInteresado();
         Jugador j2 = getAceptador();
         if(!j1.cobrar(cantidad,false)) return;

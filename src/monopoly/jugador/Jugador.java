@@ -25,7 +25,7 @@ import java.util.HashSet;
  *
  * @see Avatar
  */
-public class Jugador implements Listable {
+public class Jugador {
     private final String nombre;
     private final Avatar avatar;
     private final HashSet<Propiedad> propiedades;
@@ -107,30 +107,6 @@ public class Jugador implements Listable {
         return true;
     }
 
-    private String listarEdificios() {
-        StringBuilder edificios = new StringBuilder();
-        edificios.append('[');
-
-        // Si es el primer elemento que se añade a la lista,
-        // no se añade coma; pero sí en el resto.
-        boolean primero = true;
-        for (Propiedad p : propiedades) {
-            if (p.getTipo() == Propiedad.TipoPropiedad.Solar) {
-                for (Edificio e : p.getEdificios()) {
-                    if (primero) {
-                        primero = false;
-                    } else {
-                        edificios.append(", ");
-                    }
-
-                    edificios.append(e.getNombreFmt());
-                }
-            }
-        }
-
-        edificios.append(']');
-        return edificios.toString();
-    }
 
     @Override
     public String toString() {
@@ -463,11 +439,10 @@ public class Jugador implements Listable {
         TratoP_P t1= new TratoP_P(nombre, this,jugador,p1,p2);
         tratos.add(t1);
     }
-    public void aceptarTrato(String nombre){
+    public void aceptarTrato(String nombre) throws ErrorComandoFortuna{
         for(Trato t :tratos){
             if(t.getNombre().equalsIgnoreCase(nombre)){
-                t.aceptar();
-
+                    t.aceptar();
             }
         }
     }
@@ -523,9 +498,4 @@ public class Jugador implements Listable {
         return acreedor;
     }
 
-
-    @Override
-    public String listar() {
-        return null;
-    }
 }

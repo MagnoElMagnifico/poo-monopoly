@@ -1,8 +1,9 @@
 package monopoly.Tratos;
 
-import monopoly.casillas.Propiedad;
-import monopoly.jugadores.Jugador;
-import monopoly.utilidades.Consola;
+import monopoly.casilla.propiedad.Propiedad;
+import monopoly.error.ErrorComando;
+import monopoly.error.ErrorComandoFortuna;
+import monopoly.jugador.Jugador;
 
 public class TratoP_C extends Trato{
     private final Propiedad inter;
@@ -24,7 +25,7 @@ public class TratoP_C extends Trato{
     }
 
     @Override
-    public void aceptar() {
+    public void aceptar() throws ErrorComandoFortuna {
         Jugador j1 = getInteresado();
         Jugador j2 = getAceptador();
         if(!j2.cobrar(cantidad,false)) return;
