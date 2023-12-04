@@ -40,6 +40,8 @@ Se usarán los siguientes colores para indicar resultados de comandos:
 
 ![](diagrama-clases.png)
 
+![](diagrama-excepciones.png)
+
 Definidas en el paquete `monopoly`:
 
 - **Monopoly**: Crea el tablero y se encarga de procesar y ejecutar los
