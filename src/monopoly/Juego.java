@@ -4,6 +4,7 @@ import monopoly.casilla.Lector;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
 import monopoly.casilla.propiedad.Propiedad;
+import monopoly.casilla.propiedad.Solar;
 import monopoly.error.*;
 import monopoly.jugador.*;
 import monopoly.casilla.Casilla;
@@ -70,7 +71,6 @@ public class Juego implements Comando {
             o888o        o888o o888o o888o      `Y8bod88P" `Y8bod8P'      o888o        `Y888""8o d888b      "888" o888o `Y8bod88P" `Y888""8o\s
             """;
 
-    // TODO: poner en privado y añadir un getter
     public static Consola consola;
 
     private final String msgAyuda;
@@ -91,7 +91,7 @@ public class Juego implements Comando {
     private final CasillaCarcel carcel;
     private final CasillaSalida salida;
 
-    public Juego() throws ErrorFatalConfig {
+    public Juego() throws ErrorFatalConfig, ErrorFatalLogico {
         try {
             consola = new ConsolaNormal();
             msgAyuda = Files.readString(Path.of(JuegoConsts.CONFIG_AYUDA));
@@ -126,8 +126,11 @@ public class Juego implements Comando {
             // TODO: ¿Cómo tratarlas de forma diferente?
             try {
                 cerrar = ejecutarComando(consola.leer("$> "));
-            } catch (ErrorComando | ErrorFatal e) {
+            } catch (ErrorComando e) {
                 e.imprimirMsg();
+            } catch (ErrorFatal e) {
+                e.imprimirMsg();
+                e.abortar();
             }
         }
     }
@@ -251,8 +254,8 @@ public class Juego implements Comando {
 
             for (Casilla c : casillas) {
                 // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-                if (c instanceof Propiedad && !(((Propiedad) c).getPropietario() instanceof Banca)) {
-                    ((Propiedad) c).factorPrecio(1.05f);
+                if (c instanceof Solar && !(((Solar) c).getPropietario() instanceof Banca)) {
+                    ((Solar) c).factorPrecio(1.05f);
                 }
             }
 
