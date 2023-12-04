@@ -1,9 +1,9 @@
 package monopoly.Tratos;
 
-import monopoly.casillas.Propiedad;
-import monopoly.errores.ErrorComando;
-import monopoly.jugadores.Avatar;
-import monopoly.jugadores.Jugador;
+import monopoly.casilla.propiedad.Propiedad;
+import monopoly.error.ErrorComando;
+import monopoly.jugador.Avatar;
+import monopoly.jugador.Jugador;
 
 public abstract class Trato {
     private final String nombre;
