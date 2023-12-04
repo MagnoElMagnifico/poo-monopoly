@@ -27,9 +27,9 @@ public class TratoC_P extends Trato{
     public void aceptar() {
         Jugador j1 = getInteresado();
         Jugador j2 = getAceptador();
+        if(!j1.cobrar(cantidad,false)) return;
         j1.anadirPropiedad(acept);
         j2.ingresar(cantidad);
-        j1.cobrar(cantidad,true);
         j2.quitarPropiedad(acept);
     }
 }

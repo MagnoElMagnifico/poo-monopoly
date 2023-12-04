@@ -30,11 +30,11 @@ public class TratoP_PC extends Trato{
     public void aceptar() {
         Jugador j1 = getInteresado();
         Jugador j2 = getAceptador();
+        if(!j2.cobrar(cantidad,false)) return;
         j1.anadirPropiedad(acept);
         j2.anadirPropiedad(inter);
         j1.quitarPropiedad(inter);
         j2.quitarPropiedad(acept);
         j1.ingresar(cantidad);
-        j2.cobrar(cantidad,true);
     }
 }

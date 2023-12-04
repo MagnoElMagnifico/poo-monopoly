@@ -2,6 +2,7 @@ package monopoly.Tratos;
 
 import monopoly.casillas.Propiedad;
 import monopoly.errores.ErrorComando;
+import monopoly.jugadores.Avatar;
 import monopoly.jugadores.Jugador;
 
 public abstract class Trato {
@@ -19,6 +20,16 @@ public abstract class Trato {
     @Override
     public String toString() {
         return "%s: %s ofrece un trato a %s:\n".formatted(nombre,interesado.getNombre(),aceptador.getNombre());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        // Aquí se puede usar == dado que char es primitivo
+        return obj instanceof Trato && ((Trato) obj).nombre.equalsIgnoreCase(nombre);
     }
 
     public Jugador getInteresado() {

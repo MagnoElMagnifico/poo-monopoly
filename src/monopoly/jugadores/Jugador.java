@@ -2,6 +2,7 @@ package monopoly.jugadores;
 
 import monopoly.Calculadora;
 import monopoly.Tratos.Trato;
+import monopoly.Tratos.TratoP_P;
 import monopoly.casillas.Casilla;
 import monopoly.casillas.Edificio;
 import monopoly.casillas.Edificio.TipoEdificio;
@@ -487,6 +488,27 @@ public class Jugador {
         fortuna += cantidad;
     }
 
+    public String listarTratos(){
+        StringBuilder str = new StringBuilder();
+        for(Trato t : tratos){
+            str.append(t.toString());
+        }
+        return str.toString();
+    }
+
+    public void crearTrato(String nombre, Jugador jugador, Propiedad p1, Propiedad p2){
+        TratoP_P t1= new TratoP_P(nombre, this,jugador,p1,p2);
+        tratos.add(t1);
+    }
+    public void aceptarTrato(String nombre){
+        for(Trato t :tratos){
+            if(t.getNombre().equalsIgnoreCase(nombre)){
+                t.aceptar();
+
+            }
+        }
+    }
+
     /**
      * Determina si
      */
@@ -498,6 +520,7 @@ public class Jugador {
 
         return avatar.acabarTurno();
     }
+
 
     public boolean isBanca() {
         return banca;
@@ -538,4 +561,9 @@ public class Jugador {
     public Jugador getAcreedor() {
         return acreedor;
     }
+
+    public HashSet<Trato> getTratos() {
+        return tratos;
+    }
+
 }
