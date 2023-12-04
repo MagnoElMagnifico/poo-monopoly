@@ -1,7 +1,11 @@
 package monopoly.jugador;
 
+import monopoly.Juego;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
+import monopoly.error.ErrorComandoAvatar;
+import monopoly.error.ErrorComandoFortuna;
+import monopoly.error.ErrorFatal;
 import monopoly.utils.Consola;
 import monopoly.utils.Dado;
 
@@ -17,17 +21,15 @@ public class AvatarPelota extends Avatar{
         pelotaPosFinal = 0;
     }
 
-    public boolean mover(Dado dado, Tablero tablero) {
+    public void mover(Juego juego, Dado dado) throws ErrorComandoAvatar, ErrorFatal, ErrorComandoFortuna {
         if (dado == null && !isMovimientoEspecial()) {
-            Consola.error("No puedes usar el comando siguiente si no estás usando el avatar Pelota");
-            return false;
+            throw new ErrorComandoAvatar("No puedes usar el comando siguiente si no estás usando el avatar Pelota", this);
         }
 
         if (dado != null && pelotaDado != null) {
-            Consola.error("No puedes lanzar más dados. Prueba con el comando siguiente");
-            return false;
+            throw new ErrorComandoAvatar("No puedes lanzar más dados. Prueba con el comando siguiente", this);
         }
-        return(super.mover(dado, tablero, pelotaDado));
+        super.mover(juego, pelotaDado);
     }
 
     @Override

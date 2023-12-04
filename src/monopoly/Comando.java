@@ -27,7 +27,7 @@ public interface Comando {
     /**
      * Saca al jugador de la cárcel pagando la fianza
      */
-    void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar;
+    void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar, ErrorComandoFortuna;
 
     /**
      * Cambia el modo del avatar del jugador actual de básico a avanzado y viceversa

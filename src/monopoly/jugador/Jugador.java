@@ -34,6 +34,15 @@ public class Jugador {
     private Jugador acreedor;
     private HashSet<Trato> tratos;
 
+    public Jugador() {
+        this.nombre = "Banca";
+        this.avatar = null;
+        this.fortuna = 0;
+        this.propiedades = new HashSet<>(28);
+        this.acreedor = null;
+        this.estadisticas = new EstadisticasJugador(this);
+    }
+
     public Jugador(String nombre, Avatar avatar, long fortuna) {
         this.nombre = nombre;
         this.avatar = avatar;

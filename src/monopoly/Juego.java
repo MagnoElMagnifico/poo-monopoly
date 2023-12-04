@@ -302,14 +302,14 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar {
+    public void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar, ErrorComandoFortuna {
         if (!jugando) {
             throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         Jugador jugadorTurno = getJugadorTurno();
 
-        jugadorTurno.getAvatar().salirCarcelPagando(false);
+        jugadorTurno.getAvatar().salirCarcelPagando(banca);
         verTablero();
         jugadorTurno.describirTransaccion();
     }
@@ -830,7 +830,7 @@ public class Juego implements Comando {
             if (cantidad > 0) {
                 jugador.ingresar(cantidad);
             } else if (cantidad < 0) {
-                jugador.cobrar(-cantidad, true);
+                jugador.cobrar(-cantidad, banca);
                 consola.imprimir("Se ha cobrado exitosamente %s a %s\n".formatted(consola.num(-cantidad), jugador.getNombre()));
             }
 

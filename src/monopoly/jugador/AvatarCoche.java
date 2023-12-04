@@ -1,9 +1,13 @@
 package monopoly.jugador;
 
+import monopoly.Juego;
 import monopoly.Tablero;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
 import monopoly.casillas.Casilla;
+import monopoly.error.ErrorComandoAvatar;
+import monopoly.error.ErrorComandoFortuna;
+import monopoly.error.ErrorFatal;
 import monopoly.utils.Dado;
 import monopoly.utils.Consola;
 
@@ -18,13 +22,12 @@ public class AvatarCoche extends Avatar {
         this.penalizacion = 0;
     }
 
-    public boolean mover(Dado dado, Tablero tablero) {
+    public void mover(Juego juego, Dado dado) throws ErrorFatal, ErrorComandoFortuna, ErrorComandoAvatar {
         // Penalización de turnos para el coche
         if (penalizacion != 0) {
-            Consola.error("Restaurando avatar: espera %d turno(s) para poder moverte".formatted(penalizacion));
-            return false;
+            throw new ErrorComandoAvatar("Restaurando avatar: espera %d turno(s) para poder moverte".formatted(penalizacion), this);
         }
-        return super.mover(dado, tablero, null);
+        super.mover(juego, dado);
     }
 
     @Override
