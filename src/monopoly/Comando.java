@@ -1,5 +1,8 @@
 package monopoly;
 
+import monopoly.error.*;
+import monopoly.utils.Listable;
+
 public interface Comando {
     /**
      * Muestra el mensaje de ayuda de todos los comandos
@@ -9,7 +12,7 @@ public interface Comando {
     /**
      * Inicia la partida
      */
-    void iniciar();
+    void iniciar() throws ErrorComandoEstadoPartida;
 
     /**
      * Muestra el tablero del juego
@@ -19,32 +22,32 @@ public interface Comando {
     /**
      * Muestra el jugador que tiene el turno
      */
-    void jugador();
+    void jugador() throws ErrorComandoEstadoPartida;
 
     /**
      * Saca al jugador de la cárcel pagando la fianza
      */
-    void salirCarcel();
+    void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar;
 
     /**
      * Cambia el modo del avatar del jugador actual de básico a avanzado y viceversa
      */
-    void cambiarModo();
+    void cambiarModo() throws ErrorComandoEstadoPartida;
 
     /**
      * Genera un dado aleatorio y mueve el avatar actual
      */
-    void lanzar();
+    void lanzar() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal;
 
     /**
      * Avanza las posiciones correspondientes cuando se usa el avatar Pelota
      */
-    void siguiente();
+    void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal;
 
     /**
      * Termina el turno del jugador actual
      */
-    void acabarTurno();
+    void acabarTurno() throws ErrorComandoEstadoPartida;
 
     /**
      * Declara al jugador actual en bancarrota
@@ -57,7 +60,7 @@ public interface Comando {
      *     crear jugador {nombre} { c, coche | e, esfinge | s, sombrero | p, pelota }
      * </pre>
      */
-    void crearJugador(String[] args);
+    void crearJugador(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida;
 
     /**
      * Permite al jugador actual comprar una propiedad
@@ -65,7 +68,7 @@ public interface Comando {
      *     comprar {propiedad}
      * </pre>
      */
-    void comprar(String[] args);
+    void comprar(String[] args) throws ErrorComando;
 
     /**
      * Permite al jugador actual edificar en el solar donde se encuentra
@@ -73,7 +76,7 @@ public interface Comando {
      *     edificar {tipo edificio} [cantidad]
      * </pre>
      */
-    void edificar(String[] args);
+    void edificar(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida;
 
     /**
      * Permite vender al jugador actual los edificios previamente construidos
@@ -81,7 +84,7 @@ public interface Comando {
      *     vender {tipo edificio} {solar} [cantidad]
      * </pre>
      */
-    void vender(String[] args);
+    void vender(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida;
 
     /**
      * Permite hipotecar una propiedad
@@ -89,7 +92,7 @@ public interface Comando {
      *      hipotecar {propiedad}
      * </pre>
      */
-    void hipotecar(String[] args);
+    void hipotecar(String[] args) throws ErrorComando;
 
     /**
      * Permite deshipotecar una propiedad
@@ -97,7 +100,7 @@ public interface Comando {
      *      deshipotecar {propiedad}
      * </pre>
      */
-    void deshipotecar(String[] args);
+    void deshipotecar(String[] args) throws ErrorComando;
 
     /**
      * Permite crear un trato entre varios jugadores
@@ -136,7 +139,7 @@ public interface Comando {
      *     describir avatar {avatar}
      * </pre>
      */
-    void describir(String[] args);
+    void describir(String[] args) throws ErrorComandoFormato;
 
     /**
      * Permite mostrar información sobre ciertos elementos del juego
@@ -156,7 +159,7 @@ public interface Comando {
      *     estadisticas { nombre jugador }
      * </pre>
      */
-    void estadisticas(String[] args);
+    void estadisticas(String[] args) throws ErrorComando;
 
     // ==== COMANDOS DEBUG ============================================================
 
@@ -168,7 +171,7 @@ public interface Comando {
      *     exec {nombre archivo}
      * </pre>
      */
-    void ejecutarArchivo(String[] args);
+    void ejecutarArchivo(String[] args) throws ErrorFatal, ErrorComando;
 
     /**
      * Cobra o ingresa la cantidad dada al jugador actual
@@ -177,7 +180,7 @@ public interface Comando {
      * </pre>
      * Si cantidad > 0 se ingresa, si cantidad < 0 se cobra
      */
-    void fortuna(String[] args);
+    void fortuna(String[] args) throws ErrorComando;
 
     /**
      * Mueve el avatar actual con el número de posiciones del dado
@@ -187,5 +190,5 @@ public interface Comando {
      *     mover {dado 1} [dado2]
      * </pre>
      */
-    void mover(String[] args);
+    void mover(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida, ErrorFatal, ErrorComandoFortuna, ErrorComandoAvatar;
 }

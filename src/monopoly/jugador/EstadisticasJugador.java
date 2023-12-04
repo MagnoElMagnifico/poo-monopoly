@@ -1,4 +1,4 @@
-package monopoly.utils;
+package monopoly.jugador;
 
 import monopoly.casilla.edificio.Edificio;
 import monopoly.casilla.propiedad.Propiedad;

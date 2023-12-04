@@ -1,11 +1,12 @@
-package monopoly.casilla;
+package monopoly.casilla.propiedad;
 
-import monopoly.Calculadora;
-import monopoly.casilla.Edificio.TipoEdificio;
-import monopoly.jugadores.Jugador;
-import monopoly.utilidades.Consola;
-
-import java.util.ArrayList;
+import monopoly.Juego;
+import monopoly.casilla.Casilla;
+import monopoly.error.ErrorFatalLogico;
+import monopoly.jugador.Banca;
+import monopoly.jugador.Jugador;
+import monopoly.utils.Consola;
+import monopoly.utils.Dado;
 
 /**
  * Representa una casilla que se puede comprar por un jugador.
@@ -16,279 +17,175 @@ import java.util.ArrayList;
  * <li>Servicios</li>
  * <li>Transporte</li>
  *
- * @author Marcos Granja Grille
- * @date 2-10-2023
+ * Se trata de una clase abstracta porque hay ciertas funcionalidades que dependen de cada
+ * tipo de Propiedad, como el alquiler y el precio.
+ *
  * @see Casilla
  * @see Jugador
  */
-public class Propiedad {
+public abstract class Propiedad extends Casilla {
     private final String nombre;
-    private final Casilla casilla;
-    private final TipoPropiedad tipo;
-    private final ArrayList<Edificio> edificios;
-    private long precio;
-    private long alquiler;       /* En caso del Servicio almacena el factor de servicio; y en
-                                 caso de transporte, el factor de transporte */
-    private boolean hipotecada;
+    private final Grupo grupo;
     private Jugador propietario;
+    private boolean hipotecada;
 
-    /**
-     * Crea una propiedad.
-     *
-     * @param casilla Casilla a la que está asociada
-     * @param tipo    Tipo de casilla: Solar, Servicio o Transporte
-     */
-    public Propiedad(String nombre, Casilla casilla, TipoPropiedad tipo) {
+    public Propiedad(int posicion, Grupo grupo, String nombre, Jugador propietario) {
+        super(posicion);
+        this.grupo = grupo;
         this.nombre = nombre;
-        this.casilla = casilla;
-        this.tipo = tipo;
-        this.propietario = null;
-        this.precio = -1;   // Marcar como todavía no establecido
-        this.alquiler = -1; // Marcar como todavía no establecido
-        this.hipotecada = false;
 
-        if (tipo == TipoPropiedad.Solar) {
-            this.edificios = new ArrayList<>();
-        } else {
-            this.edificios = null;
-        }
+        this.propietario = propietario;
+        hipotecada = false;
     }
 
-    private String toStringSolar() {
-        // @formatter:off
+    /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
+    public abstract long getPrecio();
+
+    /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
+    public abstract long getAlquiler();
+
+    /** Multiplica el precio actual por el factor dado para aumentarlo o disminuirlo */
+    public abstract void factorPrecio(float factor) throws ErrorFatalLogico;
+
+    public abstract long getCosteHipoteca();
+
+    public abstract long getCosteDeshipoteca();
+
+    /** Para las estadísticas */
+    public abstract long getAlquilerTotalCobrado();
+
+    @Override
+    public String listar() {
         return """
                 {
-                    tipo: %s
                     nombre: %s
-                    grupo: %s
-                    precio: %s
-                    alquiler: %s
-                    propietario: %s
-                    edificios: %s
-                    hipotecada?: %s
-                    ================================
-                    valor casa: %s
-                    valor hotel: %s
-                    valor piscina: %s
-                    valor pista de deporte: %s
-                    --------------------------------
-                    alquiler una casa: %s
-                    alquiler dos casas: %s
-                    alquiler tres casas: %s
-                    alquiler cuatro casas: %s
-                    alquiler hotel: %s
-                    alquiler piscina: %s
-                    alquiler pista de deporte: %s
-                }""".formatted(tipo,
-                               nombre,
-                               casilla.getGrupo().getNombre(),
-                               Consola.num(precio),
-                               Consola.num(alquiler),
-                               propietario.getNombre(),
-                               Consola.listar(edificios.iterator(), Edificio::getNombreFmt),
-                               hipotecada? "Sí" : "No",
-                               // ==========================================================
-                               Consola.num(Calculadora.precio(TipoEdificio.Casa, this)),
-                               Consola.num(Calculadora.precio(TipoEdificio.Hotel, this)),
-                               Consola.num(Calculadora.precio(TipoEdificio.Piscina, this)),
-                               Consola.num(Calculadora.precio(TipoEdificio.PistaDeporte, this)),
-                               // ----------------------------------------------------------
-                               Consola.num(Calculadora.alquilerEdificio(this, TipoEdificio.Casa, 1)),
-                               Consola.num(Calculadora.alquilerEdificio(this, TipoEdificio.Casa, 2)),
-                               Consola.num(Calculadora.alquilerEdificio(this, TipoEdificio.Casa, 3)),
-                               Consola.num(Calculadora.alquilerEdificio(this, TipoEdificio.Casa, 4)),
-                               Consola.num(Calculadora.alquilerEdificio(this, TipoEdificio.Hotel, 1)),
-                               Consola.num(Calculadora.alquilerEdificio(this, TipoEdificio.Piscina, 1)),
-                               Consola.num(Calculadora.alquilerEdificio(this, TipoEdificio.PistaDeporte, 1)));
-                // @formatter:on
-    }
-
-    public void listar() {
-        System.out.printf("""
-                {
-                    nombre: %s
-                    tipo: %s
+                    tipo: Propiedad
                     precio: %s
                 }
-                """, casilla.getNombreFmt(), tipo, Consola.num(precio));
+                """.formatted(getNombreFmt(), Juego.consola.num(getPrecio()));
     }
 
     @Override
     public String toString() {
-        if (tipo == TipoPropiedad.Solar) {
-            return toStringSolar();
-        }
-
         // @formatter:off
         return """
                {
-                   tipo: %s
+                   tipo: Propiedad
                    nombre: %s
                    precio: %s
                    alquiler: %s
                    propietario: %s
                    hipotecada?: %s
-               }""".formatted(tipo,
-                              nombre,
-                              Consola.num(precio),
-                              Consola.num(alquiler),
-                              propietario == null ? "Banca" : propietario.getNombre(),
-                              hipotecada? "Sí" : "No");
+               }""".formatted(
+                    nombre,
+                    Juego.consola.num(getPrecio()),
+                    Juego.consola.num(getAlquiler()),
+                    propietario.getNombre(),
+                    hipotecada? "Sí" : "No");
         // @formatter:on
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
+    public void accion(Jugador jugadorTurno, Dado dado) {
+        if (propietario instanceof Banca || propietario.equals(jugadorTurno) || hipotecada) {
+            return;
         }
 
-        return obj instanceof Propiedad && ((Propiedad) obj).nombre.equalsIgnoreCase(this.nombre);
+        // Se multiplica el alquiler por el valor de los dados en caso de que sea un servicio
+        long importe = p.getTipo() == Propiedad.TipoPropiedad.Servicio ? p.getAlquiler() * dado.getValor() : p.getAlquiler();
+
+        // Se debe cobrar todo el importe, aunque el jugador no pueda pagarlo.
+        // La cuenta se quedará en números negativos (es decir, está endeudado)
+        propietario.ingresar(importe);
+
+        if (!cobrar(importe, true)) {
+            acreedor = p.getPropietario();
+            Juego.consola.error("El jugador no tiene suficientes fondos para pagar el alquiler");
+            return;
+        }
+
+        Juego.consola.imprimir("Se han pagado %s de alquiler a %s\n".formatted(Juego.consola.num(importe), Juego.consola.fmt(propietario.getNombre(), Consola.Color.Azul)));
+
+        getAlquilerTotalCobrado();
+        jugadorTurno.getEstadisticas().anadirPagoAlquiler(importe);
+        propietario.getEstadisticas().anadirCobroAlquiler(importe);
     }
 
+    public void setPropietario(Jugador jugador) {
+        propietario = jugador;
+    }
+
+    /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
+    public void comprar(Jugador jugador) {
+        // TODO
+    }
+
+    /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
+    public boolean perteneceAJugador(Jugador jugador) {
+        return propietario.equals(jugador);
+    }
+
+    public void hipotecar() {
+        if (propietario == null || propietario.isBanca()) {
+            Juego.consola.error("No se puede hipotecar una propiedad sin dueño");
+            return;
+        }
+
+        if (hipotecada) {
+            Juego.consola.error("No se puede hipotecar, ya está hipotecada");
+            return;
+        }
+
+        // TODO
+        /*
+        if (tipo == TipoPropiedad.Solar && !edificios.isEmpty()) {
+            Juego.consola.error("No se puede hipotecar una propiedad con edificios");
+            return;
+        }
+        */
+
+        hipotecada = true;
+        long cantidad = getCosteHipoteca();
+        propietario.ingresar(cantidad);
+
+        // NOTA: esta cantidad no se tiene en cuenta para las estadísticas
+
+        Juego.consola.imprimir("Se ha hipotecado %s por %s\n".formatted(getNombreFmt(), Juego.consola.num(cantidad)));
+        propietario.describirTransaccion();
+    }
+
+    public void deshipotecar() {
+        if (!hipotecada) {
+            Juego.consola.error("No se puede deshipotecar, no está hipotecada");
+            return;
+        }
+
+        long cantidad = getCosteDeshipoteca();
+
+        if (!propietario.cobrar(cantidad, false)) {
+            Juego.consola.error("No tienes suficientes fondos para deshipotecar esa propiedad");
+            return;
+        }
+
+        hipotecada = false;
+        Juego.consola.imprimir("Se ha deshipotecado %s por %s\n".formatted(getNombreFmt(), Juego.consola.num(cantidad)));
+        propietario.describirTransaccion();
+    }
+
+    @Override
     public String getNombre() {
         return nombre;
-    }
-
-    public Casilla getCasilla() {
-        return casilla;
-    }
-
-    public TipoPropiedad getTipo() {
-        return tipo;
-    }
-
-    public long getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(long precio) {
-        if (precio <= 0) {
-            Consola.error("[Propiedad] No se puede asignar un precio negativo o nulo a una propiedad");
-            return;
-        }
-
-        this.precio = precio;
-    }
-
-    public long getAlquiler() {
-        return alquiler;
-    }
-
-    public void actualizarAlquiler() {
-        this.alquiler = Calculadora.calcularAlquiler(this);
-    }
-
-    public Jugador getPropietario() {
-        return propietario;
-    }
-
-    public void setPropietario(Jugador propietario) {
-        this.propietario = propietario;
-    }
-
-    public void anadirEdificio(Edificio e) {
-        if (tipo != TipoPropiedad.Solar) {
-            Consola.error("[Propiedad] No se puede añadir un edificio a un %s".formatted(tipo));
-            return;
-        }
-
-        edificios.add(e);
-    }
-
-    public boolean quitarEdificio(Edificio.TipoEdificio tipo) {
-        if (this.tipo != TipoPropiedad.Solar) {
-            Consola.error("[Propiedad] No se puede añadir un edificio a un %s".formatted(tipo));
-            return false;
-        }
-
-        for (int ii = 0; ii < edificios.size(); ii++) {
-            if (edificios.get(ii).getTipo() == tipo) {
-                edificios.remove(ii);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public int contarEdificios(Edificio.TipoEdificio tipo) {
-        if (this.tipo != TipoPropiedad.Solar) {
-            Consola.error("[Propiedad] %s no tiene edificios".formatted(tipo));
-            return -1;
-        }
-
-        int numero = 0;
-        for (Edificio e : edificios) {
-            if (e.getTipo() == tipo) {
-                numero++;
-            }
-        }
-
-        return numero;
-    }
-
-    public ArrayList<Edificio> getEdificios() {
-        if (this.tipo != TipoPropiedad.Solar) {
-            Consola.error("[Propiedad] %s no tiene edificios".formatted(tipo));
-            return null;
-        }
-
-        return edificios;
     }
 
     public boolean isHipotecada() {
         return hipotecada;
     }
 
-    public void hipotecar() {
-        if (propietario == null || propietario.isBanca()) {
-            Consola.error("No se puede hipotecar una propiedad sin dueño");
-            return;
-        }
-
-        if (hipotecada) {
-            Consola.error("No se puede hipotecar, ya está hipotecada");
-            return;
-        }
-
-        if (tipo == TipoPropiedad.Solar && !edificios.isEmpty()) {
-            Consola.error("No se puede hipotecar una propiedad con edificios");
-            return;
-        }
-
-        hipotecada = true;
-        long cantidad = Calculadora.calcularHipoteca(this);
-        propietario.ingresar(cantidad);
-
-        // NOTA: esta cantidad no se tiene en cuenta para las estadísticas
-
-        System.out.printf("Se ha hipotecado %s por %s\n", casilla.getNombreFmt(), Consola.num(cantidad));
-        propietario.describirTransaccion();
+    public Grupo getGrupo() {
+        return grupo;
     }
 
-    public void deshipotecar() {
-        if (!hipotecada) {
-            Consola.error("No se puede deshipotecar, no está hipotecada");
-            return;
-        }
-
-        long cantidad = Calculadora.calcularDeshipoteca(this);
-
-        if (!propietario.cobrar(cantidad, false)) {
-            Consola.error("No tienes suficientes fondos para deshipotecar esa propiedad");
-            return;
-        }
-
-        hipotecada = false;
-        System.out.printf("Se ha deshipotecado %s por %s\n", casilla.getNombreFmt(), Consola.num(cantidad));
-        propietario.describirTransaccion();
-    }
-
-    /**
-     * Tipos de propiedades
-     */
-    public enum TipoPropiedad {
-        Transporte, Servicio, Solar
+    public Jugador getPropietario() {
+        return propietario;
     }
 }

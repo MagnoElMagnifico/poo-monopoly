@@ -1,22 +1,22 @@
 package monopoly.jugador;
 
 import monopoly.Tablero;
+import monopoly.casilla.especial.CasillaCarcel;
+import monopoly.casilla.especial.CasillaSalida;
 import monopoly.casillas.Casilla;
-import monopoly.utilidades.Dado;
-import monopoly.utilidades.Consola;
+import monopoly.utils.Dado;
+import monopoly.utils.Consola;
 
-public class Coche extends Avatar{
+public class AvatarCoche extends Avatar {
+    private boolean puedeComprar; /* No permite comprar más una vez por turno */
+    private int penalizacion;     /* No puede tirar en los dos siguientes turnos si saca < 4 */
 
-    private boolean puedeComprar;       /* Solo para el coche: no permite comprar más una vez por turno */
-    private int penalizacion;           /* Solo para el coche: no puede tirar en los dos siguientes turnos si saca < 4 */
+    public AvatarCoche(char id, CasillaSalida salida) {
+        super(id, salida);
 
-    public Coche(char id, Jugador jugador, Casilla casillaInicial) {
-        super(id, jugador, casillaInicial);
-        this.puedeComprar=true;
-        this.penalizacion=0;
-
+        this.puedeComprar = true;
+        this.penalizacion = 0;
     }
-
 
     public boolean mover(Dado dado, Tablero tablero) {
         // Penalización de turnos para el coche
@@ -25,7 +25,6 @@ public class Coche extends Avatar{
             return false;
         }
         return super.mover(dado, tablero, null);
-
     }
 
     @Override
@@ -105,6 +104,11 @@ public class Coche extends Avatar{
         puedeComprar = true;
 
         return true;
+    }
+
+    @Override
+    public int moverEspecial(Dado dado, CasillaCarcel carcel) {
+        return 0;
     }
 
     public boolean isPuedeComprar() {

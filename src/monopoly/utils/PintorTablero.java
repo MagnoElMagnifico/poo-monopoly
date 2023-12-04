@@ -3,14 +3,13 @@ package monopoly.utils;
 import monopoly.Juego;
 import monopoly.casilla.Casilla;
 import monopoly.jugador.Avatar;
-import monopoly.Consola.Estilo;
+import monopoly.utils.Consola.Estilo;
 
 import java.util.ArrayList;
 
 /**
  * Clase de ayuda a Tablero para poder dibujar el tablero por pantalla.
  *
- * @author Marcos Granja Grille
  * @see monopoly.Juego
  * @see Casilla
  */

@@ -1,16 +1,15 @@
 package monopoly;
 
-import monopoly.casilla.edificio.Edificio;
+import monopoly.casilla.Lector;
+import monopoly.casilla.especial.CasillaCarcel;
+import monopoly.casilla.especial.CasillaSalida;
 import monopoly.casilla.propiedad.Propiedad;
-import monopoly.jugador.Avatar;
-import monopoly.jugador.Jugador;
+import monopoly.error.*;
+import monopoly.jugador.*;
 import monopoly.casilla.Casilla;
 import monopoly.casilla.propiedad.Grupo;
-import monopoly.Consola.Color;
-import monopoly.utilidades.Dado;
-import monopoly.utilidades.EstadisticasCasilla;
-import monopoly.utilidades.EstadisticasJugador;
-import monopoly.utilidades.PintorTablero;
+import monopoly.utils.Consola.Color;
+import monopoly.utils.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -74,36 +73,43 @@ public class Juego implements Comando {
     // TODO: poner en privado y añadir un getter
     public static Consola consola;
 
-    private String msgAyuda;
+    private final String msgAyuda;
 
-    private Jugador banca;
-    private ArrayList<Jugador> jugadores;
-    private ArrayList<Casilla> casillas;
-    private ArrayList<Grupo> grupos;
+    // Atributos
+    private final ArrayList<Jugador> jugadores;
+    private final ArrayList<Casilla> casillas;
+    private final ArrayList<Grupo> grupos;
+    private final Banca banca;
+
+    // Estado
     private int turno;
+    private int nAumentosPrecio;
     private boolean jugando;
-    private Casilla carcel;
 
-    public Juego() {
-        consola = new ConsolaNormal();
+    // Información relevante
+    private final long fortunaInicial;
+    private final CasillaCarcel carcel;
+    private final CasillaSalida salida;
 
+    public Juego() throws ErrorFatalConfig {
         try {
-            msgAyuda = Files.readString(Path.of("src/ayuda.txt"));
+            consola = new ConsolaNormal();
+            msgAyuda = Files.readString(Path.of(JuegoConsts.CONFIG_AYUDA));
+
+            banca = new Banca();
+            jugadores = new ArrayList<>(JuegoConsts.MAX_JUGADORES);
+            turno = 0;
+            jugando = false;
+
+            Lector lector = new Lector(this);
+            casillas = lector.getCasillas();
+            grupos = lector.getGrupos();
+            carcel = lector.getCarcel();
+            salida = lector.getSalida();
+            fortunaInicial = lector.getFortunaInicial();
         } catch (IOException e) {
-            // TODO?: excepción propia
-            consola.error("[Monopoly] Error abriendo el archivo de ayuda: " + e);
-            System.exit(1);
+            throw new ErrorFatalConfig("Error abriendo el archivo de ayuda: " + e, JuegoConsts.CONFIG_AYUDA, 0);
         }
-
-        banca = new Jugador();
-        jugadores = new ArrayList<>(6); // Entre 2 y 6
-        // TODO: leer casillas y grupos
-        turno = 0;
-        jugando = false;
-
-        carcel = buscar(casillas, (c) -> c.getTipo() == Casilla.TipoCasilla.Carcel);
-
-        // TODO: todo el setup de la calculadora aquí
     }
 
     /**
@@ -117,15 +123,21 @@ public class Juego implements Comando {
 
         boolean cerrar = false;
         while (!cerrar) {
-            cerrar = ejecutarComando(consola.leer("$> "));
+            // TODO: ¿Cómo tratarlas de forma diferente?
+            try {
+                cerrar = ejecutarComando(consola.leer("$> "));
+            } catch (ErrorComando | ErrorFatal e) {
+                e.imprimirMsg();
+            }
         }
     }
 
     /**
      * Procesa el comando dado y realiza las llamadas pertinentes para ejecutarlo
+     *
      * @return True en caso de que deba seguir procesando comandos. False cuando se ha ejecuta el comando de salir.
      */
-    private boolean ejecutarComando(String cmd) {
+    private boolean ejecutarComando(String cmd) throws ErrorComando, ErrorFatal {
         // Ignorar comandos en blanco o con solo espacios
         if (cmd.isBlank() || cmd.stripLeading().startsWith("#")) {
             return true;
@@ -185,22 +197,15 @@ public class Juego implements Comando {
             return true;
         }
 
-        // TODO: lanzar excepción de comando no encontrado
-        consola.error("\"%s\": Comando no válido".formatted(args[0]));
-        return true;
-    }
-
-    private void assertParams(String[] args, int paramsEsperados) {
-        if (args.length != paramsEsperados) {
-            consola.error("Se esperaban %d parámetros, se recibieron %d\n".formatted(paramsEsperados, args.length - 1));
-        }
+        throw new ErrorComandoFormato("\"%s\": comando no válido".formatted(args[0]));
     }
 
     // ================================================================================
 
     @Override
     public String toString() {
-        return PintorTablero.pintarTablero(this);
+        Avatar avatar = getJugadorTurno() == null? null : getJugadorTurno().getAvatar() ;
+        return PintorTablero.pintarTablero(casillas, avatar);
     }
 
     /**
@@ -208,6 +213,54 @@ public class Juego implements Comando {
      */
     public Jugador getJugadorTurno() {
         return jugadores.isEmpty() ? null : jugadores.get(turno);
+    }
+
+    public Banca getBanca() {
+        return banca;
+    }
+
+    public ArrayList<Casilla> getCasillas() {
+        return casillas;
+    }
+
+    public ArrayList<Jugador> getJugadores() {
+        return jugadores;
+    }
+
+    public CasillaCarcel getCarcel() {
+        return carcel;
+    }
+
+    public CasillaSalida getSalida() {
+        return salida;
+    }
+
+    /**
+     * Aumenta el precio de todos los solares que
+     * aún no se han vendido al cabo de 4 vueltas.
+     */
+    public void aumentarPrecio() {
+        try {
+            for (Jugador jugador : jugadores) {
+                if (jugador.getEstadisticas().getVueltas() - 4 * nAumentosPrecio < 0) {
+                    return;
+                }
+            }
+
+            nAumentosPrecio++;
+
+            for (Casilla c : casillas) {
+                // Si la casilla se puede comprar y no tiene dueño, es que está en venta
+                if (c instanceof Propiedad && !(((Propiedad) c).getPropietario() instanceof Banca)) {
+                    ((Propiedad) c).factorPrecio(1.05f);
+                }
+            }
+
+            consola.imprimir("Se ha aumentado el precio de todas las casillas en venta");
+        } catch (ErrorFatalLogico e) {
+            e.imprimirMsg();
+            e.abortar();
+        }
     }
 
     // ================================================================================
@@ -218,19 +271,18 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void iniciar() {
+    public void iniciar() throws ErrorComandoEstadoPartida {
         if (jugando) {
-            consola.error("La partida ya está iniciada");
-            return;
+            throw new ErrorComandoEstadoPartida("La partida ya está iniciada");
         }
 
-        if (jugadores.size() < 2) {
-            consola.error("No hay suficientes jugadores para empezar (mínimo 2)");
-            return;
+        if (jugadores.size() < JuegoConsts.MIN_JUGADORES) {
+            throw new ErrorComandoEstadoPartida("No hay suficientes jugadores para empezar (mínimo %d)".formatted(JuegoConsts.MIN_JUGADORES));
         }
 
         jugando = true;
         consola.imprimir(consola.fmt("Se ha iniciado la partida\n", Color.Amarillo));
+        consola.imprimir(consola.fmt(MSG_JUGAR, Color.Amarillo));
     }
 
     @Override
@@ -239,83 +291,72 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void jugador() {
+    public void jugador() throws ErrorComandoEstadoPartida {
         Jugador j = getJugadorTurno();
 
         if (j == null) {
-            consola.error("No hay jugadores");
-            return;
+            throw new ErrorComandoEstadoPartida("No hay jugadores");
         }
 
         consola.imprimir(j.toString());
     }
 
     @Override
-    public void salirCarcel() {
+    public void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar {
         if (!jugando) {
-            consola.error("No se ha iniciado la partida");
-            return;
+            throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         Jugador jugadorTurno = getJugadorTurno();
 
-        // NOTE: salir cárcel pagando lanza una excepción en lugar de devolver un booleano
         jugadorTurno.getAvatar().salirCarcelPagando(false);
         verTablero();
         jugadorTurno.describirTransaccion();
     }
 
     @Override
-    public void cambiarModo() {
+    public void cambiarModo() throws ErrorComandoEstadoPartida {
         if (!jugando) {
-            consola.error("No se ha iniciado la partida");
-            return;
+            throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         getJugadorTurno().getAvatar().cambiarModo();
     }
 
     @Override
-    public void lanzar() {
+    public void lanzar() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal {
         moverComun(new Dado());
     }
 
     @Override
-    public void siguiente() {
+    public void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal {
         moverComun(null);
     }
 
-    private void moverComun(Dado dado) {
+    private void moverComun(Dado dado) throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal {
         if (!jugando) {
-            consola.error("No se ha iniciado la partida");
-            return;
+            throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         Jugador jugadorTurno = getJugadorTurno();
 
         if (jugadorTurno.isEndeudado()) {
-            consola.error("Estas endeudado: paga la deuda o declárate en bancarrota para poder avanzar");
-            return;
+            throw new ErrorComandoFortuna("Estas endeudado: paga la deuda o declárate en bancarrota para poder avanzar", jugadorTurno);
         }
 
         // Muestra el tablero si se ha movido el avatar con éxito
-        jugadorTurno.getAvatar().mover(dado, this);
+        jugadorTurno.getAvatar().mover(this, dado);
         verTablero();
     }
 
     @Override
-    public void acabarTurno() {
+    public void acabarTurno() throws ErrorComandoEstadoPartida {
         if (!jugando) {
-            consola.error("No se ha iniciado la partida");
-            return;
+            throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         Jugador jugadorTurno = getJugadorTurno();
-
-        // TODO?: lanza excepción
-        if (!jugadorTurno.acabarTurno()) {
-            return;
-        }
+        jugadorTurno.acabarTurno();
 
         // Mostrar los cambios
         jugadorTurno.describirTransaccion();
@@ -371,96 +412,82 @@ public class Juego implements Comando {
     // ================================================================================
 
     @Override
-    public void crearJugador(String[] args) {
+    public void crearJugador(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida {
         if (args.length != 4) {
-            consola.error("Se esperaban 3 parámetros, se recibieron %d".formatted(args.length - 1));
-            return;
+            throw new ErrorComandoFormato(3, args.length - 1);
         }
 
         if (!args[1].equals("jugador")) {
-            consola.error("\"%s\": Subcomando de crear no válido".formatted(args[1]));
-            return;
+            throw new ErrorComandoFormato("\"%s\": subcomando no válido".formatted(args[1]));
         }
 
         if (jugando) {
-            consola.error("No se pueden añadir jugadores en mitad de una partida");
-            return;
+            throw new ErrorComandoEstadoPartida("No se pueden añadir jugadores en mitad de una partida");
         }
 
-        if (jugadores.size() >= 6) {
-            consola.error("El máximo de jugadores es 6");
-            return;
+        if (jugadores.size() >= JuegoConsts.MAX_JUGADORES) {
+            throw new ErrorComandoEstadoPartida("El máximo de jugadores es %d".formatted(JuegoConsts.MAX_JUGADORES));
         }
 
         // Como se pasa todo a minúsculas, los nombres quedan mal
         // Con esto se pasa a mayúscula la primera letra
         String nombre = args[2].substring(0, 1).toUpperCase() + args[2].substring(1);
 
-        Avatar.TipoAvatar tipo;
-        switch (args[3]) {
-            case "c", "coche" -> tipo = Avatar.TipoAvatar.Coche;
-            case "p", "pelota" -> tipo = Avatar.TipoAvatar.Pelota;
-            default -> {
-                consola.error("\"%s\": No es un tipo válido de Avatar (prueba con c, p)".formatted(args[3]));
-                return;
-            }
-        }
+        Avatar avatar = switch (args[3]) {
+            case "c", "coche" -> new AvatarCoche(JuegoConsts.AVATARES_ID[jugadores.size()], salida);
+            case "p", "pelota" -> new AvatarPelota(JuegoConsts.AVATARES_ID[jugadores.size()], salida);
+            default -> throw new ErrorComandoFormato("\"%s\": No es un tipo válido de Avatar (prueba con c, p)".formatted(args[3]));
+        };
 
-        char avatar = generarAvatarId();
-        jugadores.add(new Jugador(nombre, tipo, avatar, casillas.get(0), calculadora.calcularFortuna()));
+        jugadores.add(new Jugador(nombre, avatar, fortunaInicial));
 
         consola.imprimir("El jugador %s con avatar %s se ha creado con éxito.\n".formatted(
                 consola.fmt(nombre, Color.Verde),
-                consola.fmt(Character.toString(avatar), Color.Verde)));
+                consola.fmt(Character.toString(avatar.getId()), Color.Verde)));
 
     }
 
     @Override
-    public void comprar(String[] args) {
+    public void comprar(String[] args) throws ErrorComando {
         if (args.length != 2) {
-            consola.error("Se esperaban 1 parámetro, se recibieron %d".formatted(args.length - 1));
-            return;
+            throw new ErrorComandoFormato(1, args.length - 1);
         }
 
         if (!jugando) {
-            consola.error("No se ha iniciado la partida");
-            return;
+            throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         Jugador jugadorTurno = getJugadorTurno();
         Avatar avatarTurno = jugadorTurno.getAvatar();
 
         if (!avatarTurno.getCasilla().getNombre().equalsIgnoreCase(args[1])) {
-            consola.error("No se puede comprar otra casilla que no sea la actual");
-            return;
+            throw new ErrorComando("No se puede comprar otra casilla que no sea la actual");
         }
 
         Casilla casillaActual = avatarTurno.getCasilla();
 
-        if (!casillaActual.isPropiedad()) {
-            consola.error("No se puede comprar la casilla \"%s\"".formatted(casillaActual.getNombre()));
-            return;
+        if (!(casillaActual instanceof Propiedad)) {
+            throw new ErrorComandoFortuna("No se puede comprar la casilla \"%s\"".formatted(casillaActual.getNombre()), jugadorTurno);
         }
 
         // Especifico para el coche que solo puede comprar una vez por turno en modo especial
-        if (!avatarTurno.isPuedeComprar()) {
+        // TODO
+        /*if (!avatarTurno.isPuedeComprar()) {
             consola.error("El jugador ya ha comprado una vez en este turno");
             return;
-        }
+        }*/
 
-        jugadorTurno.comprar(casillaActual.getPropiedad());
+        jugadorTurno.comprar((Propiedad) casillaActual);
     }
 
     @Override
-    public void edificar(String[] args) {
+    public void edificar(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida {
         if (args.length != 2 && args.length != 3) {
-            consola.error("Se esperaban 1 o 2 parámetros, se recibieron %d".formatted(args.length - 1));
-            return;
+            throw new ErrorComandoFormato(1, args.length - 1);
         }
 
         if (!jugando) {
-            consola.error("No se ha iniciado la partida");
-            return;
+            throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         // TODO:
@@ -468,27 +495,25 @@ public class Juego implements Comando {
         //getJugadorTurno().comprar(tipoEdificio, args.length == 2 ? 1 : Integer.parseInt(args[2]));
     }
 
-    private <T> T buscar(Collection<T> elementos, Function<T, Boolean> funcion) {
+    private <T> T buscar(Collection<T> elementos, Function<T, Boolean> funcion) throws ErrorComando {
         for (T e : elementos) {
             if (funcion.apply(e)) {
                 return e;
             }
         }
 
-        // TODO: throw
-        return null;
+        throw new ErrorComando("No se ha encontrado");
     }
 
     @Override
-    public void vender(String[] args) {
+    public void vender(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida {
+        /*
         if (args.length != 3 && args.length != 4) {
-            consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d".formatted(args.length - 1));
-            return;
+            throw new ErrorComandoFormato(2, args.length - 1);
         }
 
         if (!jugando) {
-            consola.error("No se ha iniciado la partida");
-            return;
+            throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         // TODO: usar buscar()
@@ -508,56 +533,51 @@ public class Juego implements Comando {
 
         // TODO: obtener tipo edificio
         //getJugadorTurno().vender(tipoEdificio, buscar(solar, ()), cantidad);
+        */
     }
 
     @Override
-    public void hipotecar(String[] args) {
+    public void hipotecar(String[] args) throws ErrorComando {
         if (args.length != 2) {
-            consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length - 1));
-            return;
+            throw new ErrorComandoFormato(1, args.length - 1);
         }
 
         if (!jugando) {
-            consola.error("No se ha iniciado la partida");
-            return;
+            throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         // Buscar la propiedad
-        Propiedad p = buscar(casillas, (c) -> c.isPropiedad() && c.getNombre().equalsIgnoreCase(args[1])).getPropiedad();
+        Propiedad p = (Propiedad) buscar(casillas, (c) -> c instanceof Propiedad && c.getNombre().equalsIgnoreCase(args[1]));
 
         if (!getJugadorTurno().getPropiedades().contains(p)) {
-            consola.error("No puedes hipotecar una propiedad que no te pertenece");
-            return;
+            throw new ErrorComandoFortuna("No puedes hipotecar una propiedad que no te pertenece", getJugadorTurno());
         }
 
         p.hipotecar();
     }
 
     @Override
-    public void deshipotecar(String[] args) {
+    public void deshipotecar(String[] args) throws ErrorComando {
         if (args.length != 2) {
-            consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length - 1));
-            return;
+            throw new ErrorComandoFormato(1, args.length - 1);
         }
 
         if (!jugando) {
-            consola.error("No se ha iniciado la partida");
-            return;
+            throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         // Buscar la propiedad
-        Propiedad p = buscar(casillas, (c) -> c.isPropiedad() && c.getNombre().equalsIgnoreCase(args[1])).getPropiedad();
+        Propiedad p = (Propiedad) buscar(casillas, (c) -> c instanceof Propiedad && c.getNombre().equalsIgnoreCase(args[1]));
 
         if (!getJugadorTurno().getPropiedades().contains(p)) {
-            consola.error("No puedes deshipotecar una propiedad que no te pertenece");
-            return;
+            throw new ErrorComandoFortuna("No puedes deshipotecar una propiedad que no te pertenece", getJugadorTurno());
         }
 
         p.deshipotecar();
     }
 
     @Override
-    public void describir(String[] args)  {
+    public void describir(String[] args) throws ErrorComandoFormato {
         if (args.length == 2) {
             consola.describir(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[1]));
             return;
@@ -567,10 +587,10 @@ public class Juego implements Comando {
             switch (args[1]) {
                 case "jugador" -> consola.describir(jugadores, (j) -> j.getNombre().equalsIgnoreCase(args[2]));
                 case "avatar" -> consola.describir(jugadores, (j) -> j.getAvatar().getId() == Character.toUpperCase(args[2].charAt(0)));
-                default -> consola.error("\"%s\": Argumento inválido".formatted(args[1]));
+                default -> throw new ErrorComandoFormato("\"%s\": Argumento inválido".formatted(args[1]));
             }
         } else {
-            consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d".formatted(args.length));
+            throw new ErrorComandoFormato(2, args.length - 1);
         }
     }
 
@@ -651,7 +671,7 @@ public class Juego implements Comando {
     */
 
     @Override
-    public void estadisticas(String[] args) {
+    public void estadisticas(String[] args) throws ErrorComando {
         if (args.length == 2) {
             Jugador jugador = buscar(jugadores, (j) -> j.getNombre().equalsIgnoreCase(args[1]));
             consola.imprimir(jugador.getEstadisticas().toString());
@@ -680,17 +700,15 @@ public class Juego implements Comando {
 
         // Analizar todas las casillas
         for (Casilla c : casillas) {
-            EstadisticasCasilla ec = c.getEstadisticas();
-
             // Encontrar el máximo del alquiler cobrado
-            if (ec.getAlquilerTotalCobrado() > maxAlquilerCobrado) {
-                maxAlquilerCobrado = ec.getAlquilerTotalCobrado();
+            if (c instanceof Propiedad && ((Propiedad) c).getAlquilerTotalCobrado() > maxAlquilerCobrado) {
+                maxAlquilerCobrado = ((Propiedad) c).getAlquilerTotalCobrado();
                 casillaMasRentable = c;
             }
 
             // Encontrar el máximo de estancias
-            if (ec.getEstancias() > maxEstancias) {
-                maxEstancias = ec.getEstancias();
+            if (c.frecuenciaVisita() > maxEstancias) {
+                maxEstancias = c.frecuenciaVisita();
                 masFrecuentada = c;
             }
         }
@@ -700,10 +718,9 @@ public class Juego implements Comando {
         long maxGrupoAlquiler = -1;
 
         for (Grupo g : grupos) {
-
             long alquilerTotalGrupo = 0;
-            for (Casilla c : g.getCasillas()) {
-                alquilerTotalGrupo += c.getEstadisticas().getAlquilerTotalCobrado();
+            for (Propiedad p : g.getPropiedades()) {
+                alquilerTotalGrupo += p.getAlquilerTotalCobrado();
             }
 
             if (alquilerTotalGrupo > maxGrupoAlquiler) {
@@ -780,73 +797,59 @@ public class Juego implements Comando {
     // ================================================================================
 
     @Override
-    public void ejecutarArchivo(String[] args) {
+    public void ejecutarArchivo(String[] args) throws ErrorFatal, ErrorComando {
         if (args.length != 2) {
-            consola.error("Se esperaba 1 parámetro, se recibieron %d".formatted(args.length - 1));
-            return;
+            throw new ErrorComandoFormato(1, args.length - 1);
         }
 
-        // Se abre el archivo a ejecutar
-        Scanner scanner = null;
+        try (Scanner scanner = new Scanner(new File(args[1]))) {
+            // Se procesa línea a línea, ejecutando cada comando
+            while (scanner.hasNextLine()) {
+                if (!ejecutarComando(scanner.nextLine())) {
+                    break;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            throw new ErrorComando("\"%s\" no encontrado: ".formatted(args[1]));
+        }
+    }
+
+    @Override
+    public void fortuna(String[] args) throws ErrorComando {
+        if (args.length != 3) {
+            throw new ErrorComandoFormato(2, args.length - 1);
+        }
 
         try {
-            scanner = new Scanner(new File(args[1]));
-        } catch (FileNotFoundException e) {
-            // TODO: mejor manejo de errores
-            System.exit(0);
-        }
+            // Obtener el jugador
+            Jugador jugador = buscar(jugadores, (j) -> j.getNombre().equalsIgnoreCase(args[1]));
 
-        // Se procesa línea a línea, ejecutando cada comando
-        while (scanner.hasNextLine()) {
-            if (!ejecutarComando(scanner.nextLine())) {
-                break;
-            }
-        }
-    }
+            long cantidad = Long.parseLong(args[2]);
 
-    @Override
-    public void fortuna(String[] args) {
-        if (args.length != 3) {
-            consola.error("Se esperaban 2 parámetros, se recibieron %d".formatted(args.length - 1));
-            return;
-        }
-
-        // Obtener el jugador
-        Jugador jugador = null;
-        for (Jugador j : jugadores) {
-            if (j.getNombre().equalsIgnoreCase(args[1])) {
-                jugador = j;
-            }
-        }
-
-        if (jugador == null) {
-            consola.error("No se ha encontrado al jugador \"%s\"".formatted(args[1]));
-            return;
-        }
-
-        long cantidad = Long.parseLong(args[2]);
-
-        // Aplicar la cantidad
-        if (cantidad > 0) {
-            jugador.ingresar(cantidad);
-        } else if (cantidad < 0) {
-            if (jugador.cobrar(-cantidad, true)) {
+            // Aplicar la cantidad
+            if (cantidad > 0) {
+                jugador.ingresar(cantidad);
+            } else if (cantidad < 0) {
+                jugador.cobrar(-cantidad, true);
                 consola.imprimir("Se ha cobrado exitosamente %s a %s\n".formatted(consola.num(-cantidad), jugador.getNombre()));
-            } else {
-                consola.imprimir("Se no se ha podido cobrar %s a %s. Ahora está endeudado\n".formatted(consola.num(-cantidad), jugador.getNombre()));
             }
-        }
 
-        jugador.describirTransaccion();
+            jugador.describirTransaccion();
+        } catch (NumberFormatException e) {
+            throw new ErrorComandoFormato("\"%s\": no es un número válido".formatted(args[2]));
+        }
     }
 
     @Override
-    public void mover(String[] args) {
+    public void mover(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida, ErrorFatal, ErrorComandoFortuna, ErrorComandoAvatar {
         if (args.length != 2 && args.length != 3) {
-            consola.error("Se esperaba 1 o 2 parámetros, se recibieron %d".formatted(args.length - 1));
-            return;
+            throw new ErrorComandoFormato(1, args.length - 1);
         }
 
-        moverComun(new Dado(Integer.parseInt(args[1]), args.length == 2 ? 0 : Integer.parseInt(args[2])));
+        try {
+            moverComun(new Dado(Integer.parseInt(args[1]), args.length == 2 ? 0 : Integer.parseInt(args[2])));
+        } catch (NumberFormatException e) {
+            throw new ErrorComandoFormato("Número no válido");
+        }
     }
 }

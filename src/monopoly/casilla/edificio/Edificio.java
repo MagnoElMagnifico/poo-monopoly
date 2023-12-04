@@ -1,8 +1,8 @@
-package monopoly.casilla;
+package monopoly.casilla.edificio;
 
 import monopoly.Calculadora;
 import monopoly.casilla.propiedad.Propiedad;
-import monopoly.utilidades.Consola;
+import monopoly.utils.Consola;
 
 /**
  * Representa una edificación de un solar.
@@ -12,8 +12,6 @@ import monopoly.utilidades.Consola;
  * <li>Piscina</li>
  * <li>Pista de deporte</li>
  *
- * @author Marcos Granja Grille
- * @date 5-11-2023
  * @see Propiedad
  */
 public class Edificio {

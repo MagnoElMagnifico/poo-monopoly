@@ -1,4 +1,4 @@
-package monopoly;
+package monopoly.utils;
 
 import java.util.Collection;
 import java.util.function.Function;

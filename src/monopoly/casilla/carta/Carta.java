@@ -1,35 +1,26 @@
-package monopoly.casilla;
+package monopoly.casilla.carta;
 
-import monopoly.Tablero;
-import monopoly.jugadores.Jugador;
-import monopoly.utilidades.Consola;
+import monopoly.error.ErrorFatal;
+import monopoly.jugador.Jugador;
 
 /**
  * Representa una carta de Comunidad o Suerte y realiza
  * la acción personalizada para cada una de ellas.
- *
- * @author Marcos Granja Grille
- * @date 05-11-2023
- * @see Mazo
+ * <br>
+ * Se trata de una clase abstracta porque se desconoce la
+ * implementación de cada acción de carta.
  */
-public class Carta {
+public abstract class Carta {
     private final int id;
-    private final TipoCarta tipo;
     private final String descripcion;
-    private final Tablero tablero;
 
-    public Carta(Tablero tablero, int id, TipoCarta tipo, String descripcion) {
+    public Carta(int id, String descripcion) {
         this.id = id;
-        this.tipo = tipo;
         this.descripcion = descripcion;
-        this.tablero = tablero;
     }
 
     @Override
-    public String toString() {
-        // TODO?: Mejorar presentación de la carta
-        return "%s: %s\n".formatted(Consola.fmt(tipo == TipoCarta.Suerte ? "Carta de Suerte" : "Carta de Comunidad", Consola.Color.Azul), descripcion);
-    }
+    public abstract String toString();
 
     @Override
     public boolean equals(Object obj) {
@@ -41,148 +32,39 @@ public class Carta {
             return false;
         }
 
-        return carta.id == this.id && carta.tipo == this.tipo;
+        return carta.id == this.id;
+    }
+
+    protected int getId() {
+        return id;
+    }
+
+    protected String getDescripcion() {
+        return descripcion;
+    }
+
+    /**
+     * Método común para aplicar una cantidad al jugador (cobrar o ingresar).
+     * Útil para las posibles clases derivadas.
+     */
+    protected void aplicarCantidad(long cantidad, Jugador jugadorTurno, Jugador banca) {
+        if (cantidad > 0) {
+            jugadorTurno.ingresar(cantidad);
+            jugadorTurno.getEstadisticas().anadirPremio(cantidad);
+        } else {
+            jugadorTurno.cobrar(-cantidad, true);
+            jugadorTurno.getEstadisticas().anadirTasa(-cantidad);
+            banca.ingresar(-cantidad);
+        }
     }
 
     /**
      * Realiza la acción de la carta en concreto
+     * <br>
+     * <b>NOTA</b>: requerida por la especificación de la entrega 3.
+     *
+     * @throws ErrorFatal En caso de que se intente ejecutar la acción
+     * de una carta con un ID no soportado.
      */
-    public void accionCarta() {
-        switch (tipo) {
-            case Suerte -> accionSuerte();
-            case Comunidad -> accionComunidad();
-        }
-    }
-
-    /**
-     * Función de ayuda que realiza las acciones de las cartas de Suerte
-     */
-    private void accionSuerte() {
-        Jugador jugadorTurno = tablero.getJugadorTurno();
-
-        // Se ingresa si la cantidad es positiva y se cobra si es negativa
-        long cantidad = 0;
-
-        switch (id) {
-            case 3 -> cantidad = 500_000L;
-            case 6 -> cantidad = 1_000_000L;
-            case 7 -> cantidad = -1_500_000L;
-            case 12 -> cantidad = -150_000L;
-            case 8 -> {
-                for (Propiedad p : jugadorTurno.getPropiedades()) {
-                    if (p.getTipo() == Propiedad.TipoPropiedad.Solar) {
-                        for (Edificio e : p.getEdificios()) {
-                            cantidad -= switch (e.getTipo()) {
-                                case Casa -> 4_000_000L;
-                                case Hotel -> 1_500_000L;
-                                case Piscina -> 200_000L;
-                                case PistaDeporte -> 750_000L;
-                            };
-                        }
-                    }
-                }
-
-                if (cantidad == 0) {
-                    System.out.println("El jugador no tiene edificios, por lo que no tiene que pagar nada.");
-                    return;
-                }
-            }
-            case 10 -> {
-                long cantidadPorJugador = 250_000L;
-                if (!jugadorTurno.cobrar(cantidadPorJugador * tablero.getJugadores().size(), true)) {
-                    Consola.error("El jugador no tiene suficiente dinero para completar su fortuna");
-                }
-
-                // NOTA: el pago a otros jugadores no se considera una tasa.
-                // No hace falta actualizar las estadísticas del jugadorTurno
-
-                // NOTA: se está ingresando el dinero a cada jugador incluso si el jugador no puede pagarlo
-
-                for (Jugador j : tablero.getJugadores()) {
-                    // No ingresar la cantidad a sí mismo
-                    if (j.equals(jugadorTurno)) {
-                        continue;
-                    }
-
-                    j.ingresar(cantidadPorJugador);
-                    j.getEstadisticas().anadirPremio(cantidadPorJugador);
-                }
-
-                return;
-            }
-
-            default -> Consola.error("[Carta] ID no soportado para realizar acción");
-        }
-
-        if (cantidad > 0) {
-            jugadorTurno.ingresar(cantidad);
-            jugadorTurno.getEstadisticas().anadirPremio(cantidad);
-        } else {
-            if (jugadorTurno.cobrar(-cantidad, true)) {
-                jugadorTurno.getEstadisticas().anadirTasa(-cantidad);
-                tablero.getBanca().ingresar(-cantidad);
-            } else {
-                Consola.error("El jugador no tiene suficiente dinero para completar su fortuna");
-            }
-        }
-    }
-
-    /**
-     * Función de ayuda que realiza las acciones de las cartas de Comunidad
-     */
-    private void accionComunidad() {
-        Jugador jugadorTurno = tablero.getJugadorTurno();
-
-        // Se ingresa si la cantidad es positiva y se cobra si es negativa
-        long cantidad = 0;
-
-        switch (id) {
-            case 4 -> cantidad = 2_000_000L;
-            case 6 -> cantidad = 500_000L;
-            case 9 -> cantidad = 1_000_000L;
-            case 1 -> cantidad = -150_000L;
-            case 5 -> cantidad = -1_000_000;
-            case 8 -> {
-                long cantidadPorJugador = 250_000L;
-                if (!jugadorTurno.cobrar(cantidadPorJugador * (tablero.getJugadores().size() - 1), true)) {
-                    Consola.error("El jugador no tiene suficiente dinero para completar su acción de comunidad");
-                }
-
-                // NOTA: el pago a otros jugadores no se considera una tasa.
-                // No hace falta actualizar las estadísticas del jugadorTurno
-
-                // NOTA: se está ingresando el dinero a cada jugador incluso si el jugador no puede pagarlo
-
-                for (Jugador j : tablero.getJugadores()) {
-                    // No ingresar la cantidad a sí mismo
-                    if (j.equals(jugadorTurno)) {
-                        continue;
-                    }
-
-                    j.ingresar(cantidadPorJugador);
-                    j.getEstadisticas().anadirPremio(cantidadPorJugador);
-                }
-
-                return;
-            }
-
-            default -> Consola.error("[Carta] ID no soportado para realizar acción");
-        }
-
-        if (cantidad > 0) {
-            jugadorTurno.ingresar(cantidad);
-            jugadorTurno.getEstadisticas().anadirPremio(cantidad);
-        } else {
-            if (jugadorTurno.cobrar(-cantidad, true)) {
-                jugadorTurno.getEstadisticas().anadirTasa(-cantidad);
-                tablero.getBanca().ingresar(-cantidad);
-            } else {
-                Consola.error("El jugador no tiene suficiente dinero para completar su acción de comunidad");
-            }
-        }
-    }
-
-    public enum TipoCarta {
-        Suerte, Comunidad
-    }
+    public abstract void accionCarta() throws ErrorFatal;
 }

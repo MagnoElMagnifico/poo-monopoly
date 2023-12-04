@@ -1,14 +1,14 @@
-package monopoly.casilla;
+package monopoly.casilla.propiedad;
 
-import monopoly.utilidades.Consola;
+import monopoly.Juego;
+import monopoly.casilla.Casilla;
+import monopoly.casilla.edificio.Edificio;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 
 /**
  * Representa un grupo lógico de casillas.
  *
- * @author Marcos Granja Grille
- * @date 10-10-2023
  * @see Casilla
  */
 public class Grupo {
@@ -25,13 +25,13 @@ public class Grupo {
     private final int numero;
     private final String nombre;
     private final int codigoColor;
-    private final HashSet<Casilla> casillas;
+    private final ArrayList<Propiedad> propiedades;
 
     public Grupo(int numero, String nombre, int codigoColor) {
         this.numero = numero;
         this.nombre = nombre;
         this.codigoColor = codigoColor;
-        this.casillas = new HashSet<>(3);
+        this.propiedades = new ArrayList<>(3);
     }
 
     @Override
@@ -41,9 +41,10 @@ public class Grupo {
                     nombre: %s
                     número: %d
                     casillas: %s
-                }""".formatted(Consola.fmt(nombre, codigoColor), numero, Consola.listar(casillas.iterator(), Casilla::getNombre));
+                }""".formatted(Juego.consola.fmt(nombre, codigoColor), numero, Juego.consola.listar(propiedades, Propiedad::getNombre));
     }
 
+    /*
     public void listarEdificios() {
         for (Casilla c : casillas) {
             if (c.isPropiedad() && c.getPropiedad().getTipo() == Propiedad.TipoPropiedad.Solar) {
@@ -83,6 +84,7 @@ public class Grupo {
 
         return numero;
     }
+    */
 
     @Override
     public boolean equals(Object obj) {
@@ -93,23 +95,19 @@ public class Grupo {
         return obj instanceof Grupo && ((Grupo) obj).nombre.equals(this.nombre);
     }
 
-    public void anadirCasilla(Casilla casilla) {
-        casillas.add(casilla);
+    public void anadirPropiedad(Propiedad propiedad) {
+        propiedades.add(propiedad);
     }
 
-    public int getNumeroCasillas() {
-        return casillas.size();
-    }
-
-    public int getNumero() {
-        return numero;
+    public int getNumeroPropiedades() {
+        return propiedades.size();
     }
 
     /**
      * Devuelve el número de solar del grupo
      */
-    public int getNumeroSolar() {
-        return numero - 3;
+    public int getNumero() {
+        return numero;
     }
 
     public String getNombre() {
@@ -120,7 +118,7 @@ public class Grupo {
         return codigoColor;
     }
 
-    public HashSet<Casilla> getCasillas() {
-        return casillas;
+    public ArrayList<Propiedad> getPropiedades() {
+        return propiedades;
     }
 }

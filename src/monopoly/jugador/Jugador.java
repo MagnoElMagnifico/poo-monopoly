@@ -1,11 +1,13 @@
 package monopoly.jugador;
 
-import monopoly.Calculadora;
-import monopoly.casilla.Edificio;
-import monopoly.casilla.Edificio.TipoEdificio;
-import monopoly.casillas.Casilla;
-import monopoly.utilidades.Dado;
-import monopoly.utilidades.EstadisticasJugador;
+import monopoly.utils.Consola;
+import monopoly.Juego;
+import monopoly.casilla.Casilla;
+import monopoly.casilla.edificio.Edificio;
+import monopoly.casilla.edificio.Edificio.TipoEdificio;
+import monopoly.casilla.propiedad.Grupo;
+import monopoly.casilla.propiedad.Propiedad;
+import monopoly.utils.Dado;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,43 +16,20 @@ import java.util.HashSet;
  * Clase que representa un Jugador. Almacena su información sobre su fortuna y propiedades.
  * Además, tiene un Avatar asociado.
  *
- * @date 2-10-2023
  * @see Avatar
  */
 public class Jugador {
     private final String nombre;
     private final Avatar avatar;
-    private final boolean banca;
     private final HashSet<Propiedad> propiedades;
     private final EstadisticasJugador estadisticas;
     private long fortuna;
     private Jugador acreedor;
 
-    /**
-     * Crea el jugador especial Banca
-     */
-    public Jugador() {
-        this.nombre = "Banca";
-        this.avatar = null;
-        this.banca = true;
-        this.fortuna = 0;
-        this.propiedades = new HashSet<>(28);
-        this.acreedor = null;
-        this.estadisticas = new EstadisticasJugador(this);
-    }
-
-    /**
-     * Crea un Jugador dado su nombre, tipo de avatar e id
-     */
-    public Jugador(String nombre, Avatar.TipoAvatar tipo, char id, Casilla casillaInicial, long fortuna) {
+    public Jugador(String nombre, Avatar avatar, long fortuna) {
         this.nombre = nombre;
-        switch(tipo){
-            case Pelota -> this.avatar = new Pelota(id,this, casillaInicial);
-            case Coche ->  this.avatar = new Coche(id,this,casillaInicial);
-            default -> this.avatar = new Coche(id,this,casillaInicial);
-        }
+        this.avatar = avatar;
 
-        this.banca = false;
         this.fortuna = fortuna;
         this.propiedades = new HashSet<>();
         this.acreedor = null;
@@ -70,47 +49,47 @@ public class Jugador {
                 // Sino, solo hasta maxEdificios.
                 if (grupo.contarEdificios(TipoEdificio.Hotel) < maxEdificios) {
                     if (solar.contarEdificios(TipoEdificio.Casa) + cantidad > 4) {
-                        Consola.error("No se pueden edificar más de 4 casas en un solar cuando no hay el máximo de hoteles");
+                        Juego.consola.error("No se pueden edificar más de 4 casas en un solar cuando no hay el máximo de hoteles");
                         return false;
                     }
                 } else if (grupo.contarEdificios(TipoEdificio.Casa) + cantidad > maxEdificios) {
-                    Consola.error("No se pueden edificar más de %d casas en un grupo cuando hay el número máximo de hoteles".formatted(maxEdificios));
+                    Juego.consola.error("No se pueden edificar más de %d casas en un grupo cuando hay el número máximo de hoteles".formatted(maxEdificios));
                     return false;
                 }
             }
 
             case Hotel -> {
                 if (grupo.contarEdificios(TipoEdificio.Hotel) + cantidad > maxEdificios) {
-                    Consola.error("No se pueden edificar más de %d hoteles en este grupo".formatted(maxEdificios));
+                    Juego.consola.error("No se pueden edificar más de %d hoteles en este grupo".formatted(maxEdificios));
                     return false;
                 }
 
                 if (solar.contarEdificios(TipoEdificio.Casa) < 4 * cantidad) {
-                    Consola.error("Se necesitan 4 casas en el solar para edificar un hotel");
+                    Juego.consola.error("Se necesitan 4 casas en el solar para edificar un hotel");
                     return false;
                 }
             }
 
             case Piscina -> {
                 if (grupo.contarEdificios(TipoEdificio.Piscina) + cantidad > maxEdificios) {
-                    Consola.error("No se pueden edificar más de %d piscinas en este grupo".formatted(maxEdificios));
+                    Juego.consola.error("No se pueden edificar más de %d piscinas en este grupo".formatted(maxEdificios));
                     return false;
                 }
 
                 if (grupo.contarEdificios(TipoEdificio.Hotel) < 1 || grupo.contarEdificios(Edificio.TipoEdificio.Casa) < 2) {
-                    Consola.error("Se necesita 1 hotel y 2 casas en el grupo para edificar una piscina");
+                    Juego.consola.error("Se necesita 1 hotel y 2 casas en el grupo para edificar una piscina");
                     return false;
                 }
             }
 
             case PistaDeporte -> {
                 if (grupo.contarEdificios(TipoEdificio.PistaDeporte) + cantidad >= maxEdificios) {
-                    Consola.error("No se pueden edificar más de %d pistas de deporte en este grupo".formatted(maxEdificios));
+                    Juego.consola.error("No se pueden edificar más de %d pistas de deporte en este grupo".formatted(maxEdificios));
                     return false;
                 }
 
                 if (grupo.contarEdificios(TipoEdificio.Hotel) < 2) {
-                    Consola.error("Se necesitan 2 hoteles en el grupo para construir una pista de deporte");
+                    Juego.consola.error("Se necesitan 2 hoteles en el grupo para construir una pista de deporte");
                     return false;
                 }
             }
@@ -161,9 +140,9 @@ public class Jugador {
                     edificios: %s
                 }""".formatted(nombre,
                                avatar.getId(),
-                               Consola.fmt(Consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
-                               Consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? null : p.getCasilla().getNombreFmt()),
-                               Consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? p.getCasilla().getNombreFmt() : null),
+                               Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Juego.consola.Color.Rojo : Juego.consola.Color.Verde),
+                               Juego.consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? null : p.getCasilla().getNombreFmt()),
+                               Juego.consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? p.getCasilla().getNombreFmt() : null),
                                listarEdificios());
         // @formatter:on
     }
@@ -180,9 +159,9 @@ public class Jugador {
                     propiedades: %s
                     edificios: %s
                 }
-                """, Consola.fmt(Consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
-                     Consola.num(estadisticas.getGastos()),
-                     Consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()),
+                """, Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
+                     Juego.consola.num(estadisticas.getGastos()),
+                     Juego.consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()),
                      listarEdificios());
         // @formatter:on
     }
@@ -204,39 +183,39 @@ public class Jugador {
     public boolean comprar(Propiedad p) {
 
         if (isEndeudado()) {
-            Consola.error("No puedes comprar nada si estas endeudado");
+            Juego.consola.error("No puedes comprar nada si estas endeudado");
             return false;
         }
 
         // Comprobar que el jugador no haya comprado ya la casilla
         if (propiedades.contains(p)) {
-            Consola.error("El jugador %s ya ha comprado la casilla %s.".formatted(nombre, p.getCasilla().getNombreFmt()));
+            Juego.consola.error("El jugador %s ya ha comprado la casilla %s.".formatted(nombre, p.getCasilla().getNombreFmt()));
             return false;
         }
 
         // Comprobar que no sea propiedad de otro jugador
         if (!p.getPropietario().isBanca()) {
-            Consola.error("No se pueden comprar propiedades de otro jugador");
-            System.out.printf("%s pertenece a %s\n", p.getCasilla().getNombreFmt(), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
+            Juego.consola.error("No se pueden comprar propiedades de otro jugador");
+            System.out.printf("%s pertenece a %s\n", p.getCasilla().getNombreFmt(), Juego.consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
             return false;
         }
 
         // Comprobar que el jugador tiene fortuna suficiente
         if (!cobrar(p.getPrecio(), false)) {
-            Consola.error("%s no dispone de suficiente dinero para comprar %s".formatted(nombre, p.getCasilla().getNombreFmt()));
+            Juego.consola.error("%s no dispone de suficiente dinero para comprar %s".formatted(nombre, p.getCasilla().getNombreFmt()));
             return false;
         }
 
-        Coche coche;
-        if(avatar instanceof Coche){
-            coche = (Coche) avatar;
+        AvatarCoche avatarCoche;
+        if(avatar instanceof AvatarCoche){
+            avatarCoche = (AvatarCoche) avatar;
             // Movimientos especiales del avatar: Comprobar que no se haya comprado ya en este turno
-            if (!coche.isPuedeComprar()) {
-                Consola.error("El jugador %s ya ha realizado una compra en este turno".formatted(nombre));
+            if (!avatarCoche.isPuedeComprar()) {
+                Juego.consola.error("El jugador %s ya ha realizado una compra en este turno".formatted(nombre));
                 return false;
             }
             else{
-                coche.noPuedeComprar();
+                avatarCoche.noPuedeComprar();
             }
         }
         estadisticas.anadirInversion(p.getPrecio());
@@ -248,7 +227,7 @@ public class Jugador {
         System.out.printf("""
                 El jugador %s ha comprado la casilla %s por %s
                 Ahora tiene una fortuna de %s
-                """, nombre, p.getCasilla().getNombreFmt(), Consola.num(p.getPrecio()), Consola.num(fortuna));
+                """, nombre, p.getCasilla().getNombreFmt(), Juego.consola.num(p.getPrecio()), Juego.consola.num(fortuna));
 
         // Actualizar los precios de los alquileres si se acaba de
         // completar un Monopolio
@@ -263,7 +242,7 @@ public class Jugador {
                     System.out.printf("""
                     Con esta casilla, %s completa el Monopolio de %s!
                     Ahora los alquileres de ese grupo valen el doble.
-                    """, Consola.fmt(nombre, Consola.Color.Azul), Consola.fmt(g.getNombre(), g.getCodigoColor()));
+                    """, Juego.consola.fmt(nombre, Consola.Color.Azul), Juego.consola.fmt(g.getNombre(), g.getCodigoColor()));
                 }
             }
             case Servicio, Transporte -> {
@@ -286,24 +265,24 @@ public class Jugador {
         Casilla casilla = avatar.getCasilla();
 
         if (isEndeudado()) {
-            Consola.error("No puedes edificar si estas endeudado");
+            Juego.consola.error("No puedes edificar si estas endeudado");
             return false;
         }
 
         if (!casilla.isPropiedad() || casilla.getPropiedad().getTipo() != Propiedad.TipoPropiedad.Solar) {
-            Consola.error("No se puede edificar en una casilla que no sea un solar");
+            Juego.consola.error("No se puede edificar en una casilla que no sea un solar");
             return false;
         }
 
         Propiedad solar = casilla.getPropiedad();
 
         if (solar.isHipotecada()) {
-            Consola.error("No puedes edificar sobre una propiedad hipotecada");
+            Juego.consola.error("No puedes edificar sobre una propiedad hipotecada");
             return false;
         }
 
         if (!solar.getPropietario().equals(this)) {
-            Consola.error("No se puede edificar en una propiedad que no te pertenece");
+            Juego.consola.error("No se puede edificar en una propiedad que no te pertenece");
             return false;
         }
 
@@ -317,7 +296,7 @@ public class Jugador {
 
         // Comprobar que el jugador tiene el monopolio o ha caído dos veces en la casilla
         if (!Calculadora.tieneGrupo(solar) && nEstanciasCasilla <= 2) {
-            Consola.error("El jugador tiene que tener el Monopolio o haber pasado más de 2 veces por la casilla para poder edificar");
+            Juego.consola.error("El jugador tiene que tener el Monopolio o haber pasado más de 2 veces por la casilla para poder edificar");
             return false;
         }
 
@@ -329,7 +308,7 @@ public class Jugador {
 
         // Comprobar que tiene el dinero
         if (!cobrar(cantidad * e.getValor(), false)) {
-            Consola.error("El jugador no tiene los fondos suficientes para edificar.\nNecesita %s.".formatted(Consola.num(cantidad * e.getValor())));
+            Juego.consola.error("El jugador no tiene los fondos suficientes para edificar.\nNecesita %s.".formatted(Juego.consola.num(cantidad * e.getValor())));
             return false;
         }
         estadisticas.anadirInversion(cantidad * e.getValor());
@@ -337,7 +316,7 @@ public class Jugador {
         System.out.printf("""
                 %s ha construido %d %s(s) en el solar %s por %s.
                 Ahora tiene una fortuna de %s.
-                """, nombre, cantidad, e.getTipo(), casilla.getNombreFmt(), Consola.num(cantidad * e.getValor()), Consola.num(fortuna));
+                """, nombre, cantidad, e.getTipo(), casilla.getNombreFmt(), Juego.consola.num(cantidad * e.getValor()), Juego.consola.num(fortuna));
 
         // Actualizar el solar
         solar.anadirEdificio(e);
@@ -360,13 +339,13 @@ public class Jugador {
 
     public boolean vender(TipoEdificio tipoEdificio, Propiedad solar, int cantidad) {
         if (!solar.getPropietario().equals(this)) {
-            Consola.error("No se puede vender un edificio de otro jugador: %s pertenece a %s".formatted(solar.getNombre(), solar.getPropietario().getNombre()));
+            Juego.consola.error("No se puede vender un edificio de otro jugador: %s pertenece a %s".formatted(solar.getNombre(), solar.getPropietario().getNombre()));
             return false;
         }
 
         int nEdificios = solar.contarEdificios(tipoEdificio);
         if (nEdificios < cantidad) {
-            Consola.error("No se pueden vender %d %s(s) dado que solo hay %d".formatted(cantidad, tipoEdificio, nEdificios));
+            Juego.consola.error("No se pueden vender %d %s(s) dado que solo hay %d".formatted(cantidad, tipoEdificio, nEdificios));
             return false;
         }
 
@@ -400,7 +379,7 @@ public class Jugador {
         System.out.printf("""
                 %s ha vendido %d %s(s) del solar %s por %s.
                 Ahora tiene una fortuna de %s.
-                """, nombre, cantidad, tipoEdificio, solar.getNombre(), Consola.num(importeRecuperado), Consola.num(fortuna));
+                """, nombre, cantidad, tipoEdificio, solar.getNombre(), Juego.consola.num(importeRecuperado), Juego.consola.num(fortuna));
 
         // Actualizar el estado
         solar.actualizarAlquiler();
@@ -414,28 +393,6 @@ public class Jugador {
      * al dueño de la casilla en donde se encuentra
      */
     public void pagarAlquiler(Propiedad p, Dado dado) {
-        if (p.getPropietario().isBanca() || p.getPropietario().equals(this) || p.isHipotecada()) {
-            return;
-        }
-
-        // Se multiplica el alquiler por el valor de los dados en caso de que sea un servicio
-        long importe = p.getTipo() == Propiedad.TipoPropiedad.Servicio ? p.getAlquiler() * dado.getValor() : p.getAlquiler();
-
-        // Se debe cobrar todo el importe, aunque el jugador no pueda pagarlo.
-        // La cuenta se quedará en números negativos (es decir, está endeudado)
-        p.getPropietario().ingresar(importe);
-
-        if (!cobrar(importe, true)) {
-            acreedor = p.getPropietario();
-            Consola.error("El jugador no tiene suficientes fondos para pagar el alquiler");
-            return;
-        }
-
-        System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(importe), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
-
-        estadisticas.anadirPagoAlquiler(importe);
-        p.getCasilla().getEstadisticas().anadirCobroAlquiler(importe);
-        p.getPropietario().getEstadisticas().anadirCobroAlquiler(importe);
     }
 
     /**
@@ -446,7 +403,7 @@ public class Jugador {
      */
     public boolean cobrar(long cantidad, boolean endeudar) {
         if (cantidad <= 0) {
-            Consola.error("[Jugador] Se intentó cobrar una cantidad nula o negativa a %s".formatted(nombre));
+            Juego.consola.error("[Jugador] Se intentó cobrar una cantidad nula o negativa a %s".formatted(nombre));
             return false;
         }
 
@@ -474,7 +431,7 @@ public class Jugador {
      */
     public void ingresar(long cantidad) {
         if (cantidad < 0) {
-            Consola.error("[Jugador] No se puede ingresar una cantidad negativa o nula");
+            Juego.consola.error("[Jugador] No se puede ingresar una cantidad negativa o nula");
             return;
         }
 
@@ -486,7 +443,7 @@ public class Jugador {
      */
     public boolean acabarTurno() {
         if (isEndeudado()) {
-            Consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota para poder avanzar".formatted(nombre));
+            Juego.consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota para poder avanzar".formatted(nombre));
             return false;
         }
 

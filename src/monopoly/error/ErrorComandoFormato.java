@@ -9,8 +9,8 @@ package monopoly.error;
  * @see monopoly.Juego
  */
 public class ErrorComandoFormato extends ErrorComando {
-    public ErrorComandoFormato(String comando) {
-        super("\"%s\": comando no válido".formatted(comando));
+    public ErrorComandoFormato(String msg) {
+        super(msg);
     }
 
     public ErrorComandoFormato(int esperados, int recibidos) {

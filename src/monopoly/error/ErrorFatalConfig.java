@@ -1,12 +1,14 @@
 package monopoly.error;
 
+import monopoly.casilla.Lector;
+
 /**
  * Error de configuración del juego.
  * <br>
  * Puede haberse causado porque falta un archivo de
  * configuración o porque su formato es incorrecto.
  *
- * @see monopoly.utilidades.Lector
+ * @see Lector
  */
 public class ErrorFatalConfig extends ErrorFatal {
     private final String causa;

@@ -1,4 +1,4 @@
-package monopoly;
+package monopoly.utils;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -24,12 +24,6 @@ public class ConsolaNormal implements Consola {
      */
     private static final String FIN = "\u001b[0m";
 
-    private final Scanner scanner;
-
-    public ConsolaNormal() {
-        scanner = new Scanner(System.in);
-    }
-
     @Override
     public void imprimir(String mensaje) {
         System.out.print(mensaje);
@@ -42,8 +36,10 @@ public class ConsolaNormal implements Consola {
 
     @Override
     public String leer(String descripcion) {
-        imprimir(descripcion);
-        return scanner.nextLine();
+        try (Scanner scanner = new Scanner(System.in)) {
+            imprimir(descripcion);
+            return scanner.nextLine();
+        }
     }
 
     @Override

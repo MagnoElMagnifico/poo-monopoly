@@ -5,9 +5,6 @@ import java.util.Random;
 /**
  * Clase de ayuda para simular el lanzamiento de un dado y
  * otras operaciones con números aleatorios.
- *
- * @author Marcos Granja Grille
- * @date 25-09-2023
  */
 public class Dado {
     private final static String[] REPR_DADO = {

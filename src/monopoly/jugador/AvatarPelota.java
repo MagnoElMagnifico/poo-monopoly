@@ -1,20 +1,20 @@
 package monopoly.jugador;
 
-import monopoly.Tablero;
-import monopoly.casillas.Casilla;
-import monopoly.utilidades.Consola;
-import monopoly.utilidades.Dado;
+import monopoly.casilla.especial.CasillaCarcel;
+import monopoly.casilla.especial.CasillaSalida;
+import monopoly.utils.Consola;
+import monopoly.utils.Dado;
 
-public class Pelota extends Avatar{
+public class AvatarPelota extends Avatar{
 
     private Dado pelotaDado;            /* Solo para la pelota: guarda el dado usado en el tiro inicial (solo para calcular el alquiler de los transportes) */
     private int pelotaPosFinal;         /* Solo para la pelota: guarda la posición final a la que se tiene que llegar */
 
 
-    public Pelota(char id, Jugador jugador, Casilla casillaInicial) {
-        super(id, jugador, casillaInicial);
-        pelotaDado =null;
-        pelotaPosFinal=0;
+    public AvatarPelota(char id, CasillaSalida salida) {
+        super(id, salida);
+        pelotaDado = null;
+        pelotaPosFinal = 0;
     }
 
     public boolean mover(Dado dado, Tablero tablero) {
@@ -126,5 +126,10 @@ public class Pelota extends Avatar{
         pelotaPosFinal = 0;
 
         return true;
+    }
+
+    @Override
+    public int moverEspecial(Dado dado, CasillaCarcel carcel) {
+        return 0;
     }
 }
