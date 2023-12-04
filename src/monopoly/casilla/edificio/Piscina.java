@@ -14,8 +14,8 @@ public class Piscina extends Edificio {
 
     @Override
     public long alquilerEdificio(Solar solar, int cantidad) {
-        long alquilerSolar = solar.getAlquiler();
-        return 25 * alquilerSolar * cantidad;
+        long alquiler = solar.getAlquiler();
+        return 25 * alquiler * cantidad;
     }
     @Override
     public long getValor() {
