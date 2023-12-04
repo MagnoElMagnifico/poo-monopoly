@@ -1,5 +1,13 @@
 package monopoly.jugador;
 
+<<<<<<< HEAD:src/monopoly/jugadores/Avatar.java
+import java.util.ArrayList;
+
+import monopoly.Tablero;
+import monopoly.casillas.Casilla;
+import monopoly.utilidades.Consola;
+import monopoly.utilidades.Dado;
+=======
 import monopoly.error.ErrorFatal;
 import monopoly.utils.Consola;
 import monopoly.Juego;
@@ -8,8 +16,7 @@ import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
 import monopoly.error.ErrorComandoAvatar;
 import monopoly.utils.Dado;
-
-import java.util.ArrayList;
+>>>>>>> main:src/monopoly/jugador/Avatar.java
 
 public abstract class Avatar {
     // @formatter:off
@@ -163,7 +170,14 @@ public abstract class Avatar {
         nuevaCasilla.accion(jugador, pelotaDado == null ? dado : pelotaDado);
     }
 
+<<<<<<< HEAD:src/monopoly/jugadores/Avatar.java
+
+    public abstract int moverEspecial(Dado dado, Casilla carcel);
+
+    public boolean irCarcelDadosDobles(Dado dado, Casilla carcel) {
+=======
     public boolean irCarcelDadosDobles(Dado dado, CasillaCarcel carcel) {
+>>>>>>> main:src/monopoly/jugador/Avatar.java
         if (dado.isDoble()) {
             doblesSeguidos++;
 

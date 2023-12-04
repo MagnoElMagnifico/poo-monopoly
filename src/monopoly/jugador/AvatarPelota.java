@@ -5,7 +5,11 @@ import monopoly.casilla.especial.CasillaSalida;
 import monopoly.utils.Consola;
 import monopoly.utils.Dado;
 
+<<<<<<< HEAD:src/monopoly/jugadores/Pelota.java
+public class Pelota extends Avatar {
+=======
 public class AvatarPelota extends Avatar{
+>>>>>>> main:src/monopoly/jugador/AvatarPelota.java
 
     private Dado pelotaDado;            /* Solo para la pelota: guarda el dado usado en el tiro inicial (solo para calcular el alquiler de los transportes) */
     private int pelotaPosFinal;         /* Solo para la pelota: guarda la posición final a la que se tiene que llegar */
