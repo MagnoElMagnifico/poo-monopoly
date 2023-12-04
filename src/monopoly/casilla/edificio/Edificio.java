@@ -1,6 +1,7 @@
 package monopoly.casilla.edificio;
 
-import monopoly.casilla.propiedad.*;
+import monopoly.Juego;
+import monopoly.casilla.propiedad.Propiedad;
 import monopoly.casilla.propiedad.Solar;
 
 public abstract class Edificio {
@@ -29,16 +30,20 @@ public abstract class Edificio {
                     solar: %s
                     grupo: %s
                     valor: %s
-                }""".formatted(getNombreFmt(),
-                solar.getPropietario().getNombre(),
-                solar.getCasilla().getNombre(),
-                solar.getCasilla().getGrupo().getNombre(),
-                Consola.num(valor));
+                }""".formatted(getId(),
+                solar.getPropietario(),
+                solar.getNombre(),
+                solar.getGrupo().getNombre(),
+                Juego.consola.num(valor));
         // @formatter:on
     }
 
     public Propiedad getSolar() {
         return solar;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public abstract long getValor();

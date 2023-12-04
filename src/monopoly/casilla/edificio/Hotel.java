@@ -1,6 +1,12 @@
-package monopoly.casillas.edificio;
+package monopoly.casilla.edificio;
+
+import monopoly.casilla.propiedad.Solar;
 
 public class Hotel extends Edificio {
+    public Hotel(int id, String tipo, long valor, Solar solar, int cantidad) {
+        super(id, tipo, valor, solar, cantidad);
+    }
+
     @Override
     public long precioEdificio(Solar solar, int cantidad) {
         long precioSolar = solar.getPrecio();
@@ -8,8 +14,13 @@ public class Hotel extends Edificio {
     }
 
     @Override
+    public long getValor() {
+        return 0;
+    }
+
+    @Override
     public long alquilerEdificio(Solar solar, int cantidad) {
-        long alquilerSolar = p.getAlquiler();
+        long alquilerSolar = solar.getAlquiler();
         return 70 * alquilerSolar * cantidad;
     }
 }

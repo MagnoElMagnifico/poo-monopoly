@@ -1,12 +1,17 @@
-package monopoly.casillas.edificio;
+package monopoly.casilla.edificio;
+
+import monopoly.casilla.propiedad.Solar;
 
 /**
- * La clase PistaDeporte representa un edificio de tipo pista de deporte en el juego de Monopoly.
  * Esta clase hereda de la clase Edificio.
  * 
- * @see Edificio
+ * @see monopoly.casilla.edificio.Edificio;
  */
 public class PistaDeporte extends Edificio {
+    public PistaDeporte(int id, String tipo, long valor, Solar solar, int cantidad) {
+        super(id, tipo, valor, solar, cantidad);
+    }
+
     /**
      * Calcula el precio de construcción de un edificio de tipo pista de deporte en un solar dado.
      * El precio se calcula como el 40% del precio del solar.
@@ -33,5 +38,9 @@ public class PistaDeporte extends Edificio {
     public long alquilerEdificio(Solar solar, int cantidad) {
         long alquilerSolar = solar.getAlquiler();
         return 25 * alquilerSolar * cantidad;
+    }
+
+    public long getValor() {
+        return (long) (0.4 * getSolar().getPrecio());
     }
 }
