@@ -1,11 +1,8 @@
-<<<<<<< HEAD:src/monopoly/jugadores/Banca.java
-package monopoly.jugadores;
 
-import monopoly.utilidades.EstadisticasJugador;
+package monopoly.jugador;
 
-import java.util.HashSet;
 
-public class Banca extends Jugador{
+public class Banca extends Jugador {
     /**
      * Crea el jugador especial Banca
      */
@@ -17,10 +14,4 @@ public class Banca extends Jugador{
         return "Jugador Especial: Banca\n";
     }
 
-
-=======
-package monopoly.jugador;
-
-public class Banca extends Jugador {
->>>>>>> main:src/monopoly/jugador/Banca.java
 }
