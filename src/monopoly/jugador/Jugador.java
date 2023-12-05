@@ -3,6 +3,7 @@ package monopoly.jugador;
 
 import monopoly.Tratos.Trato;
 import monopoly.Tratos.TratoP_P;
+import monopoly.error.ErrorComandoAvatar;
 import monopoly.error.ErrorComandoFormato;
 import monopoly.error.ErrorComandoFortuna;
 import monopoly.utils.Consola;
@@ -459,7 +460,7 @@ public class Jugador {
     /**
      * Determina si
      */
-    public boolean acabarTurno() {
+    public boolean acabarTurno() throws ErrorComandoAvatar {
         if (isEndeudado()) {
             Juego.consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota para poder avanzar".formatted(nombre));
             return false;

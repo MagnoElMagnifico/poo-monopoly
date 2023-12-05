@@ -1,10 +1,9 @@
 package monopoly.jugador;
 
 import monopoly.Juego;
-import monopoly.Tablero;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
-import monopoly.casillas.Casilla;
+import monopoly.casilla.Casilla;
 import monopoly.error.ErrorComandoAvatar;
 import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatal;
@@ -31,7 +30,7 @@ public class AvatarCoche extends Avatar {
     }
 
     @Override
-    public int moverEspecial(Dado dado, Casilla carcel) {
+    public int moverEspecial(Dado dado, CasillaCarcel carcel) {
         Casilla casilla =getCasilla();
         // Si ha salido un dado doble, se mueve de forma básica
         if (getDoblesSeguidos() != 0) {
@@ -46,7 +45,7 @@ public class AvatarCoche extends Avatar {
             // Se ponen los lanzamientos restantes a 0, indicando que debe terminar el turno
             setLanzamientosRestantes(0);
 
-            System.out.printf("Se aplica una penalización de %s por sacar un valor tan bajo.\n", Consola.fmt("2 turnos", Consola.Color.Azul));
+            Juego.consola.imprimir("Se aplica una penalización de %s por sacar un valor tan bajo.\n".formatted(Juego.consola.fmt("2 turnos", Consola.Color.Azul)));
 
             // Se retrocede el valor de los dados
             // Aunque sea la última tirada no se tienen en cuenta los dados dobles
@@ -64,13 +63,12 @@ public class AvatarCoche extends Avatar {
     }
 
     @Override
-    public void cambiarModo() {
+    public void cambiarModo() throws ErrorComandoAvatar {
         // Se puede cambiar el modo de Coche a básico si todavía no se ha lanzado
         // (4 es la cantidad de lanzamientos inicial) o si ya se ha terminado de
         // lanzar (0, no quedan lanzamientos).
         if (isMovimientoEspecial() && getLanzamientosRestantes() != 4 && getLanzamientosRestantes() != 0) {
-            Consola.error("No puedes cambiar de modo en mitad de un movimiento especial");
-            return;
+            throw new ErrorComandoAvatar("No puedes cambiar de modo en mitad de un movimiento especial", this);
         }
 
         super.cambiarModo();
@@ -85,12 +83,11 @@ public class AvatarCoche extends Avatar {
     }
 
     @Override
-    public boolean acabarTurno() {
+    public boolean acabarTurno() throws ErrorComandoAvatar {
         int lanzamientosRestantes= getLanzamientosRestantes();
         Jugador jugador = getJugador();
         if (lanzamientosRestantes > 0 && penalizacion == 0) {
-            Consola.error("A %s aún le quedan %d tiros".formatted(jugador.getNombre(), lanzamientosRestantes));
-            return false;
+            throw new ErrorComandoAvatar("A %s aún le quedan %d tiros".formatted(jugador.getNombre(), lanzamientosRestantes), this);
         }
 
         if (isMovimientoEspecial() && !isEncerrado()) {
@@ -107,11 +104,6 @@ public class AvatarCoche extends Avatar {
         puedeComprar = true;
 
         return true;
-    }
-
-    @Override
-    public int moverEspecial(Dado dado, CasillaCarcel carcel) {
-        return 0;
     }
 
     public boolean isPuedeComprar() {

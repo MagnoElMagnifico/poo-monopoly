@@ -315,7 +315,7 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void cambiarModo() throws ErrorComandoEstadoPartida {
+    public void cambiarModo() throws ErrorComandoEstadoPartida, ErrorComandoAvatar {
         if (!jugando) {
             throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
@@ -350,7 +350,7 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void acabarTurno() throws ErrorComandoEstadoPartida {
+    public void acabarTurno() throws ErrorComandoEstadoPartida, ErrorComandoAvatar {
         if (!jugando) {
             throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }

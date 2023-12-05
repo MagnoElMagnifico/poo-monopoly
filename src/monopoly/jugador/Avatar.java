@@ -44,9 +44,9 @@ public abstract class Avatar {
         this.movimientoEspecial = false;
     }
 
-    public abstract boolean acabarTurno();
+    public abstract boolean acabarTurno() throws ErrorComandoAvatar;
 
-    public abstract int moverEspecial(Dado dado, CasillaCarcel carcel);
+    public abstract int moverEspecial(Dado dado, CasillaCarcel carcel) throws ErrorComandoAvatar;
 
     @Override
     public boolean equals(Object obj) {
@@ -227,7 +227,6 @@ public abstract class Avatar {
      * Saca el avatar de la cárcel pagando la fianza.
      *
      * @param banca La banca para endeudar al jugador si no tinee dinero.
-     * @return True si la operación ha sido exitosa, false en otro caso.
      */
     public void salirCarcelPagando(Banca banca) throws ErrorComandoAvatar, ErrorComandoFortuna {
         if (!encerrado && !(casilla instanceof CasillaCarcel)) {
@@ -244,7 +243,7 @@ public abstract class Avatar {
         Juego.consola.imprimir("El jugador %s paga %s para salir de la cárcel\n".formatted(jugador.getNombre(), Juego.consola.num(fianza)));
     }
 
-    public void cambiarModo() {
+    public void cambiarModo() throws ErrorComandoAvatar {
         if (movimientoEspecial) {
             movimientoEspecial = false;
             Juego.consola.imprimir("%s regresa al modo de movimiento básico\n".formatted(Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul)));
