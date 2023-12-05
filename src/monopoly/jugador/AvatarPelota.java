@@ -9,7 +9,9 @@ import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatal;
 import monopoly.utils.Dado;
 
+
 public class AvatarPelota extends Avatar {
+
 
     private Dado pelotaDado;            /* Solo para la pelota: guarda el dado usado en el tiro inicial (solo para calcular el alquiler de los transportes) */
     private int pelotaPosFinal;         /* Solo para la pelota: guarda la posición final a la que se tiene que llegar */

@@ -1,12 +1,18 @@
+
 package monopoly.jugador;
 
+
 public class Banca extends Jugador {
-    public Banca(){
+
+    /**
+     * Crea el jugador especial Banca
+     */
+    public Banca() {
         super();
     }
 
-    @Override
     public String toString() {
         return "Jugador Especial: Banca\n";
     }
+
 }

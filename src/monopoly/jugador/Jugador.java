@@ -44,10 +44,26 @@ public class Jugador {
         this.estadisticas = new EstadisticasJugador(this);
     }
 
+    /**
+     * Crea el jugador especial Banca
+     */
+    public Jugador() {
+        this.nombre = "Banca";
+        this.avatar = null;
+        this.fortuna = 0;
+        this.propiedades = new HashSet<>(28);
+        this.acreedor = null;
+        this.estadisticas = new EstadisticasJugador(this);
+    }
+
+    /**
+     * Crea un Jugador dado su nombre, tipo de avatar e id
+     */
+
     public Jugador(String nombre, Avatar avatar, long fortuna) {
+
         this.nombre = nombre;
         this.avatar = avatar;
-
         this.fortuna = fortuna;
         this.propiedades = new HashSet<>();
         this.acreedor = null;
@@ -121,6 +137,7 @@ public class Jugador {
     @Override
     public String toString() {
 
+
         // @formatter:off
         return """
                 {
@@ -186,6 +203,7 @@ public class Jugador {
         }
 
         // Comprobar que no sea propiedad de otro jugador
+
         if (!p.getPropietario().isBanca()) {
             Juego.consola.error("No se pueden comprar propiedades de otro jugador");
             System.out.printf("%s pertenece a %s\n", p.getCasilla().getNombreFmt(), Juego.consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
@@ -385,6 +403,28 @@ public class Jugador {
      * al dueño de la casilla en donde se encuentra
      */
     public void pagarAlquiler(Propiedad p, Dado dado) {
+        if (p.getPropietario() instanceof Banca || p.getPropietario().equals(this) || p.isHipotecada()) {
+            return;
+        }
+
+        // Se multiplica el alquiler por el valor de los dados en caso de que sea un servicio
+        long importe = p.getTipo() == Propiedad.TipoPropiedad.Servicio ? p.getAlquiler() * dado.getValor() : p.getAlquiler();
+
+        // Se debe cobrar todo el importe, aunque el jugador no pueda pagarlo.
+        // La cuenta se quedará en números negativos (es decir, está endeudado)
+        p.getPropietario().ingresar(importe);
+
+        if (!cobrar(importe, true)) {
+            acreedor = p.getPropietario();
+            Consola.error("El jugador no tiene suficientes fondos para pagar el alquiler");
+            return;
+        }
+
+        System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(importe), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
+
+        estadisticas.anadirPagoAlquiler(importe);
+        p.getCasilla().getEstadisticas().anadirCobroAlquiler(importe);
+        p.getPropietario().getEstadisticas().anadirCobroAlquiler(importe);
     }
 
     /**
@@ -468,8 +508,6 @@ public class Jugador {
 
         return avatar.acabarTurno();
     }
-
-
 
 
     public String getNombre() {

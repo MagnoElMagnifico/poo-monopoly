@@ -1,5 +1,6 @@
 package monopoly.jugador;
 
+
 import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatal;
 import monopoly.utils.Consola;
@@ -10,7 +11,6 @@ import monopoly.casilla.especial.CasillaSalida;
 import monopoly.error.ErrorComandoAvatar;
 import monopoly.utils.Dado;
 
-import java.util.ArrayList;
 
 public abstract class Avatar {
     // @formatter:off
@@ -163,6 +163,7 @@ public abstract class Avatar {
         // Realizar la acción de la casilla
         nuevaCasilla.accion(jugador, dado);
     }
+
 
     public boolean irCarcelDadosDobles(Dado dado, CasillaCarcel carcel) {
         if (dado.isDoble()) {
