@@ -3,6 +3,7 @@ package monopoly.jugador;
 
 
 public class Banca extends Jugador {
+
     /**
      * Crea el jugador especial Banca
      */

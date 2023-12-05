@@ -27,12 +27,12 @@ public interface Comando {
     /**
      * Saca al jugador de la cárcel pagando la fianza
      */
-    void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar;
+    void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar, ErrorComandoFortuna;
 
     /**
      * Cambia el modo del avatar del jugador actual de básico a avanzado y viceversa
      */
-    void cambiarModo() throws ErrorComandoEstadoPartida;
+    void cambiarModo() throws ErrorComandoEstadoPartida, ErrorComandoAvatar;
 
     /**
      * Genera un dado aleatorio y mueve el avatar actual
@@ -47,7 +47,7 @@ public interface Comando {
     /**
      * Termina el turno del jugador actual
      */
-    void acabarTurno() throws ErrorComandoEstadoPartida;
+    void acabarTurno() throws ErrorComandoEstadoPartida, ErrorComandoAvatar;
 
     /**
      * Declara al jugador actual en bancarrota

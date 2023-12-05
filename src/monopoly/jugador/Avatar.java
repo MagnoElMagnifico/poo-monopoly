@@ -1,13 +1,7 @@
 package monopoly.jugador;
 
-<<<<<<< HEAD:src/monopoly/jugadores/Avatar.java
-import java.util.ArrayList;
 
-import monopoly.Tablero;
-import monopoly.casillas.Casilla;
-import monopoly.utilidades.Consola;
-import monopoly.utilidades.Dado;
-=======
+import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatal;
 import monopoly.utils.Consola;
 import monopoly.Juego;
@@ -16,7 +10,7 @@ import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
 import monopoly.error.ErrorComandoAvatar;
 import monopoly.utils.Dado;
->>>>>>> main:src/monopoly/jugador/Avatar.java
+
 
 public abstract class Avatar {
     // @formatter:off
@@ -50,9 +44,9 @@ public abstract class Avatar {
         this.movimientoEspecial = false;
     }
 
-    public abstract boolean acabarTurno();
+    public abstract boolean acabarTurno() throws ErrorComandoAvatar;
 
-    public abstract int moverEspecial(Dado dado, CasillaCarcel carcel);
+    public abstract int moverEspecial(Dado dado, CasillaCarcel carcel) throws ErrorComandoAvatar;
 
     @Override
     public boolean equals(Object obj) {
@@ -64,7 +58,7 @@ public abstract class Avatar {
         return obj instanceof Avatar && ((Avatar) obj).getId() == this.id;
     }
 
-    public void mover(Juego juego, Dado dado) throws ErrorComandoAvatar, ErrorFatal {
+    public void mover(Juego juego, Dado dado) throws ErrorComandoAvatar, ErrorFatal, ErrorComandoFortuna {
         if (lanzamientosRestantes <= 0) {
             throw new ErrorComandoAvatar("No quedan lanzamientos. El jugador debe terminar el turno", this);
         }
@@ -89,7 +83,7 @@ public abstract class Avatar {
         }
 
         if (encerrado) {
-            moverEstandoCarcel(dado);
+            moverEstandoCarcel(dado, juego.getBanca());
             return;
         }
 
@@ -150,7 +144,7 @@ public abstract class Avatar {
             // No tiene sentido cobrar un abono que aún no ha recibido
             if (jugador.getEstadisticas().getVueltas() > 0) {
                 // Si la casilla calculada es negativa, quiere decir que se pasa por la salida hacia atrás
-                getJugador().cobrar(abonoSalida, true);
+                getJugador().cobrar(abonoSalida, juego.getBanca());
                 Juego.consola.imprimir(
                         "El jugador %s paga %s por retroceder por la casilla de salida.\n".formatted(
                         Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul),
@@ -167,17 +161,11 @@ public abstract class Avatar {
         historialCasillas.add(nuevaCasilla);
 
         // Realizar la acción de la casilla
-        nuevaCasilla.accion(jugador, pelotaDado == null ? dado : pelotaDado);
+        nuevaCasilla.accion(jugador, dado);
     }
 
-<<<<<<< HEAD:src/monopoly/jugadores/Avatar.java
 
-    public abstract int moverEspecial(Dado dado, Casilla carcel);
-
-    public boolean irCarcelDadosDobles(Dado dado, Casilla carcel) {
-=======
     public boolean irCarcelDadosDobles(Dado dado, CasillaCarcel carcel) {
->>>>>>> main:src/monopoly/jugador/Avatar.java
         if (dado.isDoble()) {
             doblesSeguidos++;
 
@@ -200,7 +188,7 @@ public abstract class Avatar {
     /**
      * Realiza una tirada de dados cuando está en la cárcel
      */
-    private void moverEstandoCarcel(Dado dado) throws ErrorComandoAvatar {
+    private void moverEstandoCarcel(Dado dado, Banca banca) throws ErrorComandoAvatar, ErrorComandoFortuna {
         turnosEnCarcel++;
 
         if (dado.isDoble()) {
@@ -212,7 +200,7 @@ public abstract class Avatar {
             Juego.consola.imprimir("%s con avatar %s no ha sacado dados dobles.\nAhora debe pagar obligatoriamente la fianza.\n".formatted(
                     Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul),
                     Juego.consola.fmt(Character.toString(id), Consola.Color.Azul)));
-            salirCarcelPagando(true);
+            salirCarcelPagando(banca);
         } else {
             Juego.consola.imprimir("%s con avatar %s no ha sacado dados dobles.\nPuede pagar la fianza o permanecer encerrado.\n".formatted(
                     Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul),
@@ -239,16 +227,15 @@ public abstract class Avatar {
     /**
      * Saca el avatar de la cárcel pagando la fianza.
      *
-     * @param obligado True si obligatoriamente debe salir.
-     * @return True si la operación ha sido exitosa, false en otro caso.
+     * @param banca La banca para endeudar al jugador si no tinee dinero.
      */
-    public void salirCarcelPagando(boolean obligado)throws ErrorComandoAvatar {
+    public void salirCarcelPagando(Banca banca) throws ErrorComandoAvatar, ErrorComandoFortuna {
         if (!encerrado && !(casilla instanceof CasillaCarcel)) {
             throw new ErrorComandoAvatar("El jugador no está en la Cárcel", this);
         }
 
         long fianza = ((CasillaCarcel) casilla).getFianza();
-        jugador.cobrar(fianza, obligado);
+        jugador.cobrar(fianza, banca);
 
         encerrado = false;
         turnosEnCarcel = 0;
@@ -257,7 +244,7 @@ public abstract class Avatar {
         Juego.consola.imprimir("El jugador %s paga %s para salir de la cárcel\n".formatted(jugador.getNombre(), Juego.consola.num(fianza)));
     }
 
-    public void cambiarModo() {
+    public void cambiarModo() throws ErrorComandoAvatar {
         if (movimientoEspecial) {
             movimientoEspecial = false;
             Juego.consola.imprimir("%s regresa al modo de movimiento básico\n".formatted(Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul)));

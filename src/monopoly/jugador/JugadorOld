@@ -3,7 +3,6 @@ package monopoly.jugador;
 
 import monopoly.Tratos.Trato;
 import monopoly.Tratos.TratoP_P;
-import monopoly.error.ErrorComandoAvatar;
 import monopoly.error.ErrorComandoFormato;
 import monopoly.error.ErrorComandoFortuna;
 import monopoly.utils.Consola;
@@ -26,7 +25,7 @@ import java.util.HashSet;
  *
  * @see Avatar
  */
-public class Jugador {
+public class Jugador implements Listable {
     private final String nombre;
     private final Avatar avatar;
     private final HashSet<Propiedad> propiedades;
@@ -35,35 +34,10 @@ public class Jugador {
     private Jugador acreedor;
     private HashSet<Trato> tratos;
 
-    public Jugador() {
-        this.nombre = "Banca";
-        this.avatar = null;
-        this.fortuna = 0;
-        this.propiedades = new HashSet<>(28);
-        this.acreedor = null;
-        this.estadisticas = new EstadisticasJugador(this);
-    }
-
-    /**
-     * Crea el jugador especial Banca
-     */
-    public Jugador() {
-        this.nombre = "Banca";
-        this.avatar = null;
-        this.fortuna = 0;
-        this.propiedades = new HashSet<>(28);
-        this.acreedor = null;
-        this.estadisticas = new EstadisticasJugador(this);
-    }
-
-    /**
-     * Crea un Jugador dado su nombre, tipo de avatar e id
-     */
-
     public Jugador(String nombre, Avatar avatar, long fortuna) {
-
         this.nombre = nombre;
         this.avatar = avatar;
+
         this.fortuna = fortuna;
         this.propiedades = new HashSet<>();
         this.acreedor = null;
@@ -133,10 +107,33 @@ public class Jugador {
         return true;
     }
 
+    private String listarEdificios() {
+        StringBuilder edificios = new StringBuilder();
+        edificios.append('[');
+
+        // Si es el primer elemento que se añade a la lista,
+        // no se añade coma; pero sí en el resto.
+        boolean primero = true;
+        for (Propiedad p : propiedades) {
+            if (p.getTipo() == Propiedad.TipoPropiedad.Solar) {
+                for (Edificio e : p.getEdificios()) {
+                    if (primero) {
+                        primero = false;
+                    } else {
+                        edificios.append(", ");
+                    }
+
+                    edificios.append(e.getNombreFmt());
+                }
+            }
+        }
+
+        edificios.append(']');
+        return edificios.toString();
+    }
 
     @Override
     public String toString() {
-
 
         // @formatter:off
         return """
@@ -203,7 +200,6 @@ public class Jugador {
         }
 
         // Comprobar que no sea propiedad de otro jugador
-
         if (!p.getPropietario().isBanca()) {
             Juego.consola.error("No se pueden comprar propiedades de otro jugador");
             System.out.printf("%s pertenece a %s\n", p.getCasilla().getNombreFmt(), Juego.consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
@@ -403,28 +399,6 @@ public class Jugador {
      * al dueño de la casilla en donde se encuentra
      */
     public void pagarAlquiler(Propiedad p, Dado dado) {
-        if (p.getPropietario() instanceof Banca || p.getPropietario().equals(this) || p.isHipotecada()) {
-            return;
-        }
-
-        // Se multiplica el alquiler por el valor de los dados en caso de que sea un servicio
-        long importe = p.getTipo() == Propiedad.TipoPropiedad.Servicio ? p.getAlquiler() * dado.getValor() : p.getAlquiler();
-
-        // Se debe cobrar todo el importe, aunque el jugador no pueda pagarlo.
-        // La cuenta se quedará en números negativos (es decir, está endeudado)
-        p.getPropietario().ingresar(importe);
-
-        if (!cobrar(importe, true)) {
-            acreedor = p.getPropietario();
-            Consola.error("El jugador no tiene suficientes fondos para pagar el alquiler");
-            return;
-        }
-
-        System.out.printf("Se han pagado %s de alquiler a %s\n", Consola.num(importe), Consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
-
-        estadisticas.anadirPagoAlquiler(importe);
-        p.getCasilla().getEstadisticas().anadirCobroAlquiler(importe);
-        p.getPropietario().getEstadisticas().anadirCobroAlquiler(importe);
     }
 
     /**
@@ -489,10 +463,11 @@ public class Jugador {
         TratoP_P t1= new TratoP_P(nombre, this,jugador,p1,p2);
         tratos.add(t1);
     }
-    public void aceptarTrato(String nombre) throws ErrorComandoFortuna{
+    public void aceptarTrato(String nombre){
         for(Trato t :tratos){
             if(t.getNombre().equalsIgnoreCase(nombre)){
-                    t.aceptar();
+                t.aceptar();
+
             }
         }
     }
@@ -500,7 +475,7 @@ public class Jugador {
     /**
      * Determina si
      */
-    public boolean acabarTurno() throws ErrorComandoAvatar {
+    public boolean acabarTurno() {
         if (isEndeudado()) {
             Juego.consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota para poder avanzar".formatted(nombre));
             return false;
@@ -508,6 +483,8 @@ public class Jugador {
 
         return avatar.acabarTurno();
     }
+
+
 
 
     public String getNombre() {
@@ -546,4 +523,9 @@ public class Jugador {
         return acreedor;
     }
 
+
+    @Override
+    public String listar() {
+        return null;
+    }
 }
