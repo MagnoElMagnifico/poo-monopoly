@@ -51,7 +51,9 @@ public abstract class Casilla implements Listable {
      * <b>NOTA</b>: requerida por la especificación de la entrega 3.
      */
     @Override
-    public abstract String toString();
+    public String toString() {
+        return getNombreFmt();
+    }
 
     @Override
     public boolean equals(Object obj) {

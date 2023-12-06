@@ -7,7 +7,6 @@ import monopoly.utils.Consola;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 
 public abstract class CasillaAccion extends Casilla {
     public CasillaAccion(int posicion) {

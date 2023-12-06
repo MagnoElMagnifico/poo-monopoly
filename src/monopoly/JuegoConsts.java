@@ -9,7 +9,6 @@ public interface JuegoConsts {
     int N_CARTAS_COMUNIDAD = 6;
     int N_IMPUESTOS = 2;
 
-
     String CONFIG_CASILLAS = "src/casillas.txt";
     String CONFIG_CARTAS = "src/cartas.txt";
     String CONFIG_AYUDA = "src/ayuda.txt";
@@ -17,6 +16,11 @@ public interface JuegoConsts {
     char[] AVATARES_ID = {'A', 'B', 'C', 'D', 'E', 'F'};
     int MAX_JUGADORES = AVATARES_ID.length;
     int MIN_JUGADORES = 2;
+
+    int N_CASAS_PARA_HOTEL = 4;
+    int N_CASAS_PARA_PISCINA = 2;
+    int N_HOTELES_PARA_PISCINA = 1;
+    int N_HOTELES_PARA_PISTA = 2;
 
     // http://www.patorjk.com/software/taag/#p=display&f=Roman&t=Monopoly
     String MSG_INICIO = """

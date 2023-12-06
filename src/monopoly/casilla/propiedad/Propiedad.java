@@ -127,7 +127,7 @@ public abstract class Propiedad extends Casilla {
 
     /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
     public void comprar(Jugador jugador) {
-        // TODO
+        propietario = jugador;
     }
 
     /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */

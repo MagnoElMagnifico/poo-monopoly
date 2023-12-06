@@ -1,28 +1,26 @@
 package monopoly.casilla.propiedad;
 
-import monopoly.Calculadora;
 import monopoly.Juego;
 import monopoly.JuegoConsts;
 import monopoly.casilla.edificio.Edificio;
+import monopoly.error.ErrorComando;
 import monopoly.error.ErrorFatalLogico;
-import monopoly.jugador.Avatar;
 import monopoly.jugador.Jugador;
 import monopoly.utils.Dado;
 
 import java.util.ArrayList;
 
-/**
- *
- */
 public class Solar extends Propiedad {
     private long precio;
     private long alquilerTotalCobrado;
+    private final ArrayList<Edificio> edificios;
 
     public Solar(int posicion, Grupo grupo, String nombre, Jugador banca) {
         super(posicion, grupo, nombre, banca);
 
         precio = (long) (0.3 * grupo.getNumero() * JuegoConsts.PRECIO_SOLAR1 + JuegoConsts.PRECIO_SOLAR1);
         alquilerTotalCobrado = 0;
+        edificios = new ArrayList<>();
     }
 
     @Override
@@ -113,40 +111,35 @@ public class Solar extends Propiedad {
         return alquilerTotalCobrado;
     }
 
-    /*
-    public void anadirEdificio(Edificio e) {
+     /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
+    public void edificar(Edificio e) {
         edificios.add(e);
     }
 
-    public boolean quitarEdificio(Edificio.TipoEdificio tipo) {
+    public void demoler(String tipo) throws ErrorComando {
         for (int ii = 0; ii < edificios.size(); ii++) {
-            if (edificios.get(ii).getTipo() == tipo) {
+            if (edificios.get(ii).getClass().getName().equals(tipo)) {
                 edificios.remove(ii);
-                return true;
+                return;
             }
         }
 
-        return false;
+        throw new ErrorComando("\"%s\" tipo de edificio no encontrado");
     }
 
-    public int contarEdificios(Edificio.TipoEdificio tipo) {
+    public ArrayList<Edificio> getEdificios() {
+        return edificios;
+    }
+
+    public int contarEdificios(String tipo) {
         int numero = 0;
+
         for (Edificio e : edificios) {
-            if (e.getTipo() == tipo) {
+            if (e.getClass().getName().equals(tipo)) {
                 numero++;
             }
         }
 
         return numero;
     }
-
-    public ArrayList<Edificio> getEdificios() {
-        if (this.tipo != TipoPropiedad.Solar) {
-            Consola.error("[Propiedad] %s no tiene edificios".formatted(tipo));
-            return null;
-        }
-
-        return edificios;
-    }
-    */
 }

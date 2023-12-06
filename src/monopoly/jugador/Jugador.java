@@ -1,10 +1,10 @@
 package monopoly.jugador;
 
+import monopoly.casilla.propiedad.Solar;
 import monopoly.utils.Consola;
 import monopoly.Juego;
 import monopoly.casilla.Casilla;
 import monopoly.casilla.edificio.Edificio;
-import monopoly.casilla.edificio.Edificio.TipoEdificio;
 import monopoly.casilla.propiedad.Grupo;
 import monopoly.casilla.propiedad.Propiedad;
 import monopoly.utils.Dado;
@@ -21,42 +21,15 @@ import java.util.HashSet;
 public class Jugador {
     private final String nombre;
     private final Avatar avatar;
-<<<<<<< HEAD:src/monopoly/jugadores/Jugador.java
-    // private final boolean banca;
-=======
->>>>>>> main:src/monopoly/jugador/Jugador.java
     private final HashSet<Propiedad> propiedades;
     private final EstadisticasJugador estadisticas;
     private long fortuna;
     private Jugador acreedor;
 
-<<<<<<< HEAD:src/monopoly/jugadores/Jugador.java
-    /**
-     * Crea el jugador especial Banca
-     */
-    public Jugador() {
-        this.nombre = "Banca";
-        this.avatar = null;
-        this.fortuna = 0;
-        this.propiedades = new HashSet<>(28);
-        this.acreedor = null;
-        this.estadisticas = new EstadisticasJugador(this);
-    }
-
-    /**
-     * Crea un Jugador dado su nombre, tipo de avatar e id
-     */
-    public Jugador(String nombre, Avatar.TipoAvatar tipo, char id, Casilla casillaInicial, long fortuna) {
-=======
     public Jugador(String nombre, Avatar avatar, long fortuna) {
->>>>>>> main:src/monopoly/jugador/Jugador.java
         this.nombre = nombre;
         this.avatar = avatar;
 
-<<<<<<< HEAD:src/monopoly/jugadores/Jugador.java
-
-=======
->>>>>>> main:src/monopoly/jugador/Jugador.java
         this.fortuna = fortuna;
         this.propiedades = new HashSet<>();
         this.acreedor = null;
@@ -84,42 +57,6 @@ public class Jugador {
                     return false;
                 }
             }
-
-            case Hotel -> {
-                if (grupo.contarEdificios(TipoEdificio.Hotel) + cantidad > maxEdificios) {
-                    Juego.consola.error("No se pueden edificar más de %d hoteles en este grupo".formatted(maxEdificios));
-                    return false;
-                }
-
-                if (solar.contarEdificios(TipoEdificio.Casa) < 4 * cantidad) {
-                    Juego.consola.error("Se necesitan 4 casas en el solar para edificar un hotel");
-                    return false;
-                }
-            }
-
-            case Piscina -> {
-                if (grupo.contarEdificios(TipoEdificio.Piscina) + cantidad > maxEdificios) {
-                    Juego.consola.error("No se pueden edificar más de %d piscinas en este grupo".formatted(maxEdificios));
-                    return false;
-                }
-
-                if (grupo.contarEdificios(TipoEdificio.Hotel) < 1 || grupo.contarEdificios(Edificio.TipoEdificio.Casa) < 2) {
-                    Juego.consola.error("Se necesita 1 hotel y 2 casas en el grupo para edificar una piscina");
-                    return false;
-                }
-            }
-
-            case PistaDeporte -> {
-                if (grupo.contarEdificios(TipoEdificio.PistaDeporte) + cantidad >= maxEdificios) {
-                    Juego.consola.error("No se pueden edificar más de %d pistas de deporte en este grupo".formatted(maxEdificios));
-                    return false;
-                }
-
-                if (grupo.contarEdificios(TipoEdificio.Hotel) < 2) {
-                    Juego.consola.error("Se necesitan 2 hoteles en el grupo para construir una pista de deporte");
-                    return false;
-                }
-            }
         }
 
         return true;
@@ -133,8 +70,8 @@ public class Jugador {
         // no se añade coma; pero sí en el resto.
         boolean primero = true;
         for (Propiedad p : propiedades) {
-            if (p.getTipo() == Propiedad.TipoPropiedad.Solar) {
-                for (Edificio e : p.getEdificios()) {
+            if (p instanceof Solar) {
+                for (Edificio e : ((Solar) p).getEdificios()) {
                     if (primero) {
                         primero = false;
                     } else {
@@ -186,7 +123,7 @@ public class Jugador {
                 }
                 """, Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
                      Juego.consola.num(estadisticas.getGastos()),
-                     Juego.consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()),
+                     Juego.consola.listar(propiedades, Propiedad::getNombreFmt),
                      listarEdificios());
         // @formatter:on
     }
@@ -197,7 +134,7 @@ public class Jugador {
             return true;
         }
 
-        return obj instanceof Jugador && ((Jugador) obj).getAvatar().equals(avatar);
+        return obj instanceof Jugador && ((Jugador) obj).nombre.equalsIgnoreCase(this.nombre);
     }
 
     /**

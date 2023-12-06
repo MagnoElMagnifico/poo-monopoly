@@ -2,6 +2,8 @@ package monopoly.casilla.propiedad;
 
 import monopoly.Juego;
 import monopoly.casilla.Casilla;
+import monopoly.casilla.edificio.*;
+import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
 import monopoly.jugador.Jugador;
 
@@ -45,13 +47,12 @@ public class Grupo {
                 }""".formatted(Juego.consola.fmt(nombre, codigoColor), numero, Juego.consola.listar(propiedades, Propiedad::getNombre));
     }
 
-    /*
-    public void listarEdificios() {
-        for (Casilla c : casillas) {
-            if (c.isPropiedad() && c.getPropiedad().getTipo() == Propiedad.TipoPropiedad.Solar) {
-                Propiedad p = c.getPropiedad();
+    public void listarEdificios() throws ErrorFatalLogico {
+        for (Propiedad p : propiedades) {
+            if (p instanceof Solar) {
+                ArrayList<Edificio> edificios = ((Solar) p).getEdificios();
 
-                System.out.printf("""
+                Juego.consola.imprimir("""
                                 {
                                     propiedad: %s
                                     casas: %s
@@ -60,32 +61,27 @@ public class Grupo {
                                     pistas de deporte: %s
                                     alquiler: %s
                                 }
-                                """, p.getNombre(),
-                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Casa ? e.getNombreFmt() : null),
-                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Hotel ? e.getNombreFmt() : null),
-                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Piscina ? e.getNombreFmt() : null),
-                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.PistaDeporte ? e.getNombreFmt() : null),
-                        Consola.num(p.getAlquiler()));
+                                """.formatted(p.getNombre(),
+                        Juego.consola.listar(edificios, (e) -> e instanceof Casa ? e.getNombreFmt() : null),
+                        Juego.consola.listar(edificios, (e) -> e instanceof Hotel ? e.getNombreFmt() : null),
+                        Juego.consola.listar(edificios, (e) -> e instanceof Piscina ? e.getNombreFmt() : null),
+                        Juego.consola.listar(edificios, (e) -> e instanceof PistaDeporte ? e.getNombreFmt() : null),
+                        Juego.consola.num(p.getAlquiler())));
             }
         }
     }
 
-    public int contarEdificios(Edificio.TipoEdificio tipo) {
+    public int contarEdificios(String tipo) {
         int numero = 0;
 
-        for (Casilla c : casillas) {
-            if (c.isPropiedad()) {
-                for (Edificio e : c.getPropiedad().getEdificios()) {
-                    if (e.getTipo() == tipo) {
-                        numero++;
-                    }
-                }
+        for (Propiedad p : propiedades) {
+            if (p instanceof Solar) {
+                numero += ((Solar) p).contarEdificios(tipo);
             }
         }
 
         return numero;
     }
-    */
 
     @Override
     public boolean equals(Object obj) {
@@ -106,7 +102,7 @@ public class Grupo {
     }
 
     public int contarPropiedades(Jugador jugador) {
-        // Contar cuantos servicios posee el jugador
+        // Contar cuantas propiedades posee el jugador
         int nPropiedades = 0;
 
         for (Propiedad p : propiedades) {

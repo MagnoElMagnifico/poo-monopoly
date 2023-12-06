@@ -1,8 +1,9 @@
 package monopoly.casilla.edificio;
 
 import monopoly.casilla.propiedad.Solar;
+import monopoly.error.ErrorFatalLogico;
 
-public class Casa extends Edificio {
+public final class Casa extends Edificio {
 
     public Casa(int id, String tipo, long valor, Solar solar, int cantidad) {
         super(id, tipo, valor, solar, cantidad);
@@ -27,8 +28,13 @@ public class Casa extends Edificio {
     }
 
     @Override
-    public long getValor() {
+    public long getValor() throws ErrorFatalLogico {
         return (long) (0.6 * getSolar().getPrecio());
+    }
+
+    @Override
+    public long getAlquiler() {
+        return 0;
     }
 }
 
