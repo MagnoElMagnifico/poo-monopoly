@@ -29,9 +29,10 @@ public class TratoC_P extends Trato{
     public void aceptar() throws ErrorComandoFortuna {
         Jugador j1 = getInteresado();
         Jugador j2 = getAceptador();
-        if(!j1.cobrar(cantidad,false)) return;
+        j1.cobrar(cantidad);
         j1.anadirPropiedad(acept);
         j2.ingresar(cantidad);
         j2.quitarPropiedad(acept);
+        super.aceptar();
     }
 }

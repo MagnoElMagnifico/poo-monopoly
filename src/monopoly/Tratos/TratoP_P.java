@@ -2,6 +2,7 @@ package monopoly.Tratos;
 
 import monopoly.casilla.propiedad.Propiedad;
 import monopoly.error.ErrorComando;
+import monopoly.error.ErrorComandoFortuna;
 import monopoly.jugador.Jugador;
 
 public class TratoP_P extends Trato{
@@ -23,13 +24,13 @@ public class TratoP_P extends Trato{
     }
 
     @Override
-    public void aceptar() {
+    public void aceptar() throws ErrorComandoFortuna {
         Jugador j1 = getInteresado();
         Jugador j2 = getAceptador();
         j1.anadirPropiedad(acept);
         j2.anadirPropiedad(inter);
         j1.quitarPropiedad(inter);
         j2.quitarPropiedad(acept);
-
+        super.aceptar();
     }
 }

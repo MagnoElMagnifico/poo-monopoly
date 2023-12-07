@@ -3,6 +3,7 @@ package monopoly.Tratos;
 import monopoly.Juego;
 import monopoly.casilla.propiedad.Propiedad;
 import monopoly.error.ErrorComando;
+import monopoly.error.ErrorComandoFortuna;
 import monopoly.jugador.Jugador;
 
 public class TratoPC_P extends Trato{
@@ -28,16 +29,15 @@ public class TratoPC_P extends Trato{
     }
 
     @Override
-    public void aceptar() {
+    public void aceptar() throws ErrorComandoFortuna {
         Jugador j1 = getInteresado();
         Jugador j2 = getAceptador();
-        if(j1.cobrar(cantidad)) return;
+        j1.cobrar(cantidad);
         j1.anadirPropiedad(acept);
         j2.anadirPropiedad(inter);
         j1.quitarPropiedad(inter);
         j2.quitarPropiedad(acept);
         j2.ingresar(cantidad);
-
-
+        super.aceptar();
     }
 }

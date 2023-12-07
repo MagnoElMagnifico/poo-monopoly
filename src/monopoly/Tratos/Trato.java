@@ -6,16 +6,18 @@ import monopoly.error.ErrorComandoFortuna;
 import monopoly.jugador.Jugador;
 
 public abstract class Trato {
-
     private final String nombre;  // tiene que ser único
     private final Jugador interesado; // quien propone el trato
     private final Jugador aceptador; // quien decide si acepta o no
+
+    private boolean completado;
 
 
     public Trato(String nombre, Jugador interesado, Jugador aceptador){
         this.nombre=nombre;
         this.interesado = interesado;
         this.aceptador = aceptador;
+        this.completado=false;
     }
 
     @Override
@@ -41,9 +43,16 @@ public abstract class Trato {
         return aceptador;
     }
 
-    public abstract void aceptar() throws ErrorComandoFortuna;
+    public void aceptar() throws ErrorComandoFortuna {
+        completado=true;
+    };
 
     public String getNombre() {
         return nombre;
     }
+
+    public boolean isCompletado() {
+        return completado;
+    }
+
 }
