@@ -13,6 +13,7 @@ import monopoly.casilla.propiedad.Propiedad;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 
 /**
  * Clase que representa un Jugador. Almacena su información sobre su fortuna y propiedades.
@@ -311,18 +312,39 @@ public class Jugador {
         jugador.tratos.add(t1);
     }
 
-    public void crearTrato(String nombre, Jugador jugador, Propiedad p1, long cantidad ,Propiedad p2) throws ErrorComandoJugador {
+    public void crearTrato(String nombre, Jugador jugador, Propiedad p1, long cantidad ,Propiedad p2) throws ErrorComandoJugador, ErrorComandoFortuna {
         if(!this.propiedades.contains(p1) || !jugador.propiedades.contains(p2)){
             throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no te pertencen.",this);
         }
         if(this.fortuna<cantidad){
-            throw new ErrorComandoJugador("No tienes suficiente dinero para ofrecer el trato",this);
+            throw new ErrorComandoFortuna("No tienes suficiente dinero para ofrecer el trato",this);
         }
         TratoPC_P t1= new TratoPC_P(nombre, this,jugador,p1, cantidad,p2);
         this.tratos.add(t1);
         jugador.tratos.add(t1);
     }
 
+    public void aceptarTrato(String nombre) throws ErrorComandoFortuna {
+        for(Trato t : tratos){
+            if(t.getNombre().equalsIgnoreCase(nombre)){
+                if(t.getAceptador()==this) {
+                    t.aceptar();
+                    Juego.consola.imprimir("Aceptado:\n%s".formatted(t.toString()));
+                }
+            }
+        }
+    }
+
+    public void eliminarTrato(String nombre) {
+        Iterator<Trato> itr = tratos.iterator();
+        while(itr.hasNext()){
+            Trato t= itr.next();
+            if(t.getNombre().equalsIgnoreCase(nombre) && t.getInteresado() == this){
+                t.getAceptador().tratos.remove(t);
+                this.tratos.remove(t);
+            }
+        }
+    }
     /**
      * Determina si
      */
