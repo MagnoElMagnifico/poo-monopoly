@@ -46,6 +46,14 @@ public abstract class Edificio {
         return id;
     }
 
+    public int getCantidad() {
+        return cantidad;
+    }
+    
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
+
     public abstract long getValor();
 
     public abstract long alquilerEdificio(Solar solar, int cantidad);

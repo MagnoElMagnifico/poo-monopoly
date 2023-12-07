@@ -8,8 +8,8 @@ public class Piscina extends Edificio {
     }
     @Override
     public long precioEdificio(Solar solar, int cantidad) {
-        long precioSolar = solar.getPrecio();
-        return (long) (1.25 * precioSolar);
+
+        return (long) (cantidad * getValor());
     }
 
     @Override

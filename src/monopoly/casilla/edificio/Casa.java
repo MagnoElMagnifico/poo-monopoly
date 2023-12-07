@@ -10,8 +10,7 @@ public class Casa extends Edificio {
 
     @Override
     public long precioEdificio(Solar solar, int cantidad) {
-        long precioSolar = solar.getPrecio();
-        return (long) (0.6 * precioSolar);
+        return (long) (cantidad * getValor());
     }
 
     public long alquilerEdificio(Solar solar, int cantidad) {

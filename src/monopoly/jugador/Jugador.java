@@ -1,24 +1,21 @@
 package monopoly.jugador;
 
 
+import java.util.ArrayList;
+import java.util.HashSet;
+
+import monopoly.Juego;
 import monopoly.Tratos.Trato;
 import monopoly.Tratos.TratoP_P;
-import monopoly.error.ErrorComandoAvatar;
-import monopoly.error.ErrorComandoFormato;
-import monopoly.error.ErrorComandoFortuna;
-import monopoly.utils.Consola;
-import monopoly.Juego;
 import monopoly.casilla.Casilla;
 import monopoly.casilla.edificio.Edificio;
 import monopoly.casilla.edificio.Edificio.TipoEdificio;
 import monopoly.casilla.propiedad.Grupo;
 import monopoly.casilla.propiedad.Propiedad;
+import monopoly.error.ErrorComandoAvatar;
+import monopoly.error.ErrorComandoFortuna;
+import monopoly.utils.Consola;
 import monopoly.utils.Dado;
-import monopoly.utils.Listable;
-
-
-import java.util.ArrayList;
-import java.util.HashSet;
 
 /**
  * Clase que representa un Jugador. Almacena su información sobre su fortuna y propiedades.
@@ -34,15 +31,7 @@ public class Jugador {
     private long fortuna;
     private Jugador acreedor;
     private HashSet<Trato> tratos;
-
-    public Jugador() {
-        this.nombre = "Banca";
-        this.avatar = null;
-        this.fortuna = 0;
-        this.propiedades = new HashSet<>(28);
-        this.acreedor = null;
-        this.estadisticas = new EstadisticasJugador(this);
-    }
+    private int turnosNoAlquiler;
 
     /**
      * Crea el jugador especial Banca
@@ -69,6 +58,7 @@ public class Jugador {
         this.acreedor = null;
         this.estadisticas = new EstadisticasJugador(this);
         this.tratos =new HashSet<>();
+        this.turnosNoAlquiler = 0;
     }
 
     /**
@@ -533,6 +523,15 @@ public class Jugador {
     public void anadirPropiedad(Propiedad p) {
         propiedades.add(p);
     }
+
+    public void anadirNoAlquiler(Propiedad p, int turnos) {
+        turnosNoAlquiler += turnos;
+    }
+
+    public void quitarNoAlquiler() {
+        turnosNoAlquiler = 0;
+    }
+
 
     public void quitarPropiedad(Propiedad p) {
         propiedades.remove(p);
