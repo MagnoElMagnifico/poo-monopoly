@@ -21,17 +21,23 @@ public final class PistaDeporte extends Edificio {
         if (grupo.contarEdificios("Hotel") < JuegoConsts.N_HOTELES_PARA_PISTA) {
             throw new ErrorComandoEdificio("Se necesitan %d hotel(es) en el grupo para construir una pista de deporte".formatted(JuegoConsts.N_HOTELES_PARA_PISTA));
         }
-
-        solar.edificar(this);
     }
 
     @Override
     public long getValor() throws ErrorFatalLogico {
-        return (long)(1.15 * (float) super.getSolar().getPrecio());
+        return getValor(super.getSolar());
     }
 
     @Override
     public long getAlquiler() throws ErrorFatalLogico {
-        return 25 * super.getSolar().getAlquiler();
+        return getAlquiler(super.getSolar());
+    }
+
+    public static long getValor(Solar solar) {
+        return (long)(1.15 * (float) solar.getPrecio());
+    }
+
+    public static long getAlquiler(Solar solar) {
+        return 25 * solar.getAlquiler();
     }
 }

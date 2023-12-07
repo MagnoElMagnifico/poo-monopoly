@@ -17,6 +17,7 @@ public interface JuegoConsts {
     int MAX_JUGADORES = AVATARES_ID.length;
     int MIN_JUGADORES = 2;
 
+    int N_CASAS_SIN_MAX_HOTELES = 4;
     int N_CASAS_PARA_HOTEL = 4;
     int N_CASAS_PARA_PISCINA = 2;
     int N_HOTELES_PARA_PISCINA = 1;
@@ -60,5 +61,4 @@ public interface JuegoConsts {
              888          888   888   888       888   888  888    .o       888         d8(  888   888       888 .  888  888   888  d8(  888 \s
             o888o        o888o o888o o888o      `Y8bod88P" `Y8bod8P'      o888o        `Y888""8o d888b      "888" o888o `Y8bod88P" `Y888""8o\s
             """;
-
 }

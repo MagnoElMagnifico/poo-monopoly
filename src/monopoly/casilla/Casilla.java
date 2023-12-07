@@ -3,6 +3,7 @@ package monopoly.casilla;
 import java.util.ArrayList;
 
 import monopoly.JuegoConsts;
+import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatal;
 import monopoly.utils.Listable;
 import monopoly.casilla.especial.CasillaEspecial;
@@ -68,7 +69,7 @@ public abstract class Casilla implements Listable {
      * Ejecuta la acción correspondiente cuando un avatar cae en
      * esta casilla.
      */
-    public abstract void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatal;
+    public abstract void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatal, ErrorComandoFortuna;
 
     /** Nombre de la casilla sin ningún formato */
     public abstract String getNombre();

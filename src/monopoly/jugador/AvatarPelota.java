@@ -1,36 +1,43 @@
 package monopoly.jugador;
 
+import monopoly.Juego;
+import monopoly.casilla.Casilla;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
-import monopoly.utils.Consola;
+import monopoly.error.ErrorComandoAvatar;
+import monopoly.error.ErrorComandoFortuna;
+import monopoly.error.ErrorFatal;
+import monopoly.error.ErrorFatalLogico;
 import monopoly.utils.Dado;
 
-public class AvatarPelota extends Avatar{
-    private Dado pelotaDado;            /* Solo para la pelota: guarda el dado usado en el tiro inicial (solo para calcular el alquiler de los transportes) */
-    private int pelotaPosFinal;         /* Solo para la pelota: guarda la posición final a la que se tiene que llegar */
+public class AvatarPelota extends Avatar {
+    private Dado pelotaDado;     /* Guarda el dado usado en el tiro inicial (solo para calcular el alquiler de los transportes) */
+    private int pelotaPosFinal;  /* Guarda la posición final a la que se tiene que llegar */
 
     public AvatarPelota(char id, CasillaSalida salida) {
         super(id, salida);
+
         pelotaDado = null;
         pelotaPosFinal = 0;
     }
 
-    public boolean mover(Dado dado, Tablero tablero) {
+    @Override
+    public void mover(Juego juego, Dado dado) throws ErrorComandoAvatar, ErrorFatal, ErrorComandoFortuna {
         if (dado == null && !isMovimientoEspecial()) {
-            Consola.error("No puedes usar el comando siguiente si no estás usando el avatar Pelota");
-            return false;
+            throw new ErrorComandoAvatar("No puedes usar el comando siguiente si no estás usando el avatar Pelota", this);
         }
 
         if (dado != null && pelotaDado != null) {
-            Consola.error("No puedes lanzar más dados. Prueba con el comando siguiente");
-            return false;
+            throw new ErrorComandoAvatar("No puedes lanzar más dados. Prueba con el comando siguiente", this);
         }
-        return(super.mover(dado, tablero, pelotaDado));
+
+        super.mover(juego, dado == null ? pelotaDado : dado);
     }
 
     @Override
-    public int moverEspecial(Dado dado, Casilla carcel) {
-        Casilla casilla=getCasilla();
+    public int moverEspecial(Dado dado, CasillaCarcel carcel) throws ErrorComandoAvatar, ErrorFatalLogico {
+        Casilla casilla = getCasilla();
+
         // Si ha salido un dado doble, se mueve de forma básica
         if (getDoblesSeguidos() != 0) {
             return super.irCarcelDadosDobles(dado, carcel) ? Integer.MAX_VALUE : casilla.getPosicion() + dado.getValor();
@@ -68,8 +75,7 @@ public class AvatarPelota extends Avatar{
         int paso = Math.min(pelotaPosFinal - casilla.getPosicion(), 2);
 
         if (paso <= 0) {
-            Consola.error("[Avatar Pelota] Paso negativo o nulo");
-            return 0;
+            throw new ErrorFatalLogico("Paso negativo o nulo");
         }
 
         // Si me muevo según el paso calculado y termino en la casilla
@@ -97,26 +103,25 @@ public class AvatarPelota extends Avatar{
         return casilla.getPosicion() + paso;
     }
 
-
-    public void cambiarModo() {
+    public void cambiarModo() throws ErrorComandoAvatar {
         // Mismo razonamiento que antes pero con la pelota: no se puede cambiar al
         // modo básico si todavía no se lanzó (pelotaDado es null, todavía no se
         // asignó) o si no quedan lanzamientos.
         if (isMovimientoEspecial() && pelotaDado != null && getLanzamientosRestantes() != 0) {
-            Consola.error("No puedes cambiar de modo en mitad de un movimiento especial");
-            return;
+            throw new ErrorComandoAvatar("No puedes cambiar de modo en mitad de un movimiento especial", this);
         }
         super.cambiarModo();
     }
 
     @Override
-    public boolean acabarTurno() {
+    public boolean acabarTurno() throws ErrorComandoAvatar {
         int lanzamientosRestantes = getLanzamientosRestantes();
         Jugador jugador = getJugador();
+
         if (lanzamientosRestantes > 0) {
-            Consola.error("A %s aún le quedan %d tiros".formatted(jugador.getNombre(), lanzamientosRestantes));
-            return false;
+            throw new ErrorComandoAvatar("A %s aún le quedan %d tiros".formatted(jugador.getNombre(), lanzamientosRestantes), this);
         }
+
         setLanzamientosRestantes(1);
         setDoblesSeguidos(0);
 
@@ -124,10 +129,5 @@ public class AvatarPelota extends Avatar{
         pelotaPosFinal = 0;
 
         return true;
-    }
-
-    @Override
-    public int moverEspecial(Dado dado, CasillaCarcel carcel) {
-        return 0;
     }
 }

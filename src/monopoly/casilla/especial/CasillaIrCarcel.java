@@ -1,7 +1,6 @@
 package monopoly.casilla.especial;
 
 import monopoly.error.ErrorFatal;
-import monopoly.jugador.Avatar;
 import monopoly.jugador.Jugador;
 import monopoly.utils.Dado;
 

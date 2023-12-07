@@ -1,8 +1,10 @@
 package monopoly.jugador;
 
+import monopoly.Juego;
 import monopoly.casilla.edificio.Edificio;
 import monopoly.casilla.propiedad.Propiedad;
-import monopoly.jugador.Jugador;
+import monopoly.casilla.propiedad.Solar;
+import monopoly.error.ErrorFatalLogico;
 
 public class EstadisticasJugador {
     // @formatter:off
@@ -42,35 +44,39 @@ public class EstadisticasJugador {
 
     @Override
     public String toString() {
-        // @formatter:off
-        return """
-               {
-                   jugador: %s
-                   capital: %s
-                   dinero invertido: %s
-                   pago de tasas e impuestos: %s
-                   cobro de alquileres: %s
-                   pago de alquileres: %s
-                   abono total de salida: %s
-                   premios de inversiones o bote: %s
-                   gastos: %s
-                   veces en la cárcel: %d
-                   número de vueltas: %s
-                   número de tiradas: %s
-               }
-               """.formatted(jugador.getNombre(),
-                             Consola.num(getCapital()),
-                             Consola.num(inversiones),
-                             Consola.num(pagoTasas),
-                             Consola.num(cobroAlquileres),
-                             Consola.num(pagoAlquileres),
-                             Consola.num(abonosSalida),
-                             Consola.num(premios),
-                             Consola.num(gastos),
-                             vecesEncarcelado,
-                             nVueltas,
-                             nTiradas);
-        // @formatter:on
+        try {
+            // @formatter:off
+            return """
+                   {
+                       jugador: %s
+                       capital: %s
+                       dinero invertido: %s
+                       pago de tasas e impuestos: %s
+                       cobro de alquileres: %s
+                       pago de alquileres: %s
+                       abono total de salida: %s
+                       premios de inversiones o bote: %s
+                       gastos: %s
+                       veces en la cárcel: %d
+                       número de vueltas: %s
+                       número de tiradas: %s
+                   }
+                   """.formatted(jugador.getNombre(),
+                                 Juego.consola.num(getCapital()),
+                                 Juego.consola.num(inversiones),
+                                 Juego.consola.num(pagoTasas),
+                                 Juego.consola.num(cobroAlquileres),
+                                 Juego.consola.num(pagoAlquileres),
+                                 Juego.consola.num(abonosSalida),
+                                 Juego.consola.num(premios),
+                                 Juego.consola.num(gastos),
+                                 vecesEncarcelado,
+                                 nVueltas,
+                                 nTiradas);
+            // @formatter:on
+        } catch (ErrorFatalLogico e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void anadirInversion(long cantidad) {
@@ -145,16 +151,14 @@ public class EstadisticasJugador {
         return gastos;
     }
 
-    public long getCapital() {
+    public long getCapital() throws ErrorFatalLogico {
         long capital = jugador.getFortuna();
 
         for (Propiedad p : jugador.getPropiedades()) {
             capital += p.getPrecio();
 
-
-            if (p.getTipo() == Propiedad.TipoPropiedad.Solar) {
-
-                for (Edificio e : p.getEdificios()) {
+            if (p instanceof Solar) {
+                for (Edificio e : ((Solar) p).getEdificios()) {
                     capital += e.getValor();
                 }
             }

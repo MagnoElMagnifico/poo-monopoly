@@ -1,6 +1,7 @@
 package monopoly.casilla.carta;
 
 import monopoly.error.ErrorFatal;
+import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
 
 /**
@@ -47,12 +48,12 @@ public abstract class Carta {
      * Método común para aplicar una cantidad al jugador (cobrar o ingresar).
      * Útil para las posibles clases derivadas.
      */
-    protected void aplicarCantidad(long cantidad, Jugador jugadorTurno, Jugador banca) {
+    protected void aplicarCantidad(long cantidad, Jugador jugadorTurno, Jugador banca) throws ErrorFatalLogico {
         if (cantidad > 0) {
             jugadorTurno.ingresar(cantidad);
             jugadorTurno.getEstadisticas().anadirPremio(cantidad);
         } else {
-            jugadorTurno.cobrar(-cantidad, true);
+            jugadorTurno.cobrar(-cantidad, banca);
             jugadorTurno.getEstadisticas().anadirTasa(-cantidad);
             banca.ingresar(-cantidad);
         }

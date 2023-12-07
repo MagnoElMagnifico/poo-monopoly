@@ -2,6 +2,7 @@ package monopoly.casilla.propiedad;
 
 import monopoly.Juego;
 import monopoly.casilla.Casilla;
+import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
 import monopoly.jugador.Jugador;
@@ -64,33 +65,41 @@ public abstract class Propiedad extends Casilla {
 
     @Override
     public String listar() {
-        return """
-                {
-                    nombre: %s
-                    tipo: Propiedad
-                    precio: %s
-                }
-                """.formatted(getNombreFmt(), Juego.consola.num(getPrecio()));
+        try {
+            return """
+                    {
+                        nombre: %s
+                        tipo: Propiedad
+                        precio: %s
+                    }
+                    """.formatted(getNombreFmt(), Juego.consola.num(getPrecio()));
+        } catch (ErrorFatalLogico e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public String toString() {
-        // @formatter:off
-        return """
-               {
-                   tipo: Propiedad
-                   nombre: %s
-                   precio: %s
-                   alquiler: %s
-                   propietario: %s
-                   hipotecada?: %s
-               }""".formatted(
-                    nombre,
-                    Juego.consola.num(getPrecio()),
-                    Juego.consola.num(getAlquiler()),
-                    propietario.getNombre(),
-                    hipotecada? "Sí" : "No");
-        // @formatter:on
+        try {
+            // @formatter:off
+            return """
+                   {
+                       tipo: Propiedad
+                       nombre: %s
+                       precio: %s
+                       alquiler: %s
+                       propietario: %s
+                       hipotecada?: %s
+                   }""".formatted(
+                        nombre,
+                        Juego.consola.num(getPrecio()),
+                        Juego.consola.num(getAlquiler()),
+                        propietario.getNombre(),
+                        hipotecada? "Sí" : "No");
+            // @formatter:on
+        } catch (ErrorFatalLogico e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -104,7 +113,7 @@ public abstract class Propiedad extends Casilla {
     }
 
     @Override
-    public void accion(Jugador jugadorTurno, Dado dado) {
+    public void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatalLogico, ErrorComandoFortuna {
         if (propietario instanceof Banca || propietario.equals(jugadorTurno) || hipotecada) {
             return;
         }
@@ -135,15 +144,13 @@ public abstract class Propiedad extends Casilla {
         return propietario.equals(jugador);
     }
 
-    public void hipotecar() {
-        if (propietario == null || propietario.isBanca()) {
-            Juego.consola.error("No se puede hipotecar una propiedad sin dueño");
-            return;
+    public void hipotecar() throws ErrorComandoFortuna, ErrorFatalLogico {
+        if (propietario == null || propietario instanceof Banca) {
+            throw new ErrorComandoFortuna("No se puede hipotecar una propiedad sin dueño", propietario);
         }
 
         if (hipotecada) {
-            Juego.consola.error("No se puede hipotecar, ya está hipotecada");
-            return;
+            throw new ErrorComandoFortuna("No se puede hipotecar una propiedad sin dueño", propietario);
         }
 
         // TODO
@@ -164,18 +171,13 @@ public abstract class Propiedad extends Casilla {
         propietario.describirTransaccion();
     }
 
-    public void deshipotecar() {
+    public void deshipotecar() throws ErrorFatalLogico, ErrorComandoFortuna {
         if (!hipotecada) {
-            Juego.consola.error("No se puede deshipotecar, no está hipotecada");
-            return;
+            throw new ErrorComandoFortuna("No se puede deshipotecar, no está hipotecada", propietario);
         }
 
         long cantidad = getCosteDeshipoteca();
-
-        if (!propietario.cobrar(cantidad, false)) {
-            Juego.consola.error("No tienes suficientes fondos para deshipotecar esa propiedad");
-            return;
-        }
+        propietario.cobrar(cantidad);
 
         hipotecada = false;
         Juego.consola.imprimir("Se ha deshipotecado %s por %s\n".formatted(getNombreFmt(), Juego.consola.num(cantidad)));

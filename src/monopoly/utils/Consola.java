@@ -1,5 +1,6 @@
 package monopoly.utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Function;
 
@@ -61,10 +62,10 @@ public interface Consola {
      *                  representación String que aparecerá en el resultado.
      * @return String con la lista de los elementos en una sola línea
      */
-    <T> String listar(Collection<T> elementos, Function<T, String> funcion);
+    <T extends Listable> String listar(Collection<T> elementos, Function<T, String> funcion);
 
     /** Lista una colección de elementos que implementen Listable */
-    default void listar(Collection<Listable> elementos) {
+    default <T extends Listable> void listar(Collection<T> elementos) {
         imprimir(listar(elementos, Listable::listar));
     }
 

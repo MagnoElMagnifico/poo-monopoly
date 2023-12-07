@@ -21,17 +21,23 @@ public final class Piscina extends Edificio {
         if (grupo.contarEdificios("Hotel") < JuegoConsts.N_HOTELES_PARA_PISCINA || grupo.contarEdificios("Casa") < JuegoConsts.N_CASAS_PARA_PISCINA) {
             throw new ErrorComandoEdificio("Se necesita %d hotel(es) y %d casa(s) en el grupo para edificar una piscina".formatted(JuegoConsts.N_HOTELES_PARA_PISCINA, JuegoConsts.N_CASAS_PARA_PISCINA));
         }
-
-        solar.edificar(this);
     }
 
     @Override
     public long getValor() throws ErrorFatalLogico {
-        return (long)(0.4 * (float) super.getSolar().getPrecio());
+        return getValor(super.getSolar());
     }
 
     @Override
     public long getAlquiler() throws ErrorFatalLogico {
-        return 25 * super.getSolar().getAlquiler();
+        return getAlquiler(super.getSolar());
+    }
+
+    public static long getValor(Solar solar) {
+        return (long)(0.4 * (float) solar.getPrecio());
+    }
+
+    public static long getAlquiler(Solar solar) {
+        return 25 * solar.getAlquiler();
     }
 }

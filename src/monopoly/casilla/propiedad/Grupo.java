@@ -133,6 +133,10 @@ public class Grupo {
         return nombre;
     }
 
+    public String getNombreFmt() {
+        return Juego.consola.fmt(getNombre(), codigoColor);
+    }
+
     public int getCodigoColor() {
         return codigoColor;
     }

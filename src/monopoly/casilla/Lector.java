@@ -10,7 +10,6 @@ import monopoly.casilla.propiedad.*;
 import monopoly.error.ErrorFatalConfig;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
-import monopoly.jugador.Jugador;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -296,7 +295,7 @@ public class Lector {
 
     private void declaracionGrupo(String[] campos, int nLinea) throws ErrorFatalConfig {
         try {
-            if (campos.length != 3) {
+            if (campos.length != 2) {
                 throw new ErrorFatalConfig(
                         "Declaración de grupo incorrecta: se esperaban 3 parámetros, se recibieron %s".formatted(campos.length),
                         JuegoConsts.CONFIG_CASILLAS,
@@ -318,7 +317,7 @@ public class Lector {
         }
     }
 
-    private void declaracionPropiedad(String[] campos, Jugador banca, int nLinea) throws ErrorFatalConfig, ErrorFatalLogico {
+    private void declaracionPropiedad(String[] campos, Banca banca, int nLinea) throws ErrorFatalConfig, ErrorFatalLogico {
         // Declaración de un Transporte o Servicio: "Nombre, Grupo"
         switch (campos[1]) {
             case "T", "Transporte", "transporte", "Transportes", "transportes" -> {
@@ -345,7 +344,7 @@ public class Lector {
 
         // Declaración de un Solar: "Nombre, numGrupo"
         try {
-            int nGrupo = Integer.parseInt(campos[1]) + 1;
+            int nGrupo = Integer.parseInt(campos[1]) - 1;
 
             if (nGrupo > grupos.size()) {
                 throw new ErrorFatalConfig("Número de grupo demasiado grande", JuegoConsts.CONFIG_CASILLAS, nLinea);

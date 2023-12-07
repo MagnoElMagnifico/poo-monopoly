@@ -1,5 +1,6 @@
 package monopoly.casilla;
 
+import monopoly.error.ErrorFatalLogico;
 import monopoly.utils.Consola;
 import monopoly.Juego;
 import monopoly.jugador.Jugador;
@@ -39,8 +40,8 @@ public class CasillaImpuesto extends Casilla {
     }
 
     @Override
-    public void accion(Jugador jugadorTurno, Dado dado) {
-        jugadorTurno.cobrar(impuestos, true);
+    public void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatalLogico {
+        jugadorTurno.cobrar(impuestos, banca);
         Juego.consola.imprimir("El jugador paga de impuestos: %s\n".formatted(Juego.consola.num(impuestos)));
         jugadorTurno.getEstadisticas().anadirTasa(impuestos);
 

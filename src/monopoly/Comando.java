@@ -27,12 +27,12 @@ public interface Comando {
     /**
      * Saca al jugador de la cárcel pagando la fianza
      */
-    void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar;
+    void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar, ErrorComandoFortuna, ErrorFatalLogico;
 
     /**
      * Cambia el modo del avatar del jugador actual de básico a avanzado y viceversa
      */
-    void cambiarModo() throws ErrorComandoEstadoPartida;
+    void cambiarModo() throws ErrorComandoEstadoPartida, ErrorComandoAvatar;
 
     /**
      * Genera un dado aleatorio y mueve el avatar actual
@@ -47,7 +47,7 @@ public interface Comando {
     /**
      * Termina el turno del jugador actual
      */
-    void acabarTurno() throws ErrorComandoEstadoPartida;
+    void acabarTurno() throws ErrorComandoEstadoPartida, ErrorComandoAvatar;
 
     /**
      * Declara al jugador actual en bancarrota
@@ -68,7 +68,7 @@ public interface Comando {
      *     comprar {propiedad}
      * </pre>
      */
-    void comprar(String[] args) throws ErrorComando;
+    void comprar(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Permite al jugador actual edificar en el solar donde se encuentra
@@ -92,7 +92,7 @@ public interface Comando {
      *      hipotecar {propiedad}
      * </pre>
      */
-    void hipotecar(String[] args) throws ErrorComando;
+    void hipotecar(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Permite deshipotecar una propiedad
@@ -100,7 +100,7 @@ public interface Comando {
      *      deshipotecar {propiedad}
      * </pre>
      */
-    void deshipotecar(String[] args) throws ErrorComando;
+    void deshipotecar(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Permite crear un trato entre varios jugadores
@@ -149,7 +149,7 @@ public interface Comando {
      * </pre>
      * @see Listable
      */
-    void listar(String[] args);
+    void listar(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Calcula unas estadísticas sobre la partida actual o sobre
@@ -159,7 +159,7 @@ public interface Comando {
      *     estadisticas { nombre jugador }
      * </pre>
      */
-    void estadisticas(String[] args) throws ErrorComando;
+    void estadisticas(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     // ==== COMANDOS DEBUG ============================================================
 
@@ -180,7 +180,7 @@ public interface Comando {
      * </pre>
      * Si cantidad > 0 se ingresa, si cantidad < 0 se cobra
      */
-    void fortuna(String[] args) throws ErrorComando;
+    void fortuna(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Mueve el avatar actual con el número de posiciones del dado

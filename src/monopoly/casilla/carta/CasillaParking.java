@@ -1,6 +1,8 @@
 package monopoly.casilla.carta;
 
 import monopoly.Juego;
+import monopoly.error.ErrorComandoFortuna;
+import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
 import monopoly.jugador.Jugador;
 import monopoly.utils.Dado;
@@ -23,11 +25,11 @@ public class CasillaParking extends CasillaAccion {
     }
 
     @Override
-    public void accion(Jugador jugadorTurno, Dado dado) {
+    public void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatalLogico, ErrorComandoFortuna {
         long bote = banca.getFortuna();
         jugadorTurno.ingresar(bote);
         jugadorTurno.getEstadisticas().anadirPremio(bote);
-        banca.cobrar(bote, false);
+        banca.cobrar(bote);
 
         Juego.consola.imprimir("El jugador recibe el bote de la banca: %s\n".formatted(Juego.consola.num(bote)));
     }

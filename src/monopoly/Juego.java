@@ -1,6 +1,7 @@
 package monopoly;
 
 import monopoly.casilla.Lector;
+import monopoly.casilla.edificio.Edificio;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
 import monopoly.casilla.propiedad.Propiedad;
@@ -32,9 +33,7 @@ import java.util.function.Function;
  * </p>
  */
 public class Juego implements Comando {
-
     public static Consola consola;
-
     private final String msgAyuda;
 
     // Atributos
@@ -83,11 +82,11 @@ public class Juego implements Comando {
         consola.imprimir(consola.fmt(JuegoConsts.MSG_INICIO, Color.Amarillo));
         consola.imprimir("Puedes usar el comando \"%s\" para ver las opciones disponibles\n".formatted(consola.fmt("ayuda", Color.Verde)));
 
-        boolean cerrar = false;
-        while (!cerrar) {
-            // TODO: ¿Cómo tratarlas de forma diferente?
+        boolean ejecutar = true;
+        while (ejecutar) {
             try {
-                cerrar = ejecutarComando(consola.leer("$> "));
+                String cmd = consola.leer("$> ");
+                ejecutar = ejecutarComando(cmd);
             } catch (ErrorComando e) {
                 e.imprimirMsg();
             } catch (ErrorFatal e) {
@@ -131,7 +130,6 @@ public class Juego implements Comando {
             case "siguiente", "sig", "next" -> siguiente();
             case "acabar turno", "fin", "end" -> acabarTurno();
             case "bancarrota" -> bancarrota();
-            // TODO: listar
             default -> cmdProcesado = false;
         }
 
@@ -151,6 +149,8 @@ public class Juego implements Comando {
             case "hipotecar" -> hipotecar(args);
             case "deshipotecar" -> deshipotecar(args);
             case "estadisticas" -> estadisticas(args);
+            case "listar" -> listar(args);
+            case "describir" -> describir(args);
             // ------------------------------------------------------------
             case "exec" -> ejecutarArchivo(args);
             case "mover" -> mover(args);
@@ -267,20 +267,20 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar {
+    public void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar, ErrorFatalLogico {
         if (!jugando) {
             throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         Jugador jugadorTurno = getJugadorTurno();
 
-        jugadorTurno.getAvatar().salirCarcelPagando(false);
+        jugadorTurno.getAvatar().salirCarcelPagando(banca);
         verTablero();
         jugadorTurno.describirTransaccion();
     }
 
     @Override
-    public void cambiarModo() throws ErrorComandoEstadoPartida {
+    public void cambiarModo() throws ErrorComandoEstadoPartida, ErrorComandoAvatar {
         if (!jugando) {
             throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
@@ -315,7 +315,7 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void acabarTurno() throws ErrorComandoEstadoPartida {
+    public void acabarTurno() throws ErrorComandoEstadoPartida, ErrorComandoAvatar {
         if (!jugando) {
             throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
@@ -366,12 +366,10 @@ public class Juego implements Comando {
         }
 
         // Fin de la partida
-        consola.imprimir(consola.fmt("Felicidades %s, has ganado la partida".formatted(jugadores.get(0).getNombre()), Color.Amarillo));
         jugando = false;
-
+        consola.imprimir(consola.fmt("Felicidades %s, has ganado la partida".formatted(jugadores.get(0).getNombre()), Color.Amarillo));
         consola.imprimir(consola.fmt(JuegoConsts.MSG_FIN, Color.Amarillo));
-        consola.imprimir("\nReseteando tablero...\n");
-        // TODO: resetear tablero
+        System.exit(0);
     }
 
     // ================================================================================
@@ -409,11 +407,10 @@ public class Juego implements Comando {
         consola.imprimir("El jugador %s con avatar %s se ha creado con éxito.\n".formatted(
                 consola.fmt(nombre, Color.Verde),
                 consola.fmt(Character.toString(avatar.getId()), Color.Verde)));
-
     }
 
     @Override
-    public void comprar(String[] args) throws ErrorComando {
+    public void comprar(String[] args) throws ErrorComando, ErrorFatalLogico {
         if (args.length != 2) {
             throw new ErrorComandoFormato(1, args.length - 1);
         }
@@ -502,7 +499,7 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void hipotecar(String[] args) throws ErrorComando {
+    public void hipotecar(String[] args) throws ErrorComando, ErrorFatalLogico {
         if (args.length != 2) {
             throw new ErrorComandoFormato(1, args.length - 1);
         }
@@ -522,7 +519,7 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void deshipotecar(String[] args) throws ErrorComando {
+    public void deshipotecar(String[] args) throws ErrorComando, ErrorFatalLogico {
         if (args.length != 2) {
             throw new ErrorComandoFormato(1, args.length - 1);
         }
@@ -560,83 +557,61 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void listar(String[] args) {
-        // TODO
-        // TODO: Listable no está implementado
-        /*
+    public void listar(String[] args) throws ErrorComando, ErrorFatalLogico {
         if (args.length == 2) {
             // @formatter:off
             switch (args[1]) {
-                case "casillas"  -> consola.listar(casillas);
                 case "jugadores" -> consola.listar(jugadores);
-                case "enventa"   -> consola.listar(casillas, (e) -> null);
                 case "avatares"  -> consola.listar(jugadores, (j) -> j.getAvatar().listar());
-                case "edificios" -> consola.listar(casillas, (c) -> c instanceof Solar? ((Solar) c).)
-                default -> consola.error("Listar \"%s\" no está soportado".formatted(args[1]));
+                case "casillas"  -> consola.listar(casillas);
+                case "enventa"   -> consola.listar(casillas, (c) -> c instanceof Propiedad && ((Propiedad) c).getPropietario() instanceof Banca ? c.listar() : null);
             }
             // @formatter:on
-            return;
-        }
 
-
-        // En venta
-        for (Casilla casilla : casillas) {
-            // Si la casilla se puede comprar y no tiene dueño, es que está en venta
-            if (casilla.isPropiedad() && (casilla.getPropiedad().getPropietario() == null || casilla.getPropiedad().getPropietario() == banca)) {
-                casilla.getPropiedad().listar();
-            }
-        }
-
-        // Edificios
-        for (Casilla c : casillas) {
-            if (c.isPropiedad() && c.getPropiedad().getTipo() == Propiedad.TipoPropiedad.Solar) {
-                for (Edificio e : c.getPropiedad().getEdificios()) {
-                    System.out.println(e);
+            if (args[1].equalsIgnoreCase("edificios")) {
+                for (Casilla c : casillas) {
+                    if (c instanceof Solar) {
+                        for (Edificio e : ((Solar) c).getEdificios()) {
+                            consola.imprimir(e.listar());
+                        }
+                    }
                 }
             }
+            return;
         }
-
 
         if (args.length == 3 && args[1].equals("edificios")) {
-            tablero.listarEdificiosGrupo(args[2]);
-            return;
+            Grupo grupo = buscar(grupos, (g) -> g.getNombre().equalsIgnoreCase(args[2]));
+            grupo.listarEdificios();
+
+            // Mostrar cuantos edificios más se pueden construir
+            // @formatter:off
+            int nCasillas = grupo.getNumeroPropiedades();
+            int nHoteles  = nCasillas - grupo.contarEdificios("Hotel");
+            int nPiscinas = nCasillas - grupo.contarEdificios("Piscina");
+            int nPistas   = nCasillas - grupo.contarEdificios("PistaDeporte");
+            int nCasas    = (nHoteles == 0? nCasillas : 4) - grupo.contarEdificios("Casa");
+            // @formatter:on
+
+            if (nCasas == 0 && nHoteles == 0 && nPiscinas == 0 && nPistas == 0) {
+                consola.imprimir("\nYa no se pueden construir más edificios en %s\n".formatted(grupo.getNombre()));
+                return;
+            }
+
+            // @formatter:off
+            consola.imprimir("\nAún se pueden edificar:");
+            if (nCasas != 0)    consola.imprimir("  - %d casa(s)\n".formatted(nCasas));
+            if (nHoteles != 0)  consola.imprimir("  - %d hotel(es)\n".formatted(nHoteles));
+            if (nPiscinas != 0) consola.imprimir("  - %d piscina(s)\n".formatted(nPiscinas));
+            if (nPistas != 0)   consola.imprimir("  - %d pistas(s) de deporte\n".formatted(nPistas));
+            // @formatter:on
         }
 
-        consola.error("Se esperaban 2 o 3 parámetros, se recibieron %d.".formatted(args.length - 1));
-        */
+        throw new ErrorComandoFormato(2, args.length - 1);
     }
-
-    /*
-    public void listarEdificiosGrupo(String nombreGrupo) {
-        Grupo grupo = buscar(grupos, (g) -> g.getNombre().equalsIgnoreCase(nombreGrupo));
-        grupo.listarEdificios();
-
-        // Mostrar cuantos edificios más se pueden construir
-        // @formatter:off
-        int nCasillas = grupo.getNumeroCasillas();
-        int nHoteles  = nCasillas - grupo.contarEdificios(Edificio.TipoEdificio.Hotel);
-        int nPiscinas = nCasillas - grupo.contarEdificios(Edificio.TipoEdificio.Piscina);
-        int nPistas   = nCasillas - grupo.contarEdificios(Edificio.TipoEdificio.PistaDeporte);
-        int nCasas    = (nHoteles == 0? nCasillas : 4) - grupo.contarEdificios(Edificio.TipoEdificio.Casa);
-        // @formatter:on
-
-        if (nCasas == 0 && nHoteles == 0 && nPiscinas == 0 && nPistas == 0) {
-            System.out.printf("\nYa no se pueden construir más edificios en %s\n", grupo.getNombre());
-            return;
-        }
-
-        // @formatter:off
-        System.out.println("\nAún se pueden edificar:");
-        if (nCasas != 0)    System.out.printf("  - %d casa(s)\n", nCasas);
-        if (nHoteles != 0)  System.out.printf("  - %d hotel(es)\n", nHoteles);
-        if (nPiscinas != 0) System.out.printf("  - %d piscina(s)\n", nPiscinas);
-        if (nPistas != 0)   System.out.printf("  - %d pistas(s) de deporte\n", nPistas);
-        // @formatter:on
-    }
-    */
 
     @Override
-    public void estadisticas(String[] args) throws ErrorComando {
+    public void estadisticas(String[] args) throws ErrorComando, ErrorFatalLogico {
         if (args.length == 2) {
             Jugador jugador = buscar(jugadores, (j) -> j.getNombre().equalsIgnoreCase(args[1]));
             consola.imprimir(jugador.getEstadisticas().toString());
@@ -648,13 +623,12 @@ public class Juego implements Comando {
             return;
         }
 
-        consola.error("Se esperaba 0 o 1 parámetro, se recibieron %d".formatted(args.length - 1));
+        throw new ErrorComandoFormato(0, args.length - 1);
     }
 
-    private void estadisticas() {
+    private void estadisticas() throws ErrorComandoEstadoPartida, ErrorFatalLogico {
         if (!jugando) {
-            consola.error("No se ha iniciado la partida");
-            return;
+            throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
         Casilla casillaMasRentable = null;
@@ -780,7 +754,7 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void fortuna(String[] args) throws ErrorComando {
+    public void fortuna(String[] args) throws ErrorComando, ErrorFatalLogico {
         if (args.length != 3) {
             throw new ErrorComandoFormato(2, args.length - 1);
         }
@@ -795,7 +769,7 @@ public class Juego implements Comando {
             if (cantidad > 0) {
                 jugador.ingresar(cantidad);
             } else if (cantidad < 0) {
-                jugador.cobrar(-cantidad, true);
+                jugador.cobrar(-cantidad, banca);
                 consola.imprimir("Se ha cobrado exitosamente %s a %s\n".formatted(consola.num(-cantidad), jugador.getNombre()));
             }
 

@@ -2,7 +2,7 @@ package monopoly.casilla.propiedad;
 
 import monopoly.Juego;
 import monopoly.JuegoConsts;
-import monopoly.casilla.edificio.Edificio;
+import monopoly.casilla.edificio.*;
 import monopoly.error.ErrorComando;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
@@ -58,18 +58,18 @@ public class Solar extends Propiedad {
                     Juego.consola.listar(getEdificios(), Edificio::getNombreFmt),
                     isHipotecada()? "Sí" : "No",
                     // ==========================================================
-                    Juego.consola.num(Calculadora.precio(Edificio.TipoEdificio.Casa, this)),
-                    Juego.consola.num(Calculadora.precio(Edificio.TipoEdificio.Hotel, this)),
-                    Juego.consola.num(Calculadora.precio(Edificio.TipoEdificio.Piscina, this)),
-                    Juego.consola.num(Calculadora.precio(Edificio.TipoEdificio.PistaDeporte, this)),
+                    Juego.consola.num(Casa.getValor(this)),
+                    Juego.consola.num(Hotel.getValor(this)),
+                    Juego.consola.num(Piscina.getValor(this)),
+                    Juego.consola.num(PistaDeporte.getValor(this)),
                     // ----------------------------------------------------------
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Casa, 1)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Casa, 2)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Casa, 3)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Casa, 4)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Hotel, 1)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Piscina, 1)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.PistaDeporte, 1)));
+                    Juego.consola.num(Casa.getAlquiler(this, 1)),
+                    Juego.consola.num(Casa.getAlquiler(this, 2)),
+                    Juego.consola.num(Casa.getAlquiler(this, 3)),
+                    Juego.consola.num(Casa.getAlquiler(this, 4)),
+                    Juego.consola.num(Hotel.getAlquiler(this)),
+                    Juego.consola.num(Piscina.getAlquiler(this)),
+                    Juego.consola.num(PistaDeporte.getAlquiler(this)));
         // @formatter:on
 
     }

@@ -2,17 +2,48 @@ package monopoly.casilla.edificio;
 
 import monopoly.Juego;
 import monopoly.casilla.propiedad.Solar;
+import monopoly.error.ErrorComandoEdificio;
 import monopoly.error.ErrorFatalLogico;
+import monopoly.utils.Listable;
 
-public abstract class Edificio {
+public abstract class Edificio implements Listable {
     private static int ultimoId = 1;
 
     private int id;
     private Solar solar;
 
-    public Edificio(Solar solar) {
+    public Edificio(Solar solar) throws ErrorComandoEdificio {
         this.id = ultimoId++;
+
+        if (solar.isHipotecada()) {
+            throw new ErrorComandoEdificio("No se puede edificar sobre un Solar hipotecado");
+        }
+
         this.solar = solar;
+    }
+
+    @Override
+    public String listar() {
+        try {
+            // @formatter:off
+            return """
+                   {
+                       id: %s-%d
+                       propietario: %s
+                       solar: %s
+                       grupo: %s
+                       precio: %s
+                   }
+                   """.formatted(
+                           getClass().getName(), id,
+                           getSolar().getPropietario().getNombre(),
+                           getSolar().getNombreFmt(),
+                           getSolar().getGrupo().getNombreFmt(),
+                           Juego.consola.num(getValor()));
+            // @formatter:on
+        } catch (ErrorFatalLogico e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

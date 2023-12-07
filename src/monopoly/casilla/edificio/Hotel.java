@@ -23,8 +23,6 @@ public final class Hotel extends Edificio {
             throw new ErrorComandoEdificio("Se necesitan %d casa(s) en el solar para edificar un hotel".formatted(JuegoConsts.N_CASAS_PARA_HOTEL));
         }
 
-        solar.edificar(this);
-
         // Quitar las 4 casas
         for (int ii = 0; ii < JuegoConsts.N_CASAS_PARA_HOTEL; ii++) {
             solar.demoler("Casa");
