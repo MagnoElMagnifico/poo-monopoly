@@ -57,4 +57,7 @@ public interface JuegoConsts {
             o888o        o888o o888o o888o      `Y8bod88P" `Y8bod8P'      o888o        `Y888""8o d888b      "888" o888o `Y8bod88P" `Y888""8o\s
             """;
 
+    enum TipoEdificio {
+        Casa, Hotel, Piscina, PistaDeporte
+    }
 }

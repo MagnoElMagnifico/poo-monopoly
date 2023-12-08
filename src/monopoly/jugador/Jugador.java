@@ -1,7 +1,9 @@
 package monopoly.jugador;
 
 
+import monopoly.JuegoConsts;
 import monopoly.Tratos.*;
+import monopoly.casilla.Casilla;
 import monopoly.error.ErrorComandoAvatar;
 import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorComandoJugador;
@@ -70,13 +72,13 @@ public class Jugador {
                     fortuna: %s
                     propiedades: %s
                     hipotecas: %s
-                    edificios: %s
+                    edificios:
                 }""".formatted(nombre,
                                avatar.getId(),
                                Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Juego.consola.Color.Rojo : Juego.consola.Color.Verde),
-                               Juego.consola.listar(propiedades.iterator(), (p) -> p.isHipoetcada() ? null : p.getNombreFmt()),
-                               Juego.consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? p.getNombreFmt() : null),
-                               listarEdificios());
+                               Juego.consola.listar(propiedades, (p) -> p.isHipotecada() ? null : p.getNombreFmt()),
+                               Juego.consola.listar(propiedades, (p) -> p.isHipotecada()? p.getNombreFmt() : null));
+                               //TODO: listarEdificios());
         // @formatter:on
     }
 
@@ -90,12 +92,12 @@ public class Jugador {
                     fortuna: %s
                     gastos: %s
                     propiedades: %s
-                    edificios: %s
+                    edificios:
                 }
                 """.formatted(Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
                      Juego.consola.num(estadisticas.getGastos()),
-                     Juego.consola.listar(propiedades.iterator(), (p) -> p.getCasilla().getNombreFmt()),
-                     listarEdificios()));
+                     Juego.consola.listar(propiedades, Casilla::getNombreFmt));
+                     // TODO: listarEdificios()));
         // @formatter:on
     }
 
@@ -161,7 +163,7 @@ public class Jugador {
         describirTransaccion();
         return true;
     }
-    public boolean vender(TipoEdificio tipoEdificio, Propiedad solar, int cantidad) {
+    public boolean vender(JuegoConsts.TipoEdificio tipoEdificio, Propiedad solar, int cantidad) {
         if (!solar.getPropietario().equals(this)) {
             Juego.consola.error("No se puede vender un edificio de otro jugador: %s pertenece a %s".formatted(solar.getNombre(), solar.getPropietario().getNombre()));
             return false;
