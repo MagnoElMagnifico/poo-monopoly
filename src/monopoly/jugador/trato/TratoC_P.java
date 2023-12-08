@@ -1,4 +1,4 @@
-package trato;
+package monopoly.jugador.trato;
 
 import monopoly.Juego;
 import monopoly.casilla.propiedad.Propiedad;
@@ -6,14 +6,14 @@ import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
 
-public class TratoC_P extends Trato{
-    private final Propiedad aceptado;
+public class TratoC_P extends Trato {
+    private final Propiedad propiedad;
     private final long cantidad;
 
-    public TratoC_P(String nombre, Jugador interesado, Jugador aceptador, long cantidad, Propiedad acep) {
-        super(nombre, interesado, aceptador);
+    public TratoC_P(Jugador interesado, Jugador aceptador, long cantidad, Propiedad propiedad) {
+        super(interesado, aceptador);
         this.cantidad = cantidad;
-        this.aceptado = acep;
+        this.propiedad = propiedad;
     }
 
     @Override
@@ -22,7 +22,7 @@ public class TratoC_P extends Trato{
                 %s
                 Cambiar %s por %s
                 
-                """.formatted(super.toString(), Juego.consola.num(cantidad), aceptado.getNombreFmt());
+                """.formatted(super.toString(), Juego.consola.num(cantidad), propiedad.getNombreFmt());
     }
 
     @Override
@@ -31,9 +31,11 @@ public class TratoC_P extends Trato{
         Jugador j2 = getAceptador();
 
         j1.cobrar(cantidad);
-        j1.anadirPropiedad(aceptado);
-
         j2.ingresar(cantidad);
-        j2.quitarPropiedad(aceptado);
+
+        j1.anadirPropiedad(propiedad);
+        j2.quitarPropiedad(propiedad);
+
+        super.aceptar();
     }
 }

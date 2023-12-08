@@ -150,6 +150,9 @@ public class Juego implements Comando {
             case "estadisticas" -> estadisticas(args);
             case "listar" -> listar(args);
             case "describir" -> describir(args);
+            case "trato" -> trato(args);
+            case "aceptar" -> aceptar(args);
+            case "eliminar" -> eliminar(args);
             // ------------------------------------------------------------
             case "exec" -> ejecutarArchivo(args);
             case "mover" -> mover(args);
@@ -721,19 +724,70 @@ public class Juego implements Comando {
         // @formatter:on
     }
 
+    private boolean isNumeric(String str) {
+        try {
+            Long.parseLong(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
     @Override
-    public void trato(String[] args) {
-        // TODO
+    public void trato(String[] args) throws ErrorComando {
+        Jugador jugador = buscar(jugadores, (j) -> j.getNombre().equalsIgnoreCase(args[1]));
+
+        if (getJugadorTurno().equals(jugador)) {
+            throw new ErrorComando("No puedes hacer un trato contigo mismo");
+        }
+
+        if (args.length == 4) {
+            if (isNumeric(args[2])) {
+                Propiedad p = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+                getJugadorTurno().crearTrato(jugador, Long.parseLong(args[2]), p);
+            } else if (isNumeric(args[3])) {
+                Propiedad p = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
+                getJugadorTurno().crearTrato(jugador, p, Long.parseLong(args[3]));
+            } else {
+                Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
+                Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+                getJugadorTurno().crearTrato(jugador, p1, p2);
+            }
+        } else if (args.length == 5) {
+            if (isNumeric(args[2])) {
+                Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+                Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[4]));
+                getJugadorTurno().crearTrato(jugador, p1, Long.parseLong(args[2]), p2);
+            }
+            if (isNumeric(args[4])) {
+                Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
+                Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+                getJugadorTurno().crearTrato(jugador, p1, p2, Long.parseLong(args[4]));
+            }
+        } else if(args.length==6){
+            if(!args[5].equalsIgnoreCase("noalquiler")){
+                throw new ErrorComandoFormato("Subcomando no válido");
+            }
+            Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
+            Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+            Propiedad p3 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[5]));
+            // TODO: Poner comando de creacion del tipo de trato
+        }
     }
 
     @Override
-    public void aceptar(String[] args) {
-        // TODO
+    public void aceptar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna, ErrorFatalLogico {
+        if(args.length!= 2){
+            throw new ErrorComandoFormato(1, args.length-1);
+        }
+        getJugadorTurno().aceptarTrato(args[1]);
     }
 
     @Override
-    public void eliminar(String[] args) {
-        // TODO
+    public void eliminar(String[] args) throws ErrorComandoFormato{
+        if(args.length!= 2){
+            throw new ErrorComandoFormato(1, args.length-1);
+        }
+        getJugadorTurno().eliminarTrato(args[1]);
     }
 
     // ================================================================================

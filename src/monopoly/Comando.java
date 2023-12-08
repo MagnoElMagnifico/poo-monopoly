@@ -103,7 +103,7 @@ public interface Comando {
     void deshipotecar(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
-     * Permite crear un trato entre varios jugadores
+     * Permite crear un monopoly.jugador.trato entre varios jugadores
      * <pre>
      *     trato { nombre jugador }: cambiar { propiedad } por { propiedad }
      *     trato { nombre jugador }: cambiar { propiedad } por { cantidad }
@@ -113,15 +113,15 @@ public interface Comando {
      *     trato { nombre jugador }: cambiar { propiedad } por { propiedad } y noalquiler { propiedad } durante { numero turnos }
      * </pre>
      */
-    void trato(String[] args);
+    void trato(String[] args) throws ErrorComando;
 
     /**
-     * Permite a un jugador aceptar un trato
+     * Permite a un jugador aceptar un monopoly.jugador.trato
      * <pre>
      *     aceptar { ID trato }
      * </pre>
      */
-    void aceptar(String[] args);
+    void aceptar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna, ErrorFatalLogico;
 
     /**
      * Permite al jugador que propuso un trato, eliminarlo.
@@ -129,7 +129,7 @@ public interface Comando {
      *     eliminar { ID trato }
      * </pre>
      */
-    void eliminar(String[] args);
+    void eliminar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna;
 
     /**
      * Muestra la información completa sobre el jugador, casilla o avatar dado
