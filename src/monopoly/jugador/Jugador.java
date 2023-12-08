@@ -18,10 +18,10 @@ public class Jugador implements Listable {
     private final String nombre;
     private final Avatar avatar;
     private final HashSet<Propiedad> propiedades;
+    private final HashSet<Trato> tratos;
     private final EstadisticasJugador estadisticas;
     private long fortuna;
     private Jugador acreedor;
-    private HashSet<Trato> tratos;
 
     public Jugador(String nombre, Avatar avatar, long fortunaInicial) {
         this.nombre = nombre;
@@ -32,6 +32,7 @@ public class Jugador implements Listable {
         this.fortuna = fortunaInicial;
 
         propiedades = new HashSet<>();
+        tratos = new HashSet<>();
         estadisticas = new EstadisticasJugador(this);
     }
 
@@ -375,7 +376,7 @@ public class Jugador implements Listable {
     /**
      * Intercambiar con compensación: p1 + cantidad <--> p2
      */
-    public void crearTrato(String nombre, Jugador jugador, Propiedad p1, long cantidad, Propiedad p2) throws ErrorComandoJugador, ErrorComandoFortuna {
+    public void crearTrato(Jugador jugador, Propiedad p1, long cantidad, Propiedad p2) throws ErrorComandoJugador, ErrorComandoFortuna {
         if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
             throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no te pertenecen.", this);
         }
@@ -384,7 +385,7 @@ public class Jugador implements Listable {
             throw new ErrorComandoFortuna("No tienes suficiente dinero para ofrecer el trato", this);
         }
 
-        TratoPC_P trato = new TratoPC_P(nombre, this, jugador, p1, cantidad, p2);
+        TratoPC_P trato = new TratoPC_P(this, jugador, p1, cantidad, p2);
         this.tratos.add(trato);
         jugador.tratos.add(trato);
     }

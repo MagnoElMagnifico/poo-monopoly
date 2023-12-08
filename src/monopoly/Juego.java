@@ -110,8 +110,9 @@ public class Juego implements Comando {
         // Normalizar:
         //   - Eliminar espacio al inicio y al final
         //   - Eliminar más de dos espacios seguidos
+        //   - Eliminar los ':' (tratos)
         //   - Convertir a minúsculas
-        cmd = cmd.strip().replaceAll(" +", " ").toLowerCase();
+        cmd = cmd.strip().replaceAll(" +", " ").replaceAll(":", "").toLowerCase();
 
         if (cmd.equals("salir") || cmd.equals("quit") || cmd.equals("exit")) {
             return false;
@@ -739,42 +740,101 @@ public class Juego implements Comando {
     public void trato(String[] args) throws ErrorComando {
         Jugador jugador = buscar(jugadores, (j) -> j.getNombre().equalsIgnoreCase(args[1]));
 
+        if (!args[2].equalsIgnoreCase("cambiar")) {
+            throw new ErrorComandoFormato("El uso de la palabra \"cambiar\" es obligatorio");
+        }
+
         if (getJugadorTurno().equals(jugador)) {
             throw new ErrorComando("No puedes hacer un trato contigo mismo");
         }
 
-        if (args.length == 4) {
-            if (isNumeric(args[2])) {
+        // trato nombre cambiar X por Y
+        if (args.length == 6) {
+            if (!args[4].equalsIgnoreCase("por")) {
+                throw new ErrorComandoFormato("El uso de la palabra \"por\" es obligatorio");
+            }
+
+            // trato nombre cambiar CANTIDAD por PROPIEDAD
+            if (isNumeric(args[3])) {
                 Propiedad p = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
-                getJugadorTurno().crearTrato(jugador, Long.parseLong(args[2]), p);
-            } else if (isNumeric(args[3])) {
+                getJugadorTurno().crearTrato(jugador, Long.parseLong(args[3]), p);
+                return;
+            }
+
+            // trato nombre cambiar PROPIEDAD por CANTIDAD
+            if (isNumeric(args[5])) {
                 Propiedad p = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
-                getJugadorTurno().crearTrato(jugador, p, Long.parseLong(args[3]));
-            } else {
-                Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
-                Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
-                getJugadorTurno().crearTrato(jugador, p1, p2);
+                getJugadorTurno().crearTrato(jugador, p, Long.parseLong(args[5]));
+                return;
             }
-        } else if (args.length == 5) {
-            if (isNumeric(args[2])) {
+
+            // trato nombre cambiar PROPIEDAD por PROPIEDAD
+            Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+            Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[5]));
+            getJugadorTurno().crearTrato(jugador, p1, p2);
+            return;
+        }
+
+        // trato nombre cambiar X por Y y Z
+        // trato nombre cambiar X y Y por Z
+        if (args.length == 8) {
+            // trato nombre cambiar PROPIEDAD por Y y Z
+            if (args[4].equalsIgnoreCase("por") && args[6].equalsIgnoreCase("y")) {
                 Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
-                Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[4]));
-                getJugadorTurno().crearTrato(jugador, p1, Long.parseLong(args[2]), p2);
+
+                // trato nombre cambiar PROPIEDAD por CANTIDAD y PROPIEDAD
+                if (isNumeric(args[5])) {
+                    // Intercambiar args[5] y args[7]
+                    String temp = args[5];
+                    args[5] = args[7];
+                    args[7] = temp;
+                }
+
+                // trato nombre cambiar PROPIEDAD por PROPIEDAD y CANTIDAD
+                if (isNumeric(args[7])) {
+                    Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[5]));
+                    getJugadorTurno().crearTrato(jugador, p1, p2, Long.parseLong(args[7]));
+                    return;
+                }
             }
-            if (isNumeric(args[4])) {
-                Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
+
+            // trato nombre cambiar X y Y por PROPIEDAD
+            if (args[4].equalsIgnoreCase("y") && args[6].equalsIgnoreCase("por")) {
                 Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
-                getJugadorTurno().crearTrato(jugador, p1, p2, Long.parseLong(args[4]));
+
+                // trato nombre cambiar CANTIDAD y PROPIEDAD por PROPIEDAD
+                if (isNumeric(args[3])) {
+                    // Intercambiar args[3] y args[5]
+                    String temp = args[5];
+                    args[5] = args[3];
+                    args[3] = temp;
+                }
+
+                // trato nombre cambiar PROPIEDAD y CANTIDAD por PROPIEDAD
+                if (isNumeric(args[5])) {
+                    Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+                    getJugadorTurno().crearTrato(jugador, p1, Long.parseLong(args[5]), p2);
+                    return;
+                }
             }
-        } else if (args.length == 6) {
-            if (!args[5].equalsIgnoreCase("noalquiler")) {
-                throw new ErrorComandoFormato("Subcomando no válido");
-            }
-            Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
-            Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
-            Propiedad p3 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[5]));
+        }
+
+        // trato nombre cambiar PROPIEDAD por PROPIEDAD y noalquiler PROPIEDAD durante N
+        if (args.length == 11
+                && args[4].equalsIgnoreCase("por")
+                && args[6].equalsIgnoreCase("y")
+                && args[7].equalsIgnoreCase("noalquiler")
+                && args[9].equalsIgnoreCase("durante")
+                && isNumeric(args[10])
+        ) {
+            Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+            Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[5]));
+            Propiedad na = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[8]));
+            int nTurnos = Integer.parseInt(args[10]);
             // TODO: Poner comando de creacion del tipo de trato
         }
+
+        throw new ErrorComandoFormato("Formato de comando incorrecto. Consulta la ayuda para más información.");
     }
 
     @Override

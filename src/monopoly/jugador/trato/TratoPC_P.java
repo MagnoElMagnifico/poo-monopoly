@@ -11,7 +11,7 @@ public class TratoPC_P extends Trato {
     private final Propiedad propAceptador;
     private final long cantidad;
 
-    public TratoPC_P(String nombre, Jugador interesado, Jugador benefactor, Propiedad propInteresado, long cantidad, Propiedad propAceptador) {
+    public TratoPC_P(Jugador interesado, Jugador benefactor, Propiedad propInteresado, long cantidad, Propiedad propAceptador) {
         super(interesado, benefactor);
         this.propInteresado = propInteresado;
         this.propAceptador = propAceptador;
