@@ -31,6 +31,7 @@ import java.util.function.Function;
  * </p>
  */
 public class Juego implements Comando {
+    private static int ultimoTrato=1;
 
     // TODO: poner en privado y añadir un getter
     public static Consola consola;
@@ -148,6 +149,9 @@ public class Juego implements Comando {
             case "hipotecar" -> hipotecar(args);
             case "deshipotecar" -> deshipotecar(args);
             case "estadisticas" -> estadisticas(args);
+            case "trato" -> trato(args);
+            case "aceptar" -> aceptar(args);
+            case "eliminar" -> eliminar(args);
             // ------------------------------------------------------------
             case "exec" -> ejecutarArchivo(args);
             case "mover" -> mover(args);
@@ -741,19 +745,74 @@ public class Juego implements Comando {
         // @formatter:on
     }
 
+    private boolean isNumeric(String str) {
+        try {
+            Long.parseLong(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
     @Override
-    public void trato(String[] args) {
-        // TODO
+    public void trato(String[] args) throws ErrorComando {
+        Jugador jugador = buscar(jugadores, (j) -> j.getNombre().equalsIgnoreCase(args[1]));
+        if (jugador == getJugadorTurno()) {
+            throw new ErrorComando("No puedes hacer un trato contigo mismo");
+        }
+        if (args.length == 4) {
+            if (isNumeric(args[2])) {
+                Propiedad p = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+                getJugadorTurno().crearTrato("Trato" + ultimoTrato, jugador, Long.parseLong(args[2]), p);
+                ultimoTrato++;
+            } else if (isNumeric(args[3])) {
+                Propiedad p = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
+                getJugadorTurno().crearTrato("Trato" + ultimoTrato, jugador, p, Long.parseLong(args[3]));
+                ultimoTrato++;
+            } else {
+                Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
+                Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+                getJugadorTurno().crearTrato("Trato" + ultimoTrato, jugador, p1, p2);
+                ultimoTrato++;
+            }
+        } else if (args.length == 5) {
+            if (isNumeric(args[2])) {
+                Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+                Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[4]));
+                getJugadorTurno().crearTrato("Trato" + ultimoTrato, jugador, p1, Long.parseLong(args[2]), p2);
+                ultimoTrato++;
+            }
+            if (isNumeric(args[4])) {
+                Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
+                Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+                getJugadorTurno().crearTrato("Trato" + ultimoTrato, jugador, p1, p2, Long.parseLong(args[4]));
+                ultimoTrato++;
+            }
+        } else if(args.length==6){
+            if(!args[5].equalsIgnoreCase("noalquiler")){
+                throw new ErrorComandoFormato("Subcomando no válido");
+            }
+            Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
+            Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+            Propiedad p3 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[5]));
+            //TODO: Poner comando de creacion del tipo de trato
+            ultimoTrato++;
+        }
     }
 
     @Override
-    public void aceptar(String[] args) {
-        // TODO
+    public void aceptar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna {
+        if(args.length!= 2){
+            throw new ErrorComandoFormato(1, args.length-1);
+        }
+        getJugadorTurno().aceptarTrato(args[1]);
     }
 
     @Override
-    public void eliminar(String[] args) {
-        // TODO
+    public void eliminar(String[] args) throws ErrorComandoFormato{
+        if(args.length!= 2){
+            throw new ErrorComandoFormato(1, args.length-1);
+        }
+        getJugadorTurno().eliminarTrato(args[1]);
     }
 
     // ================================================================================

@@ -74,7 +74,7 @@ public class Jugador {
                 }""".formatted(nombre,
                                avatar.getId(),
                                Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Juego.consola.Color.Rojo : Juego.consola.Color.Verde),
-                               Juego.consola.listar(propiedades.iterator(), (p) -> p.isHipoetcada()? null : p.getNombreFmt()),
+                               Juego.consola.listar(propiedades.iterator(), (p) -> p.isHipoetcada() ? null : p.getNombreFmt()),
                                Juego.consola.listar(propiedades.iterator(), (p) -> p.isHipotecada()? p.getNombreFmt() : null),
                                listarEdificios());
         // @formatter:on
