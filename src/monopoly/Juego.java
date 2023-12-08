@@ -1,7 +1,7 @@
 package monopoly;
 
 import monopoly.casilla.Lector;
-import monopoly.casilla.edificio.Edificio;
+import monopoly.casilla.edificio.*;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
 import monopoly.casilla.propiedad.Propiedad;
@@ -85,8 +85,7 @@ public class Juego implements Comando {
         boolean ejecutar = true;
         while (ejecutar) {
             try {
-                String cmd = consola.leer("$> ");
-                ejecutar = ejecutarComando(cmd);
+                ejecutar = ejecutarComando(consola.leer(JuegoConsts.PROMPT));
             } catch (ErrorComando e) {
                 e.imprimirMsg();
             } catch (ErrorFatal e) {
@@ -432,18 +431,11 @@ public class Juego implements Comando {
             throw new ErrorComandoFortuna("No se puede comprar la casilla \"%s\"".formatted(casillaActual.getNombre()), jugadorTurno);
         }
 
-        // Especifico para el coche que solo puede comprar una vez por turno en modo especial
-        // TODO
-        /*if (!avatarTurno.isPuedeComprar()) {
-            consola.error("El jugador ya ha comprado una vez en este turno");
-            return;
-        }*/
-
         jugadorTurno.comprar((Propiedad) casillaActual);
     }
 
     @Override
-    public void edificar(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida {
+    public void edificar(String[] args) throws ErrorComando, ErrorFatalLogico {
         if (args.length != 2 && args.length != 3) {
             throw new ErrorComandoFormato(1, args.length - 1);
         }
@@ -452,9 +444,28 @@ public class Juego implements Comando {
             throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
-        // TODO:
-        //Edificio edificio = convertirTipoEdificio(args[1]);
-        //getJugadorTurno().comprar(tipoEdificio, args.length == 2 ? 1 : Integer.parseInt(args[2]));
+        if (!(getJugadorTurno().getAvatar().getCasilla() instanceof Solar)) {
+            throw new ErrorComandoEdificio("No se puede edificar en una casilla que no sea un Solar");
+        }
+
+        try {
+            Solar solar = (Solar) getJugadorTurno().getAvatar().getCasilla();
+
+            for (int i = 0; i < (args.length == 2 ? 1 : Integer.parseInt(args[2])); i++) {
+                Edificio edificio = switch (args[1]) {
+                    case "c", "casa", "casas" -> new Casa(solar);
+                    case "h", "hotel", "hoteles" -> new Hotel(solar);
+                    case "p", "piscina", "piscinas" -> new Piscina(solar);
+                    case "d", "pd", "pista", "pistas", "pistadeporte", "pistasdeporte" -> new PistaDeporte(solar);
+                    default ->
+                            throw new ErrorComandoFormato("\"%s\": no es un tipo de edificio válido".formatted(args[1]));
+                };
+
+                getJugadorTurno().construir(edificio);
+            }
+        } catch (NumberFormatException e) {
+            throw new ErrorComandoFormato("\"%s\": no es un número válido".formatted(args[2]));
+        }
     }
 
     private <T> T buscar(Collection<T> elementos, Function<T, Boolean> funcion) throws ErrorComando {
@@ -464,12 +475,11 @@ public class Juego implements Comando {
             }
         }
 
-        throw new ErrorComando("No se ha encontrado");
+        throw new ErrorComando("No encontrado");
     }
 
     @Override
-    public void vender(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida {
-        /*
+    public void vender(String[] args) throws ErrorComando, ErrorFatalLogico {
         if (args.length != 3 && args.length != 4) {
             throw new ErrorComandoFormato(2, args.length - 1);
         }
@@ -478,24 +488,17 @@ public class Juego implements Comando {
             throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
-        // TODO: usar buscar()
-        // Buscar el solar
-        Propiedad solar = null;
-        for (Casilla c : casillas) {
-            if (c.isPropiedad() && c.getPropiedad().getTipo() == Propiedad.TipoPropiedad.Solar && c.getPropiedad().getNombre().equalsIgnoreCase(nombreSolar)) {
-                solar = c.getPropiedad();
-                break;
-            }
-        }
+        Solar solar = (Solar) buscar(casillas, (c) -> c instanceof Solar);
+        String tipoEdificio = switch (args[1]) {
+            case "c", "casa", "casas" -> "Casa";
+            case "h", "hotel", "hoteles" -> "Hotel";
+            case "p", "piscina", "piscinas" -> "Piscina";
+            case "d", "pd", "pista", "pistas", "pistadeporte", "pistasdeporte" -> "PistaDeporte";
+            default ->
+                    throw new ErrorComandoFormato("\"%s\": no es un tipo de edificio válido".formatted(args[1]));
+        };
 
-        if (solar == null) {
-            consola.error("No existe el solar \"%s\"".formatted(args[2]));
-            return;
-        }
-
-        // TODO: obtener tipo edificio
-        //getJugadorTurno().vender(tipoEdificio, buscar(solar, ()), cantidad);
-        */
+        getJugadorTurno().vender(solar, tipoEdificio, args.length == 3 ? 1 : Integer.parseInt(args[2]));
     }
 
     @Override

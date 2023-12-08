@@ -76,7 +76,7 @@ public interface Comando {
      *     edificar {tipo edificio} [cantidad]
      * </pre>
      */
-    void edificar(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida;
+    void edificar(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Permite vender al jugador actual los edificios previamente construidos
@@ -84,7 +84,7 @@ public interface Comando {
      *     vender {tipo edificio} {solar} [cantidad]
      * </pre>
      */
-    void vender(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida;
+    void vender(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Permite hipotecar una propiedad

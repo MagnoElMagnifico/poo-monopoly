@@ -2,6 +2,7 @@ package monopoly.casilla.propiedad;
 
 import monopoly.Juego;
 import monopoly.casilla.Casilla;
+import monopoly.error.ErrorComandoEdificio;
 import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
@@ -144,7 +145,7 @@ public abstract class Propiedad extends Casilla {
         return propietario.equals(jugador);
     }
 
-    public void hipotecar() throws ErrorComandoFortuna, ErrorFatalLogico {
+    public void hipotecar() throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoEdificio {
         if (propietario == null || propietario instanceof Banca) {
             throw new ErrorComandoFortuna("No se puede hipotecar una propiedad sin dueño", propietario);
         }
@@ -152,14 +153,6 @@ public abstract class Propiedad extends Casilla {
         if (hipotecada) {
             throw new ErrorComandoFortuna("No se puede hipotecar una propiedad sin dueño", propietario);
         }
-
-        // TODO
-        /*
-        if (tipo == TipoPropiedad.Solar && !edificios.isEmpty()) {
-            Juego.consola.error("No se puede hipotecar una propiedad con edificios");
-            return;
-        }
-        */
 
         hipotecada = true;
         long cantidad = getCosteHipoteca();

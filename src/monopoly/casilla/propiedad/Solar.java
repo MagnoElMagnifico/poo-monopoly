@@ -4,6 +4,8 @@ import monopoly.Juego;
 import monopoly.JuegoConsts;
 import monopoly.casilla.edificio.*;
 import monopoly.error.ErrorComando;
+import monopoly.error.ErrorComandoEdificio;
+import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
 import monopoly.utils.Dado;
@@ -25,53 +27,56 @@ public class Solar extends Propiedad {
 
     @Override
     public String toString() {
-        // @formatter:off
-        return """
-                {
-                    tipo: Solar
-                    nombre: %s
-                    grupo: %s
-                    precio: %s
-                    alquiler: %s
-                    propietario: %s
-                    edificios: %s
-                    hipotecada?: %s
-                    ================================
-                    valor casa: %s
-                    valor hotel: %s
-                    valor piscina: %s
-                    valor pista de deporte: %s
-                    --------------------------------
-                    alquiler una casa: %s
-                    alquiler dos casas: %s
-                    alquiler tres casas: %s
-                    alquiler cuatro casas: %s
-                    alquiler hotel: %s
-                    alquiler piscina: %s
-                    alquiler pista de deporte: %s
-                }""".formatted(
-                    getNombre(),
-                    getGrupo().getNombre(),
-                    Juego.consola.num(getPrecio()),
-                    Juego.consola.num(getAlquiler()),
-                    getPropietario().getNombre(),
-                    Juego.consola.listar(getEdificios(), Edificio::getNombreFmt),
-                    isHipotecada()? "Sí" : "No",
-                    // ==========================================================
-                    Juego.consola.num(Casa.getValor(this)),
-                    Juego.consola.num(Hotel.getValor(this)),
-                    Juego.consola.num(Piscina.getValor(this)),
-                    Juego.consola.num(PistaDeporte.getValor(this)),
-                    // ----------------------------------------------------------
-                    Juego.consola.num(Casa.getAlquiler(this, 1)),
-                    Juego.consola.num(Casa.getAlquiler(this, 2)),
-                    Juego.consola.num(Casa.getAlquiler(this, 3)),
-                    Juego.consola.num(Casa.getAlquiler(this, 4)),
-                    Juego.consola.num(Hotel.getAlquiler(this)),
-                    Juego.consola.num(Piscina.getAlquiler(this)),
-                    Juego.consola.num(PistaDeporte.getAlquiler(this)));
-        // @formatter:on
-
+        try {
+            // @formatter:off
+            return """
+                    {
+                        tipo: Solar
+                        nombre: %s
+                        grupo: %s
+                        precio: %s
+                        alquiler: %s
+                        propietario: %s
+                        edificios: %s
+                        hipotecada?: %s
+                        ================================
+                        valor casa: %s
+                        valor hotel: %s
+                        valor piscina: %s
+                        valor pista de deporte: %s
+                        --------------------------------
+                        alquiler una casa: %s
+                        alquiler dos casas: %s
+                        alquiler tres casas: %s
+                        alquiler cuatro casas: %s
+                        alquiler hotel: %s
+                        alquiler piscina: %s
+                        alquiler pista de deporte: %s
+                    }""".formatted(
+                        getNombre(),
+                        getGrupo().getNombre(),
+                        Juego.consola.num(getPrecio()),
+                        Juego.consola.num(getAlquiler()),
+                        getPropietario().getNombre(),
+                        Juego.consola.listar(getEdificios(), Edificio::getNombreFmt),
+                        isHipotecada()? "Sí" : "No",
+                        // ==========================================================
+                        Juego.consola.num(Casa.getValor(this)),
+                        Juego.consola.num(Hotel.getValor(this)),
+                        Juego.consola.num(Piscina.getValor(this)),
+                        Juego.consola.num(PistaDeporte.getValor(this)),
+                        // ----------------------------------------------------------
+                        Juego.consola.num(Casa.getAlquiler(this, 1)),
+                        Juego.consola.num(Casa.getAlquiler(this, 2)),
+                        Juego.consola.num(Casa.getAlquiler(this, 3)),
+                        Juego.consola.num(Casa.getAlquiler(this, 4)),
+                        Juego.consola.num(Hotel.getAlquiler(this)),
+                        Juego.consola.num(Piscina.getAlquiler(this)),
+                        Juego.consola.num(PistaDeporte.getAlquiler(this)));
+            // @formatter:on
+        } catch (ErrorFatalLogico e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -80,11 +85,23 @@ public class Solar extends Propiedad {
     }
 
     @Override
-    public long getAlquiler() {
+    public long getAlquiler() throws ErrorFatalLogico {
         long alquilerSolar = precio / 10;
 
-        // TODO: edificios
+        // Alquiler extra por edificios
         long alquilerEdificios = 0;
+        int nCasas = 0;
+
+        for (Edificio e : edificios) {
+            if (e.getClass().getName().equals("Casa")) {
+                nCasas++;
+            } else {
+                alquilerEdificios += e.getAlquiler();
+            }
+        }
+
+        // Las casas se aplican por separado
+        alquilerEdificios += Casa.getAlquiler(this, nCasas);
 
         if (getGrupo().isMonopolio(getPropietario())) {
             alquilerSolar *= 2;
@@ -94,7 +111,16 @@ public class Solar extends Propiedad {
     }
 
     @Override
-    public long getAlquiler(Jugador jugador, Dado dado) {
+    public void hipotecar() throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoEdificio {
+        if (!edificios.isEmpty()) {
+            throw new ErrorComandoEdificio("No se puede hipotecar una propiedad con edificios");
+        }
+
+        super.hipotecar();
+    }
+
+    @Override
+    public long getAlquiler(Jugador jugador, Dado dado) throws ErrorFatalLogico {
         return getAlquiler();
     }
 

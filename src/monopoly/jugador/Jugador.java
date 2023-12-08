@@ -9,6 +9,7 @@ import monopoly.error.*;
 import monopoly.utils.Consola;
 import monopoly.utils.Listable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Jugador implements Listable {
@@ -22,7 +23,9 @@ public class Jugador implements Listable {
     public Jugador(String nombre, Avatar avatar, long fortunaInicial) {
         this.nombre = nombre;
         this.avatar = avatar;
-        // TODO: set jugador del avatar
+        if (avatar != null) {
+            avatar.setJugador(this);
+        }
         this.fortuna = fortunaInicial;
 
         propiedades = new HashSet<>();
@@ -183,25 +186,18 @@ public class Jugador implements Listable {
         describirTransaccion();
     }
 
-    public void vender(Edificio edificio) throws ErrorComandoEdificio {
-        if (!edificio.getSolar().perteneceAJugador(this)) {
+    public void vender(Solar solar, String tipoEdificio, int cantidad) throws ErrorComandoEdificio, ErrorFatalLogico {
+        if (!solar.perteneceAJugador(this)) {
             throw new ErrorComandoEdificio("No se puede vender un edificio de otro jugador");
-        }
-
-        /*
-        int nEdificios = solar.contarEdificios(tipoEdificio);
-        if (nEdificios < cantidad) {
-            Juego.consola.error("No se pueden vender %d %s(s) dado que solo hay %d".formatted(cantidad, tipoEdificio, nEdificios));
-            return false;
         }
 
         // Borrar los edificios en cuestión e ingresar la mitad de su valor
         ArrayList<Edificio> edificios = solar.getEdificios();
-        int nBorrados = 0;
         long importeRecuperado = 0;
+        int nBorrados = 0;
 
         for (int ii = 0; ii < edificios.size(); ii++) {
-            if (edificios.get(ii).getTipo() == tipoEdificio) {
+            if (edificios.get(ii).getClass().getName().equals(tipoEdificio)) {
                 importeRecuperado += edificios.get(ii).getValor() / 2;
                 edificios.remove(ii);
                 nBorrados++;
@@ -218,21 +214,14 @@ public class Jugador implements Listable {
             }
         }
 
+        // NOTA: no se considera este importe recuperado para las estadísticas
         ingresar(importeRecuperado);
 
-        // NOTA: no se considera este importe recuperado para las estadísticas
-
-        System.out.printf("""
+        Juego.consola.imprimir("""
                 %s ha vendido %d %s(s) del solar %s por %s.
                 Ahora tiene una fortuna de %s.
-                """, nombre, cantidad, tipoEdificio, solar.getNombre(), Juego.consola.num(importeRecuperado), Juego.consola.num(fortuna));
-
-        // Actualizar el estado
-        solar.actualizarAlquiler();
-
+                """.formatted(nombre, cantidad, tipoEdificio, solar.getNombre(), Juego.consola.num(importeRecuperado), Juego.consola.num(fortuna)));
         describirTransaccion();
-        return true;
-        */
     }
 
     /**

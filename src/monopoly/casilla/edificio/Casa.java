@@ -40,7 +40,7 @@ public final class Casa extends Edificio {
         return (long)(0.6 * (float) solar.getPrecio());
     }
 
-    public static long getAlquiler(Solar solar, int cantidad) {
+    public static long getAlquiler(Solar solar, int cantidad) throws ErrorFatalLogico {
         return switch (cantidad) {
             case 0 -> 0;
             case 1 -> 5 * solar.getAlquiler();

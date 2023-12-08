@@ -46,6 +46,10 @@ public abstract class Avatar implements Listable {
         this.movimientoEspecial = false;
     }
 
+    protected void setJugador(Jugador jugador) {
+        this.jugador = jugador;
+    }
+
     public abstract boolean acabarTurno() throws ErrorComandoAvatar;
 
     public abstract int moverEspecial(Dado dado, CasillaCarcel carcel) throws ErrorComandoAvatar, ErrorFatalLogico;

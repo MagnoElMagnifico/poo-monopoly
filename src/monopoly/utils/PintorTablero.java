@@ -17,7 +17,7 @@ public class PintorTablero {
     /**
      * Espacio dedicado para el nombre de la casilla dentro de la celda
      */
-    private static final int TAM_TEXTO = 12;
+    private static final int TAM_TEXTO = 50;
     /**
      * Espacio dedicado para los avatares que ocupan la casilla
      */

@@ -12,6 +12,7 @@ public interface JuegoConsts {
     String CONFIG_CASILLAS = "src/casillas.txt";
     String CONFIG_CARTAS = "src/cartas.txt";
     String CONFIG_AYUDA = "src/ayuda.txt";
+    String PROMPT = "$> ";
 
     char[] AVATARES_ID = {'A', 'B', 'C', 'D', 'E', 'F'};
     int MAX_JUGADORES = AVATARES_ID.length;

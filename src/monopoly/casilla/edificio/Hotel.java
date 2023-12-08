@@ -43,7 +43,7 @@ public final class Hotel extends Edificio {
         return (long)(0.6 * (float) solar.getPrecio());
     }
 
-    public static long getAlquiler(Solar solar) {
+    public static long getAlquiler(Solar solar) throws ErrorFatalLogico {
         return 70 * solar.getAlquiler();
     }
 }

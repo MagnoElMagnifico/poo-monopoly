@@ -37,7 +37,7 @@ public final class Piscina extends Edificio {
         return (long)(0.4 * (float) solar.getPrecio());
     }
 
-    public static long getAlquiler(Solar solar) {
+    public static long getAlquiler(Solar solar) throws ErrorFatalLogico {
         return 25 * solar.getAlquiler();
     }
 }
