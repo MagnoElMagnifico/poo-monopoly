@@ -4,7 +4,9 @@ import monopoly.Juego;
 import monopoly.error.ErrorFatal;
 import monopoly.jugador.Jugador;
 
-/** Es una clase final porque ya implementa todo lo necesario y no tiene sentido crear subtipos. */
+/**
+ * Es una clase final porque ya implementa todo lo necesario y no tiene sentido crear subtipos.
+ */
 public final class CartaComunidad extends Carta {
     private final Juego juego;
 

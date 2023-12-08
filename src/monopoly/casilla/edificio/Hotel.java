@@ -29,6 +29,14 @@ public final class Hotel extends Edificio {
         }
     }
 
+    public static long getValor(Solar solar) {
+        return (long) (0.6 * (float) solar.getPrecio());
+    }
+
+    public static long getAlquiler(Solar solar) throws ErrorFatalLogico {
+        return 70 * solar.getAlquiler();
+    }
+
     @Override
     public long getValor() throws ErrorFatalLogico {
         return getValor(super.getSolar());
@@ -37,13 +45,5 @@ public final class Hotel extends Edificio {
     @Override
     public long getAlquiler() throws ErrorFatalLogico {
         return getAlquiler(super.getSolar());
-    }
-
-    public static long getValor(Solar solar) {
-        return (long)(0.6 * (float) solar.getPrecio());
-    }
-
-    public static long getAlquiler(Solar solar) throws ErrorFatalLogico {
-        return 70 * solar.getAlquiler();
     }
 }

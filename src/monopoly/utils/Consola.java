@@ -1,6 +1,5 @@
 package monopoly.utils;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Function;
 
@@ -11,6 +10,7 @@ import java.util.function.Function;
 public interface Consola {
     /**
      * Muestra un mensaje al usuario.
+     *
      * @param mensaje Es el mensaje que se desea mostrar al usuario.
      */
     void imprimir(String mensaje);
@@ -64,7 +64,9 @@ public interface Consola {
      */
     <T extends Listable> String listar(Collection<T> elementos, Function<T, String> funcion);
 
-    /** Lista una colección de elementos que implementen Listable */
+    /**
+     * Lista una colección de elementos que implementen Listable
+     */
     default <T extends Listable> void listar(Collection<T> elementos) {
         imprimir(listar(elementos, Listable::listar));
     }
@@ -99,6 +101,7 @@ public interface Consola {
      * Genera un mensaje de error para notificar al usuario sobre
      * algún problema inesperado o alguna acción que no se ha podido
      * realizar con éxito.
+     *
      * @param mensaje El mensaje de error a mostrar.
      */
     void error(String mensaje);

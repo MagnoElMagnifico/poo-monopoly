@@ -24,10 +24,10 @@ public class CasillaCarcel extends CasillaEspecial {
     @Override
     public String toString() {
         return """
-               {
-                   nombre: %s
-                   fianza: %s
-               }""".formatted(getNombreFmt(), Juego.consola.num(fianza));
+                {
+                    nombre: %s
+                    fianza: %s
+                }""".formatted(getNombreFmt(), Juego.consola.num(fianza));
     }
 
     @Override

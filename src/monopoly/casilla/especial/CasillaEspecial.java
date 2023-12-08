@@ -1,8 +1,8 @@
 package monopoly.casilla.especial;
 
-import monopoly.utils.Consola;
 import monopoly.Juego;
 import monopoly.casilla.Casilla;
+import monopoly.utils.Consola;
 
 public abstract class CasillaEspecial extends Casilla {
     public CasillaEspecial(int posicion) {

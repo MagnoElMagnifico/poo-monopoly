@@ -147,6 +147,7 @@ public interface Comando {
      *     listar { casillas | jugadores | enventa | avatares | tratos }
      *     listar edificios { nombre grupo }
      * </pre>
+     *
      * @see Listable
      */
     void listar(String[] args) throws ErrorComando, ErrorFatalLogico;

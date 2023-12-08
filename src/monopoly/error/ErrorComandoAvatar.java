@@ -15,7 +15,9 @@ import monopoly.jugador.Avatar;
  * <li>Cambiar de modo en mitad de un movimiento
  */
 public class ErrorComandoAvatar extends ErrorComando {
-    /** El avatar que ha causado el error */
+    /**
+     * El avatar que ha causado el error
+     */
     private final Avatar avatar;
 
     public ErrorComandoAvatar(String mensaje, Avatar avatar) {

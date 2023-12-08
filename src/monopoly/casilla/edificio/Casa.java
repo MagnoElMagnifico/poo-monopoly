@@ -26,18 +26,8 @@ public final class Casa extends Edificio {
         }
     }
 
-    @Override
-    public long getValor() throws ErrorFatalLogico {
-        return getValor(super.getSolar());
-    }
-
-    @Override
-    public long getAlquiler() throws ErrorFatalLogico {
-        throw new ErrorFatalLogico("No se puede usar getAlquiler() directamente, debes usar el método estático");
-    }
-
     public static long getValor(Solar solar) {
-        return (long)(0.6 * (float) solar.getPrecio());
+        return (long) (0.6 * (float) solar.getPrecio());
     }
 
     public static long getAlquiler(Solar solar, int cantidad) throws ErrorFatalLogico {
@@ -48,5 +38,15 @@ public final class Casa extends Edificio {
             case 3 -> 35 * solar.getAlquiler();
             default -> 50 * solar.getAlquiler();
         };
+    }
+
+    @Override
+    public long getValor() throws ErrorFatalLogico {
+        return getValor(super.getSolar());
+    }
+
+    @Override
+    public long getAlquiler() throws ErrorFatalLogico {
+        throw new ErrorFatalLogico("No se puede usar getAlquiler() directamente, debes usar el método estático");
     }
 }

@@ -65,7 +65,7 @@ public abstract class Carta {
      * <b>NOTA</b>: requerida por la especificación de la entrega 3.
      *
      * @throws ErrorFatal En caso de que se intente ejecutar la acción
-     * de una carta con un ID no soportado.
+     *                    de una carta con un ID no soportado.
      */
     public abstract void accionCarta() throws ErrorFatal;
 }

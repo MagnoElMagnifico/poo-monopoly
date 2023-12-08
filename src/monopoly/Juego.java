@@ -1,17 +1,20 @@
 package monopoly;
 
+import monopoly.casilla.Casilla;
 import monopoly.casilla.Lector;
 import monopoly.casilla.edificio.*;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
+import monopoly.casilla.propiedad.Grupo;
 import monopoly.casilla.propiedad.Propiedad;
 import monopoly.casilla.propiedad.Solar;
 import monopoly.error.*;
 import monopoly.jugador.*;
-import monopoly.casilla.Casilla;
-import monopoly.casilla.propiedad.Grupo;
+import monopoly.utils.Consola;
 import monopoly.utils.Consola.Color;
-import monopoly.utils.*;
+import monopoly.utils.ConsolaNormal;
+import monopoly.utils.Dado;
+import monopoly.utils.PintorTablero;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,16 +44,14 @@ public class Juego implements Comando {
     private final ArrayList<Casilla> casillas;
     private final ArrayList<Grupo> grupos;
     private final Banca banca;
-
-    // Estado
-    private int turno;
-    private int nAumentosPrecio;
-    private boolean jugando;
-
     // Información relevante
     private final long fortunaInicial;
     private final CasillaCarcel carcel;
     private final CasillaSalida salida;
+    // Estado
+    private int turno;
+    private int nAumentosPrecio;
+    private boolean jugando;
 
     public Juego() throws ErrorFatalConfig, ErrorFatalLogico {
         try {
@@ -171,7 +172,7 @@ public class Juego implements Comando {
 
     @Override
     public String toString() {
-        Avatar avatar = getJugadorTurno() == null? null : getJugadorTurno().getAvatar() ;
+        Avatar avatar = getJugadorTurno() == null ? null : getJugadorTurno().getAvatar();
         return PintorTablero.pintarTablero(casillas, avatar);
     }
 
@@ -401,7 +402,8 @@ public class Juego implements Comando {
         Avatar avatar = switch (args[3]) {
             case "c", "coche" -> new AvatarCoche(JuegoConsts.AVATARES_ID[jugadores.size()], salida);
             case "p", "pelota" -> new AvatarPelota(JuegoConsts.AVATARES_ID[jugadores.size()], salida);
-            default -> throw new ErrorComandoFormato("\"%s\": No es un tipo válido de Avatar (prueba con c, p)".formatted(args[3]));
+            default ->
+                    throw new ErrorComandoFormato("\"%s\": No es un tipo válido de Avatar (prueba con c, p)".formatted(args[3]));
         };
 
         jugadores.add(new Jugador(nombre, avatar, fortunaInicial));
@@ -497,8 +499,7 @@ public class Juego implements Comando {
             case "h", "hotel", "hoteles" -> "Hotel";
             case "p", "piscina", "piscinas" -> "Piscina";
             case "d", "pd", "pista", "pistas", "pistadeporte", "pistasdeporte" -> "PistaDeporte";
-            default ->
-                    throw new ErrorComandoFormato("\"%s\": no es un tipo de edificio válido".formatted(args[1]));
+            default -> throw new ErrorComandoFormato("\"%s\": no es un tipo de edificio válido".formatted(args[1]));
         };
 
         getJugadorTurno().vender(solar, tipoEdificio, args.length == 3 ? 1 : Integer.parseInt(args[2]));
@@ -554,7 +555,8 @@ public class Juego implements Comando {
         if (args.length == 3) {
             switch (args[1]) {
                 case "jugador" -> consola.describir(jugadores, (j) -> j.getNombre().equalsIgnoreCase(args[2]));
-                case "avatar" -> consola.describir(jugadores, (j) -> j.getAvatar().getId() == Character.toUpperCase(args[2].charAt(0)));
+                case "avatar" ->
+                        consola.describir(jugadores, (j) -> j.getAvatar().getId() == Character.toUpperCase(args[2].charAt(0)));
                 default -> throw new ErrorComandoFormato("\"%s\": Argumento inválido".formatted(args[1]));
             }
         } else {
@@ -732,6 +734,7 @@ public class Juego implements Comando {
             return false;
         }
     }
+
     @Override
     public void trato(String[] args) throws ErrorComando {
         Jugador jugador = buscar(jugadores, (j) -> j.getNombre().equalsIgnoreCase(args[1]));
@@ -763,8 +766,8 @@ public class Juego implements Comando {
                 Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
                 getJugadorTurno().crearTrato(jugador, p1, p2, Long.parseLong(args[4]));
             }
-        } else if(args.length==6){
-            if(!args[5].equalsIgnoreCase("noalquiler")){
+        } else if (args.length == 6) {
+            if (!args[5].equalsIgnoreCase("noalquiler")) {
                 throw new ErrorComandoFormato("Subcomando no válido");
             }
             Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
@@ -776,16 +779,16 @@ public class Juego implements Comando {
 
     @Override
     public void aceptar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna, ErrorFatalLogico {
-        if(args.length!= 2){
-            throw new ErrorComandoFormato(1, args.length-1);
+        if (args.length != 2) {
+            throw new ErrorComandoFormato(1, args.length - 1);
         }
         getJugadorTurno().aceptarTrato(args[1]);
     }
 
     @Override
-    public void eliminar(String[] args) throws ErrorComandoFormato{
-        if(args.length!= 2){
-            throw new ErrorComandoFormato(1, args.length-1);
+    public void eliminar(String[] args) throws ErrorComandoFormato {
+        if (args.length != 2) {
+            throw new ErrorComandoFormato(1, args.length - 1);
         }
         getJugadorTurno().eliminarTrato(args[1]);
     }

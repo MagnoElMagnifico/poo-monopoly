@@ -18,10 +18,10 @@ public class CasillaParking extends CasillaAccion {
     @Override
     public String toString() {
         return """
-               {
-                   nombre: %s
-                   bote: %s
-               }""".formatted(getNombreFmt(), Juego.consola.num(banca.getFortuna()));
+                {
+                    nombre: %s
+                    bote: %s
+                }""".formatted(getNombreFmt(), Juego.consola.num(banca.getFortuna()));
     }
 
     @Override

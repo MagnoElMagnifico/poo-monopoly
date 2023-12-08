@@ -9,8 +9,8 @@ import monopoly.utils.Listable;
 public abstract class Edificio implements Listable {
     private static int ultimoId = 1;
 
-    private int id;
-    private Solar solar;
+    private final int id;
+    private final Solar solar;
 
     public Edificio(Solar solar) throws ErrorComandoEdificio {
         this.id = ultimoId++;

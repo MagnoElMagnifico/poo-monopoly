@@ -18,7 +18,7 @@ import monopoly.utils.Dado;
  * <li>Solares</li>
  * <li>Servicios</li>
  * <li>Transporte</li>
- *
+ * <p>
  * Se trata de una clase abstracta porque hay ciertas funcionalidades que dependen de cada
  * tipo de Propiedad, como el alquiler y el precio.
  *
@@ -135,12 +135,16 @@ public abstract class Propiedad extends Casilla {
         propietario.getEstadisticas().anadirCobroAlquiler(importe);
     }
 
-    /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
+    /**
+     * <b>NOTA</b>: requerida por la especificación de la entrega 3.
+     */
     public void comprar(Jugador jugador) {
         propietario = jugador;
     }
 
-    /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
+    /**
+     * <b>NOTA</b>: requerida por la especificación de la entrega 3.
+     */
     public boolean perteneceAJugador(Jugador jugador) {
         return propietario.equals(jugador);
     }

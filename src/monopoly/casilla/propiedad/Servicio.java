@@ -15,10 +15,6 @@ public class Servicio extends Propiedad {
         alquilerTotalCobrado = 0;
     }
 
-    public void setPrecio(long precio) {
-        this.precio = precio;
-    }
-
     @Override
     public long getPrecio() throws ErrorFatalLogico {
         if (precio < 0) {
@@ -26,6 +22,10 @@ public class Servicio extends Propiedad {
         }
 
         return precio;
+    }
+
+    public void setPrecio(long precio) {
+        this.precio = precio;
     }
 
     @Override

@@ -53,15 +53,15 @@ public class Grupo {
                 ArrayList<Edificio> edificios = ((Solar) p).getEdificios();
 
                 Juego.consola.imprimir("""
-                                {
-                                    propiedad: %s
-                                    casas: %s
-                                    hoteles: %s
-                                    piscinas: %s
-                                    pistas de deporte: %s
-                                    alquiler: %s
-                                }
-                                """.formatted(p.getNombre(),
+                        {
+                            propiedad: %s
+                            casas: %s
+                            hoteles: %s
+                            piscinas: %s
+                            pistas de deporte: %s
+                            alquiler: %s
+                        }
+                        """.formatted(p.getNombre(),
                         Juego.consola.listar(edificios, (e) -> e instanceof Casa ? e.getNombreFmt() : null),
                         Juego.consola.listar(edificios, (e) -> e instanceof Hotel ? e.getNombreFmt() : null),
                         Juego.consola.listar(edificios, (e) -> e instanceof Piscina ? e.getNombreFmt() : null),

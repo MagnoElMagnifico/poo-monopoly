@@ -13,9 +13,9 @@ import monopoly.utils.Dado;
 import java.util.ArrayList;
 
 public class Solar extends Propiedad {
-    private long precio;
-    private long alquilerTotalCobrado;
     private final ArrayList<Edificio> edificios;
+    private long precio;
+    private final long alquilerTotalCobrado;
 
     public Solar(int posicion, Grupo grupo, String nombre, Jugador banca) {
         super(posicion, grupo, nombre, banca);
@@ -137,7 +137,9 @@ public class Solar extends Propiedad {
         return alquilerTotalCobrado;
     }
 
-     /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
+    /**
+     * <b>NOTA</b>: requerida por la especificación de la entrega 3.
+     */
     public void edificar(Edificio e) {
         edificios.add(e);
     }

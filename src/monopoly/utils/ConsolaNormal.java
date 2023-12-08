@@ -11,6 +11,7 @@ import java.util.function.Function;
  * imprimir y <code>Scanner</code> para leer.
  * <p>
  * Esta implementación utiliza códigos ANSI.
+ *
  * @see <a href="https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797">Guía de códigos ANSI</a>
  * @see <a href="https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences">Códigos ANSI StackOverflow</a>
  */

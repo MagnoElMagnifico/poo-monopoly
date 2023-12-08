@@ -7,7 +7,7 @@ import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
 
-public class TratoP_PC extends Trato{
+public class TratoP_PC extends Trato {
     private final Propiedad propInteresado;
     private final Propiedad propAceptador;
     private final long cantidad;
@@ -24,7 +24,7 @@ public class TratoP_PC extends Trato{
         return """
                 %s
                 Cambiar %s por %s y %s
-                
+                                
                 """.formatted(
                 super.toString(),
                 propInteresado.getNombreFmt(), Juego.consola.num(cantidad), propAceptador.getNombreFmt());

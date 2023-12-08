@@ -42,7 +42,7 @@ import java.util.Scanner;
  *     C : X : descripción
  *     ...
  * </pre>
- *
+ * <p>
  * Finalmente, termina asignando los valores requeridos a cada
  * objeto.
  *
@@ -54,13 +54,11 @@ public class Lector {
     private final ArrayList<Grupo> grupos;
     private final ArrayList<CartaComunidad> cartasComunidad;
     private final ArrayList<CartaSuerte> cartasSuerte;
-
+    private final long fortunaInicial;
+    private final ArrayList<CasillaImpuesto> impuestos;
     // Información útil
     private int nSolares;
     private long sumaPrecioSolares;
-    private final long fortunaInicial;
-    private final ArrayList<CasillaImpuesto> impuestos;
-
     // Casillas especiales
     private CasillaSalida salida;
     private CasillaCarcel carcel;
@@ -113,6 +111,30 @@ public class Lector {
         }
     }
 
+    /**
+     * Función de ayuda que abre un Scanner para leer un archivo.
+     *
+     * @throws ErrorFatalConfig Si no se encuentra el archivo.
+     */
+    private static Scanner abrirArchivo(String path) throws ErrorFatalConfig {
+        Scanner scanner;
+
+        try {
+            scanner = new Scanner(new File(path));
+        } catch (FileNotFoundException e) {
+            throw new ErrorFatalConfig("No se ha encontrado", path, 0);
+        }
+
+        return scanner;
+    }
+
+    /**
+     * Función de ayuda que ignora líneas en blanco y comentarios
+     */
+    private static boolean ignorarLinea(String linea) {
+        return linea.isBlank() || linea.stripLeading().startsWith("#");
+    }
+
     public long getFortunaInicial() {
         return fortunaInicial;
     }
@@ -158,31 +180,9 @@ public class Lector {
     }
 
     /**
-     * Función de ayuda que abre un Scanner para leer un archivo.
-     * @throws ErrorFatalConfig Si no se encuentra el archivo.
-     */
-    private static Scanner abrirArchivo(String path) throws ErrorFatalConfig {
-        Scanner scanner;
-
-        try {
-            scanner = new Scanner(new File(path));
-        } catch (FileNotFoundException e) {
-            throw new ErrorFatalConfig("No se ha encontrado", path, 0);
-        }
-
-        return scanner;
-    }
-
-    /**
-     * Función de ayuda que ignora líneas en blanco y comentarios
-     */
-    private static boolean ignorarLinea(String linea) {
-        return linea.isBlank() || linea.stripLeading().startsWith("#");
-    }
-
-    /**
      * Lee el archivo de configuración de cartas del archivo de
      * configuración especificado en <code>JuegoConsts.CONFIG_CARTAS</code>.
+     *
      * @throws ErrorFatalConfig Si no se encuentra el archivo o si el
      *                          formato no es correcto.
      */
@@ -206,7 +206,8 @@ public class Lector {
 
                 try {
                     switch (campos[0]) {
-                        case "C" -> cartasComunidad.add(new CartaComunidad(Integer.parseInt(campos[1]), campos[2], juego));
+                        case "C" ->
+                                cartasComunidad.add(new CartaComunidad(Integer.parseInt(campos[1]), campos[2], juego));
                         case "S" -> cartasSuerte.add(new CartaSuerte(Integer.parseInt(campos[1]), campos[2], juego));
                         default -> {
                             scanner.close();
@@ -223,6 +224,7 @@ public class Lector {
     /**
      * Lee el archivo de configuración de Casillas del archivo de
      * configuración especificado en <code>JuegoConsts.CONFIG_CASILLAS</code>.
+     *
      * @throws ErrorFatalConfig Si no se encuentra el archivo o si el
      *                          formato no es correcto.
      */
@@ -289,7 +291,8 @@ public class Lector {
             }
             case "Suerte", "suerte" -> casillas.add(new CasillaSuerte(casillas.size(), cartasSuerte));
             case "Comunidad", "comunidad" -> casillas.add(new CasillaComunidad(casillas.size(), cartasComunidad));
-            default -> throw new ErrorFatalConfig("Casilla especial, acción o impuestos desconocida: " + campos[0], JuegoConsts.CONFIG_CASILLAS, nLinea);
+            default ->
+                    throw new ErrorFatalConfig("Casilla especial, acción o impuestos desconocida: " + campos[0], JuegoConsts.CONFIG_CASILLAS, nLinea);
         }
     }
 
@@ -308,8 +311,10 @@ public class Lector {
             int codigoColor = Integer.parseInt(campos[1]);
 
             switch (nombre) {
-                case "Transporte", "transporte", "Transportes", "transportes" -> transportes = new Grupo(grupos.size(), nombre, codigoColor);
-                case "Servicio", "servicio", "Servicios", "servicios" -> servicios = new Grupo(grupos.size(), nombre, codigoColor);
+                case "Transporte", "transporte", "Transportes", "transportes" ->
+                        transportes = new Grupo(grupos.size(), nombre, codigoColor);
+                case "Servicio", "servicio", "Servicios", "servicios" ->
+                        servicios = new Grupo(grupos.size(), nombre, codigoColor);
                 default -> grupos.add(new Grupo(grupos.size(), nombre, codigoColor));
             }
         } catch (NumberFormatException e) {

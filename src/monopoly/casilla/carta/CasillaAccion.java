@@ -16,7 +16,7 @@ public abstract class CasillaAccion extends Casilla {
     /**
      * Reordena aleatoriamente las cartas
      */
-    public static<T> void barajar(List<T> cartas) {
+    public static <T> void barajar(List<T> cartas) {
         Collections.shuffle(cartas);
     }
 

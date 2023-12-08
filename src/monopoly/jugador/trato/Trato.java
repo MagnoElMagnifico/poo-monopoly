@@ -12,7 +12,7 @@ public abstract class Trato {
     private final Jugador aceptador; // quien decide si acepta o no
     private boolean completado;
 
-    public Trato(Jugador interesado, Jugador aceptador){
+    public Trato(Jugador interesado, Jugador aceptador) {
         this.nombre = "Trato-" + ultimoTrato;
         ultimoTrato++;
 

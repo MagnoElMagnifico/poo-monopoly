@@ -1,17 +1,14 @@
 package monopoly.jugador;
 
-import monopoly.casilla.Casilla;
-import monopoly.error.ErrorComandoAvatar;
-import monopoly.error.ErrorComandoFortuna;
-import monopoly.jugador.trato.TratoP_P;
-import monopoly.utils.Consola;
 import monopoly.Juego;
+import monopoly.casilla.Casilla;
 import monopoly.casilla.edificio.Edificio;
 import monopoly.casilla.propiedad.Propiedad;
 import monopoly.casilla.propiedad.Solar;
 import monopoly.error.*;
-import monopoly.utils.Listable;
 import monopoly.jugador.trato.*;
+import monopoly.utils.Consola;
+import monopoly.utils.Listable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,9 +18,9 @@ public class Jugador implements Listable {
     private final String nombre;
     private final Avatar avatar;
     private final HashSet<Propiedad> propiedades;
+    private final EstadisticasJugador estadisticas;
     private long fortuna;
     private Jugador acreedor;
-    private final EstadisticasJugador estadisticas;
     private HashSet<Trato> tratos;
 
     public Jugador(String nombre, Avatar avatar, long fortunaInicial) {
@@ -319,9 +316,11 @@ public class Jugador implements Listable {
         return estadisticas;
     }
 
-    /** Intercambio de propiedades: p1 <--> p2 */
+    /**
+     * Intercambio de propiedades: p1 <--> p2
+     */
     public void crearTrato(Jugador jugador, Propiedad p1, Propiedad p2) throws ErrorComandoJugador {
-        if(!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
+        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
             throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen", this);
         }
 
@@ -330,9 +329,11 @@ public class Jugador implements Listable {
         jugador.tratos.add(trato);
     }
 
-    /** Vender propiedad: p <--> cantidad */
+    /**
+     * Vender propiedad: p <--> cantidad
+     */
     public void crearTrato(Jugador jugador, Propiedad p, long cantidad) throws ErrorComandoJugador {
-        if(!p.perteneceAJugador(this)){
+        if (!p.perteneceAJugador(this)) {
             throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no te pertenecen", this);
         }
 
@@ -341,13 +342,15 @@ public class Jugador implements Listable {
         jugador.tratos.add(trato);
     }
 
-    /** Comprar propiedad: cantidad <--> p */
+    /**
+     * Comprar propiedad: cantidad <--> p
+     */
     public void crearTrato(Jugador jugador, long cantidad, Propiedad p) throws ErrorComandoJugador {
-        if(!p.perteneceAJugador(jugador)){
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen",this);
+        if (!p.perteneceAJugador(jugador)) {
+            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen", this);
         }
 
-        if(this.fortuna<cantidad){
+        if (this.fortuna < cantidad) {
             throw new ErrorComandoJugador("No tienes suficiente dinero para ofrecer el trato", this);
         }
 
@@ -356,10 +359,12 @@ public class Jugador implements Listable {
         jugador.tratos.add(trato);
     }
 
-    /** Intercambiar con compensación: p1 <--> p2 + cantidad */
+    /**
+     * Intercambiar con compensación: p1 <--> p2 + cantidad
+     */
     public void crearTrato(Jugador jugador, Propiedad p1, Propiedad p2, long cantidad) throws ErrorComandoJugador {
-        if(!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen.",this);
+        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
+            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen.", this);
         }
 
         TratoP_PC trato = new TratoP_PC(this, jugador, p1, p2, cantidad);
@@ -367,24 +372,26 @@ public class Jugador implements Listable {
         jugador.tratos.add(trato);
     }
 
-    /** Intercambiar con compensación: p1 + cantidad <--> p2 */
-    public void crearTrato(String nombre, Jugador jugador, Propiedad p1, long cantidad ,Propiedad p2) throws ErrorComandoJugador, ErrorComandoFortuna {
-        if(!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
+    /**
+     * Intercambiar con compensación: p1 + cantidad <--> p2
+     */
+    public void crearTrato(String nombre, Jugador jugador, Propiedad p1, long cantidad, Propiedad p2) throws ErrorComandoJugador, ErrorComandoFortuna {
+        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
             throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no te pertenecen.", this);
         }
 
-        if(this.fortuna<cantidad){
+        if (this.fortuna < cantidad) {
             throw new ErrorComandoFortuna("No tienes suficiente dinero para ofrecer el trato", this);
         }
 
-        TratoPC_P trato = new TratoPC_P(nombre, this, jugador, p1, cantidad,p2);
+        TratoPC_P trato = new TratoPC_P(nombre, this, jugador, p1, cantidad, p2);
         this.tratos.add(trato);
         jugador.tratos.add(trato);
     }
 
     public void aceptarTrato(String nombre) throws ErrorComandoFortuna, ErrorFatalLogico {
         for (Trato t : tratos) {
-            if (t.getNombre().equalsIgnoreCase(nombre) && t.getAceptador().equals(this)){
+            if (t.getNombre().equalsIgnoreCase(nombre) && t.getAceptador().equals(this)) {
                 t.aceptar();
                 Juego.consola.imprimir("Aceptado:\n%s".formatted(t.toString()));
                 break;
@@ -394,9 +401,9 @@ public class Jugador implements Listable {
 
     public void eliminarTrato(String nombre) {
         Iterator<Trato> itr = tratos.iterator();
-        while(itr.hasNext()){
+        while (itr.hasNext()) {
             Trato trato = itr.next();
-            if(trato.getNombre().equalsIgnoreCase(nombre) && trato.getInteresado().equals(this)){
+            if (trato.getNombre().equalsIgnoreCase(nombre) && trato.getInteresado().equals(this)) {
                 trato.getAceptador().tratos.remove(trato);
                 this.tratos.remove(trato);
                 break;

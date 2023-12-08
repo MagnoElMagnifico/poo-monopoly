@@ -1,17 +1,17 @@
 package monopoly.casilla;
 
-import monopoly.error.ErrorFatalLogico;
-import monopoly.utils.Consola;
 import monopoly.Juego;
-import monopoly.jugador.Jugador;
+import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
+import monopoly.jugador.Jugador;
+import monopoly.utils.Consola;
 import monopoly.utils.Dado;
 
 public class CasillaImpuesto extends Casilla {
     private static int nImpuestos = 0;
 
     private long impuestos;
-    private Banca banca;
+    private final Banca banca;
 
     public CasillaImpuesto(int posicion, Banca banca) {
         super(posicion);
@@ -28,10 +28,10 @@ public class CasillaImpuesto extends Casilla {
     @Override
     public String toString() {
         return """
-               {
-                   nombre: %s
-                   importe: %s
-               }""".formatted(getNombreFmt(), Juego.consola.num(impuestos));
+                {
+                    nombre: %s
+                    importe: %s
+                }""".formatted(getNombreFmt(), Juego.consola.num(impuestos));
     }
 
     @Override

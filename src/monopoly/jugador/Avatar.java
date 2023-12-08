@@ -1,14 +1,14 @@
 package monopoly.jugador;
 
-import monopoly.error.ErrorComandoFortuna;
-import monopoly.error.ErrorFatal;
-import monopoly.error.ErrorFatalLogico;
-import monopoly.utils.Consola;
 import monopoly.Juego;
 import monopoly.casilla.Casilla;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
 import monopoly.error.ErrorComandoAvatar;
+import monopoly.error.ErrorComandoFortuna;
+import monopoly.error.ErrorFatal;
+import monopoly.error.ErrorFatalLogico;
+import monopoly.utils.Consola;
 import monopoly.utils.Dado;
 import monopoly.utils.Listable;
 
@@ -18,10 +18,9 @@ public abstract class Avatar implements Listable {
     // @formatter:off
     // Propiedades
     private final char id;
-    private Jugador jugador;
-
     // Historial
     private final ArrayList<Casilla> historialCasillas;
+    private Jugador jugador;
     private Casilla casilla;
 
     // Estado
@@ -44,10 +43,6 @@ public abstract class Avatar implements Listable {
         this.lanzamientosRestantes = 1;
         this.turnosEnCarcel = 0;
         this.movimientoEspecial = false;
-    }
-
-    protected void setJugador(Jugador jugador) {
-        this.jugador = jugador;
     }
 
     public abstract boolean acabarTurno() throws ErrorComandoAvatar;
@@ -137,9 +132,9 @@ public abstract class Avatar implements Listable {
 
         // Mostrar información
         Juego.consola.imprimir("""
-                        %s, con avatar %s, %s %d posiciones.
-                        Viaja desde %s hasta %s.
-                        """.formatted(
+                %s, con avatar %s, %s %d posiciones.
+                Viaja desde %s hasta %s.
+                """.formatted(
                 Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul),
                 Juego.consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
                 movimientoDelta > 0 ? "avanza" : "retrocede",
@@ -148,7 +143,7 @@ public abstract class Avatar implements Listable {
                 nuevaCasilla.getNombreFmt()));
 
         long abonoSalida = juego.getSalida().getAbonoSalida();
-        
+
         // Se pasa por la casilla de salida
         if (posNuevaCasilla >= casillas.size()) {
             jugador.ingresar(abonoSalida);
@@ -171,8 +166,8 @@ public abstract class Avatar implements Listable {
                 getJugador().cobrar(abonoSalida, juego.getBanca());
                 Juego.consola.imprimir(
                         "El jugador %s paga %s por retroceder por la casilla de salida.\n".formatted(
-                        Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul),
-                        Juego.consola.num(abonoSalida)));
+                                Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                                Juego.consola.num(abonoSalida)));
             }
         }
 
@@ -187,7 +182,6 @@ public abstract class Avatar implements Listable {
         // Realizar la acción de la casilla
         nuevaCasilla.accion(jugador, dado);
     }
-
 
     public boolean irCarcelDadosDobles(Dado dado, CasillaCarcel carcel) {
         if (dado.isDoble()) {
@@ -293,6 +287,10 @@ public abstract class Avatar implements Listable {
         return jugador;
     }
 
+    protected void setJugador(Jugador jugador) {
+        this.jugador = jugador;
+    }
+
     public int getTurnosEnCarcel() {
         return turnosEnCarcel;
     }
@@ -308,13 +306,17 @@ public abstract class Avatar implements Listable {
         return lanzamientosRestantes;
     }
 
-    public void setLanzamientosRestantes(int n) {lanzamientosRestantes=n;}
+    public void setLanzamientosRestantes(int n) {
+        lanzamientosRestantes = n;
+    }
 
     public int getDoblesSeguidos() {
         return doblesSeguidos;
     }
 
-    public void setDoblesSeguidos(int n) { doblesSeguidos=n;}
+    public void setDoblesSeguidos(int n) {
+        doblesSeguidos = n;
+    }
 
     public boolean isMovimientoEspecial() {
         return movimientoEspecial;

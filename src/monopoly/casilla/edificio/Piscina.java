@@ -1,8 +1,8 @@
 package monopoly.casilla.edificio;
 
 import monopoly.JuegoConsts;
-import monopoly.casilla.propiedad.Solar;
 import monopoly.casilla.propiedad.Grupo;
+import monopoly.casilla.propiedad.Solar;
 import monopoly.error.ErrorComandoEdificio;
 import monopoly.error.ErrorFatalLogico;
 
@@ -23,6 +23,14 @@ public final class Piscina extends Edificio {
         }
     }
 
+    public static long getValor(Solar solar) {
+        return (long) (0.4 * (float) solar.getPrecio());
+    }
+
+    public static long getAlquiler(Solar solar) throws ErrorFatalLogico {
+        return 25 * solar.getAlquiler();
+    }
+
     @Override
     public long getValor() throws ErrorFatalLogico {
         return getValor(super.getSolar());
@@ -31,13 +39,5 @@ public final class Piscina extends Edificio {
     @Override
     public long getAlquiler() throws ErrorFatalLogico {
         return getAlquiler(super.getSolar());
-    }
-
-    public static long getValor(Solar solar) {
-        return (long)(0.4 * (float) solar.getPrecio());
-    }
-
-    public static long getAlquiler(Solar solar) throws ErrorFatalLogico {
-        return 25 * solar.getAlquiler();
     }
 }

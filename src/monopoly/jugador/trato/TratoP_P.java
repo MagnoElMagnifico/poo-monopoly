@@ -5,11 +5,11 @@ import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
 
-public class TratoP_P extends Trato{
+public class TratoP_P extends Trato {
     private final Propiedad propInteresado;
     private final Propiedad propAceptador;
 
-    public TratoP_P(Jugador  interesado, Jugador benefactor, Propiedad propInteresado, Propiedad propAceptador) {
+    public TratoP_P(Jugador interesado, Jugador benefactor, Propiedad propInteresado, Propiedad propAceptador) {
         super(interesado, benefactor);
         this.propInteresado = propInteresado;
         this.propAceptador = propAceptador;
@@ -20,7 +20,7 @@ public class TratoP_P extends Trato{
         return """
                 %s
                 Cambiar %s por %s
-                
+                                
                 """.formatted(super.toString(), propInteresado.getNombreFmt(), propAceptador.getNombreFmt());
     }
 

@@ -8,7 +8,9 @@ import monopoly.error.ErrorFatal;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
 
-/** Es una clase final porque ya implementa todo lo necesario y no tiene sentido crear subtipos. */
+/**
+ * Es una clase final porque ya implementa todo lo necesario y no tiene sentido crear subtipos.
+ */
 public final class CartaSuerte extends Carta {
     private final Juego juego;
 

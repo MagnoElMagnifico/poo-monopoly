@@ -1,14 +1,14 @@
 package monopoly.jugador;
 
 import monopoly.Juego;
+import monopoly.casilla.Casilla;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
-import monopoly.casilla.Casilla;
 import monopoly.error.ErrorComandoAvatar;
 import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatal;
-import monopoly.utils.Dado;
 import monopoly.utils.Consola;
+import monopoly.utils.Dado;
 
 public class AvatarCoche extends Avatar {
     private boolean puedeComprar; /* No permite comprar más una vez por turno */
@@ -81,13 +81,13 @@ public class AvatarCoche extends Avatar {
         // básicos si cambia dos veces de modo.
         // No se cambia si ya se gastaron todos los tiros en el turno.
         if (getLanzamientosRestantes() != 0) {
-            setLanzamientosRestantes(isMovimientoEspecial()  ? 4 : 1);
+            setLanzamientosRestantes(isMovimientoEspecial() ? 4 : 1);
         }
     }
 
     @Override
     public boolean acabarTurno() throws ErrorComandoAvatar {
-        int lanzamientosRestantes= getLanzamientosRestantes();
+        int lanzamientosRestantes = getLanzamientosRestantes();
         Jugador jugador = getJugador();
 
         if (lanzamientosRestantes > 0 && penalizacion == 0) {

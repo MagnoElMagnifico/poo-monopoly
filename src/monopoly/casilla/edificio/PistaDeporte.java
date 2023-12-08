@@ -23,6 +23,14 @@ public final class PistaDeporte extends Edificio {
         }
     }
 
+    public static long getValor(Solar solar) {
+        return (long) (1.15 * (float) solar.getPrecio());
+    }
+
+    public static long getAlquiler(Solar solar) throws ErrorFatalLogico {
+        return 25 * solar.getAlquiler();
+    }
+
     @Override
     public long getValor() throws ErrorFatalLogico {
         return getValor(super.getSolar());
@@ -31,13 +39,5 @@ public final class PistaDeporte extends Edificio {
     @Override
     public long getAlquiler() throws ErrorFatalLogico {
         return getAlquiler(super.getSolar());
-    }
-
-    public static long getValor(Solar solar) {
-        return (long)(1.15 * (float) solar.getPrecio());
-    }
-
-    public static long getAlquiler(Solar solar) throws ErrorFatalLogico {
-        return 25 * solar.getAlquiler();
     }
 }

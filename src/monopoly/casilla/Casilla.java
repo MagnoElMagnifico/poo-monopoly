@@ -1,16 +1,16 @@
 package monopoly.casilla;
 
-import java.util.ArrayList;
-
 import monopoly.JuegoConsts;
-import monopoly.error.ErrorComandoFortuna;
-import monopoly.error.ErrorFatal;
-import monopoly.utils.Listable;
 import monopoly.casilla.especial.CasillaEspecial;
 import monopoly.casilla.propiedad.Propiedad;
+import monopoly.error.ErrorComandoFortuna;
+import monopoly.error.ErrorFatal;
 import monopoly.jugador.Avatar;
 import monopoly.jugador.Jugador;
 import monopoly.utils.Dado;
+import monopoly.utils.Listable;
+
+import java.util.ArrayList;
 
 /**
  * La clase Casilla representa una casilla del tablero, que pueden ser
@@ -71,7 +71,9 @@ public abstract class Casilla implements Listable {
      */
     public abstract void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatal, ErrorComandoFortuna;
 
-    /** Nombre de la casilla sin ningún formato */
+    /**
+     * Nombre de la casilla sin ningún formato
+     */
     public abstract String getNombre();
 
     /**

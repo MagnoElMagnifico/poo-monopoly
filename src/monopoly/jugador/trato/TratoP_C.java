@@ -21,7 +21,7 @@ public class TratoP_C extends Trato {
         return """
                 %s
                 Cambiar %s por %s
-                
+                                
                 """.formatted(super.toString(), propiedad.getNombreFmt(), Juego.consola.num(cantidad));
     }
 

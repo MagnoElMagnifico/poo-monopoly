@@ -19,9 +19,9 @@ public class CasillaIrCarcel extends CasillaEspecial {
     @Override
     public String toString() {
         return """
-               Ir a Cárcel: Si un jugador cae en esta casilla, se le enviará directamente
-               a la casilla Cárcel.
-               """;
+                Ir a Cárcel: Si un jugador cae en esta casilla, se le enviará directamente
+                a la casilla Cárcel.
+                """;
     }
 
     @Override

@@ -6,18 +6,13 @@ import monopoly.utils.Dado;
 
 public class Transporte extends Propiedad {
     private long precio;
-    private long alquilerTotalCobrado;
+    private final long alquilerTotalCobrado;
 
     public Transporte(int posicion, Grupo grupo, String nombre, Jugador propietario) {
         super(posicion, grupo, nombre, propietario);
 
         precio = -1;
         alquilerTotalCobrado = 0;
-    }
-
-
-    public void setPrecio(long precio) {
-        this.precio = precio;
     }
 
     @Override
@@ -29,6 +24,10 @@ public class Transporte extends Propiedad {
         return precio;
     }
 
+    public void setPrecio(long precio) {
+        this.precio = precio;
+    }
+
     @Override
     public long getAlquiler() throws ErrorFatalLogico {
         long nTransportesPosee = this.getGrupo().contarPropiedades(this.getPropietario());
@@ -36,7 +35,7 @@ public class Transporte extends Propiedad {
 
         // El alquiler es el factor de transporte por el
         // porcentaje que el jugador posea.
-        return (long) ((float) getPrecio() * (float) nTransportesPosee  / (float) nTransportes);
+        return (long) ((float) getPrecio() * (float) nTransportesPosee / (float) nTransportes);
     }
 
     @Override
