@@ -11,6 +11,7 @@ import java.util.function.Function;
  * imprimir y <code>Scanner</code> para leer.
  * <p>
  * Esta implementación utiliza códigos ANSI.
+ *
  * @see <a href="https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797">Guía de códigos ANSI</a>
  * @see <a href="https://stackoverflow.com/questions/4842424/list-of-ansi-color-escape-sequences">Códigos ANSI StackOverflow</a>
  */
@@ -24,6 +25,17 @@ public class ConsolaNormal implements Consola {
      */
     private static final String FIN = "\u001b[0m";
 
+    private final Scanner scanner;
+
+    public ConsolaNormal() {
+        // Debe ser un atributo de la clase, porque si
+        // se crea y destruye uno por cada lectura. Entonces,
+        // si se hace scanner.close(), ya no se podrá volver a
+        // acceder al input de usuario.
+        // Fuente: https://stackoverflow.com/questions/13042008/java-util-nosuchelementexception-scanner-reading-user-input
+        scanner = new Scanner(System.in);
+    }
+
     @Override
     public void imprimir(String mensaje) {
         System.out.print(mensaje);
@@ -31,15 +43,13 @@ public class ConsolaNormal implements Consola {
 
     @Override
     public void error(String mensaje) {
-        imprimir(fmt(mensaje, Color.Rojo));
+        imprimir(fmt(mensaje, Color.Rojo) + '\n');
     }
 
     @Override
     public String leer(String descripcion) {
-        try (Scanner scanner = new Scanner(System.in)) {
-            imprimir(descripcion);
-            return scanner.nextLine();
-        }
+        imprimir(descripcion);
+        return scanner.nextLine();
     }
 
     @Override
@@ -85,7 +95,7 @@ public class ConsolaNormal implements Consola {
     }
 
     @Override
-    public <T> String listar(Collection<T> elementos, Function<T, String> funcion) {
+    public <T extends Listable> String listar(Collection<T> elementos, Function<T, String> funcion) {
         StringBuilder lista = new StringBuilder();
         lista.append('[');
 

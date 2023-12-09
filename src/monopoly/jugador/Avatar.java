@@ -1,25 +1,28 @@
 package monopoly.jugador;
 
-
-import monopoly.error.ErrorComandoFortuna;
-import monopoly.error.ErrorFatal;
-import monopoly.utils.Consola;
 import monopoly.Juego;
+import monopoly.JuegoConsts;
 import monopoly.casilla.Casilla;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
 import monopoly.error.ErrorComandoAvatar;
+import monopoly.error.ErrorComandoFortuna;
+import monopoly.error.ErrorFatal;
+import monopoly.error.ErrorFatalLogico;
+import monopoly.utils.Consola;
 import monopoly.utils.Dado;
+import monopoly.utils.Listable;
+import monopoly.utils.ReprTablero;
 
+import java.util.ArrayList;
 
-public abstract class Avatar {
+public abstract class Avatar implements Listable, ReprTablero {
     // @formatter:off
     // Propiedades
     private final char id;
-    private Jugador jugador;
-
     // Historial
     private final ArrayList<Casilla> historialCasillas;
+    private Jugador jugador;
     private Casilla casilla;
 
     // Estado
@@ -46,7 +49,7 @@ public abstract class Avatar {
 
     public abstract boolean acabarTurno() throws ErrorComandoAvatar;
 
-    public abstract int moverEspecial(Dado dado, CasillaCarcel carcel) throws ErrorComandoAvatar;
+    public abstract int moverEspecial(Dado dado, CasillaCarcel carcel) throws ErrorComandoAvatar, ErrorFatalLogico;
 
     @Override
     public boolean equals(Object obj) {
@@ -56,6 +59,40 @@ public abstract class Avatar {
 
         // Aquí se puede usar == dado que char es primitivo
         return obj instanceof Avatar && ((Avatar) obj).getId() == this.id;
+    }
+
+    @Override
+    public String listar() {
+        // @formatter:off
+        return """
+               {
+                   id: %c
+                   tipo: %s
+                   casilla: %s
+                   jugador: %s
+               }""".formatted(
+                       id,
+                       getClass().getSimpleName(),
+                       casilla.getNombreFmt(),
+                       jugador.getNombre());
+        // @formatter:on
+    }
+
+    @Override
+    public String representacionTablero() {
+        return Character.toString(getId());
+    }
+
+    @Override
+    public String representar() {
+        // Quitar la celda, solo formatear 1 char
+        return Juego.consola.fmt(representacionTablero(), codColorRepresentacion(), estiloRepresentacion());
+    }
+
+    @Override
+    public Consola.Estilo estiloRepresentacion() {
+        // TODO: saber si es el avatar actual
+        return JuegoConsts.EST_AVATAR;
     }
 
     public void mover(Juego juego, Dado dado) throws ErrorComandoAvatar, ErrorFatal, ErrorComandoFortuna {
@@ -113,9 +150,9 @@ public abstract class Avatar {
 
         // Mostrar información
         Juego.consola.imprimir("""
-                        %s, con avatar %s, %s %d posiciones.
-                        Viaja desde %s hasta %s.
-                        """.formatted(
+                %s, con avatar %s, %s %d posiciones.
+                Viaja desde %s hasta %s.
+                """.formatted(
                 Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul),
                 Juego.consola.fmt(Character.toString(jugador.getAvatar().getId()), Consola.Color.Azul),
                 movimientoDelta > 0 ? "avanza" : "retrocede",
@@ -124,7 +161,7 @@ public abstract class Avatar {
                 nuevaCasilla.getNombreFmt()));
 
         long abonoSalida = juego.getSalida().getAbonoSalida();
-        
+
         // Se pasa por la casilla de salida
         if (posNuevaCasilla >= casillas.size()) {
             jugador.ingresar(abonoSalida);
@@ -147,8 +184,8 @@ public abstract class Avatar {
                 getJugador().cobrar(abonoSalida, juego.getBanca());
                 Juego.consola.imprimir(
                         "El jugador %s paga %s por retroceder por la casilla de salida.\n".formatted(
-                        Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul),
-                        Juego.consola.num(abonoSalida)));
+                                Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul),
+                                Juego.consola.num(abonoSalida)));
             }
         }
 
@@ -164,7 +201,6 @@ public abstract class Avatar {
         nuevaCasilla.accion(jugador, dado);
     }
 
-
     public boolean irCarcelDadosDobles(Dado dado, CasillaCarcel carcel) {
         if (dado.isDoble()) {
             doblesSeguidos++;
@@ -179,7 +215,7 @@ public abstract class Avatar {
             }
 
             lanzamientosRestantes++;
-            Juego.consola.imprimir("Dados dobles! El jugador puede tirar otra vez");
+            Juego.consola.imprimir("Dados dobles! El jugador puede tirar otra vez\n");
         }
 
         return false;
@@ -188,11 +224,11 @@ public abstract class Avatar {
     /**
      * Realiza una tirada de dados cuando está en la cárcel
      */
-    private void moverEstandoCarcel(Dado dado, Banca banca) throws ErrorComandoAvatar, ErrorComandoFortuna {
+    private void moverEstandoCarcel(Dado dado, Banca banca) throws ErrorComandoAvatar, ErrorFatalLogico {
         turnosEnCarcel++;
 
         if (dado.isDoble()) {
-            Juego.consola.imprimir("Dados dobles! El jugador puede salir de la Cárcel");
+            Juego.consola.imprimir("Dados dobles! El jugador puede salir de la Cárcel\n");
             lanzamientosRestantes = 1;
             encerrado = false;
             turnosEnCarcel = 0;
@@ -221,7 +257,7 @@ public abstract class Avatar {
         carcel.anadirAvatar(this);
         historialCasillas.add(carcel);
 
-        Juego.consola.imprimir("Por tanto, el avatar termina en la Cárcel");
+        Juego.consola.imprimir("Por tanto, el avatar termina en la Cárcel\n");
     }
 
     /**
@@ -229,7 +265,7 @@ public abstract class Avatar {
      *
      * @param banca La banca para endeudar al jugador si no tinee dinero.
      */
-    public void salirCarcelPagando(Banca banca) throws ErrorComandoAvatar, ErrorComandoFortuna {
+    public void salirCarcelPagando(Banca banca) throws ErrorComandoAvatar, ErrorFatalLogico {
         if (!encerrado && !(casilla instanceof CasillaCarcel)) {
             throw new ErrorComandoAvatar("El jugador no está en la Cárcel", this);
         }
@@ -253,7 +289,7 @@ public abstract class Avatar {
             Juego.consola.imprimir("A partir de ahora %s (%s), de tipo %s, se moverá de modo avanzado\n".formatted(
                     Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul),
                     Juego.consola.fmt(Character.toString(id), Consola.Color.Azul),
-                    this.getClass()));
+                    this.getClass().getSimpleName()));
         }
     }
 
@@ -267,6 +303,10 @@ public abstract class Avatar {
 
     public Jugador getJugador() {
         return jugador;
+    }
+
+    protected void setJugador(Jugador jugador) {
+        this.jugador = jugador;
     }
 
     public int getTurnosEnCarcel() {
@@ -284,13 +324,17 @@ public abstract class Avatar {
         return lanzamientosRestantes;
     }
 
-    public void setLanzamientosRestantes(int n) {lanzamientosRestantes=n;}
+    public void setLanzamientosRestantes(int n) {
+        lanzamientosRestantes = n;
+    }
 
     public int getDoblesSeguidos() {
         return doblesSeguidos;
     }
 
-    public void setDoblesSeguidos(int n) { doblesSeguidos=n;}
+    public void setDoblesSeguidos(int n) {
+        doblesSeguidos = n;
+    }
 
     public boolean isMovimientoEspecial() {
         return movimientoEspecial;

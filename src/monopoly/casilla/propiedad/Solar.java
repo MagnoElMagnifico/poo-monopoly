@@ -1,93 +1,137 @@
 package monopoly.casilla.propiedad;
 
-import monopoly.Calculadora;
 import monopoly.Juego;
 import monopoly.JuegoConsts;
-import monopoly.casilla.edificio.Edificio;
+import monopoly.casilla.edificio.*;
+import monopoly.error.ErrorComando;
+import monopoly.error.ErrorComandoEdificio;
+import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatalLogico;
-import monopoly.jugador.Avatar;
 import monopoly.jugador.Jugador;
 import monopoly.utils.Dado;
 
 import java.util.ArrayList;
 
-/**
- *
- */
 public class Solar extends Propiedad {
+    private final ArrayList<Edificio> edificios;
+    private final long alquilerTotalCobrado;
     private long precio;
-    private long alquiler;
 
     public Solar(int posicion, Grupo grupo, String nombre, Jugador banca) {
         super(posicion, grupo, nombre, banca);
 
         precio = (long) (0.3 * grupo.getNumero() * JuegoConsts.PRECIO_SOLAR1 + JuegoConsts.PRECIO_SOLAR1);
-        alquiler = precio / 10;
+        alquilerTotalCobrado = 0;
+        edificios = new ArrayList<>();
     }
 
     @Override
     public String toString() {
-        // @formatter:off
-        return """
-                {
-                    tipo: Solar
-                    nombre: %s
-                    grupo: %s
-                    precio: %s
-                    alquiler: %s
-                    propietario: %s
-                    edificios: %s
-                    hipotecada?: %s
-                    ================================
-                    valor casa: %s
-                    valor hotel: %s
-                    valor piscina: %s
-                    valor pista de deporte: %s
-                    --------------------------------
-                    alquiler una casa: %s
-                    alquiler dos casas: %s
-                    alquiler tres casas: %s
-                    alquiler cuatro casas: %s
-                    alquiler hotel: %s
-                    alquiler piscina: %s
-                    alquiler pista de deporte: %s
-                }""".formatted(
-                    getNombre(),
-                    getGrupo().getNombre(),
-                    Juego.consola.num(getPrecio()),
-                    Juego.consola.num(getAlquiler()),
-                    getPropietario().getNombre(),
-                    Juego.consola.listar(getEdificios(), Edificio::getNombreFmt),
-                    isHipotecada()? "Sí" : "No",
-                    // ==========================================================
-                    Juego.consola.num(Calculadora.precio(Edificio.TipoEdificio.Casa, this)),
-                    Juego.consola.num(Calculadora.precio(Edificio.TipoEdificio.Hotel, this)),
-                    Juego.consola.num(Calculadora.precio(Edificio.TipoEdificio.Piscina, this)),
-                    Juego.consola.num(Calculadora.precio(Edificio.TipoEdificio.PistaDeporte, this)),
-                    // ----------------------------------------------------------
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Casa, 1)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Casa, 2)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Casa, 3)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Casa, 4)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Hotel, 1)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.Piscina, 1)),
-                    Juego.consola.num(Calculadora.alquilerEdificio(this, Edificio.TipoEdificio.PistaDeporte, 1)));
-        // @formatter:on
-
+        try {
+            // @formatter:off
+            return """
+                    {
+                        tipo: Solar
+                        nombre: %s
+                        grupo: %s
+                        precio: %s
+                        alquiler: %s
+                        propietario: %s
+                        edificios: %s
+                        hipotecada?: %s
+                        ================================
+                        valor casa: %s
+                        valor hotel: %s
+                        valor piscina: %s
+                        valor pista de deporte: %s
+                        --------------------------------
+                        alquiler una casa: %s
+                        alquiler dos casas: %s
+                        alquiler tres casas: %s
+                        alquiler cuatro casas: %s
+                        alquiler hotel: %s
+                        alquiler piscina: %s
+                        alquiler pista de deporte: %s
+                    }
+                    """.formatted(
+                        getNombre(),
+                        getGrupo().getNombre(),
+                        Juego.consola.num(getPrecio()),
+                        Juego.consola.num(getAlquiler()),
+                        getPropietario().getNombre(),
+                        Juego.consola.listar(getEdificios(), Edificio::getNombreFmt),
+                        isHipotecada()? "Sí" : "No",
+                        // ==========================================================
+                        Juego.consola.num(Casa.getValor(this)),
+                        Juego.consola.num(Hotel.getValor(this)),
+                        Juego.consola.num(Piscina.getValor(this)),
+                        Juego.consola.num(PistaDeporte.getValor(this)),
+                        // ----------------------------------------------------------
+                        Juego.consola.num(Casa.getAlquiler(this, 1)),
+                        Juego.consola.num(Casa.getAlquiler(this, 2)),
+                        Juego.consola.num(Casa.getAlquiler(this, 3)),
+                        Juego.consola.num(Casa.getAlquiler(this, 4)),
+                        Juego.consola.num(Hotel.getAlquiler(this)),
+                        Juego.consola.num(Piscina.getAlquiler(this)),
+                        Juego.consola.num(PistaDeporte.getAlquiler(this)));
+            // @formatter:on
+        } catch (ErrorFatalLogico e) {
+            throw new RuntimeException(e);
+        }
     }
-
 
     @Override
     public long getPrecio() {
         return precio;
     }
 
-    @Override
-    public long getAlquiler() {
-        return alquiler;
+    /**
+     * Alquiler sin incluir edificios ni bonificaciones de monopolios
+     */
+    public long getAlquilerBase() {
+        return precio / 10;
     }
 
     @Override
+    public long getAlquiler() throws ErrorFatalLogico {
+        long alquilerSolar = getAlquilerBase();
+
+        // Alquiler extra por edificios
+        long alquilerEdificios = 0;
+        int nCasas = 0;
+
+        for (Edificio e : edificios) {
+            if (e.getClass().getSimpleName().equals("Casa")) {
+                nCasas++;
+            } else {
+                alquilerEdificios += e.getAlquiler();
+            }
+        }
+
+        // Las casas se aplican por separado
+        alquilerEdificios += Casa.getAlquiler(this, nCasas);
+
+        if (getGrupo().isMonopolio(getPropietario())) {
+            alquilerSolar *= 2;
+        }
+
+        return alquilerSolar + alquilerEdificios;
+    }
+
+    @Override
+    public void hipotecar() throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoEdificio {
+        if (!edificios.isEmpty()) {
+            throw new ErrorComandoEdificio("No se puede hipotecar una propiedad con edificios");
+        }
+
+        super.hipotecar();
+    }
+
+    @Override
+    public long getAlquiler(Jugador jugador, Dado dado) throws ErrorFatalLogico {
+        return getAlquiler();
+    }
+
     public void factorPrecio(float factor) throws ErrorFatalLogico {
         if (factor <= 0.0) {
             throw new ErrorFatalLogico("El factor no puede ser negativo o nulo");
@@ -97,59 +141,41 @@ public class Solar extends Propiedad {
     }
 
     @Override
-    public long getCosteHipoteca() {
-        return 0;
-    }
-
-    @Override
-    public long getCosteDeshipoteca() {
-        return 0;
-    }
-
-    @Override
     public long getAlquilerTotalCobrado() {
-        return 0;
+        return alquilerTotalCobrado;
     }
 
-    @Override
-    public String getNombreFmt() {
-        return null;
-    }
-
-    /*
-    public void anadirEdificio(Edificio e) {
+    /**
+     * <b>NOTA</b>: requerida por la especificación de la entrega 3.
+     */
+    public void edificar(Edificio e) {
         edificios.add(e);
     }
 
-    public boolean quitarEdificio(Edificio.TipoEdificio tipo) {
+    public void demoler(String tipo) throws ErrorComando {
         for (int ii = 0; ii < edificios.size(); ii++) {
-            if (edificios.get(ii).getTipo() == tipo) {
+            if (edificios.get(ii).getClass().getSimpleName().equals(tipo)) {
                 edificios.remove(ii);
-                return true;
+                return;
             }
         }
 
-        return false;
+        throw new ErrorComando("\"%s\" tipo de edificio no encontrado");
     }
 
-    public int contarEdificios(Edificio.TipoEdificio tipo) {
+    public ArrayList<Edificio> getEdificios() {
+        return edificios;
+    }
+
+    public int contarEdificios(String tipo) {
         int numero = 0;
+
         for (Edificio e : edificios) {
-            if (e.getTipo() == tipo) {
+            if (e.getClass().getSimpleName().equals(tipo)) {
                 numero++;
             }
         }
 
         return numero;
     }
-
-    public ArrayList<Edificio> getEdificios() {
-        if (this.tipo != TipoPropiedad.Solar) {
-            Consola.error("[Propiedad] %s no tiene edificios".formatted(tipo));
-            return null;
-        }
-
-        return edificios;
-    }
-    */
 }

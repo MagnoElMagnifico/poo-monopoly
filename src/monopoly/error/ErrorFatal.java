@@ -16,7 +16,9 @@ public class ErrorFatal extends ErrorJuego {
         super(mensaje);
     }
 
-    /** Termina la ejecución del programa debido al error */
+    /**
+     * Termina la ejecución del programa debido al error
+     */
     public void abortar() {
         System.exit(1);
     }

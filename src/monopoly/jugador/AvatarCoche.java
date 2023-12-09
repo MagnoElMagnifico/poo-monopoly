@@ -1,14 +1,15 @@
 package monopoly.jugador;
 
 import monopoly.Juego;
+import monopoly.JuegoConsts;
+import monopoly.casilla.Casilla;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
-import monopoly.casilla.Casilla;
 import monopoly.error.ErrorComandoAvatar;
 import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatal;
-import monopoly.utils.Dado;
 import monopoly.utils.Consola;
+import monopoly.utils.Dado;
 
 public class AvatarCoche extends Avatar {
     private boolean puedeComprar; /* No permite comprar más una vez por turno */
@@ -21,17 +22,20 @@ public class AvatarCoche extends Avatar {
         this.penalizacion = 0;
     }
 
+    @Override
     public void mover(Juego juego, Dado dado) throws ErrorFatal, ErrorComandoFortuna, ErrorComandoAvatar {
         // Penalización de turnos para el coche
         if (penalizacion != 0) {
             throw new ErrorComandoAvatar("Restaurando avatar: espera %d turno(s) para poder moverte".formatted(penalizacion), this);
         }
+
         super.mover(juego, dado);
     }
 
     @Override
     public int moverEspecial(Dado dado, CasillaCarcel carcel) {
-        Casilla casilla =getCasilla();
+        Casilla casilla = getCasilla();
+
         // Si ha salido un dado doble, se mueve de forma básica
         if (getDoblesSeguidos() != 0) {
             return irCarcelDadosDobles(dado, carcel) ? Integer.MAX_VALUE : casilla.getPosicion() + dado.getValor();
@@ -78,14 +82,15 @@ public class AvatarCoche extends Avatar {
         // básicos si cambia dos veces de modo.
         // No se cambia si ya se gastaron todos los tiros en el turno.
         if (getLanzamientosRestantes() != 0) {
-            setLanzamientosRestantes(isMovimientoEspecial()  ? 4 : 1);
+            setLanzamientosRestantes(isMovimientoEspecial() ? 4 : 1);
         }
     }
 
     @Override
     public boolean acabarTurno() throws ErrorComandoAvatar {
-        int lanzamientosRestantes= getLanzamientosRestantes();
+        int lanzamientosRestantes = getLanzamientosRestantes();
         Jugador jugador = getJugador();
+
         if (lanzamientosRestantes > 0 && penalizacion == 0) {
             throw new ErrorComandoAvatar("A %s aún le quedan %d tiros".formatted(jugador.getNombre(), lanzamientosRestantes), this);
         }
@@ -114,5 +119,10 @@ public class AvatarCoche extends Avatar {
         if (isMovimientoEspecial()) {
             this.puedeComprar = false;
         }
+    }
+
+    @Override
+    public int codColorRepresentacion() {
+        return isMovimientoEspecial() ? JuegoConsts.COD_COLOR_AVATAR_COCHE : JuegoConsts.COD_COLOR_AVATAR_NORMAL;
     }
 }

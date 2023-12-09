@@ -1,11 +1,10 @@
 package monopoly.utils;
 
-import monopoly.Juego;
 import monopoly.casilla.Casilla;
-import monopoly.jugador.Avatar;
-import monopoly.utils.Consola.Estilo;
 
 import java.util.ArrayList;
+
+import static monopoly.utils.ReprTablero.*;
 
 /**
  * Clase de ayuda a Tablero para poder dibujar el tablero por pantalla.
@@ -14,83 +13,26 @@ import java.util.ArrayList;
  * @see Casilla
  */
 public class PintorTablero {
-    /**
-     * Espacio dedicado para el nombre de la casilla dentro de la celda
-     */
-    private static final int TAM_TEXTO = 12;
-    /**
-     * Espacio dedicado para los avatares que ocupan la casilla
-     */
-    private static final int TAM_AVATAR = 7;
-    /**
-     * Tamaño total de la celda
-     */
-    private static final int TAM_CELDA = TAM_TEXTO + TAM_AVATAR;
-
-    // Bordes del tablero
-    // @formatter:off
-    private static final char ESQ_NO = '┏'; // \u250F
-    private static final char ESQ_NE = '┓'; // \u2513
-    private static final char ESQ_SO = '┗'; // \u2517
-    private static final char ESQ_SE = '┛'; // \u251B
-    private static final char HOR    = '━'; // \u2501
-    private static final char VERT   = '┃'; // \u2503
-    private static final char DER    = '┣'; // \u2523
-    private static final char IZQ    = '┫'; // \u252B
-    private static final char ABAJO  = '┳'; // \u2533
-    private static final char ARRIBA = '┻'; // \u253B
-    private static final char INTER  = '╋'; // \u254B
-    // @formatter:on
-
-    /**
-     * Formatea un String de forma que `msg` tiene como máximo
-     * tam-2 caracteres de longitud y está rodeado de espacios.
-     * <p>
-     * Por ejemplo:
-     *
-     * <pre>
-     *     msg = estoesunejemplo
-     *     tam = 10
-     *     resultado -> " estoesu. "
-     *
-     *     msg = hola
-     *     tam = 10
-     *     resultado -> " hola     "
-     * </pre>
-     *
-     * @param msg Mensaje que formatear
-     * @return Mensaje formateado
-     */
-    private static String celda(String msg) {
-        if (msg.length() + 2 > TAM_TEXTO) {
-            return " %s. ".formatted(msg.substring(0, TAM_TEXTO - 3));
-        }
-
-        return " %s%s".formatted(msg, " ".repeat(TAM_TEXTO - msg.length() - 1));
-    }
 
     /**
      * Función privada de ayuda que añade a <code>dst</code> el
      * el contenido de una celda: el nombre de la casilla y sus
      * avatares.
      */
-    private static void pintarCelda(StringBuilder dst, Casilla c, Avatar avatarActual) {
+    private static void pintarCelda(StringBuilder dst, Casilla c) {
         dst.append(VERT);
 
-        dst.append(celda(c.getNombreFmt()));
+        dst.append(c.representar());
 
-        for (int i = 0; i < TAM_AVATAR; i++) {
+        for (int i = 0; i < TAM_AVATAR - 1; i++) {
             if (i < c.getAvatares().size()) {
-                Avatar a = c.getAvatares().get(i);
-                if (avatarActual.equals(a)) {
-                    dst.append(Juego.consola.fmt(Character.toString(a.getId()), 1, Estilo.ParpadeoLento));
-                } else {
-                    dst.append(a.getId());
-                }
+                dst.append(c.getAvatares().get(i).representar());
             } else {
                 dst.append(' ');
             }
         }
+
+        dst.append(' ');
     }
 
     /**
@@ -99,7 +41,7 @@ public class PintorTablero {
      * NOTA: solo se accede al <code>ArrayList</code> de las casillas y
      * al jugador actual (para poder mostrarlo con un estilo diferente).
      */
-    public static String pintarTablero(ArrayList<Casilla> casillas, Avatar avatarActual) {
+    public static String pintarTablero(ArrayList<Casilla> casillas) {
         // Número de casillas por lado:
         // Es el total de casillas entre cada lado (4) más la casilla
         // extra que pertenece al lado siguiente.
@@ -126,7 +68,7 @@ public class PintorTablero {
                 bordeSuperior.append(ESQ_NO);
 
                 for (int j = 0; j < N_LADO; j++) {
-                    pintarCelda(tableroStr, casillas.get(j), avatarActual);
+                    pintarCelda(tableroStr, casillas.get(j));
 
                     // Se añade una línea horizontal por encima de las celdas
                     bordeSuperior.append(Character.toString(HOR).repeat(TAM_CELDA));
@@ -149,7 +91,7 @@ public class PintorTablero {
                 for (int j = 0; j < N_LADO; j++) {
                     // Para obtener la casilla, hay que quitar al número total la cantidad
                     // de celdas en el lado izquierdo del tablero.
-                    pintarCelda(tableroStr, casillas.get(casillas.size() - (N_LADO - 1) - j), avatarActual);
+                    pintarCelda(tableroStr, casillas.get(casillas.size() - (N_LADO - 1) - j));
 
                     bordeInferior.append(Character.toString(HOR).repeat(TAM_CELDA));
                     bordeInferior.append(j == N_LADO - 1 ? ESQ_SE : ARRIBA);
@@ -170,7 +112,7 @@ public class PintorTablero {
 
                 // En el lado de la derecha, se toman las casillas desde el
                 // final dado que son las últimas.
-                pintarCelda(tableroStr, casillas.get(casillas.size() - i), avatarActual);
+                pintarCelda(tableroStr, casillas.get(casillas.size() - i));
                 tableroStr.append(VERT);
 
                 // El resto se llena con espacios
@@ -178,7 +120,7 @@ public class PintorTablero {
 
                 // Y en el lado de la izquierda, hay que sumarle el número de
                 // casillas de la primera fila a la fila actual.
-                pintarCelda(tableroStr, casillas.get(N_LADO + i - 1), avatarActual);
+                pintarCelda(tableroStr, casillas.get(N_LADO + i - 1));
                 tableroStr.append(VERT);
                 tableroStr.append('\n');
 
