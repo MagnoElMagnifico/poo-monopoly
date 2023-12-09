@@ -75,7 +75,7 @@ public class Dado {
     @Override
     public String toString() {
         if (dado1 >= 1 && dado2 >= 1 && dado1 <= 6 && dado2 <= 6) {
-            return "%s\n%s".formatted(REPR_DADO[dado1 - 1], REPR_DADO[dado2 - 1]);
+            return "%s%s".formatted(REPR_DADO[dado1 - 1], REPR_DADO[dado2 - 1]);
         }
         return "(%d, %d)\n".formatted(dado1, dado2);
     }

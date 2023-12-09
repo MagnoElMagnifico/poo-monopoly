@@ -29,6 +29,11 @@ public final class Hotel extends Edificio {
         }
     }
 
+    @Override
+    public Hotel clonar() throws ErrorComando {
+        return new Hotel(this.getSolar());
+    }
+
     public static long getValor(Solar solar) {
         return (long) (0.6 * (float) solar.getPrecio());
     }

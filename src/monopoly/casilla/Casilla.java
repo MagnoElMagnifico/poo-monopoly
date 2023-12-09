@@ -8,6 +8,7 @@ import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatal;
 import monopoly.jugador.Avatar;
 import monopoly.jugador.Jugador;
+import monopoly.utils.Buscar;
 import monopoly.utils.Dado;
 import monopoly.utils.Listable;
 import monopoly.utils.ReprTablero;
@@ -34,7 +35,7 @@ import java.util.ArrayList;
  * @see monopoly.casilla.carta.CasillaAccion
  * @see CasillaImpuesto
  */
-public abstract class Casilla implements Listable, ReprTablero {
+public abstract class Casilla implements Listable, ReprTablero, Buscar {
     private final int posicion;
     private final ArrayList<Avatar> avatares;
 
@@ -78,6 +79,7 @@ public abstract class Casilla implements Listable, ReprTablero {
      * <br>
      * Es el que aparecerá en el tablero.
      */
+    @Override
     public abstract String getNombre();
 
     /**

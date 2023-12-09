@@ -7,6 +7,7 @@ import monopoly.casilla.propiedad.Propiedad;
 import monopoly.casilla.propiedad.Solar;
 import monopoly.error.*;
 import monopoly.jugador.trato.*;
+import monopoly.utils.Buscar;
 import monopoly.utils.Consola;
 import monopoly.utils.Listable;
 
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
-public class Jugador implements Listable {
+public class Jugador implements Listable, Buscar {
     private final String nombre;
     private final Avatar avatar;
     private final HashSet<Propiedad> propiedades;
@@ -68,7 +69,7 @@ public class Jugador implements Listable {
         // no hay ninguna diferencia entre listar
         // y describir jugadores.
         String str = this.toString();
-        return str.substring(0, str.length() - 2); // eliminar el \n
+        return str.substring(0, str.length() - 1); // eliminar el \n
     }
 
     @Override
@@ -165,8 +166,7 @@ public class Jugador implements Listable {
         describirTransaccion();
     }
 
-    public void construir(Edificio edificio) throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoEdificio {
-        // TODO: uso de una cantidad
+    public void construir(Edificio edificio, int cantidad) throws ErrorComando, ErrorFatalLogico {
         if (isEndeudado()) {
             throw new ErrorComandoFortuna("No puedes edificar si estás endeudado", this);
         }
@@ -187,15 +187,24 @@ public class Jugador implements Listable {
             throw new ErrorComandoEdificio("El jugador tiene que tener el Monopolio o haber pasado más de 2 veces por la casilla para poder edificar");
         }
 
-        cobrar(edificio.getValor());
-        edificio.getSolar().edificar(edificio);
-        estadisticas.anadirInversion(edificio.getValor());
-
-        Juego.consola.imprimir("""
+        int i = 0;
+        try {
+            for (i = 0; i < cantidad; i++) {
+                if (i == 0) {
+                    edificio.getSolar().edificar(edificio);
+                } else {
+                    edificio.getSolar().edificar(edificio.clonar());
+                }
+                cobrar(edificio.getValor());
+                estadisticas.anadirInversion(edificio.getValor());
+            }
+        } finally {
+            Juego.consola.imprimir("""
                 %s ha construido %d %s(s) en el solar %s por %s.
                 Ahora tiene una fortuna de %s.
-                """.formatted(nombre, 1, edificio.getClass().getSimpleName(), edificio.getSolar().getNombreFmt(), Juego.consola.num(edificio.getValor()), Juego.consola.num(fortuna)));
-        describirTransaccion();
+                """.formatted(nombre, i, edificio.getClass().getSimpleName(), edificio.getSolar().getNombreFmt(), Juego.consola.num(edificio.getValor()), Juego.consola.num(fortuna)));
+            describirTransaccion();
+        }
     }
 
     public void vender(Solar solar, String tipoEdificio, int cantidad) throws ErrorComandoEdificio, ErrorFatalLogico {
@@ -317,6 +326,7 @@ public class Jugador implements Listable {
         return acreedor;
     }
 
+    @Override
     public String getNombre() {
         return nombre;
     }
