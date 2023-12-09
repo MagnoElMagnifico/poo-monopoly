@@ -40,6 +40,8 @@ Se usarán los siguientes colores para indicar resultados de comandos:
 
 ![](diagrama-clases.png)
 
+![](diagrama-excepciones.png)
+
 Definidas en el paquete `monopoly`:
 
 - **Monopoly**: Crea el tablero y se encarga de procesar y ejecutar los
@@ -93,7 +95,7 @@ Definidas en el paquete `monopoly`:
   
 -----------------------------------------------------------
 
-Definidas en el paquete `monopoly.utilidades`:
+Definidas en el paquete `monopoly.utils`:
 
 - **Dado**: Representa un lanzamiento de un dado
 - **Consola**: Clase de ayuda para escribir por pantalla con colores y distintos

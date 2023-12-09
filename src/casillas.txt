@@ -1,72 +1,70 @@
 # Las casillas de transporte conectan dos grupos en el mismo lado
 # Salida, Cárcel, Párking, IrCárcel están en las esquinas
 
-# Las casillas especiales tienen número 0
-grupo: Especial, 231
-grupo: Transporte, 50
-grupo: Servicio, 46
+Grupo: Transporte, 50
+Grupo: Servicio, 46
 
-Salida, 0
+Salida
 
-grupo: Polonia, 200
-Varsovia, 3, Solar
-Telecomunicaciones, 2, Servicio
-Lodz, 3, Solar
-Cracovia, 3, Solar
+Grupo: Polonia, 200
+Varsovia, 1
+Telecomunicaciones, Servicio
+Lodz, 1
+Cracovia, 1
 
-Tren, 1, Transporte
+Tren, Transporte
 
-grupo: Hungría, 57
-Budapest, 4, Solar
-Suerte, 0
-Debrecen, 4, Solar
-Miskolc, 4, Solar
+Grupo: Hungría, 57
+Budapest, 2
+Suerte
+Debrecen, 2
+Miskolc, 2
 
-IrCarcel, 0
+IrCárcel
 
-grupo: Italia, 48
-Florencia, 5, Solar
-Roma, 5, Solar
-Comunidad, 0
-Nápoles, 5, Solar
+Grupo: Italia, 48
+Florencia, 3
+Roma, 3
+Comunidad
+Nápoles, 3
 
-Puerto, 1, Transporte
-Suerte, 0
+Puerto, Transporte
+Suerte
 
-grupo: España, 226
-Barcelona, 6, Solar
-Impuestos, 0
-Madrid, 6, Solar
+Grupo: España, 226
+Barcelona, 4
+Impuestos
+Madrid, 4
 
-Parking, 0
+Parking
 
-grupo: Francia, 27
-París, 7, Solar
-Marsella, 7, Solar
-Suerte, 0
-Lyon, 7, Solar
+Grupo: Francia, 27
+París, 5
+Marsella, 5
+Suerte
+Lyon, 5
 
-Aeropuerto, 1, Transporte
-Impuestos, 0
+Aeropuerto, Transporte
+Impuestos
 
-grupo: Alemania, 208
-Berlín, 8, Solar
-Comunidad, 0
-Hamburgo, 8, Solar
+Grupo: Alemania, 208
+Berlín, 6
+Comunidad
+Hamburgo, 6
 
-Carcel, 0
+Cárcel
 
-grupo: Noruega, 11
-Oslo, 9, Solar
-Bergen, 9, Solar
-Electricidad, 2, Servicio
-Stavanger, 9, Solar
+Grupo: Noruega, 11
+Oslo, 7
+Bergen, 7
+Electricidad, Servicio
+Stavanger, 7
 
 # Andøya Rocket Range (Noruega)
-Nave Espacial, 1, Transporte
+NaveEspacial, Transporte
 
-grupo: Suiza, 1
-Zurich, 10, Solar
-Comunidad, 0
-Ginebra, 10, Solar
-Basilea, 10, Solar
+Grupo: Suiza, 1
+Zurich, 8
+Comunidad
+Ginebra, 8
+Basilea, 8

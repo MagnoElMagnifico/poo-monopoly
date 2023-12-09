@@ -27,7 +27,7 @@ public interface Comando {
     /**
      * Saca al jugador de la cárcel pagando la fianza
      */
-    void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar, ErrorComandoFortuna;
+    void salirCarcel() throws ErrorComandoEstadoPartida, ErrorComandoAvatar, ErrorComandoFortuna, ErrorFatalLogico;
 
     /**
      * Cambia el modo del avatar del jugador actual de básico a avanzado y viceversa
@@ -68,7 +68,7 @@ public interface Comando {
      *     comprar {propiedad}
      * </pre>
      */
-    void comprar(String[] args) throws ErrorComando;
+    void comprar(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Permite al jugador actual edificar en el solar donde se encuentra
@@ -76,7 +76,7 @@ public interface Comando {
      *     edificar {tipo edificio} [cantidad]
      * </pre>
      */
-    void edificar(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida;
+    void edificar(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Permite vender al jugador actual los edificios previamente construidos
@@ -84,7 +84,7 @@ public interface Comando {
      *     vender {tipo edificio} {solar} [cantidad]
      * </pre>
      */
-    void vender(String[] args) throws ErrorComandoFormato, ErrorComandoEstadoPartida;
+    void vender(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Permite hipotecar una propiedad
@@ -92,7 +92,7 @@ public interface Comando {
      *      hipotecar {propiedad}
      * </pre>
      */
-    void hipotecar(String[] args) throws ErrorComando;
+    void hipotecar(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Permite deshipotecar una propiedad
@@ -100,10 +100,10 @@ public interface Comando {
      *      deshipotecar {propiedad}
      * </pre>
      */
-    void deshipotecar(String[] args) throws ErrorComando;
+    void deshipotecar(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
-     * Permite crear un trato entre varios jugadores
+     * Permite crear un monopoly.jugador.trato entre varios jugadores
      * <pre>
      *     trato { nombre jugador }: cambiar { propiedad } por { propiedad }
      *     trato { nombre jugador }: cambiar { propiedad } por { cantidad }
@@ -116,12 +116,12 @@ public interface Comando {
     void trato(String[] args) throws ErrorComando;
 
     /**
-     * Permite a un jugador aceptar un trato
+     * Permite a un jugador aceptar un monopoly.jugador.trato
      * <pre>
      *     aceptar { ID trato }
      * </pre>
      */
-    void aceptar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna;
+    void aceptar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna, ErrorFatalLogico;
 
     /**
      * Permite al jugador que propuso un trato, eliminarlo.
@@ -147,9 +147,10 @@ public interface Comando {
      *     listar { casillas | jugadores | enventa | avatares | tratos }
      *     listar edificios { nombre grupo }
      * </pre>
+     *
      * @see Listable
      */
-    void listar(String[] args);
+    void listar(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Calcula unas estadísticas sobre la partida actual o sobre
@@ -159,7 +160,7 @@ public interface Comando {
      *     estadisticas { nombre jugador }
      * </pre>
      */
-    void estadisticas(String[] args) throws ErrorComando;
+    void estadisticas(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     // ==== COMANDOS DEBUG ============================================================
 
@@ -180,7 +181,7 @@ public interface Comando {
      * </pre>
      * Si cantidad > 0 se ingresa, si cantidad < 0 se cobra
      */
-    void fortuna(String[] args) throws ErrorComando;
+    void fortuna(String[] args) throws ErrorComando, ErrorFatalLogico;
 
     /**
      * Mueve el avatar actual con el número de posiciones del dado

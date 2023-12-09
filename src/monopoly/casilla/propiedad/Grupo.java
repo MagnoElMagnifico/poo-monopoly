@@ -2,7 +2,10 @@ package monopoly.casilla.propiedad;
 
 import monopoly.Juego;
 import monopoly.casilla.Casilla;
-import monopoly.casilla.edificio.Edificio;
+import monopoly.casilla.edificio.*;
+import monopoly.error.ErrorFatalLogico;
+import monopoly.jugador.Banca;
+import monopoly.jugador.Jugador;
 
 import java.util.ArrayList;
 
@@ -41,50 +44,70 @@ public class Grupo {
                     nombre: %s
                     número: %d
                     casillas: %s
-                }""".formatted(Juego.consola.fmt(nombre, codigoColor), numero, Juego.consola.listar(propiedades, Propiedad::getNombre));
+                }
+                """.formatted(Juego.consola.fmt(nombre, codigoColor), numero, Juego.consola.listar(propiedades, Propiedad::getNombre));
     }
 
-    /*
-    public void listarEdificios() {
-        for (Casilla c : casillas) {
-            if (c.isPropiedad() && c.getPropiedad().getTipo() == Propiedad.TipoPropiedad.Solar) {
-                Propiedad p = c.getPropiedad();
+    public void listarEdificios() throws ErrorFatalLogico {
+        for (Propiedad p : propiedades) {
+            if (p instanceof Solar) {
+                ArrayList<Edificio> edificios = ((Solar) p).getEdificios();
 
-                System.out.printf("""
-                                {
-                                    propiedad: %s
-                                    casas: %s
-                                    hoteles: %s
-                                    piscinas: %s
-                                    pistas de deporte: %s
-                                    alquiler: %s
-                                }
-                                """, p.getNombre(),
-                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Casa ? e.getNombreFmt() : null),
-                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Hotel ? e.getNombreFmt() : null),
-                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.Piscina ? e.getNombreFmt() : null),
-                        Consola.listar(p.getEdificios().iterator(), (e) -> e.getTipo() == Edificio.TipoEdificio.PistaDeporte ? e.getNombreFmt() : null),
-                        Consola.num(p.getAlquiler()));
+                Juego.consola.imprimir("""
+                        {
+                            propiedad: %s
+                            casas: %s
+                            hoteles: %s
+                            piscinas: %s
+                            pistas de deporte: %s
+                            alquiler: %s
+                        }
+                        """.formatted(p.getNombre(),
+                        Juego.consola.listar(edificios, (e) -> e instanceof Casa ? e.getNombreFmt() : null),
+                        Juego.consola.listar(edificios, (e) -> e instanceof Hotel ? e.getNombreFmt() : null),
+                        Juego.consola.listar(edificios, (e) -> e instanceof Piscina ? e.getNombreFmt() : null),
+                        Juego.consola.listar(edificios, (e) -> e instanceof PistaDeporte ? e.getNombreFmt() : null),
+                        Juego.consola.num(p.getAlquiler())));
+            } else {
+                // En caso de un grupo de transportes o servicios
+                return;
             }
         }
+
+        // Mostrar cuantos edificios más se pueden construir
+        // @formatter:off
+        int nPropiedades = getNumeroPropiedades();
+        int nHoteles  = nPropiedades - contarEdificios("Hotel");
+        int nPiscinas = nPropiedades - contarEdificios("Piscina");
+        int nPistas   = nPropiedades - contarEdificios("PistaDeporte");
+        int nCasas    = (nHoteles == 0? nPropiedades : 4) - contarEdificios("Casa");
+        // @formatter:on
+
+        if (nCasas == 0 && nHoteles == 0 && nPiscinas == 0 && nPistas == 0) {
+            Juego.consola.imprimir("\nYa no se pueden construir más edificios en %s\n".formatted(nombre));
+            return;
+        }
+
+        // @formatter:off
+        Juego.consola.imprimir("\nAún se pueden edificar:\n");
+        if (nCasas != 0)    Juego.consola.imprimir("  - %d casa(s)\n".formatted(nCasas));
+        if (nHoteles != 0)  Juego.consola.imprimir("  - %d hotel(es)\n".formatted(nHoteles));
+        if (nPiscinas != 0) Juego.consola.imprimir("  - %d piscina(s)\n".formatted(nPiscinas));
+        if (nPistas != 0)   Juego.consola.imprimir("  - %d pistas(s) de deporte\n".formatted(nPistas));
+        // @formatter:on
     }
 
-    public int contarEdificios(Edificio.TipoEdificio tipo) {
+    public int contarEdificios(String tipo) {
         int numero = 0;
 
-        for (Casilla c : casillas) {
-            if (c.isPropiedad()) {
-                for (Edificio e : c.getPropiedad().getEdificios()) {
-                    if (e.getTipo() == tipo) {
-                        numero++;
-                    }
-                }
+        for (Propiedad p : propiedades) {
+            if (p instanceof Solar) {
+                numero += ((Solar) p).contarEdificios(tipo);
             }
         }
 
         return numero;
     }
-    */
 
     @Override
     public boolean equals(Object obj) {
@@ -93,6 +116,28 @@ public class Grupo {
         }
 
         return obj instanceof Grupo && ((Grupo) obj).nombre.equals(this.nombre);
+    }
+
+    public boolean isMonopolio(Jugador jugador) {
+        // Los monopolios no aplican a la banca
+        if (jugador instanceof Banca) {
+            return false;
+        }
+
+        return contarPropiedades(jugador) == propiedades.size();
+    }
+
+    public int contarPropiedades(Jugador jugador) {
+        // Contar cuantas propiedades posee el jugador
+        int nPropiedades = 0;
+
+        for (Propiedad p : propiedades) {
+            if (p.perteneceAJugador(jugador)) {
+                nPropiedades++;
+            }
+        }
+
+        return nPropiedades;
     }
 
     public void anadirPropiedad(Propiedad propiedad) {
@@ -112,6 +157,10 @@ public class Grupo {
 
     public String getNombre() {
         return nombre;
+    }
+
+    public String getNombreFmt() {
+        return Juego.consola.fmt(getNombre(), codigoColor);
     }
 
     public int getCodigoColor() {

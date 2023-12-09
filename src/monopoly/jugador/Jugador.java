@@ -1,69 +1,78 @@
 package monopoly.jugador;
 
-
-import monopoly.JuegoConsts;
-import monopoly.Tratos.*;
-import monopoly.casilla.Casilla;
-import monopoly.error.ErrorComandoAvatar;
-import monopoly.error.ErrorComandoFortuna;
-import monopoly.error.ErrorComandoJugador;
-import monopoly.utils.Consola;
 import monopoly.Juego;
+import monopoly.casilla.Casilla;
 import monopoly.casilla.edificio.Edificio;
 import monopoly.casilla.propiedad.Propiedad;
-
+import monopoly.casilla.propiedad.Solar;
+import monopoly.error.*;
+import monopoly.jugador.trato.*;
+import monopoly.utils.Consola;
+import monopoly.utils.Listable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
-/**
- * Clase que representa un Jugador. Almacena su información sobre su fortuna y propiedades.
- * Además, tiene un Avatar asociado.
- *
- * @see Avatar
- */
-public class Jugador {
+public class Jugador implements Listable {
     private final String nombre;
     private final Avatar avatar;
     private final HashSet<Propiedad> propiedades;
+    private final HashSet<Trato> tratos;
     private final EstadisticasJugador estadisticas;
     private long fortuna;
     private Jugador acreedor;
-    private HashSet<Trato> tratos;
 
-    /**
-     * Crea el jugador especial Banca
-     */
-    public Jugador() {
-        this.nombre = "Banca";
-        this.avatar = null;
-        this.fortuna = 0;
-        this.propiedades = new HashSet<>(28);
-        this.acreedor = null;
-        this.estadisticas = new EstadisticasJugador(this);
-    }
-
-    /**
-     * Crea un Jugador dado su nombre, tipo de avatar e id
-     */
-
-    public Jugador(String nombre, Avatar avatar, long fortuna) {
-
+    public Jugador(String nombre, Avatar avatar, long fortunaInicial) {
         this.nombre = nombre;
         this.avatar = avatar;
-        this.fortuna = fortuna;
-        this.propiedades = new HashSet<>();
-        this.acreedor = null;
-        this.estadisticas = new EstadisticasJugador(this);
-        this.tratos =new HashSet<>();
+
+        if (avatar != null) {
+            avatar.setJugador(this);
+        }
+        this.fortuna = fortunaInicial;
+
+        propiedades = new HashSet<>();
+        tratos = new HashSet<>();
+        estadisticas = new EstadisticasJugador(this);
     }
 
+    private String listarEdificios() {
+        StringBuilder edificios = new StringBuilder();
+        edificios.append('[');
+
+        // Si es el primer elemento que se añade a la lista,
+        // no se añade coma; pero sí en el resto.
+        boolean primero = true;
+        for (Propiedad p : propiedades) {
+            if (p instanceof Solar) {
+                for (Edificio e : ((Solar) p).getEdificios()) {
+                    if (primero) {
+                        primero = false;
+                    } else {
+                        edificios.append(", ");
+                    }
+
+                    edificios.append(e.getNombreFmt());
+                }
+            }
+        }
+
+        edificios.append(']');
+        return edificios.toString();
+    }
+
+    @Override
+    public String listar() {
+        // En la especificación de la entrega 1,
+        // no hay ninguna diferencia entre listar
+        // y describir jugadores.
+        String str = this.toString();
+        return str.substring(0, str.length() - 2); // eliminar el \n
+    }
 
     @Override
     public String toString() {
-
-
         // @formatter:off
         return """
                 {
@@ -72,14 +81,25 @@ public class Jugador {
                     fortuna: %s
                     propiedades: %s
                     hipotecas: %s
-                    edificios:
-                }""".formatted(nombre,
-                               avatar.getId(),
-                               Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Juego.consola.Color.Rojo : Juego.consola.Color.Verde),
-                               Juego.consola.listar(propiedades, (p) -> p.isHipotecada() ? null : p.getNombreFmt()),
-                               Juego.consola.listar(propiedades, (p) -> p.isHipotecada()? p.getNombreFmt() : null));
-                               //TODO: listarEdificios());
+                    edificios: %s
+                }
+                """.formatted(
+                        nombre,
+                        avatar.getId(),
+                        Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
+                        Juego.consola.listar(propiedades, (p) -> p.isHipotecada()? null : p.getNombreFmt()),
+                        Juego.consola.listar(propiedades, (p) -> !p.isHipotecada()? null : p.getNombreFmt()),
+                        listarEdificios());
         // @formatter:on
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        return obj instanceof Jugador && ((Jugador) obj).nombre.equalsIgnoreCase(this.nombre);
     }
 
     /**
@@ -92,96 +112,104 @@ public class Jugador {
                     fortuna: %s
                     gastos: %s
                     propiedades: %s
-                    edificios:
+                    edificios: %s
                 }
                 """.formatted(Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
-                     Juego.consola.num(estadisticas.getGastos()),
-                     Juego.consola.listar(propiedades, Casilla::getNombreFmt));
-                     // TODO: listarEdificios()));
+                Juego.consola.num(estadisticas.getGastos()),
+                Juego.consola.listar(propiedades, Propiedad::getNombreFmt),
+                listarEdificios()));
         // @formatter:on
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        return obj instanceof Jugador && ((Jugador) obj).getAvatar().equals(avatar);
-    }
-
-    public boolean comprar(Propiedad p) throws ErrorComandoFortuna {
-
+    public void comprar(Propiedad propiedad) throws ErrorComandoFortuna, ErrorFatalLogico {
         if (isEndeudado()) {
-            Juego.consola.error("No puedes comprar nada si estas endeudado");
-            return false;
+            throw new ErrorComandoFortuna("No puedes comprar nada si estás endeudado", this);
         }
 
-        // Comprobar que el jugador no haya comprado ya la casilla
-        if (propiedades.contains(p)) {
-            Juego.consola.error("El jugador %s ya ha comprado la casilla %s.".formatted(nombre, p.getNombreFmt()));
-            return false;
+        if (propiedades.contains(propiedad)) {
+            throw new ErrorComandoFortuna("El jugador ya ha comprado esta casilla", this);
         }
 
-        // Comprobar que no sea propiedad de otro jugador
-        if (!(p.getPropietario() instanceof Banca)) {
-            Juego.consola.error("No se pueden comprar propiedades de otro jugador");
-            System.out.printf("%s pertenece a %s\n", p.getNombreFmt(), Juego.consola.fmt(p.getPropietario().getNombre(), Consola.Color.Azul));
-            return false;
+        if (!(propiedad.getPropietario() instanceof Banca)) {
+            throw new ErrorComandoFortuna("No se pueden comprar propiedades a otro jugador", this);
         }
 
-        // Comprobar que el jugador tiene fortuna suficiente
-        cobrar(p.getPrecio());
-
-        AvatarCoche avatarCoche;
-        if(avatar instanceof AvatarCoche){
-            avatarCoche = (AvatarCoche) avatar;
-            // Movimientos especiales del avatar: Comprobar que no se haya comprado ya en este turno
-            if (!avatarCoche.isPuedeComprar()) {
-                Juego.consola.error("El jugador %s ya ha realizado una compra en este turno".formatted(nombre));
-                return false;
-            }
-            else{
-                avatarCoche.noPuedeComprar();
+        // Avatar especial
+        if (avatar instanceof AvatarCoche) {
+            if (!((AvatarCoche) avatar).isPuedeComprar()) {
+                throw new ErrorComandoFortuna("El jugador ya ha realizado una compra en este turno", this);
             }
         }
-        estadisticas.anadirInversion(p.getPrecio());
 
-        p.getPropietario().quitarPropiedad(p);
-        anadirPropiedad(p);
-        p.setPropietario(this);
+        cobrar(propiedad.getPrecio());
+        estadisticas.anadirInversion(propiedad.getPrecio());
+        anadirPropiedad(propiedad);
+        propiedad.comprar(this);
+
+        if (avatar instanceof AvatarCoche) {
+            ((AvatarCoche) avatar).noPuedeComprar();
+        }
 
         Juego.consola.imprimir("""
                 El jugador %s ha comprado la casilla %s por %s
                 Ahora tiene una fortuna de %s
-                """.formatted( nombre,p.getNombreFmt(), Juego.consola.num(p.getPrecio()), Juego.consola.num(fortuna)));
+                """.formatted(nombre, propiedad.getNombreFmt(), Juego.consola.num(propiedad.getPrecio()), Juego.consola.num(fortuna)));
 
-        // Actualizar los precios de los alquileres si se acaba de
-        // completar un Monopolio
-        //TODO: Actualizar el nombre de los precios si tiene monopolio
-
-        describirTransaccion();
-        return true;
-    }
-    public boolean vender(JuegoConsts.TipoEdificio tipoEdificio, Propiedad solar, int cantidad) {
-        if (!solar.getPropietario().equals(this)) {
-            Juego.consola.error("No se puede vender un edificio de otro jugador: %s pertenece a %s".formatted(solar.getNombre(), solar.getPropietario().getNombre()));
-            return false;
+        if (propiedad.getGrupo().isMonopolio(this)) {
+            Juego.consola.imprimir("""
+                    Con esta casilla, %s completa el Monopolio de %s!
+                    Ahora los alquileres de ese grupo valen el doble.
+                    """.formatted(Juego.consola.fmt(nombre, Consola.Color.Azul), propiedad.getGrupo().getNombreFmt()));
         }
 
-        int nEdificios = solar.contarEdificios(tipoEdificio);
-        if (nEdificios < cantidad) {
-            Juego.consola.error("No se pueden vender %d %s(s) dado que solo hay %d".formatted(cantidad, tipoEdificio, nEdificios));
-            return false;
+        describirTransaccion();
+    }
+
+    public void construir(Edificio edificio) throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoEdificio {
+        // TODO: uso de una cantidad
+        if (isEndeudado()) {
+            throw new ErrorComandoFortuna("No puedes edificar si estás endeudado", this);
+        }
+
+        if (!edificio.getSolar().perteneceAJugador(this)) {
+            throw new ErrorFatalLogico("No se puede construir un edificio de otro jugador");
+        }
+
+        // Calcula el número de estancias del avatar en el solar
+        int nEstanciasCasilla = 0;
+        for (Casilla c : avatar.getHistorialCasillas()) {
+            if (c.equals(edificio.getSolar())) {
+                nEstanciasCasilla++;
+            }
+        }
+
+        if (!edificio.getSolar().getGrupo().isMonopolio(this) && nEstanciasCasilla <= 2) {
+            throw new ErrorComandoEdificio("El jugador tiene que tener el Monopolio o haber pasado más de 2 veces por la casilla para poder edificar");
+        }
+
+        cobrar(edificio.getValor());
+        edificio.getSolar().edificar(edificio);
+        estadisticas.anadirInversion(edificio.getValor());
+
+        Juego.consola.imprimir("""
+                %s ha construido %d %s(s) en el solar %s por %s.
+                Ahora tiene una fortuna de %s.
+                """.formatted(nombre, 1, edificio.getClass().getSimpleName(), edificio.getSolar().getNombreFmt(), Juego.consola.num(edificio.getValor()), Juego.consola.num(fortuna)));
+        describirTransaccion();
+    }
+
+    public void vender(Solar solar, String tipoEdificio, int cantidad) throws ErrorComandoEdificio, ErrorFatalLogico {
+        if (!solar.perteneceAJugador(this)) {
+            throw new ErrorComandoEdificio("No se puede vender un edificio de otro jugador");
         }
 
         // Borrar los edificios en cuestión e ingresar la mitad de su valor
         ArrayList<Edificio> edificios = solar.getEdificios();
-        int nBorrados = 0;
         long importeRecuperado = 0;
+        int nBorrados = 0;
 
         for (int ii = 0; ii < edificios.size(); ii++) {
-            if (edificios.get(ii).getTipo() == tipoEdificio) {
+            if (edificios.get(ii).getClass().getSimpleName().equals(tipoEdificio)) {
                 importeRecuperado += edificios.get(ii).getValor() / 2;
                 edificios.remove(ii);
                 nBorrados++;
@@ -198,186 +226,67 @@ public class Jugador {
             }
         }
 
+        // NOTA: no se considera este importe recuperado para las estadísticas
         ingresar(importeRecuperado);
 
-        // NOTA: no se considera este importe recuperado para las estadísticas
-
-        System.out.printf("""
-                %s ha vendido %s(s) del solar %s por %s.
+        Juego.consola.imprimir("""
+                %s ha vendido %d %s(s) del solar %s por %s.
                 Ahora tiene una fortuna de %s.
-                """, nombre, cantidad, solar.getNombre(), Juego.consola.num(importeRecuperado), Juego.consola.num(fortuna));
-
-        // Actualizar el estado TODO No se si hace falta esto
-        //solar.actualizarAlquiler();
-
+                """.formatted(nombre, cantidad, tipoEdificio, solar.getNombre(), Juego.consola.num(importeRecuperado), Juego.consola.num(fortuna)));
         describirTransaccion();
-        return true;
     }
 
     /**
-     * Hace que el jugador page el alquiler correspondiente
-     * al dueño de la casilla en donde se encuentra
+     * Cobra una cantidad positiva no nula al jugador, y en caso de que
+     * no pueda pagarlo se endeuda con el otro jugador dado.
      */
+    public void cobrar(long cantidad, Jugador acreedor) throws ErrorFatalLogico {
+        if (cantidad <= 0) {
+            throw new ErrorFatalLogico("Se intentó cobrar una cantidad negativa");
+        }
 
-    /**
-     * Cobra al jugador una cantidad de dinero
-     *
-     * @param cantidad Dinero a ingresar
-     * @return True si la operación es correcta, false en otro caso
-     */
-    public void cobrar(long cantidad) throws ErrorComandoFortuna {
-        if (cantidad <= 0) {
-            throw new ErrorComandoFortuna("[Jugador] Se intentó cobrar una cantidad nula o negativa a %s".formatted(nombre), this);
-        }
-        if (fortuna < cantidad){
-            throw new ErrorComandoFortuna("[Jugador] %s no tiene dinero suficiente.".formatted(nombre),this);
-        }
-        // Si hay suficientes fondos, no hay problema
-        else  {
-            fortuna -= cantidad;
-            estadisticas.anadirGastos(cantidad);
-        }
-    }
-    public void cobrar(long cantidad, Jugador acreedor) throws ErrorComandoFortuna {
-        if (cantidad <= 0) {
-            throw new ErrorComandoFortuna("[Jugador] Se intentó cobrar una cantidad nula o negativa a %s".formatted(nombre), this);
-        }
+        fortuna -= cantidad;
+        estadisticas.anadirGastos(cantidad);
+
         // Si no hay suficientes fondos y se quiere endeudar al jugador,
         // entonces se resta igualmente para conseguir una fortuna negativa.
-        if (fortuna < cantidad) {
-            fortuna -= cantidad;
-            estadisticas.anadirGastos(cantidad);
+        if (isEndeudado()) {
             this.acreedor = acreedor;
-            throw new ErrorComandoFortuna("[Jugador] %s no tiene dinero suficiente.".formatted(nombre), acreedor);
-        }
-        // Si hay suficientes fondos, no hay problema
-        else {
-            fortuna -= cantidad;
-            estadisticas.anadirGastos(cantidad);
+            Juego.consola.imprimir("No tienes suficientes fondos. Ahora estás endeudado con %s\n".formatted(acreedor.getNombre()));
         }
     }
 
     /**
-     * Ingresa una cantidad de dinero al jugador
+     * Cobra al jugador una cantidad positiva no nula dada.
+     * En caso de que no tenga dinero suficiente, se cancela lanzando una excepción.
      */
-    public void ingresar(long cantidad) {
-        if (cantidad < 0) {
-            Juego.consola.error("[Jugador] No se puede ingresar una cantidad negativa o nula");
-            return;
+    public void cobrar(long cantidad) throws ErrorFatalLogico, ErrorComandoFortuna {
+        if (cantidad <= 0) {
+            throw new ErrorFatalLogico("Se intentó cobrar una cantidad negativa");
+        }
+
+        if (fortuna < cantidad) {
+            throw new ErrorComandoFortuna("No tienes suficiente dinero", this);
+        }
+
+        fortuna -= cantidad;
+        estadisticas.anadirGastos(cantidad);
+    }
+
+    public void ingresar(long cantidad) throws ErrorFatalLogico {
+        if (cantidad <= 0) {
+            throw new ErrorFatalLogico("Se intentó ingresar una cantidad negativa");
         }
 
         fortuna += cantidad;
     }
 
-    public String listarTratos(){
-        StringBuilder str = new StringBuilder();
-        for(Trato t : tratos){
-            str.append(t.toString());
-        }
-        return str.toString();
-    }
-
-    public void crearTrato(String nombre, Jugador jugador, Propiedad p1, Propiedad p2) throws ErrorComandoJugador {
-        if(!this.propiedades.contains(p1) || !jugador.propiedades.contains(p2)){
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no teneis.",this);
-        }
-        TratoP_P t1= new TratoP_P(nombre, this,jugador,p1,p2);
-        this.tratos.add(t1);
-        jugador.tratos.add(t1);
-    }
-    public void crearTrato(String nombre, Jugador jugador, Propiedad p1, long cantidad) throws ErrorComandoJugador {
-        if(!this.propiedades.contains(p1)){
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no te pertencen.",this);
-        }
-        TratoP_C t1 = new TratoP_C(nombre,this,jugador,p1,cantidad);
-        this.tratos.add(t1);
-        jugador.tratos.add(t1);
-    }
-    public void crearTrato(String nombre, Jugador jugador, long cantidad, Propiedad p2) throws ErrorComandoJugador {
-        if(!jugador.propiedades.contains(p2)){
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no teneis.",this);
-        }
-        if(this.fortuna<cantidad){
-            throw new ErrorComandoJugador("No tienes suficiente dinero para ofrecer el trato",this);
-        }
-        TratoC_P t1= new TratoC_P(nombre, this,jugador,cantidad,p2);
-        this.tratos.add(t1);
-        jugador.tratos.add(t1);
-    }
-
-    public void crearTrato(String nombre, Jugador jugador, Propiedad p1, Propiedad p2, long cantidad) throws ErrorComandoJugador {
-        if(!this.propiedades.contains(p1) || !jugador.propiedades.contains(p2)){
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no teneis.",this);
-        }
-        TratoP_PC t1= new TratoP_PC(nombre, this,jugador,p1,p2, cantidad);
-        this.tratos.add(t1);
-        jugador.tratos.add(t1);
-    }
-
-    public void crearTrato(String nombre, Jugador jugador, Propiedad p1, long cantidad ,Propiedad p2) throws ErrorComandoJugador, ErrorComandoFortuna {
-        if(!this.propiedades.contains(p1) || !jugador.propiedades.contains(p2)){
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no te pertencen.",this);
-        }
-        if(this.fortuna<cantidad){
-            throw new ErrorComandoFortuna("No tienes suficiente dinero para ofrecer el trato",this);
-        }
-        TratoPC_P t1= new TratoPC_P(nombre, this,jugador,p1, cantidad,p2);
-        this.tratos.add(t1);
-        jugador.tratos.add(t1);
-    }
-
-    public void aceptarTrato(String nombre) throws ErrorComandoFortuna {
-        for(Trato t : tratos){
-            if(t.getNombre().equalsIgnoreCase(nombre)){
-                if(t.getAceptador()==this) {
-                    t.aceptar();
-                    Juego.consola.imprimir("Aceptado:\n%s".formatted(t.toString()));
-                }
-            }
-        }
-    }
-
-    public void eliminarTrato(String nombre) {
-        Iterator<Trato> itr = tratos.iterator();
-        while(itr.hasNext()){
-            Trato t= itr.next();
-            if(t.getNombre().equalsIgnoreCase(nombre) && t.getInteresado() == this){
-                t.getAceptador().tratos.remove(t);
-                this.tratos.remove(t);
-            }
-        }
-    }
-    /**
-     * Determina si
-     */
-    public void acabarTurno() throws ErrorComandoAvatar {
+    public void acabarTurno() throws ErrorComandoEstadoPartida, ErrorComandoAvatar {
         if (isEndeudado()) {
-            Juego.consola.error("El jugador %s está endeudado: paga la deuda o declárate en bancarrota para poder avanzar".formatted(nombre));
-            return;
+            throw new ErrorComandoEstadoPartida("El jugador está endeudado: para la deuda o declárate en bancarrota para avanzar");
         }
 
         avatar.acabarTurno();
-    }
-
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public Avatar getAvatar() {
-        return avatar;
-    }
-
-    public long getFortuna() {
-        return fortuna;
-    }
-
-    public EstadisticasJugador getEstadisticas() {
-        return estadisticas;
-    }
-
-    public HashSet<Propiedad> getPropiedades() {
-        return propiedades;
     }
 
     public void anadirPropiedad(Propiedad p) {
@@ -392,8 +301,143 @@ public class Jugador {
         return fortuna < 0;
     }
 
+    public long getFortuna() {
+        return fortuna;
+    }
+
+    public Avatar getAvatar() {
+        return avatar;
+    }
+
+    public HashSet<Propiedad> getPropiedades() {
+        return propiedades;
+    }
+
     public Jugador getAcreedor() {
         return acreedor;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
+    public EstadisticasJugador getEstadisticas() {
+        return estadisticas;
+    }
+
+    public HashSet<Trato> getTratos() {
+        return tratos;
+    }
+
+    /**
+     * Intercambio de propiedades: p1 <--> p2
+     */
+    public void crearTrato(Jugador jugador, Propiedad p1, Propiedad p2) throws ErrorComandoJugador {
+        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
+            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen", this);
+        }
+
+        TratoP_P trato = new TratoP_P(this, jugador, p1, p2);
+        this.tratos.add(trato);
+        jugador.tratos.add(trato);
+    }
+
+    /**
+     * Vender propiedad: p <--> cantidad
+     */
+    public void crearTrato(Jugador jugador, Propiedad p, long cantidad) throws ErrorComandoJugador {
+        if (!p.perteneceAJugador(this)) {
+            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no te pertenecen", this);
+        }
+
+        TratoP_C trato = new TratoP_C(this, jugador, p, cantidad);
+        this.tratos.add(trato);
+        jugador.tratos.add(trato);
+    }
+
+    /**
+     * Comprar propiedad: cantidad <--> p
+     */
+    public void crearTrato(Jugador jugador, long cantidad, Propiedad p) throws ErrorComandoJugador {
+        if (!p.perteneceAJugador(jugador)) {
+            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen", this);
+        }
+
+        if (this.fortuna < cantidad) {
+            throw new ErrorComandoJugador("No tienes suficiente dinero para ofrecer el trato", this);
+        }
+
+        TratoC_P trato = new TratoC_P(this, jugador, cantidad, p);
+        this.tratos.add(trato);
+        jugador.tratos.add(trato);
+    }
+
+    /**
+     * Intercambiar con compensación: p1 <--> p2 + cantidad
+     */
+    public void crearTrato(Jugador jugador, Propiedad p1, Propiedad p2, long cantidad) throws ErrorComandoJugador {
+        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
+            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen.", this);
+        }
+
+        TratoP_PC trato = new TratoP_PC(this, jugador, p1, p2, cantidad);
+        this.tratos.add(trato);
+        jugador.tratos.add(trato);
+    }
+
+    /**
+     * Intercambiar con compensación: p1 + cantidad <--> p2
+     */
+    public void crearTrato(Jugador jugador, Propiedad p1, long cantidad, Propiedad p2) throws ErrorComandoJugador, ErrorComandoFortuna {
+        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
+            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no te pertenecen.", this);
+        }
+
+        if (this.fortuna < cantidad) {
+            throw new ErrorComandoFortuna("No tienes suficiente dinero para ofrecer el trato", this);
+        }
+
+        TratoPC_P trato = new TratoPC_P(this, jugador, p1, cantidad, p2);
+        this.tratos.add(trato);
+        jugador.tratos.add(trato);
+    }
+
+    /**
+     * Intercambiar con no alquiler: p1 <--> p2 + noalquiler na
+     */
+    public void crearTrato(Jugador jugador, Propiedad p1, Propiedad p2, Propiedad noalquiler, int nTurnos) throws ErrorComandoJugador {
+        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador) || !noalquiler.perteneceAJugador(this)) {
+            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen.", this);
+        }
+
+        if (nTurnos <= 0) {
+            throw new ErrorComandoJugador("El número de turnos no puede ser negativo o 0", this);
+        }
+
+        TratoP_PNA trato = new TratoP_PNA(this, jugador, p1, p2, noalquiler, nTurnos);
+        this.tratos.add(trato);
+        jugador.tratos.add(trato);
+    }
+
+    public void aceptarTrato(String nombre) throws ErrorComandoFortuna, ErrorFatalLogico {
+        for (Trato t : tratos) {
+            if (t.getNombre().equalsIgnoreCase(nombre) && t.getAceptador().equals(this)) {
+                t.aceptar();
+                Juego.consola.imprimir("Aceptado:\n%s\n".formatted(t.toString()));
+                break;
+            }
+        }
+    }
+
+    public void eliminarTrato(String nombre) {
+        Iterator<Trato> itr = tratos.iterator();
+        while (itr.hasNext()) {
+            Trato trato = itr.next();
+            if (trato.getNombre().equalsIgnoreCase(nombre) && trato.getInteresado().equals(this)) {
+                trato.getAceptador().tratos.remove(trato);
+                this.tratos.remove(trato);
+                break;
+            }
+        }
+    }
 }

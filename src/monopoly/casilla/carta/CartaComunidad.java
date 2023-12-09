@@ -4,7 +4,9 @@ import monopoly.Juego;
 import monopoly.error.ErrorFatal;
 import monopoly.jugador.Jugador;
 
-/** Es una clase final porque ya implementa todo lo necesario y no tiene sentido crear subtipos. */
+/**
+ * Es una clase final porque ya implementa todo lo necesario y no tiene sentido crear subtipos.
+ */
 public final class CartaComunidad extends Carta {
     private final Juego juego;
 
@@ -15,7 +17,7 @@ public final class CartaComunidad extends Carta {
 
     @Override
     public String toString() {
-        return "Carta de Comunidad: " + super.getDescripcion();
+        return "Carta de Comunidad: " + super.getDescripcion() + '\n';
     }
 
     @Override
@@ -33,7 +35,7 @@ public final class CartaComunidad extends Carta {
             case 5 -> cantidad = -1_000_000;
             case 8 -> {
                 long cantidadPorJugador = 250_000L;
-                jugadorTurno.cobrar(cantidadPorJugador * (juego.getJugadores().size() - 1), true);
+                jugadorTurno.cobrar(cantidadPorJugador * (juego.getJugadores().size() - 1), juego.getBanca());
 
                 // NOTA: el pago a otros jugadores no se considera una tasa.
                 // No hace falta actualizar las estadísticas del jugadorTurno

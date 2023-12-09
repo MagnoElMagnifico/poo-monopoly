@@ -1,44 +1,75 @@
 package monopoly.casilla.edificio;
 
 import monopoly.Juego;
-import monopoly.casilla.propiedad.Propiedad;
 import monopoly.casilla.propiedad.Solar;
+import monopoly.error.ErrorComandoEdificio;
+import monopoly.error.ErrorFatalLogico;
+import monopoly.utils.Listable;
 
-public abstract class Edificio {
+public abstract class Edificio implements Listable {
     private static int ultimoId = 1;
 
-    private int id;
+    private final int id;
+    private final Solar solar;
 
-    private long valor;
-    private Solar solar;
-    private int cantidad;
-
-    public Edificio(int id, String tipo, long valor, Solar solar, int cantidad) {
+    public Edificio(Solar solar) throws ErrorComandoEdificio {
         this.id = ultimoId++;
-        this.solar = solar;
-        this.valor = 0;
-        this.cantidad = 0;
 
+        if (solar.isHipotecada()) {
+            throw new ErrorComandoEdificio("No se puede edificar sobre un Solar hipotecado");
+        }
+
+        this.solar = solar;
     }
+
+    @Override
+    public String listar() {
+        try {
+            // @formatter:off
+            return """
+                   {
+                       id: %s-%d
+                       propietario: %s
+                       solar: %s
+                       grupo: %s
+                       precio: %s
+                   }""".formatted(
+                           getClass().getSimpleName(), id,
+                           getSolar().getPropietario().getNombre(),
+                           getSolar().getNombreFmt(),
+                           getSolar().getGrupo().getNombreFmt(),
+                           Juego.consola.num(getValor()));
+            // @formatter:on
+        } catch (ErrorFatalLogico e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public String toString() {
-        // @formatter:off
-        return """
-                {
-                    id: %s
-                    propietario: %s
-                    solar: %s
-                    grupo: %s
-                    valor: %s
-                }""".formatted(getId(),
-                solar.getPropietario(),
-                solar.getNombre(),
-                solar.getGrupo().getNombre(),
-                Juego.consola.num(valor));
-        // @formatter:on
+        try {
+            // @formatter:off
+            return """
+                    {
+                        id: %s
+                        propietario: %s
+                        solar: %s
+                        valor: %s
+                    }
+                    """.formatted(getId(),
+                        solar.getPropietario(),
+                        solar.getNombre(),
+                        Juego.consola.num(getValor()));
+            // @formatter:on
+        } catch (ErrorFatalLogico e) {
+            // No se puede lanzar otro tipo de excepción,
+            // porque se tendría que añadir el throws en
+            // la clase Object.
+            throw new RuntimeException(e);
+        }
     }
 
-    public Propiedad getSolar() {
+    public Solar getSolar() {
         return solar;
     }
 
@@ -46,10 +77,12 @@ public abstract class Edificio {
         return id;
     }
 
-    public abstract long getValor();
+    public String getNombreFmt() {
+        return Juego.consola.fmt("%s-%s".formatted(this.getClass().getSimpleName(), id), solar.getGrupo().getCodigoColor());
+    }
 
-    public abstract long alquilerEdificio(Solar solar, int cantidad);
+    public abstract long getValor() throws ErrorFatalLogico;
 
-    public abstract long precioEdificio(Solar solar, int cantidad);
+    public abstract long getAlquiler() throws ErrorFatalLogico;
 }
 
