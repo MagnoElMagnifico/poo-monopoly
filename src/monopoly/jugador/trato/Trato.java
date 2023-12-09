@@ -10,16 +10,16 @@ public abstract class Trato implements Listable, Buscar {
     private static int ultimoTrato = 1;
 
     private final String nombre;  // tiene que ser único
-    private final Jugador jugadorPropone; // quien propone el trato
-    private final Jugador jugadorAcepta; // quien decide si acepta o no
+    private final Jugador jugPropone; // quien propone el trato
+    private final Jugador jugAcepta; // quien decide si acepta o no
     private boolean aceptado;
 
-    public Trato(Jugador jugadorPropone, Jugador jugadorAcepta) {
+    public Trato(Jugador jugPropone, Jugador jugAcepta) {
         this.nombre = "Trato-" + ultimoTrato;
         ultimoTrato++;
 
-        this.jugadorPropone = jugadorPropone;
-        this.jugadorAcepta = jugadorAcepta;
+        this.jugPropone = jugPropone;
+        this.jugAcepta = jugAcepta;
         this.aceptado = false;
     }
 
@@ -35,7 +35,7 @@ public abstract class Trato implements Listable, Buscar {
                estado: %s
                propuesto por: %s
                propuesto a: %s
-               """.formatted(nombre, aceptado ? "Aceptado" : "En espera", jugadorPropone.getNombre(), jugadorAcepta.getNombre());
+               """.formatted(nombre, aceptado ? "Aceptado" : "En espera", jugPropone.getNombre(), jugAcepta.getNombre());
     }
 
     @Override
@@ -48,11 +48,11 @@ public abstract class Trato implements Listable, Buscar {
     }
 
     public Jugador getJugadorPropone() {
-        return jugadorPropone;
+        return jugPropone;
     }
 
     public Jugador getJugadorAcepta() {
-        return jugadorAcepta;
+        return jugAcepta;
     }
 
 

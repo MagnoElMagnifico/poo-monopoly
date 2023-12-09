@@ -342,63 +342,9 @@ public class Jugador implements Listable, Buscar {
         return tratos;
     }
 
-    /**
-     * Intercambio de propiedades: p1 <--> p2
-     */
-    public void crearTrato(Jugador jugador, Propiedad p1, Propiedad p2) throws ErrorComandoJugador {
-        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen", this);
-        }
-
-        TratoP_P trato = new TratoP_P(this, jugador, p1, p2);
+    public void crearTrato(Jugador jugAcepta, Trato trato) {
         this.tratos.add(trato);
-        jugador.tratos.add(trato);
-        Juego.consola.imprimir(trato.toString() + '\n');
-    }
-
-    /**
-     * Vender propiedad: p <--> cantidad
-     */
-    public void crearTrato(Jugador jugador, Propiedad p, long cantidad) throws ErrorComandoJugador {
-        if (!p.perteneceAJugador(this)) {
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no te pertenecen", this);
-        }
-
-        TratoP_C trato = new TratoP_C(this, jugador, p, cantidad);
-        this.tratos.add(trato);
-        jugador.tratos.add(trato);
-        Juego.consola.imprimir(trato.toString() + '\n');
-    }
-
-    /**
-     * Comprar propiedad: cantidad <--> p
-     */
-    public void crearTrato(Jugador jugador, long cantidad, Propiedad p) throws ErrorComandoJugador {
-        if (!p.perteneceAJugador(jugador)) {
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen", this);
-        }
-
-        if (this.fortuna < cantidad) {
-            throw new ErrorComandoJugador("No tienes suficiente dinero para ofrecer el trato", this);
-        }
-
-        TratoC_P trato = new TratoC_P(this, jugador, cantidad, p);
-        this.tratos.add(trato);
-        jugador.tratos.add(trato);
-        Juego.consola.imprimir(trato.toString() + '\n');
-    }
-
-    /**
-     * Intercambiar con compensación: p1 <--> p2 + cantidad
-     */
-    public void crearTrato(Jugador jugador, Propiedad p1, Propiedad p2, long cantidad) throws ErrorComandoJugador {
-        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen.", this);
-        }
-
-        TratoP_PC trato = new TratoP_PC(this, jugador, p1, p2, cantidad);
-        this.tratos.add(trato);
-        jugador.tratos.add(trato);
+        jugAcepta.tratos.add(trato);
         Juego.consola.imprimir(trato.toString() + '\n');
     }
 
@@ -406,14 +352,6 @@ public class Jugador implements Listable, Buscar {
      * Intercambiar con compensación: p1 + cantidad <--> p2
      */
     public void crearTrato(Jugador jugador, Propiedad p1, long cantidad, Propiedad p2) throws ErrorComandoJugador, ErrorComandoFortuna {
-        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador)) {
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no te pertenecen.", this);
-        }
-
-        if (this.fortuna < cantidad) {
-            throw new ErrorComandoFortuna("No tienes suficiente dinero para ofrecer el trato", this);
-        }
-
         TratoPC_P trato = new TratoPC_P(this, jugador, p1, cantidad, p2);
         this.tratos.add(trato);
         jugador.tratos.add(trato);
@@ -424,47 +362,39 @@ public class Jugador implements Listable, Buscar {
      * Intercambiar con no alquiler: p1 <--> p2 + noalquiler na
      */
     public void crearTrato(Jugador jugador, Propiedad p1, Propiedad p2, Propiedad noalquiler, int nTurnos) throws ErrorComandoJugador {
-        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador) || !noalquiler.perteneceAJugador(this)) {
-            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen.", this);
-        }
-
-        if (nTurnos <= 0) {
-            throw new ErrorComandoJugador("El número de turnos no puede ser negativo o 0", this);
-        }
-
         TratoP_PNA trato = new TratoP_PNA(this, jugador, p1, p2, noalquiler, nTurnos);
         this.tratos.add(trato);
         jugador.tratos.add(trato);
         Juego.consola.imprimir(trato.toString() + '\n');
     }
 
-    public void aceptarTrato(String nombre) throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoNoEncontrado, ErrorComandoJugador {
+    public void aceptarTrato(String nombre) throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoNoEncontrado, ErrorComandoTrato {
         Trato trato = Buscar.porNombre(nombre, tratos);
 
         if (!trato.getJugadorAcepta().equals(this)) {
             // La lista de tratos es compartida entre los tratos que he propuesto
             // y los tratos que me han propuesto. Entonces, si no soy el que debe
             // aceptar, es que yo he propuesto el trato.
-            throw new ErrorComandoJugador("No puedes aceptar un trato que tú has propuesto", this);
+            throw new ErrorComandoTrato("No puedes aceptar un trato que tú has propuesto", this);
         }
 
         if (trato.isAceptado()) {
-            throw new ErrorComandoJugador("El trato ya había sido aceptado", this);
+            throw new ErrorComandoTrato("El trato ya había sido aceptado", this);
         }
 
         trato.aceptar();
         Juego.consola.imprimir("Aceptado:\n%s\n".formatted(trato.toString()));
     }
 
-    public void eliminarTrato(String nombre) throws ErrorComandoNoEncontrado, ErrorComandoJugador {
+    public void eliminarTrato(String nombre) throws ErrorComandoNoEncontrado, ErrorComandoTrato {
         Trato trato = Buscar.porNombre(nombre, tratos);
 
         if (!trato.getJugadorPropone().equals(this)) {
-            throw new ErrorComandoJugador("No puedes eliminar un trato que tú has propuesto", this);
+            throw new ErrorComandoTrato("No puedes eliminar un trato que tú has propuesto", this);
         }
 
         if (trato.isAceptado()) {
-            throw new ErrorComandoJugador("No puedes eliminar un trato que ha sido aceptado", this);
+            throw new ErrorComandoTrato("No puedes eliminar un trato que ha sido aceptado", this);
         }
 
         tratos.remove(trato);

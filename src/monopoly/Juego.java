@@ -10,7 +10,7 @@ import monopoly.casilla.propiedad.Propiedad;
 import monopoly.casilla.propiedad.Solar;
 import monopoly.error.*;
 import monopoly.jugador.*;
-import monopoly.jugador.trato.Trato;
+import monopoly.jugador.trato.*;
 import monopoly.utils.Buscar;
 import monopoly.utils.Consola;
 import monopoly.utils.Consola.Color;
@@ -762,13 +762,14 @@ public class Juego implements Comando {
             throw new ErrorComandoFormato(5, args.length-1);
         }
 
-        Jugador jugador = Buscar.porNombre(args[1], jugadores);
+        Jugador jugPropone = getJugadorTurno();
+        Jugador jugAcepta = Buscar.porNombre(args[1], jugadores);
 
         if (!args[2].equalsIgnoreCase("cambiar")) {
             throw new ErrorComandoFormato("El uso de la palabra \"cambiar\" es obligatorio");
         }
 
-        if (getJugadorTurno().equals(jugador)) {
+        if (getJugadorTurno().equals(jugAcepta)) {
             throw new ErrorComando("No puedes hacer un trato contigo mismo");
         }
 
@@ -780,25 +781,23 @@ public class Juego implements Comando {
                 }
 
                 // trato nombre cambiar CANTIDAD por PROPIEDAD
-                // TODO?: trato nombre comprar PROPIEDAD por CANTIDAD
                 if (isNumeric(args[3])) {
-                    Propiedad p = (Propiedad) Buscar.porNombre(args[5], casillas);
-                    getJugadorTurno().crearTrato(jugador, Long.parseLong(args[3]), p);
+                    Propiedad propAcepta = (Propiedad) Buscar.porNombre(args[5], casillas);
+                    jugPropone.crearTrato(jugAcepta, new TratoC_P(jugPropone, jugAcepta, Long.parseLong(args[3]), propAcepta));
                     return;
                 }
 
                 // trato nombre cambiar PROPIEDAD por CANTIDAD
-                // TODO?: trato nombre vender PROPIEDAD por CANTIDAD
                 if (isNumeric(args[5])) {
-                    Propiedad p = (Propiedad) Buscar.porNombre(args[3], casillas);
-                    getJugadorTurno().crearTrato(jugador, p, Long.parseLong(args[5]));
+                    Propiedad propPropone = (Propiedad) Buscar.porNombre(args[3], casillas);
+                    jugPropone.crearTrato(jugAcepta, new TratoP_C(jugPropone, jugAcepta, propPropone, Long.parseLong(args[5])));
                     return;
                 }
 
                 // trato nombre cambiar PROPIEDAD por PROPIEDAD
                 Propiedad p1 = (Propiedad) Buscar.porNombre(args[3], casillas);
                 Propiedad p2 = (Propiedad) Buscar.porNombre(args[5], casillas);
-                getJugadorTurno().crearTrato(jugador, p1, p2);
+                jugPropone.crearTrato(jugAcepta, new TratoP_P(jugPropone, jugAcepta, p1, p2));
                 return;
             }
 
@@ -807,7 +806,7 @@ public class Juego implements Comando {
             if (args.length == 8) {
                 // trato nombre cambiar PROPIEDAD por Y y Z
                 if (args[4].equalsIgnoreCase("por") && args[6].equalsIgnoreCase("y")) {
-                    Propiedad p1 = (Propiedad) Buscar.porNombre(args[3], casillas);
+                    Propiedad propPropone = (Propiedad) Buscar.porNombre(args[3], casillas);
 
                     // trato nombre cambiar PROPIEDAD por CANTIDAD y PROPIEDAD
                     if (isNumeric(args[5])) {
@@ -819,15 +818,15 @@ public class Juego implements Comando {
 
                     // trato nombre cambiar PROPIEDAD por PROPIEDAD y CANTIDAD
                     if (isNumeric(args[7])) {
-                        Propiedad p2 = (Propiedad) Buscar.porNombre(args[5], casillas);
-                        getJugadorTurno().crearTrato(jugador, p1, p2, Long.parseLong(args[7]));
+                        Propiedad propAcepta = (Propiedad) Buscar.porNombre(args[5], casillas);
+                        jugPropone.crearTrato(jugAcepta, new TratoP_PC(jugPropone, jugAcepta, propPropone, propAcepta, Long.parseLong(args[7])));
                         return;
                     }
                 }
 
                 // trato nombre cambiar X y Y por PROPIEDAD
                 if (args[4].equalsIgnoreCase("y") && args[6].equalsIgnoreCase("por")) {
-                    Propiedad p2 = (Propiedad) Buscar.porNombre(args[7], casillas);
+                    Propiedad propAcepta = (Propiedad) Buscar.porNombre(args[7], casillas);
 
                     // trato nombre cambiar CANTIDAD y PROPIEDAD por PROPIEDAD
                     if (isNumeric(args[3])) {
@@ -839,8 +838,8 @@ public class Juego implements Comando {
 
                     // trato nombre cambiar PROPIEDAD y CANTIDAD por PROPIEDAD
                     if (isNumeric(args[5])) {
-                        Propiedad p1 = (Propiedad) Buscar.porNombre(args[3], casillas);
-                        getJugadorTurno().crearTrato(jugador, p1, Long.parseLong(args[5]), p2);
+                        Propiedad propPropone = (Propiedad) Buscar.porNombre(args[3], casillas);
+                        jugPropone.crearTrato(jugAcepta, new TratoPC_P(jugPropone, jugAcepta, propPropone, Long.parseLong(args[5]), propAcepta));
                         return;
                     }
                 }
@@ -854,11 +853,11 @@ public class Juego implements Comando {
                     && args[9].equalsIgnoreCase("durante")
                     && isNumeric(args[10])
             ) {
-                Propiedad p1 = (Propiedad) Buscar.porNombre(args[3], casillas);
-                Propiedad p2 = (Propiedad) Buscar.porNombre(args[5], casillas);
-                Propiedad na = (Propiedad) Buscar.porNombre(args[8], casillas);
+                Propiedad propPropone = (Propiedad) Buscar.porNombre(args[3], casillas);
+                Propiedad propAcepta = (Propiedad) Buscar.porNombre(args[5], casillas);
+                Propiedad noalquiler = (Propiedad) Buscar.porNombre(args[8], casillas);
                 int nTurnos = Integer.parseInt(args[10]);
-                getJugadorTurno().crearTrato(jugador, p1, p2, na, nTurnos);
+                jugPropone.crearTrato(jugAcepta, new TratoP_PNA(jugPropone, jugAcepta, propPropone, propAcepta, noalquiler, nTurnos));
             }
 
             throw new ErrorComandoFormato("Formato de comando incorrecto. Consulta la ayuda para más información.");

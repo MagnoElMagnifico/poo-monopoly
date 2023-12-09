@@ -2,17 +2,25 @@ package monopoly.jugador.trato;
 
 import monopoly.casilla.propiedad.Propiedad;
 import monopoly.error.ErrorComandoFortuna;
+import monopoly.error.ErrorComandoJugador;
+import monopoly.error.ErrorComandoTrato;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
 
 public class TratoP_P extends Trato {
-    private final Propiedad propInteresado;
-    private final Propiedad propAceptador;
+    private final Propiedad propPropone;
+    private final Propiedad propAcepta;
 
-    public TratoP_P(Jugador interesado, Jugador benefactor, Propiedad propInteresado, Propiedad propAceptador) {
-        super(interesado, benefactor);
-        this.propInteresado = propInteresado;
-        this.propAceptador = propAceptador;
+    public TratoP_P(Jugador jugPropone, Jugador jugAcepta, Propiedad propPropone, Propiedad propAcepta) throws ErrorComandoTrato {
+        super(jugPropone, jugAcepta);
+
+        if (!propPropone.perteneceAJugador(jugPropone)
+                || !propAcepta.perteneceAJugador(jugAcepta)) {
+            throw new ErrorComandoTrato("No puedes ofrecer un trato con propiedades que no os pertenecen", jugPropone);
+        }
+
+        this.propPropone = propPropone;
+        this.propAcepta = propAcepta;
     }
 
     @Override
@@ -21,7 +29,7 @@ public class TratoP_P extends Trato {
                 {
                 %s
                     trato: cambiar %s por %s
-                }""".formatted(super.toString().indent(4), propInteresado.getNombreFmt(), propAceptador.getNombreFmt());
+                }""".formatted(super.toString().indent(4), propPropone.getNombreFmt(), propAcepta.getNombreFmt());
     }
 
     @Override
@@ -29,14 +37,14 @@ public class TratoP_P extends Trato {
         Jugador j1 = getJugadorPropone();
         Jugador j2 = getJugadorAcepta();
 
-        j1.anadirPropiedad(propAceptador);
-        j2.anadirPropiedad(propInteresado);
+        j1.anadirPropiedad(propAcepta);
+        j2.anadirPropiedad(propPropone);
 
-        propAceptador.setPropietario(j1);
-        propInteresado.setPropietario(j2);
+        propAcepta.setPropietario(j1);
+        propPropone.setPropietario(j2);
 
-        j1.quitarPropiedad(propInteresado);
-        j2.quitarPropiedad(propAceptador);
+        j1.quitarPropiedad(propPropone);
+        j2.quitarPropiedad(propAcepta);
 
         super.aceptar();
     }

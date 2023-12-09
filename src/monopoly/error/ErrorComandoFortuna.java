@@ -14,18 +14,8 @@ import monopoly.jugador.Jugador;
  * <li>No hay suficiente fortuna</li>
  * <li>Ya ha realizado una compra en este turno</li>
  */
-public class ErrorComandoFortuna extends ErrorComando {
-    /**
-     * Jugador que causó el problema
-     */
-    private final Jugador jugador;
-
+public class ErrorComandoFortuna extends ErrorComandoJugador {
     public ErrorComandoFortuna(String mensaje, Jugador jugador) {
-        super(mensaje);
-        this.jugador = jugador;
-    }
-
-    public Jugador getJugador() {
-        return jugador;
+        super(mensaje, jugador);
     }
 }
