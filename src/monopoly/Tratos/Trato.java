@@ -45,7 +45,7 @@ public abstract class Trato {
 
     public void aceptar() throws ErrorComandoFortuna {
         completado=true;
-    };
+    }
 
     public String getNombre() {
         return nombre;

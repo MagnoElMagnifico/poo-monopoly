@@ -33,7 +33,7 @@ import java.util.function.Function;
 public class Juego implements Comando {
     private static int ultimoTrato=1;
 
-    // TODO: poner en privado y añadir un getter
+
     public static Consola consola;
 
     private final String msgAyuda;
