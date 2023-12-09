@@ -41,7 +41,7 @@ public class TratoP_PNA extends Trato {
                         super.toString().indent(4),
                         propPropone.getNombreFmt(),
                         propAcepta.getNombreFmt(),
-                        propAcepta.getNombreFmt(),
+                        propNoAlquiler.getNombreFmt(),
                         turnos);
         // @formatter:on
     }
@@ -59,6 +59,8 @@ public class TratoP_PNA extends Trato {
 
         j1.quitarPropiedad(propPropone);
         j2.quitarPropiedad(propAcepta);
+
+        super.aceptar();
     }
 
     public Propiedad getPropNoAlquiler() {

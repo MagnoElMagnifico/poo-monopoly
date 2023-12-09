@@ -34,12 +34,12 @@ public class TratoP_C extends Trato {
 
     @Override
     public void aceptar() throws ErrorComandoFortuna, ErrorFatalLogico {
+        getJugadorPropone().ingresar(cantidadAcepta);
+        getJugadorPropone().quitarPropiedad(propPropone);
+
         getJugadorAcepta().cobrar(cantidadAcepta);
         getJugadorAcepta().anadirPropiedad(propPropone);
         propPropone.setPropietario(getJugadorAcepta());
-
-        getJugadorPropone().ingresar(cantidadAcepta);
-        getJugadorAcepta().quitarPropiedad(propPropone);
 
         super.aceptar();
     }

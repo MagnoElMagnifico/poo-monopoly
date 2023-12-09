@@ -348,26 +348,6 @@ public class Jugador implements Listable, Buscar {
         Juego.consola.imprimir(trato.toString() + '\n');
     }
 
-    /**
-     * Intercambiar con compensación: p1 + cantidad <--> p2
-     */
-    public void crearTrato(Jugador jugador, Propiedad p1, long cantidad, Propiedad p2) throws ErrorComandoJugador, ErrorComandoFortuna {
-        TratoPC_P trato = new TratoPC_P(this, jugador, p1, cantidad, p2);
-        this.tratos.add(trato);
-        jugador.tratos.add(trato);
-        Juego.consola.imprimir(trato.toString() + '\n');
-    }
-
-    /**
-     * Intercambiar con no alquiler: p1 <--> p2 + noalquiler na
-     */
-    public void crearTrato(Jugador jugador, Propiedad p1, Propiedad p2, Propiedad noalquiler, int nTurnos) throws ErrorComandoJugador {
-        TratoP_PNA trato = new TratoP_PNA(this, jugador, p1, p2, noalquiler, nTurnos);
-        this.tratos.add(trato);
-        jugador.tratos.add(trato);
-        Juego.consola.imprimir(trato.toString() + '\n');
-    }
-
     public void aceptarTrato(String nombre) throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoNoEncontrado, ErrorComandoTrato {
         Trato trato = Buscar.porNombre(nombre, tratos);
 
@@ -390,7 +370,7 @@ public class Jugador implements Listable, Buscar {
         Trato trato = Buscar.porNombre(nombre, tratos);
 
         if (!trato.getJugadorPropone().equals(this)) {
-            throw new ErrorComandoTrato("No puedes eliminar un trato que tú has propuesto", this);
+            throw new ErrorComandoTrato("No puedes eliminar un trato que no hayas propuesto", this);
         }
 
         if (trato.isAceptado()) {

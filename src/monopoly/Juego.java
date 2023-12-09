@@ -350,7 +350,7 @@ public class Juego implements Comando {
         // Mostrar los tratos pendientes
         ArrayList<Trato> tratosPendientes = new ArrayList<>(getJugadorTurno().getTratos().size());
         for (Trato t : getJugadorTurno().getTratos()) {
-            if (!t.isAceptado()) {
+            if (!t.isAceptado() && t.getJugadorAcepta().equals(getJugadorTurno())) {
                 tratosPendientes.add(t);
             }
         }
@@ -858,6 +858,7 @@ public class Juego implements Comando {
                 Propiedad noalquiler = (Propiedad) Buscar.porNombre(args[8], casillas);
                 int nTurnos = Integer.parseInt(args[10]);
                 jugPropone.crearTrato(jugAcepta, new TratoP_PNA(jugPropone, jugAcepta, propPropone, propAcepta, noalquiler, nTurnos));
+                return;
             }
 
             throw new ErrorComandoFormato("Formato de comando incorrecto. Consulta la ayuda para más información.");

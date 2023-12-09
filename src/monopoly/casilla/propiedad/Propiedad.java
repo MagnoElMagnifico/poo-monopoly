@@ -140,12 +140,12 @@ public abstract class Propiedad extends Casilla {
 
         // Comprobar los tratos de no alquiler
         for (Trato t : jugadorTurno.getTratos()) {
-            if (t instanceof TratoP_PNA
-                    && t.getJugadorAcepta().equals(jugadorTurno)
-                    && ((TratoP_PNA) t).getTurnos() > 0
-            ) {
+            if (t instanceof TratoP_PNA && ((TratoP_PNA) t).getTurnos() > 0) {
                 ((TratoP_PNA) t).quitarTurno();
-                Juego.consola.imprimir("Como el jugador ha hecho un trato con el dueño, no paga alquiler\nQuedan %d turnos de trato\n".formatted(((TratoP_PNA) t).getTurnos()));
+                Juego.consola.imprimir("""
+                                       Como el jugador ha hecho un trato con el dueño, no paga alquiler
+                                       Quedan %d turno(s) de trato
+                                       """.formatted(((TratoP_PNA) t).getTurnos()));
                 return;
             }
         }

@@ -38,7 +38,7 @@ public abstract class CasillaAccion extends Casilla {
             }
         }
 
-        return eleccion;
+        return eleccion-1;
     }
 
     @Override
