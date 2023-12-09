@@ -1,6 +1,7 @@
 package monopoly.jugador;
 
 import monopoly.Juego;
+import monopoly.JuegoConsts;
 import monopoly.casilla.Casilla;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
@@ -11,10 +12,11 @@ import monopoly.error.ErrorFatalLogico;
 import monopoly.utils.Consola;
 import monopoly.utils.Dado;
 import monopoly.utils.Listable;
+import monopoly.utils.ReprTablero;
 
 import java.util.ArrayList;
 
-public abstract class Avatar implements Listable {
+public abstract class Avatar implements Listable, ReprTablero {
     // @formatter:off
     // Propiedades
     private final char id;
@@ -68,13 +70,29 @@ public abstract class Avatar implements Listable {
                    tipo: %s
                    casilla: %s
                    jugador: %s
-               }
-               """.formatted(
+               }""".formatted(
                        id,
-                       getClass().getName(),
+                       getClass().getSimpleName(),
                        casilla.getNombreFmt(),
                        jugador.getNombre());
         // @formatter:on
+    }
+
+    @Override
+    public String representacionTablero() {
+        return Character.toString(getId());
+    }
+
+    @Override
+    public String representar() {
+        // Quitar la celda, solo formatear 1 char
+        return Juego.consola.fmt(representacionTablero(), codColorRepresentacion(), estiloRepresentacion());
+    }
+
+    @Override
+    public Consola.Estilo estiloRepresentacion() {
+        // TODO: saber si es el avatar actual
+        return JuegoConsts.EST_AVATAR;
     }
 
     public void mover(Juego juego, Dado dado) throws ErrorComandoAvatar, ErrorFatal, ErrorComandoFortuna {
@@ -197,7 +215,7 @@ public abstract class Avatar implements Listable {
             }
 
             lanzamientosRestantes++;
-            Juego.consola.imprimir("Dados dobles! El jugador puede tirar otra vez");
+            Juego.consola.imprimir("Dados dobles! El jugador puede tirar otra vez\n");
         }
 
         return false;
@@ -210,7 +228,7 @@ public abstract class Avatar implements Listable {
         turnosEnCarcel++;
 
         if (dado.isDoble()) {
-            Juego.consola.imprimir("Dados dobles! El jugador puede salir de la Cárcel");
+            Juego.consola.imprimir("Dados dobles! El jugador puede salir de la Cárcel\n");
             lanzamientosRestantes = 1;
             encerrado = false;
             turnosEnCarcel = 0;
@@ -239,7 +257,7 @@ public abstract class Avatar implements Listable {
         carcel.anadirAvatar(this);
         historialCasillas.add(carcel);
 
-        Juego.consola.imprimir("Por tanto, el avatar termina en la Cárcel");
+        Juego.consola.imprimir("Por tanto, el avatar termina en la Cárcel\n");
     }
 
     /**
@@ -271,7 +289,7 @@ public abstract class Avatar implements Listable {
             Juego.consola.imprimir("A partir de ahora %s (%s), de tipo %s, se moverá de modo avanzado\n".formatted(
                     Juego.consola.fmt(jugador.getNombre(), Consola.Color.Azul),
                     Juego.consola.fmt(Character.toString(id), Consola.Color.Azul),
-                    this.getClass()));
+                    this.getClass().getSimpleName()));
         }
     }
 

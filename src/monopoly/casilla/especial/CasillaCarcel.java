@@ -27,7 +27,8 @@ public class CasillaCarcel extends CasillaEspecial {
                 {
                     nombre: %s
                     fianza: %s
-                }""".formatted(getNombreFmt(), Juego.consola.num(fianza));
+                }
+                """.formatted(getNombreFmt(), Juego.consola.num(fianza));
     }
 
     @Override
@@ -36,7 +37,7 @@ public class CasillaCarcel extends CasillaEspecial {
             throw new ErrorFatal("No se ha asignado una fianza a la cárcel");
         }
 
-        Juego.consola.imprimir("El avatar se coloca en la Cárcel. Solo está de visita.");
+        Juego.consola.imprimir("El avatar se coloca en la Cárcel. Solo está de visita.\n");
     }
 
     @Override

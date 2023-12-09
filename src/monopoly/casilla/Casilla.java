@@ -1,5 +1,6 @@
 package monopoly.casilla;
 
+import monopoly.Juego;
 import monopoly.JuegoConsts;
 import monopoly.casilla.especial.CasillaEspecial;
 import monopoly.casilla.propiedad.Propiedad;
@@ -9,6 +10,7 @@ import monopoly.jugador.Avatar;
 import monopoly.jugador.Jugador;
 import monopoly.utils.Dado;
 import monopoly.utils.Listable;
+import monopoly.utils.ReprTablero;
 
 import java.util.ArrayList;
 
@@ -32,7 +34,7 @@ import java.util.ArrayList;
  * @see monopoly.casilla.carta.CasillaAccion
  * @see CasillaImpuesto
  */
-public abstract class Casilla implements Listable {
+public abstract class Casilla implements Listable, ReprTablero {
     private final int posicion;
     private final ArrayList<Avatar> avatares;
 
@@ -53,7 +55,7 @@ public abstract class Casilla implements Listable {
      */
     @Override
     public String toString() {
-        return getNombreFmt();
+        return getNombreFmt() + '\n';
     }
 
     @Override
@@ -72,16 +74,23 @@ public abstract class Casilla implements Listable {
     public abstract void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatal, ErrorComandoFortuna;
 
     /**
-     * Nombre de la casilla sin ningún formato
+     * Nombre de la casilla sin ningún formato.
+     * <br>
+     * Es el que aparecerá en el tablero.
      */
     public abstract String getNombre();
 
     /**
      * Obtiene el nombre formateado (con colores) de la casilla
-     * <br>
-     * Se usa para ponerla en el tablero.
      */
-    public abstract String getNombreFmt();
+    public String getNombreFmt() {
+        return Juego.consola.fmt(getNombre(), codColorRepresentacion(), estiloRepresentacion());
+    }
+
+    @Override
+    public String representacionTablero() {
+        return getNombre();
+    }
 
     /**
      * Devuelve <code>true</code> en caso de que el avatar en concreto

@@ -20,7 +20,6 @@ public class TratoP_P extends Trato {
         return """
                 %s
                 Cambiar %s por %s
-                                
                 """.formatted(super.toString(), propInteresado.getNombreFmt(), propAceptador.getNombreFmt());
     }
 

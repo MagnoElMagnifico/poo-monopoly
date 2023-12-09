@@ -27,7 +27,7 @@ public class CasillaSalida extends CasillaEspecial {
 
     @Override
     public String listar() {
-        return getNombreFmt();
+        return '\n' + getNombreFmt() + '\n';
     }
 
     @Override

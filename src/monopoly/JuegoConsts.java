@@ -1,5 +1,7 @@
 package monopoly;
 
+import monopoly.utils.Consola;
+
 public interface JuegoConsts {
     long PRECIO_SOLAR1 = 1_000_000;
 
@@ -23,6 +25,15 @@ public interface JuegoConsts {
     int N_CASAS_PARA_PISCINA = 2;
     int N_HOTELES_PARA_PISCINA = 1;
     int N_HOTELES_PARA_PISTA = 2;
+
+    int COD_COLOR_ESPECIAL = 15;
+    int COD_COLOR_ACCION = 15;
+    int COD_COLOR_AVATAR_NORMAL = 15;
+    int COD_COLOR_AVATAR_COCHE = 11;
+    int COD_COLOR_AVATAR_PELOTA = 12;
+    Consola.Estilo EST_ESPECIAL = Consola.Estilo.Negrita;
+    Consola.Estilo EST_ACCION = Consola.Estilo.Cursiva;
+    Consola.Estilo EST_AVATAR = Consola.Estilo.Normal;
 
     // http://www.patorjk.com/software/taag/#p=display&f=Roman&t=Monopoly
     String MSG_INICIO = """

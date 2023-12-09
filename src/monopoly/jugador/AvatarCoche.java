@@ -1,6 +1,7 @@
 package monopoly.jugador;
 
 import monopoly.Juego;
+import monopoly.JuegoConsts;
 import monopoly.casilla.Casilla;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
@@ -118,5 +119,10 @@ public class AvatarCoche extends Avatar {
         if (isMovimientoEspecial()) {
             this.puedeComprar = false;
         }
+    }
+
+    @Override
+    public int codColorRepresentacion() {
+        return isMovimientoEspecial()? JuegoConsts.COD_COLOR_AVATAR_COCHE : JuegoConsts.COD_COLOR_AVATAR_NORMAL;
     }
 }

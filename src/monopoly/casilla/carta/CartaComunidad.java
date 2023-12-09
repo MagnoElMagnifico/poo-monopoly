@@ -17,7 +17,7 @@ public final class CartaComunidad extends Carta {
 
     @Override
     public String toString() {
-        return "Carta de Comunidad: " + super.getDescripcion();
+        return "Carta de Comunidad: " + super.getDescripcion() + '\n';
     }
 
     @Override

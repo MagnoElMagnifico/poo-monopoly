@@ -33,9 +33,8 @@ public abstract class Edificio implements Listable {
                        solar: %s
                        grupo: %s
                        precio: %s
-                   }
-                   """.formatted(
-                           getClass().getName(), id,
+                   }""".formatted(
+                           getClass().getSimpleName(), id,
                            getSolar().getPropietario().getNombre(),
                            getSolar().getNombreFmt(),
                            getSolar().getGrupo().getNombreFmt(),
@@ -55,12 +54,11 @@ public abstract class Edificio implements Listable {
                         id: %s
                         propietario: %s
                         solar: %s
-                        grupo: %s
                         valor: %s
-                    }""".formatted(getId(),
+                    }
+                    """.formatted(getId(),
                         solar.getPropietario(),
                         solar.getNombre(),
-                        solar.getGrupo().getNombre(),
                         Juego.consola.num(getValor()));
             // @formatter:on
         } catch (ErrorFatalLogico e) {
@@ -80,7 +78,7 @@ public abstract class Edificio implements Listable {
     }
 
     public String getNombreFmt() {
-        return Juego.consola.fmt("%s-%s".formatted(this.getClass().getName(), id), solar.getGrupo().getCodigoColor());
+        return Juego.consola.fmt("%s-%s".formatted(this.getClass().getSimpleName(), id), solar.getGrupo().getCodigoColor());
     }
 
     public abstract long getValor() throws ErrorFatalLogico;

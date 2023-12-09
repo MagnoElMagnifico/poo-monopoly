@@ -1,6 +1,7 @@
 package monopoly.casilla;
 
 import monopoly.Juego;
+import monopoly.JuegoConsts;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
 import monopoly.jugador.Jugador;
@@ -31,12 +32,13 @@ public class CasillaImpuesto extends Casilla {
                 {
                     nombre: %s
                     importe: %s
-                }""".formatted(getNombreFmt(), Juego.consola.num(impuestos));
+                }
+                """.formatted(getNombreFmt(), Juego.consola.num(impuestos));
     }
 
     @Override
     public String listar() {
-        return null;
+        return '\n' + getNombreFmt() + '\n';
     }
 
     @Override
@@ -51,11 +53,16 @@ public class CasillaImpuesto extends Casilla {
 
     @Override
     public String getNombre() {
-        return "Impuestos";
+        return "Impuesto";
     }
 
     @Override
-    public String getNombreFmt() {
-        return Juego.consola.fmt(getNombre(), 15, Consola.Estilo.Negrita);
+    public int codColorRepresentacion() {
+        return JuegoConsts.COD_COLOR_ESPECIAL;
+    }
+
+    @Override
+    public Consola.Estilo estiloRepresentacion() {
+        return JuegoConsts.EST_ESPECIAL;
     }
 }

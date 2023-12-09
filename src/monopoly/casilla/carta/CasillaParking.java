@@ -21,12 +21,19 @@ public class CasillaParking extends CasillaAccion {
                 {
                     nombre: %s
                     bote: %s
-                }""".formatted(getNombreFmt(), Juego.consola.num(banca.getFortuna()));
+                }
+                """.formatted(getNombreFmt(), Juego.consola.num(banca.getFortuna()));
     }
 
     @Override
     public void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatalLogico, ErrorComandoFortuna {
         long bote = banca.getFortuna();
+
+        if (bote == 0) {
+            Juego.consola.imprimir("El bote está vacío, por tanto el jugador no recibe nada\n");
+            return;
+        }
+
         jugadorTurno.ingresar(bote);
         jugadorTurno.getEstadisticas().anadirPremio(bote);
         banca.cobrar(bote);

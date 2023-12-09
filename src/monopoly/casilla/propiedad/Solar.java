@@ -52,7 +52,8 @@ public class Solar extends Propiedad {
                         alquiler hotel: %s
                         alquiler piscina: %s
                         alquiler pista de deporte: %s
-                    }""".formatted(
+                    }
+                    """.formatted(
                         getNombre(),
                         getGrupo().getNombre(),
                         Juego.consola.num(getPrecio()),
@@ -84,16 +85,21 @@ public class Solar extends Propiedad {
         return precio;
     }
 
+    /** Alquiler sin incluir edificios ni bonificaciones de monopolios */
+    public long getAlquilerBase() {
+        return precio / 10;
+    }
+
     @Override
     public long getAlquiler() throws ErrorFatalLogico {
-        long alquilerSolar = precio / 10;
+        long alquilerSolar = getAlquilerBase();
 
         // Alquiler extra por edificios
         long alquilerEdificios = 0;
         int nCasas = 0;
 
         for (Edificio e : edificios) {
-            if (e.getClass().getName().equals("Casa")) {
+            if (e.getClass().getSimpleName().equals("Casa")) {
                 nCasas++;
             } else {
                 alquilerEdificios += e.getAlquiler();
@@ -146,7 +152,7 @@ public class Solar extends Propiedad {
 
     public void demoler(String tipo) throws ErrorComando {
         for (int ii = 0; ii < edificios.size(); ii++) {
-            if (edificios.get(ii).getClass().getName().equals(tipo)) {
+            if (edificios.get(ii).getClass().getSimpleName().equals(tipo)) {
                 edificios.remove(ii);
                 return;
             }
@@ -163,7 +169,7 @@ public class Solar extends Propiedad {
         int numero = 0;
 
         for (Edificio e : edificios) {
-            if (e.getClass().getName().equals(tipo)) {
+            if (e.getClass().getSimpleName().equals(tipo)) {
                 numero++;
             }
         }

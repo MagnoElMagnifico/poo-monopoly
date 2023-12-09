@@ -66,7 +66,8 @@ public class Jugador implements Listable {
         // En la especificación de la entrega 1,
         // no hay ninguna diferencia entre listar
         // y describir jugadores.
-        return this.toString();
+        String str = this.toString();
+        return str.substring(0, str.length() - 2); // eliminar el \n
     }
 
     @Override
@@ -80,7 +81,7 @@ public class Jugador implements Listable {
                     propiedades: %s
                     hipotecas: %s
                     edificios: %s
-                }""".formatted(
+                }\n""".formatted(
                         nombre,
                         avatar.getId(),
                         Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
@@ -109,7 +110,7 @@ public class Jugador implements Listable {
                     fortuna: %s
                     gastos: %s
                     propiedades: %s
-                    edificios:
+                    edificios: %s
                 }
                 """.formatted(Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
                 Juego.consola.num(estadisticas.getGastos()),
@@ -133,16 +134,19 @@ public class Jugador implements Listable {
 
         // Avatar especial
         if (avatar instanceof AvatarCoche) {
-            if (((AvatarCoche) avatar).isPuedeComprar()) {
+            if (!((AvatarCoche) avatar).isPuedeComprar()) {
                 throw new ErrorComandoFortuna("El jugador ya ha realizado una compra en este turno", this);
             }
-            ((AvatarCoche) avatar).noPuedeComprar();
         }
 
         cobrar(propiedad.getPrecio());
         estadisticas.anadirInversion(propiedad.getPrecio());
         anadirPropiedad(propiedad);
         propiedad.comprar(this);
+
+        if (avatar instanceof AvatarCoche) {
+            ((AvatarCoche) avatar).noPuedeComprar();
+        }
 
         Juego.consola.imprimir("""
                 El jugador %s ha comprado la casilla %s por %s
@@ -160,6 +164,7 @@ public class Jugador implements Listable {
     }
 
     public void construir(Edificio edificio) throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoEdificio {
+        // TODO: uso de una cantidad
         if (isEndeudado()) {
             throw new ErrorComandoFortuna("No puedes edificar si estás endeudado", this);
         }
@@ -187,7 +192,7 @@ public class Jugador implements Listable {
         Juego.consola.imprimir("""
                 %s ha construido %d %s(s) en el solar %s por %s.
                 Ahora tiene una fortuna de %s.
-                """.formatted(nombre, edificio.getValor(), edificio.getClass().getName(), edificio.getSolar().getNombreFmt(), Juego.consola.num(edificio.getValor()), Juego.consola.num(fortuna)));
+                """.formatted(nombre, 1, edificio.getClass().getSimpleName(), edificio.getSolar().getNombreFmt(), Juego.consola.num(edificio.getValor()), Juego.consola.num(fortuna)));
         describirTransaccion();
     }
 
@@ -202,7 +207,7 @@ public class Jugador implements Listable {
         int nBorrados = 0;
 
         for (int ii = 0; ii < edificios.size(); ii++) {
-            if (edificios.get(ii).getClass().getName().equals(tipoEdificio)) {
+            if (edificios.get(ii).getClass().getSimpleName().equals(tipoEdificio)) {
                 importeRecuperado += edificios.get(ii).getValor() / 2;
                 edificios.remove(ii);
                 nBorrados++;
@@ -245,6 +250,7 @@ public class Jugador implements Listable {
         // entonces se resta igualmente para conseguir una fortuna negativa.
         if (isEndeudado()) {
             this.acreedor = acreedor;
+            Juego.consola.imprimir("No tienes suficientes fondos. Ahora estás endeudado con %s\n".formatted(acreedor.getNombre()));
         }
     }
 
@@ -394,7 +400,7 @@ public class Jugador implements Listable {
         for (Trato t : tratos) {
             if (t.getNombre().equalsIgnoreCase(nombre) && t.getAceptador().equals(this)) {
                 t.aceptar();
-                Juego.consola.imprimir("Aceptado:\n%s".formatted(t.toString()));
+                Juego.consola.imprimir("Aceptado:\n%s\n".formatted(t.toString()));
                 break;
             }
         }

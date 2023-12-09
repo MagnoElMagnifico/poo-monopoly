@@ -1,6 +1,7 @@
 package monopoly.jugador;
 
 import monopoly.Juego;
+import monopoly.JuegoConsts;
 import monopoly.casilla.Casilla;
 import monopoly.casilla.especial.CasillaCarcel;
 import monopoly.casilla.especial.CasillaSalida;
@@ -129,5 +130,10 @@ public class AvatarPelota extends Avatar {
         pelotaPosFinal = 0;
 
         return true;
+    }
+
+    @Override
+    public int codColorRepresentacion() {
+        return isMovimientoEspecial()? JuegoConsts.COD_COLOR_AVATAR_PELOTA : JuegoConsts.COD_COLOR_AVATAR_NORMAL;
     }
 }

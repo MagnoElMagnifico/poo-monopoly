@@ -21,7 +21,7 @@ public final class CartaSuerte extends Carta {
 
     @Override
     public String toString() {
-        return "Carta de Suerte: " + super.getDescripcion();
+        return "Carta de Suerte: " + super.getDescripcion() + '\n';
     }
 
     @Override
@@ -40,7 +40,7 @@ public final class CartaSuerte extends Carta {
                 for (Propiedad p : jugadorTurno.getPropiedades()) {
                     if (p instanceof Solar) {
                         for (Edificio e : ((Solar) p).getEdificios()) {
-                            cantidad -= switch (e.getClass().getName()) {
+                            cantidad -= switch (e.getClass().getSimpleName()) {
                                 case "Casa" -> 4_000_000L;
                                 case "Hotel" -> 1_500_000L;
                                 case "Piscina" -> 200_000L;
@@ -52,7 +52,7 @@ public final class CartaSuerte extends Carta {
                 }
 
                 if (cantidad == 0) {
-                    Juego.consola.imprimir("El jugador no tiene edificios, por lo que no tiene que pagar nada.");
+                    Juego.consola.imprimir("El jugador no tiene edificios, por lo que no tiene que pagar nada.\n");
                     return;
                 }
             }

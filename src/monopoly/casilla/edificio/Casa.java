@@ -18,7 +18,7 @@ public final class Casa extends Edificio {
         // Si no hay el máximo de edificios, se puede tener hasta 4 casas.
         // Si no, solo hasta maxEdificios.
         if (grupo.contarEdificios("Hotel") < maxEdificios) {
-            if (solar.contarEdificios("Casa") > JuegoConsts.N_CASAS_SIN_MAX_HOTELES) {
+            if (solar.contarEdificios("Casa") >= JuegoConsts.N_CASAS_SIN_MAX_HOTELES) {
                 throw new ErrorComandoEdificio("No se pueden edificar más de %d casas en un solar cuando no hay el máximo de hoteles".formatted(JuegoConsts.N_CASAS_SIN_MAX_HOTELES));
             }
         } else if (grupo.contarEdificios("Casa") > maxEdificios) {
@@ -33,10 +33,10 @@ public final class Casa extends Edificio {
     public static long getAlquiler(Solar solar, int cantidad) throws ErrorFatalLogico {
         return switch (cantidad) {
             case 0 -> 0;
-            case 1 -> 5 * solar.getAlquiler();
-            case 2 -> 15 * solar.getAlquiler();
-            case 3 -> 35 * solar.getAlquiler();
-            default -> 50 * solar.getAlquiler();
+            case 1 -> 5 * solar.getAlquilerBase();
+            case 2 -> 15 * solar.getAlquilerBase();
+            case 3 -> 35 * solar.getAlquilerBase();
+            default -> 50 * solar.getAlquilerBase();
         };
     }
 

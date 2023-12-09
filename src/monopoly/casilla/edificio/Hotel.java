@@ -34,7 +34,7 @@ public final class Hotel extends Edificio {
     }
 
     public static long getAlquiler(Solar solar) throws ErrorFatalLogico {
-        return 70 * solar.getAlquiler();
+        return 70 * solar.getAlquilerBase();
     }
 
     @Override

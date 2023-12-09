@@ -1,6 +1,7 @@
 package monopoly.casilla.carta;
 
 import monopoly.Juego;
+import monopoly.JuegoConsts;
 import monopoly.casilla.Casilla;
 import monopoly.jugador.Jugador;
 import monopoly.utils.Consola;
@@ -42,11 +43,16 @@ public abstract class CasillaAccion extends Casilla {
 
     @Override
     public String listar() {
-        return getNombre();
+        return '\n' + getNombreFmt() + '\n';
     }
 
     @Override
-    public String getNombreFmt() {
-        return Juego.consola.fmt(getNombre(), 15, Consola.Estilo.Cursiva);
+    public int codColorRepresentacion() {
+        return JuegoConsts.COD_COLOR_ACCION;
+    }
+
+    @Override
+    public Consola.Estilo estiloRepresentacion() {
+        return JuegoConsts.EST_ACCION;
     }
 }

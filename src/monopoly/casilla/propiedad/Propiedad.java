@@ -72,8 +72,7 @@ public abstract class Propiedad extends Casilla {
                         nombre: %s
                         tipo: Propiedad
                         precio: %s
-                    }
-                    """.formatted(getNombreFmt(), Juego.consola.num(getPrecio()));
+                    }""".formatted(getNombreFmt(), Juego.consola.num(getPrecio()));
         } catch (ErrorFatalLogico e) {
             throw new RuntimeException(e);
         }
@@ -91,7 +90,8 @@ public abstract class Propiedad extends Casilla {
                        alquiler: %s
                        propietario: %s
                        hipotecada?: %s
-                   }""".formatted(
+                   }
+                   """.formatted(
                         nombre,
                         Juego.consola.num(getPrecio()),
                         Juego.consola.num(getAlquiler()),
@@ -114,6 +114,16 @@ public abstract class Propiedad extends Casilla {
     }
 
     @Override
+    public int codColorRepresentacion() {
+        return grupo.getCodigoColor();
+    }
+
+    @Override
+    public Consola.Estilo estiloRepresentacion() {
+        return Consola.Estilo.Normal;
+    }
+
+    @Override
     public void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatalLogico, ErrorComandoFortuna {
         if (propietario instanceof Banca || propietario.equals(jugadorTurno) || hipotecada) {
             return;
@@ -126,7 +136,7 @@ public abstract class Propiedad extends Casilla {
         // La cuenta se quedará en números negativos (es decir, está endeudado)
         propietario.ingresar(importe);
 
-        jugadorTurno.cobrar(importe);
+        jugadorTurno.cobrar(importe, propietario);
 
         Juego.consola.imprimir("Se han pagado %s de alquiler a %s\n".formatted(Juego.consola.num(importe), Juego.consola.fmt(propietario.getNombre(), Consola.Color.Azul)));
 

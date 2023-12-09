@@ -23,7 +23,6 @@ public class TratoPC_P extends Trato {
         return """
                 %s
                 Cambiar %s y %s por %s
-                                
                 """.formatted(
                 super.toString(),
                 propInteresado.getNombreFmt(), Juego.consola.num(cantidad), propAceptador.getNombreFmt());

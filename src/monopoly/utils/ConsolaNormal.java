@@ -43,7 +43,7 @@ public class ConsolaNormal implements Consola {
 
     @Override
     public void error(String mensaje) {
-        imprimir(fmt(mensaje, Color.Rojo));
+        imprimir(fmt(mensaje, Color.Rojo) + '\n');
     }
 
     @Override

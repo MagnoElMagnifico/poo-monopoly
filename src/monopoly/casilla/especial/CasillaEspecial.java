@@ -1,6 +1,7 @@
 package monopoly.casilla.especial;
 
 import monopoly.Juego;
+import monopoly.JuegoConsts;
 import monopoly.casilla.Casilla;
 import monopoly.utils.Consola;
 
@@ -11,11 +12,16 @@ public abstract class CasillaEspecial extends Casilla {
 
     @Override
     public String listar() {
-        return getNombre();
+        return '\n' + getNombreFmt() + '\n';
     }
 
     @Override
-    public String getNombreFmt() {
-        return Juego.consola.fmt(getNombre(), 15, Consola.Estilo.Negrita);
+    public int codColorRepresentacion() {
+        return JuegoConsts.COD_COLOR_ESPECIAL;
+    }
+
+    @Override
+    public Consola.Estilo estiloRepresentacion() {
+        return JuegoConsts.EST_ESPECIAL;
     }
 }

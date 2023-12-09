@@ -44,7 +44,8 @@ public class Grupo {
                     nombre: %s
                     número: %d
                     casillas: %s
-                }""".formatted(Juego.consola.fmt(nombre, codigoColor), numero, Juego.consola.listar(propiedades, Propiedad::getNombre));
+                }
+                """.formatted(Juego.consola.fmt(nombre, codigoColor), numero, Juego.consola.listar(propiedades, Propiedad::getNombre));
     }
 
     public void listarEdificios() throws ErrorFatalLogico {
@@ -67,8 +68,33 @@ public class Grupo {
                         Juego.consola.listar(edificios, (e) -> e instanceof Piscina ? e.getNombreFmt() : null),
                         Juego.consola.listar(edificios, (e) -> e instanceof PistaDeporte ? e.getNombreFmt() : null),
                         Juego.consola.num(p.getAlquiler())));
+            } else {
+                // En caso de un grupo de transportes o servicios
+                return;
             }
         }
+
+        // Mostrar cuantos edificios más se pueden construir
+        // @formatter:off
+        int nPropiedades = getNumeroPropiedades();
+        int nHoteles  = nPropiedades - contarEdificios("Hotel");
+        int nPiscinas = nPropiedades - contarEdificios("Piscina");
+        int nPistas   = nPropiedades - contarEdificios("PistaDeporte");
+        int nCasas    = (nHoteles == 0? nPropiedades : 4) - contarEdificios("Casa");
+        // @formatter:on
+
+        if (nCasas == 0 && nHoteles == 0 && nPiscinas == 0 && nPistas == 0) {
+            Juego.consola.imprimir("\nYa no se pueden construir más edificios en %s\n".formatted(nombre));
+            return;
+        }
+
+        // @formatter:off
+        Juego.consola.imprimir("\nAún se pueden edificar:\n");
+        if (nCasas != 0)    Juego.consola.imprimir("  - %d casa(s)\n".formatted(nCasas));
+        if (nHoteles != 0)  Juego.consola.imprimir("  - %d hotel(es)\n".formatted(nHoteles));
+        if (nPiscinas != 0) Juego.consola.imprimir("  - %d piscina(s)\n".formatted(nPiscinas));
+        if (nPistas != 0)   Juego.consola.imprimir("  - %d pistas(s) de deporte\n".formatted(nPistas));
+        // @formatter:on
     }
 
     public int contarEdificios(String tipo) {

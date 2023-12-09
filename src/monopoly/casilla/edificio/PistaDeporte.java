@@ -28,7 +28,7 @@ public final class PistaDeporte extends Edificio {
     }
 
     public static long getAlquiler(Solar solar) throws ErrorFatalLogico {
-        return 25 * solar.getAlquiler();
+        return 25 * solar.getAlquilerBase();
     }
 
     @Override

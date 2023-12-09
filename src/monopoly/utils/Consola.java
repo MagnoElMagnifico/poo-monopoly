@@ -67,8 +67,8 @@ public interface Consola {
     /**
      * Lista una colección de elementos que implementen Listable
      */
-    default <T extends Listable> void listar(Collection<T> elementos) {
-        imprimir(listar(elementos, Listable::listar));
+    default <T extends Listable> void imprimirLista(Collection<T> elementos) {
+        imprimir(listar(elementos, Listable::listar) + '\n');
     }
 
     /**
