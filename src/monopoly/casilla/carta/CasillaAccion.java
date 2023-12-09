@@ -27,7 +27,7 @@ public abstract class CasillaAccion extends Casilla {
     public static int preguntarEleccion(Jugador jugador, int max) {
         int eleccion = -1;
 
-        while (eleccion < 0 || eleccion >= max) {
+        while (eleccion <= 0 || eleccion > max) {
             String respuesta = Juego.consola.leer("%s, elige carta (1-%d): ".formatted(jugador.getNombre(), max));
 
             try {

@@ -13,7 +13,6 @@ import monopoly.utils.Listable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 
 public class Jugador implements Listable, Buscar {
     private final String nombre;
@@ -298,12 +297,16 @@ public class Jugador implements Listable, Buscar {
         avatar.acabarTurno();
     }
 
-    public void anadirPropiedad(Propiedad p) {
-        propiedades.add(p);
+    public void anadirPropiedad(Propiedad p) throws ErrorFatalLogico {
+        if (!propiedades.add(p)) {
+            throw new ErrorFatalLogico("El jugador ya tenía la propiedad %s".formatted(p.getNombreFmt()));
+        }
     }
 
-    public void quitarPropiedad(Propiedad p) {
-        propiedades.remove(p);
+    public void quitarPropiedad(Propiedad p) throws ErrorFatalLogico {
+        if (!propiedades.remove(p)) {
+            throw new ErrorFatalLogico("El jugador no poseía la propiedad %s".formatted(p.getNombreFmt()));
+        }
     }
 
     public boolean isEndeudado() {
@@ -350,6 +353,7 @@ public class Jugador implements Listable, Buscar {
         TratoP_P trato = new TratoP_P(this, jugador, p1, p2);
         this.tratos.add(trato);
         jugador.tratos.add(trato);
+        Juego.consola.imprimir(trato.toString() + '\n');
     }
 
     /**
@@ -363,6 +367,7 @@ public class Jugador implements Listable, Buscar {
         TratoP_C trato = new TratoP_C(this, jugador, p, cantidad);
         this.tratos.add(trato);
         jugador.tratos.add(trato);
+        Juego.consola.imprimir(trato.toString() + '\n');
     }
 
     /**
@@ -380,6 +385,7 @@ public class Jugador implements Listable, Buscar {
         TratoC_P trato = new TratoC_P(this, jugador, cantidad, p);
         this.tratos.add(trato);
         jugador.tratos.add(trato);
+        Juego.consola.imprimir(trato.toString() + '\n');
     }
 
     /**
@@ -393,6 +399,7 @@ public class Jugador implements Listable, Buscar {
         TratoP_PC trato = new TratoP_PC(this, jugador, p1, p2, cantidad);
         this.tratos.add(trato);
         jugador.tratos.add(trato);
+        Juego.consola.imprimir(trato.toString() + '\n');
     }
 
     /**
@@ -410,6 +417,7 @@ public class Jugador implements Listable, Buscar {
         TratoPC_P trato = new TratoPC_P(this, jugador, p1, cantidad, p2);
         this.tratos.add(trato);
         jugador.tratos.add(trato);
+        Juego.consola.imprimir(trato.toString() + '\n');
     }
 
     /**
@@ -427,27 +435,40 @@ public class Jugador implements Listable, Buscar {
         TratoP_PNA trato = new TratoP_PNA(this, jugador, p1, p2, noalquiler, nTurnos);
         this.tratos.add(trato);
         jugador.tratos.add(trato);
+        Juego.consola.imprimir(trato.toString() + '\n');
     }
 
-    public void aceptarTrato(String nombre) throws ErrorComandoFortuna, ErrorFatalLogico {
-        for (Trato t : tratos) {
-            if (t.getNombre().equalsIgnoreCase(nombre) && t.getAceptador().equals(this)) {
-                t.aceptar();
-                Juego.consola.imprimir("Aceptado:\n%s\n".formatted(t.toString()));
-                break;
-            }
+    public void aceptarTrato(String nombre) throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoNoEncontrado, ErrorComandoJugador {
+        Trato trato = Buscar.porNombre(nombre, tratos);
+
+        if (!trato.getJugadorAcepta().equals(this)) {
+            // La lista de tratos es compartida entre los tratos que he propuesto
+            // y los tratos que me han propuesto. Entonces, si no soy el que debe
+            // aceptar, es que yo he propuesto el trato.
+            throw new ErrorComandoJugador("No puedes aceptar un trato que tú has propuesto", this);
         }
+
+        if (trato.isAceptado()) {
+            throw new ErrorComandoJugador("El trato ya había sido aceptado", this);
+        }
+
+        trato.aceptar();
+        Juego.consola.imprimir("Aceptado:\n%s\n".formatted(trato.toString()));
     }
 
-    public void eliminarTrato(String nombre) {
-        Iterator<Trato> itr = tratos.iterator();
-        while (itr.hasNext()) {
-            Trato trato = itr.next();
-            if (trato.getNombre().equalsIgnoreCase(nombre) && trato.getInteresado().equals(this)) {
-                trato.getAceptador().tratos.remove(trato);
-                this.tratos.remove(trato);
-                break;
-            }
+    public void eliminarTrato(String nombre) throws ErrorComandoNoEncontrado, ErrorComandoJugador {
+        Trato trato = Buscar.porNombre(nombre, tratos);
+
+        if (!trato.getJugadorPropone().equals(this)) {
+            throw new ErrorComandoJugador("No puedes eliminar un trato que tú has propuesto", this);
         }
+
+        if (trato.isAceptado()) {
+            throw new ErrorComandoJugador("No puedes eliminar un trato que ha sido aceptado", this);
+        }
+
+        tratos.remove(trato);
+        trato.getJugadorAcepta().tratos.remove(trato);
+        Juego.consola.imprimir("Se ha eliminado el trato %s\n".formatted(trato.getNombre()));
     }
 }

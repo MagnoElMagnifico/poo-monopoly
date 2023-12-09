@@ -21,16 +21,24 @@ public class TratoP_PNA extends Trato {
 
     @Override
     public String toString() {
+        // @formatter:off
         return """
+                {
                 %s
-                Cambiar %s por %s y no pagar alquiler en %s durante %d turnos.
-                """.formatted(super.toString(), propInteresado.getNombreFmt(), propAceptador.getNombreFmt(), propAceptador.getNombreFmt(), turnos);
+                    trato: cambiar %s por %s y no pagar alquiler en %s durante %d turnos.
+                }""".formatted(
+                        super.toString().indent(4),
+                        propInteresado.getNombreFmt(),
+                        propAceptador.getNombreFmt(),
+                        propAceptador.getNombreFmt(),
+                        turnos);
+        // @formatter:on
     }
 
     @Override
     public void aceptar() throws ErrorComandoFortuna, ErrorFatalLogico {
-        Jugador j1 = getInteresado();
-        Jugador j2 = getAceptador();
+        Jugador j1 = getJugadorPropone();
+        Jugador j2 = getJugadorAcepta();
 
         j1.anadirPropiedad(propAceptador);
         j2.anadirPropiedad(propInteresado);
