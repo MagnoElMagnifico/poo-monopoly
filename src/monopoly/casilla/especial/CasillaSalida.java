@@ -13,10 +13,6 @@ public class CasillaSalida extends CasillaEspecial {
         abonoSalida = -1;
     }
 
-    public void setAbonoSalida(long abonoSalida) {
-        this.abonoSalida = abonoSalida;
-    }
-
     public long getAbonoSalida() throws ErrorFatal {
         if (abonoSalida <= 0) {
             throw new ErrorFatal("No se ha establecido un abono de salida");
@@ -25,17 +21,21 @@ public class CasillaSalida extends CasillaEspecial {
         return abonoSalida;
     }
 
+    public void setAbonoSalida(long abonoSalida) {
+        this.abonoSalida = abonoSalida;
+    }
+
     @Override
     public String listar() {
-        return getNombreFmt();
+        return '\n' + getNombreFmt() + '\n';
     }
 
     @Override
     public String toString() {
         return """
-               Salida: Casilla de inicio del juego.
-               Cada vez que un jugador pase por esta casilla recibirá %s.
-               """.formatted(Juego.consola.num(abonoSalida));
+                Salida: Casilla de inicio del juego.
+                Cada vez que un jugador pase por esta casilla recibirá %s.
+                """.formatted(Juego.consola.num(abonoSalida));
     }
 
     @Override

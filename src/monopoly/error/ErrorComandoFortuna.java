@@ -15,7 +15,9 @@ import monopoly.jugador.Jugador;
  * <li>Ya ha realizado una compra en este turno</li>
  */
 public class ErrorComandoFortuna extends ErrorComando {
-    /** Jugador que causó el problema */
+    /**
+     * Jugador que causó el problema
+     */
     private final Jugador jugador;
 
     public ErrorComandoFortuna(String mensaje, Jugador jugador) {

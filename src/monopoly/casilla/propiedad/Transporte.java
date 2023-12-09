@@ -1,31 +1,50 @@
 package monopoly.casilla.propiedad;
 
-import monopoly.jugador.Avatar;
+import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
 import monopoly.utils.Dado;
 
 public class Transporte extends Propiedad {
-    public Transporte(int posicion, Grupo grupo, String nombre, Jugador banca) {
-        super(posicion, grupo, nombre, banca);
+    private long precio;
+    private final long alquilerTotalCobrado;
+
+    public Transporte(int posicion, Grupo grupo, String nombre, Jugador propietario) {
+        super(posicion, grupo, nombre, propietario);
+
+        precio = -1;
+        alquilerTotalCobrado = 0;
     }
 
     @Override
-    public void accion(Avatar avatarTurno, Dado dado) {
+    public long getPrecio() throws ErrorFatalLogico {
+        if (precio < 0) {
+            throw new ErrorFatalLogico("No se puede obtener el precio sin antes haberlo asignado");
+        }
 
+        return precio;
+    }
+
+    public void setPrecio(long precio) {
+        this.precio = precio;
     }
 
     @Override
-    public String getNombreFmt() {
-        return null;
+    public long getAlquiler() throws ErrorFatalLogico {
+        long nTransportesPosee = this.getGrupo().contarPropiedades(this.getPropietario());
+        long nTransportes = this.getGrupo().getNumeroPropiedades();
+
+        // El alquiler es el factor de transporte por el
+        // porcentaje que el jugador posea.
+        return (long) ((float) getPrecio() * (float) nTransportesPosee / (float) nTransportes);
     }
 
     @Override
-    public long getPrecio() {
-        return 0;
+    public long getAlquiler(Jugador jugador, Dado dado) throws ErrorFatalLogico {
+        return getAlquiler();
     }
 
     @Override
-    public long getAlquiler() {
-        return 0;
+    public long getAlquilerTotalCobrado() {
+        return alquilerTotalCobrado;
     }
 }

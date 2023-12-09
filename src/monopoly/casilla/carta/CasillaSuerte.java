@@ -18,9 +18,9 @@ public class CasillaSuerte extends CasillaAccion {
     @Override
     public String toString() {
         return """
-               Casilla de Suerte: Si un jugador cae en esta casilla, tendrá que escoger una carta y
-               se realizará su acción específica.
-               """;
+                Casilla de Suerte: Si un jugador cae en esta casilla, tendrá que escoger una carta y
+                se realizará su acción específica.
+                """;
     }
 
     @Override

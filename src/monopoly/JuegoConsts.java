@@ -1,5 +1,7 @@
 package monopoly;
 
+import monopoly.utils.Consola;
+
 public interface JuegoConsts {
     long PRECIO_SOLAR1 = 1_000_000;
 
@@ -9,14 +11,29 @@ public interface JuegoConsts {
     int N_CARTAS_COMUNIDAD = 6;
     int N_IMPUESTOS = 2;
 
-
     String CONFIG_CASILLAS = "src/casillas.txt";
     String CONFIG_CARTAS = "src/cartas.txt";
     String CONFIG_AYUDA = "src/ayuda.txt";
+    String PROMPT = "$> ";
 
     char[] AVATARES_ID = {'A', 'B', 'C', 'D', 'E', 'F'};
     int MAX_JUGADORES = AVATARES_ID.length;
     int MIN_JUGADORES = 2;
+
+    int N_CASAS_SIN_MAX_HOTELES = 4;
+    int N_CASAS_PARA_HOTEL = 4;
+    int N_CASAS_PARA_PISCINA = 2;
+    int N_HOTELES_PARA_PISCINA = 1;
+    int N_HOTELES_PARA_PISTA = 2;
+
+    int COD_COLOR_ESPECIAL = 15;
+    int COD_COLOR_ACCION = 15;
+    int COD_COLOR_AVATAR_NORMAL = 15;
+    int COD_COLOR_AVATAR_COCHE = 11;
+    int COD_COLOR_AVATAR_PELOTA = 12;
+    Consola.Estilo EST_ESPECIAL = Consola.Estilo.Negrita;
+    Consola.Estilo EST_ACCION = Consola.Estilo.Cursiva;
+    Consola.Estilo EST_AVATAR = Consola.Estilo.Normal;
 
     // http://www.patorjk.com/software/taag/#p=display&f=Roman&t=Monopoly
     String MSG_INICIO = """
@@ -56,5 +73,4 @@ public interface JuegoConsts {
              888          888   888   888       888   888  888    .o       888         d8(  888   888       888 .  888  888   888  d8(  888 \s
             o888o        o888o o888o o888o      `Y8bod88P" `Y8bod8P'      o888o        `Y888""8o d888b      "888" o888o `Y8bod88P" `Y888""8o\s
             """;
-
 }

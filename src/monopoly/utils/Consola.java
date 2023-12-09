@@ -10,6 +10,7 @@ import java.util.function.Function;
 public interface Consola {
     /**
      * Muestra un mensaje al usuario.
+     *
      * @param mensaje Es el mensaje que se desea mostrar al usuario.
      */
     void imprimir(String mensaje);
@@ -61,11 +62,13 @@ public interface Consola {
      *                  representación String que aparecerá en el resultado.
      * @return String con la lista de los elementos en una sola línea
      */
-    <T> String listar(Collection<T> elementos, Function<T, String> funcion);
+    <T extends Listable> String listar(Collection<T> elementos, Function<T, String> funcion);
 
-    /** Lista una colección de elementos que implementen Listable */
-    default void listar(Collection<Listable> elementos) {
-        imprimir(listar(elementos, Listable::listar));
+    /**
+     * Lista una colección de elementos que implementen Listable
+     */
+    default <T extends Listable> void imprimirLista(Collection<T> elementos) {
+        imprimir(listar(elementos, Listable::listar) + '\n');
     }
 
     /**
@@ -98,6 +101,7 @@ public interface Consola {
      * Genera un mensaje de error para notificar al usuario sobre
      * algún problema inesperado o alguna acción que no se ha podido
      * realizar con éxito.
+     *
      * @param mensaje El mensaje de error a mostrar.
      */
     void error(String mensaje);

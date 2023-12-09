@@ -2,6 +2,8 @@ package monopoly.casilla.propiedad;
 
 import monopoly.Juego;
 import monopoly.casilla.Casilla;
+import monopoly.error.ErrorComandoEdificio;
+import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
 import monopoly.jugador.Jugador;
@@ -16,7 +18,7 @@ import monopoly.utils.Dado;
  * <li>Solares</li>
  * <li>Servicios</li>
  * <li>Transporte</li>
- *
+ * <p>
  * Se trata de una clase abstracta porque hay ciertas funcionalidades que dependen de cada
  * tipo de Propiedad, como el alquiler y el precio.
  *
@@ -39,70 +41,102 @@ public abstract class Propiedad extends Casilla {
     }
 
     /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
-    public abstract long getPrecio();
+    public abstract long getPrecio() throws ErrorFatalLogico;
 
-    /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
-    public abstract long getAlquiler();
+    /**
+     * Alquiler base de la propiedad.
+     * <br>
+     * <b>NOTA</b>: requerida por la especificación de la entrega 3.
+     */
+    public abstract long getAlquiler() throws ErrorFatalLogico;
 
-    /** Multiplica el precio actual por el factor dado para aumentarlo o disminuirlo */
-    public abstract void factorPrecio(float factor) throws ErrorFatalLogico;
+    /** Devuelve el importe real que se cobra al jugador que cae en esta propiedad */
+    public abstract long getAlquiler(Jugador jugador, Dado dado) throws ErrorFatalLogico;
 
-    public abstract long getCosteHipoteca();
+    public long getCosteHipoteca() throws ErrorFatalLogico {
+        return getPrecio() / 2;
+    }
 
-    public abstract long getCosteDeshipoteca();
+    public long getCosteDeshipoteca() throws ErrorFatalLogico {
+        return (long) (1.1 * (float) getCosteHipoteca());
+    }
 
     /** Para las estadísticas */
     public abstract long getAlquilerTotalCobrado();
 
     @Override
     public String listar() {
-        return """
-                {
-                    nombre: %s
-                    tipo: Propiedad
-                    precio: %s
-                }
-                """.formatted(getNombreFmt(), Juego.consola.num(getPrecio()));
+        try {
+            return """
+                    {
+                        nombre: %s
+                        tipo: Propiedad
+                        precio: %s
+                    }""".formatted(getNombreFmt(), Juego.consola.num(getPrecio()));
+        } catch (ErrorFatalLogico e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public String toString() {
-        // @formatter:off
-        return """
-               {
-                   tipo: Propiedad
-                   nombre: %s
-                   precio: %s
-                   alquiler: %s
-                   propietario: %s
-                   hipotecada?: %s
-               }""".formatted(
-                    nombre,
-                    Juego.consola.num(getPrecio()),
-                    Juego.consola.num(getAlquiler()),
-                    propietario.getNombre(),
-                    hipotecada? "Sí" : "No");
-        // @formatter:on
+        try {
+            // @formatter:off
+            return """
+                   {
+                       tipo: Propiedad
+                       nombre: %s
+                       precio: %s
+                       alquiler: %s
+                       propietario: %s
+                       hipotecada?: %s
+                   }
+                   """.formatted(
+                        nombre,
+                        Juego.consola.num(getPrecio()),
+                        Juego.consola.num(getAlquiler()),
+                        propietario.getNombre(),
+                        hipotecada? "Sí" : "No");
+            // @formatter:on
+        } catch (ErrorFatalLogico e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void accion(Jugador jugadorTurno, Dado dado) {
+    public String getNombre() {
+        return nombre;
+    }
+
+    @Override
+    public String getNombreFmt() {
+        return Juego.consola.fmt("%s - %s".formatted(getNombre(), grupo.getNombre()), grupo.getCodigoColor());
+    }
+
+    @Override
+    public int codColorRepresentacion() {
+        return grupo.getCodigoColor();
+    }
+
+    @Override
+    public Consola.Estilo estiloRepresentacion() {
+        return Consola.Estilo.Normal;
+    }
+
+    @Override
+    public void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatalLogico, ErrorComandoFortuna {
         if (propietario instanceof Banca || propietario.equals(jugadorTurno) || hipotecada) {
             return;
         }
 
         // Se multiplica el alquiler por el valor de los dados en caso de que sea un servicio
-        long importe = p.getTipo() == Propiedad.TipoPropiedad.Servicio ? p.getAlquiler() * dado.getValor() : p.getAlquiler();
+        long importe = getAlquiler(jugadorTurno, dado);
 
         // Se debe cobrar todo el importe, aunque el jugador no pueda pagarlo.
         // La cuenta se quedará en números negativos (es decir, está endeudado)
         propietario.ingresar(importe);
 
-        if (!cobrar(importe, true)) {
-            acreedor = p.getPropietario();
-            Juego.consola.error("El jugador no tiene suficientes fondos para pagar el alquiler");
-            return;
-        }
+        jugadorTurno.cobrar(importe, propietario);
 
         Juego.consola.imprimir("Se han pagado %s de alquiler a %s\n".formatted(Juego.consola.num(importe), Juego.consola.fmt(propietario.getNombre(), Consola.Color.Azul)));
 
@@ -111,38 +145,28 @@ public abstract class Propiedad extends Casilla {
         propietario.getEstadisticas().anadirCobroAlquiler(importe);
     }
 
-    public void setPropietario(Jugador jugador) {
+    /**
+     * <b>NOTA</b>: requerida por la especificación de la entrega 3.
+     */
+    public void comprar(Jugador jugador) {
         propietario = jugador;
     }
 
-    /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
-    public void comprar(Jugador jugador) {
-        // TODO
-    }
-
-    /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
+    /**
+     * <b>NOTA</b>: requerida por la especificación de la entrega 3.
+     */
     public boolean perteneceAJugador(Jugador jugador) {
         return propietario.equals(jugador);
     }
 
-    public void hipotecar() {
-        if (propietario == null || propietario.isBanca()) {
-            Juego.consola.error("No se puede hipotecar una propiedad sin dueño");
-            return;
+    public void hipotecar() throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoEdificio {
+        if (propietario == null || propietario instanceof Banca) {
+            throw new ErrorComandoFortuna("No se puede hipotecar una propiedad sin dueño", propietario);
         }
 
         if (hipotecada) {
-            Juego.consola.error("No se puede hipotecar, ya está hipotecada");
-            return;
+            throw new ErrorComandoFortuna("No se puede hipotecar una propiedad sin dueño", propietario);
         }
-
-        // TODO
-        /*
-        if (tipo == TipoPropiedad.Solar && !edificios.isEmpty()) {
-            Juego.consola.error("No se puede hipotecar una propiedad con edificios");
-            return;
-        }
-        */
 
         hipotecada = true;
         long cantidad = getCosteHipoteca();
@@ -154,27 +178,17 @@ public abstract class Propiedad extends Casilla {
         propietario.describirTransaccion();
     }
 
-    public void deshipotecar() {
+    public void deshipotecar() throws ErrorFatalLogico, ErrorComandoFortuna {
         if (!hipotecada) {
-            Juego.consola.error("No se puede deshipotecar, no está hipotecada");
-            return;
+            throw new ErrorComandoFortuna("No se puede deshipotecar, no está hipotecada", propietario);
         }
 
         long cantidad = getCosteDeshipoteca();
-
-        if (!propietario.cobrar(cantidad, false)) {
-            Juego.consola.error("No tienes suficientes fondos para deshipotecar esa propiedad");
-            return;
-        }
+        propietario.cobrar(cantidad);
 
         hipotecada = false;
         Juego.consola.imprimir("Se ha deshipotecado %s por %s\n".formatted(getNombreFmt(), Juego.consola.num(cantidad)));
         propietario.describirTransaccion();
-    }
-
-    @Override
-    public String getNombre() {
-        return nombre;
     }
 
     public boolean isHipotecada() {
@@ -187,5 +201,9 @@ public abstract class Propiedad extends Casilla {
 
     public Jugador getPropietario() {
         return propietario;
+    }
+
+    public void setPropietario(Jugador jugador) {
+        propietario = jugador;
     }
 }

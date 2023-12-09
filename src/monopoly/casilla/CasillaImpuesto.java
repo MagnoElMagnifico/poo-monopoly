@@ -1,16 +1,18 @@
 package monopoly.casilla;
 
-import monopoly.utils.Consola;
 import monopoly.Juego;
-import monopoly.jugador.Jugador;
+import monopoly.JuegoConsts;
+import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
+import monopoly.jugador.Jugador;
+import monopoly.utils.Consola;
 import monopoly.utils.Dado;
 
 public class CasillaImpuesto extends Casilla {
     private static int nImpuestos = 0;
 
     private long impuestos;
-    private Banca banca;
+    private final Banca banca;
 
     public CasillaImpuesto(int posicion, Banca banca) {
         super(posicion);
@@ -27,20 +29,21 @@ public class CasillaImpuesto extends Casilla {
     @Override
     public String toString() {
         return """
-               {
-                   nombre: %s
-                   importe: %s
-               }""".formatted(getNombreFmt(), Juego.consola.num(impuestos));
+                {
+                    nombre: %s
+                    importe: %s
+                }
+                """.formatted(getNombreFmt(), Juego.consola.num(impuestos));
     }
 
     @Override
     public String listar() {
-        return null;
+        return '\n' + getNombreFmt() + '\n';
     }
 
     @Override
-    public void accion(Jugador jugadorTurno, Dado dado) {
-        jugadorTurno.cobrar(impuestos, true);
+    public void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatalLogico {
+        jugadorTurno.cobrar(impuestos, banca);
         Juego.consola.imprimir("El jugador paga de impuestos: %s\n".formatted(Juego.consola.num(impuestos)));
         jugadorTurno.getEstadisticas().anadirTasa(impuestos);
 
@@ -50,11 +53,16 @@ public class CasillaImpuesto extends Casilla {
 
     @Override
     public String getNombre() {
-        return "Impuestos";
+        return "Impuesto";
     }
 
     @Override
-    public String getNombreFmt() {
-        return Juego.consola.fmt(getNombre(), 15, Consola.Estilo.Negrita);
+    public int codColorRepresentacion() {
+        return JuegoConsts.COD_COLOR_ESPECIAL;
+    }
+
+    @Override
+    public Consola.Estilo estiloRepresentacion() {
+        return JuegoConsts.EST_ESPECIAL;
     }
 }

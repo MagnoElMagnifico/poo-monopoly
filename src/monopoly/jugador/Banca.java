@@ -1,18 +1,11 @@
-
 package monopoly.jugador;
 
-
 public class Banca extends Jugador {
-
-    /**
-     * Crea el jugador especial Banca
-     */
     public Banca() {
-        super();
+        super("Banca", null, 0);
     }
 
     public String toString() {
         return "Jugador Especial: Banca\n";
     }
-
 }

@@ -1,13 +1,13 @@
 package monopoly.casilla.carta;
 
 import monopoly.Juego;
+import monopoly.JuegoConsts;
 import monopoly.casilla.Casilla;
 import monopoly.jugador.Jugador;
 import monopoly.utils.Consola;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 
 public abstract class CasillaAccion extends Casilla {
     public CasillaAccion(int posicion) {
@@ -17,7 +17,7 @@ public abstract class CasillaAccion extends Casilla {
     /**
      * Reordena aleatoriamente las cartas
      */
-    public static<T> void barajar(List<T> cartas) {
+    public static <T> void barajar(List<T> cartas) {
         Collections.shuffle(cartas);
     }
 
@@ -43,11 +43,16 @@ public abstract class CasillaAccion extends Casilla {
 
     @Override
     public String listar() {
-        return getNombre();
+        return '\n' + getNombreFmt() + '\n';
     }
 
     @Override
-    public String getNombreFmt() {
-        return Juego.consola.fmt(getNombre(), 15, Consola.Estilo.Cursiva);
+    public int codColorRepresentacion() {
+        return JuegoConsts.COD_COLOR_ACCION;
+    }
+
+    @Override
+    public Consola.Estilo estiloRepresentacion() {
+        return JuegoConsts.EST_ACCION;
     }
 }
