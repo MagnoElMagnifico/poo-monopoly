@@ -45,7 +45,7 @@ public class AvatarPelota extends Avatar {
         }
 
         // Primera tirada
-        if (dado != null) {
+        if (pelotaDado != null) {
             int valorDado = dado.getValor();
 
             // Si es menor que 4 se mueve hacia atrás
