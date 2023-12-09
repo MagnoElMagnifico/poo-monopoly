@@ -7,6 +7,8 @@ import monopoly.error.ErrorComandoFortuna;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
 import monopoly.jugador.Jugador;
+import monopoly.jugador.trato.Trato;
+import monopoly.jugador.trato.TratoP_PNA;
 import monopoly.utils.Consola;
 import monopoly.utils.Dado;
 
@@ -40,7 +42,9 @@ public abstract class Propiedad extends Casilla {
         hipotecada = false;
     }
 
-    /** <b>NOTA</b>: requerida por la especificación de la entrega 3. */
+    /**
+     * <b>NOTA</b>: requerida por la especificación de la entrega 3.
+     */
     public abstract long getPrecio() throws ErrorFatalLogico;
 
     /**
@@ -50,7 +54,9 @@ public abstract class Propiedad extends Casilla {
      */
     public abstract long getAlquiler() throws ErrorFatalLogico;
 
-    /** Devuelve el importe real que se cobra al jugador que cae en esta propiedad */
+    /**
+     * Devuelve el importe real que se cobra al jugador que cae en esta propiedad
+     */
     public abstract long getAlquiler(Jugador jugador, Dado dado) throws ErrorFatalLogico;
 
     public long getCosteHipoteca() throws ErrorFatalLogico {
@@ -61,7 +67,9 @@ public abstract class Propiedad extends Casilla {
         return (long) (1.1 * (float) getCosteHipoteca());
     }
 
-    /** Para las estadísticas */
+    /**
+     * Para las estadísticas
+     */
     public abstract long getAlquilerTotalCobrado();
 
     @Override
@@ -125,8 +133,21 @@ public abstract class Propiedad extends Casilla {
 
     @Override
     public void accion(Jugador jugadorTurno, Dado dado) throws ErrorFatalLogico, ErrorComandoFortuna {
+        // No se paga alquiler si no hay dueño, si el jugador es el dueño, o si está hipotecada
         if (propietario instanceof Banca || propietario.equals(jugadorTurno) || hipotecada) {
             return;
+        }
+
+        // Comprobar los tratos de no alquiler
+        for (Trato t : jugadorTurno.getTratos()) {
+            if (t instanceof TratoP_PNA
+                    && t.getAceptador().equals(jugadorTurno)
+                    && ((TratoP_PNA) t).getTurnos() > 0
+            ) {
+                ((TratoP_PNA) t).quitarTurno();
+                Juego.consola.imprimir("Como el jugador ha hecho un trato con el dueño, no paga alquiler\nQuedan %d turnos de trato\n".formatted(((TratoP_PNA) t).getTurnos()));
+                return;
+            }
         }
 
         // Se multiplica el alquiler por el valor de los dados en caso de que sea un servicio

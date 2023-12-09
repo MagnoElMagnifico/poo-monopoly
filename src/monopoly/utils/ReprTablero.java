@@ -38,13 +38,19 @@ public interface ReprTablero {
     char INTER  = '╋'; // \u254B
     // @formatter:on
 
-    /** Obtiene el nombre que representará el elemento en el tablero */
+    /**
+     * Obtiene el nombre que representará el elemento en el tablero
+     */
     String representacionTablero();
 
-    /** Color a asignar al nombre de representación */
+    /**
+     * Color a asignar al nombre de representación
+     */
     int codColorRepresentacion();
 
-    /** Estilo a asignar al nombre de representación */
+    /**
+     * Estilo a asignar al nombre de representación
+     */
     Consola.Estilo estiloRepresentacion();
 
     /**

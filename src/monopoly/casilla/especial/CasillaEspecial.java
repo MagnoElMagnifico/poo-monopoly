@@ -1,6 +1,5 @@
 package monopoly.casilla.especial;
 
-import monopoly.Juego;
 import monopoly.JuegoConsts;
 import monopoly.casilla.Casilla;
 import monopoly.utils.Consola;

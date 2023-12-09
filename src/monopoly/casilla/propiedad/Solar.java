@@ -14,8 +14,8 @@ import java.util.ArrayList;
 
 public class Solar extends Propiedad {
     private final ArrayList<Edificio> edificios;
-    private long precio;
     private final long alquilerTotalCobrado;
+    private long precio;
 
     public Solar(int posicion, Grupo grupo, String nombre, Jugador banca) {
         super(posicion, grupo, nombre, banca);
@@ -85,7 +85,9 @@ public class Solar extends Propiedad {
         return precio;
     }
 
-    /** Alquiler sin incluir edificios ni bonificaciones de monopolios */
+    /**
+     * Alquiler sin incluir edificios ni bonificaciones de monopolios
+     */
     public long getAlquilerBase() {
         return precio / 10;
     }

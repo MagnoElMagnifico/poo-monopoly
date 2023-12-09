@@ -10,9 +10,8 @@ import monopoly.utils.Dado;
 
 public class CasillaImpuesto extends Casilla {
     private static int nImpuestos = 0;
-
-    private long impuestos;
     private final Banca banca;
+    private long impuestos;
 
     public CasillaImpuesto(int posicion, Banca banca) {
         super(posicion);

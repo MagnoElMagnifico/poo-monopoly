@@ -134,6 +134,6 @@ public class AvatarPelota extends Avatar {
 
     @Override
     public int codColorRepresentacion() {
-        return isMovimientoEspecial()? JuegoConsts.COD_COLOR_AVATAR_PELOTA : JuegoConsts.COD_COLOR_AVATAR_NORMAL;
+        return isMovimientoEspecial() ? JuegoConsts.COD_COLOR_AVATAR_PELOTA : JuegoConsts.COD_COLOR_AVATAR_NORMAL;
     }
 }

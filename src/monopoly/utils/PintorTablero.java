@@ -1,7 +1,9 @@
 package monopoly.utils;
 
 import monopoly.casilla.Casilla;
+
 import java.util.ArrayList;
+
 import static monopoly.utils.ReprTablero.*;
 
 /**
@@ -22,7 +24,7 @@ public class PintorTablero {
 
         dst.append(c.representar());
 
-        for (int i = 0; i < TAM_AVATAR-1; i++) {
+        for (int i = 0; i < TAM_AVATAR - 1; i++) {
             if (i < c.getAvatares().size()) {
                 dst.append(c.getAvatares().get(i).representar());
             } else {

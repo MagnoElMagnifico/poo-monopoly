@@ -817,7 +817,7 @@ public class Juego implements Comando {
             Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[5]));
             Propiedad na = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[8]));
             int nTurnos = Integer.parseInt(args[10]);
-            // TODO: Poner comando de creación del tipo de trato
+            getJugadorTurno().crearTrato(jugador, p1, p2, na, nTurnos);
         }
 
         throw new ErrorComandoFormato("Formato de comando incorrecto. Consulta la ayuda para más información.");

@@ -5,8 +5,8 @@ import monopoly.jugador.Jugador;
 import monopoly.utils.Dado;
 
 public class Transporte extends Propiedad {
-    private long precio;
     private final long alquilerTotalCobrado;
+    private long precio;
 
     public Transporte(int posicion, Grupo grupo, String nombre, Jugador propietario) {
         super(posicion, grupo, nombre, propietario);

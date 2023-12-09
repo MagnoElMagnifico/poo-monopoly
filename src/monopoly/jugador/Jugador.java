@@ -26,6 +26,7 @@ public class Jugador implements Listable {
     public Jugador(String nombre, Avatar avatar, long fortunaInicial) {
         this.nombre = nombre;
         this.avatar = avatar;
+
         if (avatar != null) {
             avatar.setJugador(this);
         }
@@ -81,7 +82,8 @@ public class Jugador implements Listable {
                     propiedades: %s
                     hipotecas: %s
                     edificios: %s
-                }\n""".formatted(
+                }
+                """.formatted(
                         nombre,
                         avatar.getId(),
                         Juego.consola.fmt(Juego.consola.num(fortuna), fortuna < 0? Consola.Color.Rojo : Consola.Color.Verde),
@@ -287,12 +289,12 @@ public class Jugador implements Listable {
         avatar.acabarTurno();
     }
 
-    public void anadirPropiedad(Propiedad propiedad) {
-        propiedades.add(propiedad);
+    public void anadirPropiedad(Propiedad p) {
+        propiedades.add(p);
     }
 
-    public void quitarPropiedad(Propiedad propiedad) {
-        propiedades.remove(propiedad);
+    public void quitarPropiedad(Propiedad p) {
+        propiedades.remove(p);
     }
 
     public boolean isEndeudado() {
@@ -321,6 +323,10 @@ public class Jugador implements Listable {
 
     public EstadisticasJugador getEstadisticas() {
         return estadisticas;
+    }
+
+    public HashSet<Trato> getTratos() {
+        return tratos;
     }
 
     /**
@@ -392,6 +398,23 @@ public class Jugador implements Listable {
         }
 
         TratoPC_P trato = new TratoPC_P(this, jugador, p1, cantidad, p2);
+        this.tratos.add(trato);
+        jugador.tratos.add(trato);
+    }
+
+    /**
+     * Intercambiar con no alquiler: p1 <--> p2 + noalquiler na
+     */
+    public void crearTrato(Jugador jugador, Propiedad p1, Propiedad p2, Propiedad noalquiler, int nTurnos) throws ErrorComandoJugador {
+        if (!p1.perteneceAJugador(this) || !p2.perteneceAJugador(jugador) || !noalquiler.perteneceAJugador(this)) {
+            throw new ErrorComandoJugador("No puedes ofrecer un trato con propiedades que no os pertenecen.", this);
+        }
+
+        if (nTurnos <= 0) {
+            throw new ErrorComandoJugador("El número de turnos no puede ser negativo o 0", this);
+        }
+
+        TratoP_PNA trato = new TratoP_PNA(this, jugador, p1, p2, noalquiler, nTurnos);
         this.tratos.add(trato);
         jugador.tratos.add(trato);
     }
