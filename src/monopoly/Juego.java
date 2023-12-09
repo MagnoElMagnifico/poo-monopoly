@@ -299,8 +299,13 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal {
-        moverComun(null);
+    public void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal, ErrorComandoFormato {
+        if(getJugadorTurno().getAvatar() instanceof AvatarPelota){
+            moverComun(null);
+        }
+        else {
+            throw new ErrorComandoFormato("No puedes usar este comando si no eres una pelota");
+        }
     }
 
     private void moverComun(Dado dado) throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal {
@@ -337,7 +342,7 @@ public class Juego implements Comando {
         // Mostrar el tablero para el nuevo turno
         verTablero();
         consola.imprimir("Se ha cambiado el turno.\nAhora le toca a %s.\n".formatted(consola.fmt(getJugadorTurno().getNombre(), Color.Azul)));
-        consola.imprimir(getJugadorTurno().getTratos().toString()==null?null:toString());
+        consola.imprimir(getJugadorTurno().getTratos().toString());
     }
 
     @Override
