@@ -64,6 +64,18 @@ COMANDOS CON ARGUMENTOS
     estadisticas <nombre-jugador>
           Muestra unas estadísticas sobre un jugador en concreto.
 
+    trato <nombre-jugador> cambiar <propiedad-1> por <propiedad-2>
+          Ofreces cambiar tu propiedad-1 por la propiedad-2
+
+    trato <nombre-jugador> cambiar { [<cantidad>] por <propiedad-> | <propiedad-2> por [<cantidad>] }
+          Ofreces cambiar tu propiedad por dinero o o dinero por una propiedad.
+
+    trato <nombre-jugador> cambiar
+          Ofrces
+
+    trato <nombre-jugador> cambiar <propiedad-1> por <propiedad-2> noalquiler <propiedad-3> durante [<nTurnos>]
+          Ofreces Cambiar tu propiedad-1 por propiedad-2 y
+
 COMANDOS DEBUG
     Solo para probar el funcionamiento del juego.
 
