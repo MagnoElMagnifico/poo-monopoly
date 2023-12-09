@@ -27,12 +27,8 @@ public final class Casa extends Edificio {
     }
 
     @Override
-    public Casa clone() {
-        try {
-            return new Casa(this.getSolar());
-        } catch (ErrorComandoEdificio e) {
-            throw new RuntimeException(e);
-        }
+    public Casa clonar() throws ErrorComandoEdificio {
+        return new Casa(this.getSolar());
     }
 
     public static long getValor(Solar solar) {

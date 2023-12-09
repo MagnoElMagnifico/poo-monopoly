@@ -24,12 +24,8 @@ public final class PistaDeporte extends Edificio {
     }
 
     @Override
-    public Edificio clone() {
-        try {
-            return new PistaDeporte(this.getSolar());
-        } catch (ErrorComandoEdificio e) {
-            throw new RuntimeException(e);
-        }
+    public PistaDeporte clonar() throws ErrorComandoEdificio {
+        return new PistaDeporte(this.getSolar());
     }
 
     public static long getValor(Solar solar) {

@@ -456,10 +456,6 @@ public class Juego implements Comando {
             throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
         }
 
-        if (!(getJugadorTurno().getAvatar().getCasilla() instanceof Solar)) {
-            throw new ErrorComandoEdificio("No se puede edificar en una casilla que no sea un Solar");
-        }
-
         try {
             Edificio edificio = getEdificioDesdeArgs(args);
             getJugadorTurno().construir(edificio, args.length == 2 ? 1 : Integer.parseInt(args[2]));
@@ -469,7 +465,9 @@ public class Juego implements Comando {
     }
 
     private Edificio getEdificioDesdeArgs(String[] args) throws ErrorComando {
-        Solar solar = (Solar) getJugadorTurno().getAvatar().getCasilla();
+        if (!(getJugadorTurno().getAvatar().getCasilla() instanceof Solar solar)) {
+            throw new ErrorComandoEdificio("No se puede edificar en una casilla que no sea un Solar");
+        }
 
         return switch (args[1]) {
             case "c", "casa", "casas" -> new Casa(solar);

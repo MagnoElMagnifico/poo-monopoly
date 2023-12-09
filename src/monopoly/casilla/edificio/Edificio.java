@@ -2,6 +2,7 @@ package monopoly.casilla.edificio;
 
 import monopoly.Juego;
 import monopoly.casilla.propiedad.Solar;
+import monopoly.error.ErrorComando;
 import monopoly.error.ErrorComandoEdificio;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.utils.Listable;
@@ -33,7 +34,8 @@ public abstract class Edificio implements Listable {
                        solar: %s
                        grupo: %s
                        precio: %s
-                   }""".formatted(
+                   }
+                   """.formatted(
                            getClass().getSimpleName(), id,
                            getSolar().getPropietario().getNombre(),
                            getSolar().getNombreFmt(),
@@ -45,8 +47,9 @@ public abstract class Edificio implements Listable {
         }
     }
 
-    @Override
-    public abstract Edificio clone();
+    // NOTA: no se puede usar clone() porque se necesita lanzar la excepción
+    // de restricciones de edificación.
+    public abstract Edificio clonar() throws ErrorComando;
 
     @Override
     public String toString() {
