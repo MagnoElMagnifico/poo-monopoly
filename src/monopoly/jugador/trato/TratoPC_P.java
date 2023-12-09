@@ -37,6 +37,9 @@ public class TratoPC_P extends Trato {
         j1.anadirPropiedad(propAceptador);
         j1.quitarPropiedad(propInteresado);
 
+        propAceptador.setPropietario(j1);
+        propInteresado.setPropietario(j2);
+
         j2.ingresar(cantidad);
         j2.anadirPropiedad(propInteresado);
         j2.quitarPropiedad(propAceptador);

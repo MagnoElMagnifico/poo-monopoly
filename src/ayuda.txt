@@ -19,7 +19,7 @@ COMANDOS CON ARGUMENTOS
               - Coche (alias c)
               - Pelota (alias p)
 
-    listar { casillas | enventa | jugadores | avatares | edificios }
+    listar { casillas | enventa | jugadores | avatares | edificios | tratos }
           Muestra información sobre las Casillas, la propiedades EnVenta, los edificios
           construidos, Jugadores del juego y sus Avatares.
 
@@ -63,6 +63,30 @@ COMANDOS CON ARGUMENTOS
 
     estadisticas <nombre-jugador>
           Muestra unas estadísticas sobre un jugador en concreto.
+
+    trato <nombre-jugador> cambiar <propiedad-1> por <propiedad-2>
+          Ofreces cambiar tu propiedad-1 por la propiedad-2.
+
+    trato <nombre-jugador> cambiar <propiedad-2> por [<cantidad>]
+          Ofreces cambiar tu propiedad por dinero.
+
+    trato <nombre-jugador> cambiar  [<cantidad>] por <propiedad->
+              Ofreces cambiar tu dinero por una propiedad.
+
+    trato <nombre-jugador> cambiar <propiedad-1> y [<cantidad>] por <propiedad-2>
+          Ofreces cambiar tu propiedad-1 y una cantidad de dinero por la propiedad-2.
+
+    trato <nombre-jugador> cambiar <propiedad-2> por <propiedad-1> y [<cantidad>]
+              Ofreces cambiar tu propiedad-1 por una cantidad de dinero y la propiedad-2.
+
+    trato <nombre-jugador> cambiar <propiedad-1> por <propiedad-2> noalquiler <propiedad-3> durante [<nTurnos>]
+          Ofreces Cambiar tu propiedad-1 por propiedad-2 y que el jugador no pague alquiler en la propiedad-3 durante nTurnos.
+
+    aceptar <nombre-trato>
+          Aceptas el trato que se te haya ofrecido.
+
+    eliminar <nombre-trato>
+          Retiras el trato que hayas ofrecido a otro jugador.
 
 COMANDOS DEBUG
     Solo para probar el funcionamiento del juego.

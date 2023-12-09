@@ -58,7 +58,7 @@ public final class CartaSuerte extends Carta {
             }
             case 10 -> {
                 long cantidadPorJugador = 250_000L;
-                jugadorTurno.cobrar(cantidadPorJugador * juego.getJugadores().size(), juego.getBanca());
+                jugadorTurno.cobrar(cantidadPorJugador * (juego.getJugadores().size()-1), juego.getBanca());
 
                 // NOTA: el pago a otros jugadores no se considera una tasa.
                 // No hace falta actualizar las estadísticas del jugadorTurno

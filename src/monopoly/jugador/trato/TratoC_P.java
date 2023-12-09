@@ -32,6 +32,8 @@ public class TratoC_P extends Trato {
         j1.cobrar(cantidad);
         j2.ingresar(cantidad);
 
+        propiedad.setPropietario(j1);
+
         j1.anadirPropiedad(propiedad);
         j2.quitarPropiedad(propiedad);
 

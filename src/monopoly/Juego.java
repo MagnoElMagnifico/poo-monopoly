@@ -35,6 +35,7 @@ import java.util.Scanner;
  * </p>
  */
 public class Juego implements Comando {
+
     public static Consola consola;
     private final String msgAyuda;
 
@@ -297,8 +298,12 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal {
-        moverComun(null);
+    public void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal, ErrorComandoFormato {
+        if(getJugadorTurno().getAvatar() instanceof AvatarPelota){
+            moverComun(null);
+        } else {
+            throw new ErrorComandoFormato("No puedes usar este comando si no eres una pelota");
+        }
     }
 
     private void moverComun(Dado dado) throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal {
@@ -335,6 +340,7 @@ public class Juego implements Comando {
         // Mostrar el tablero para el nuevo turno
         verTablero();
         consola.imprimir("Se ha cambiado el turno.\nAhora le toca a %s.\n".formatted(consola.fmt(getJugadorTurno().getNombre(), Color.Azul)));
+        consola.imprimir(getJugadorTurno().getTratos().toString());
     }
 
     @Override
@@ -567,7 +573,7 @@ public class Juego implements Comando {
                 default -> throw new ErrorComandoFormato("\"%s\": Argumento inválido".formatted(args[1]));
             }
         } else {
-            throw new ErrorComandoFormato(2, args.length - 1);
+            throw new ErrorComandoFormato(1, args.length - 1);
         }
     }
 
@@ -580,6 +586,7 @@ public class Juego implements Comando {
                 case "avatares"  -> consola.imprimir(consola.listar(jugadores, (j) -> j.getAvatar().listar()) + '\n');
                 case "casillas"  -> consola.imprimirLista(casillas);
                 case "enventa"   -> consola.imprimir(consola.listar(casillas, (c) -> c instanceof Propiedad && ((Propiedad) c).getPropietario() instanceof Banca ? c.listar() : null) + '\n');
+                case "tratos"    -> consola.imprimir(getJugadorTurno().getTratos().toString());
             }
             // @formatter:on
 
@@ -601,7 +608,7 @@ public class Juego implements Comando {
             return;
         }
 
-        throw new ErrorComandoFormato(2, args.length - 1);
+        throw new ErrorComandoFormato(1, args.length - 1);
     }
 
     @Override
@@ -723,6 +730,10 @@ public class Juego implements Comando {
 
     @Override
     public void trato(String[] args) throws ErrorComando {
+        if(args.length < 6){
+            throw new ErrorComandoFormato(5, args.length-1);
+        }
+
         Jugador jugador = Buscar.porNombre(args[1], jugadores);
 
         if (!args[2].equalsIgnoreCase("cambiar")) {

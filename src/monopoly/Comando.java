@@ -42,7 +42,7 @@ public interface Comando {
     /**
      * Avanza las posiciones correspondientes cuando se usa el avatar Pelota
      */
-    void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal;
+    void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal, ErrorComandoFormato;
 
     /**
      * Termina el turno del jugador actual
