@@ -31,6 +31,9 @@ public class TratoP_P extends Trato {
         j1.anadirPropiedad(propAceptador);
         j2.anadirPropiedad(propInteresado);
 
+        propAceptador.setPropietario(j1);
+        propInteresado.setPropietario(j2);
+
         j1.quitarPropiedad(propInteresado);
         j2.quitarPropiedad(propAceptador);
 

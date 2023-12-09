@@ -23,7 +23,7 @@ public abstract class Trato {
 
     @Override
     public String toString() {
-        return "%s: %s ofrece un trato a %s\n".formatted(nombre, interesado.getNombre(), aceptador.getNombre());
+        return "Estado: %s\n%s: %s ofrece un trato a %s".formatted(completado ?"aceptado": "En espera",nombre, interesado.getNombre(), aceptador.getNombre());
     }
 
     @Override
@@ -43,8 +43,10 @@ public abstract class Trato {
         return aceptador;
     }
 
+
     public void aceptar() throws ErrorComandoFortuna, ErrorFatalLogico {
         completado = true;
+
     }
 
     public String getNombre() {

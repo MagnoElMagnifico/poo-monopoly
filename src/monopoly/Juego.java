@@ -36,6 +36,7 @@ import java.util.function.Function;
  * </p>
  */
 public class Juego implements Comando {
+
     public static Consola consola;
     private final String msgAyuda;
 
@@ -298,8 +299,13 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal {
-        moverComun(null);
+    public void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal, ErrorComandoFormato {
+        if(getJugadorTurno().getAvatar() instanceof AvatarPelota){
+            moverComun(null);
+        }
+        else {
+            throw new ErrorComandoFormato("No puedes usar este comando si no eres una pelota");
+        }
     }
 
     private void moverComun(Dado dado) throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal {
@@ -336,6 +342,7 @@ public class Juego implements Comando {
         // Mostrar el tablero para el nuevo turno
         verTablero();
         consola.imprimir("Se ha cambiado el turno.\nAhora le toca a %s.\n".formatted(consola.fmt(getJugadorTurno().getNombre(), Color.Azul)));
+        consola.imprimir(getJugadorTurno().getTratos().toString());
     }
 
     @Override
@@ -581,6 +588,7 @@ public class Juego implements Comando {
                 case "avatares"  -> consola.imprimir(consola.listar(jugadores, (j) -> j.getAvatar().listar()) + '\n');
                 case "casillas"  -> consola.imprimirLista(casillas);
                 case "enventa"   -> consola.imprimir(consola.listar(casillas, (c) -> c instanceof Propiedad && ((Propiedad) c).getPropietario() instanceof Banca ? c.listar() : null) + '\n');
+                case "tratos"    -> consola.imprimir(getJugadorTurno().getTratos().toString());
             }
             // @formatter:on
 
@@ -724,6 +732,10 @@ public class Juego implements Comando {
 
     @Override
     public void trato(String[] args) throws ErrorComando {
+        if(args.length<6){
+            throw new ErrorComandoFormato(6,args.length);
+        }
+
         Jugador jugador = buscar(jugadores, (j) -> j.getNombre().equalsIgnoreCase(args[1]));
 
         if (!args[2].equalsIgnoreCase("cambiar")) {
@@ -742,14 +754,14 @@ public class Juego implements Comando {
 
             // trato nombre cambiar CANTIDAD por PROPIEDAD
             if (isNumeric(args[3])) {
-                Propiedad p = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
+                Propiedad p = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[5]));
                 getJugadorTurno().crearTrato(jugador, Long.parseLong(args[3]), p);
                 return;
             }
 
             // trato nombre cambiar PROPIEDAD por CANTIDAD
             if (isNumeric(args[5])) {
-                Propiedad p = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[2]));
+                Propiedad p = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
                 getJugadorTurno().crearTrato(jugador, p, Long.parseLong(args[5]));
                 return;
             }
@@ -786,7 +798,6 @@ public class Juego implements Comando {
 
             // trato nombre cambiar X y Y por PROPIEDAD
             if (args[4].equalsIgnoreCase("y") && args[6].equalsIgnoreCase("por")) {
-                Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
 
                 // trato nombre cambiar CANTIDAD y PROPIEDAD por PROPIEDAD
                 if (isNumeric(args[3])) {
@@ -795,6 +806,7 @@ public class Juego implements Comando {
                     args[5] = args[3];
                     args[3] = temp;
                 }
+                Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
 
                 // trato nombre cambiar PROPIEDAD y CANTIDAD por PROPIEDAD
                 if (isNumeric(args[5])) {
@@ -816,6 +828,9 @@ public class Juego implements Comando {
             Propiedad p1 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[3]));
             Propiedad p2 = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[5]));
             Propiedad na = (Propiedad) buscar(casillas, (c) -> c.getNombre().equalsIgnoreCase(args[8]));
+            if(!isNumeric(args[10])){
+                throw new ErrorComandoFormato("Indica el número de turnos que no se pagará el alquiler.");
+            }
             int nTurnos = Integer.parseInt(args[10]);
             getJugadorTurno().crearTrato(jugador, p1, p2, na, nTurnos);
         }
