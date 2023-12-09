@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import monopoly.Juego;
-import monopoly.Tratos.Trato;
-import monopoly.Tratos.TratoP_P;
+import monopoly.jugador.trato.Trato;
+import monopoly.jugador.trato.TratoP_P;
 import monopoly.casilla.Casilla;
 import monopoly.casilla.edificio.Edificio;
 import monopoly.casilla.edificio.Edificio.TipoEdificio;
