@@ -10,6 +10,7 @@ import monopoly.casilla.propiedad.Propiedad;
 import monopoly.casilla.propiedad.Solar;
 import monopoly.error.*;
 import monopoly.jugador.*;
+import monopoly.jugador.trato.Trato;
 import monopoly.utils.Buscar;
 import monopoly.utils.Consola;
 import monopoly.utils.Consola.Color;
@@ -132,6 +133,7 @@ public class Juego implements Comando {
             case "siguiente", "sig", "next" -> siguiente();
             case "acabar turno", "fin", "end" -> acabarTurno();
             case "bancarrota" -> bancarrota();
+            case "tratos" -> listar(new String[]{"listar", "tratos"});
             default -> cmdProcesado = false;
         }
 
@@ -339,12 +341,33 @@ public class Juego implements Comando {
 
         // Mostrar el tablero para el nuevo turno
         verTablero();
-        consola.imprimir("Se ha cambiado el turno.\nAhora le toca a %s.\n".formatted(consola.fmt(getJugadorTurno().getNombre(), Color.Azul)));
-        consola.imprimir(getJugadorTurno().getTratos().toString());
+        consola.imprimir(
+                """
+                Se ha cambiado el turno.
+                Ahora le toca a %s.
+                """.formatted(consola.fmt(getJugadorTurno().getNombre(), Color.Azul)));
+
+        // Mostrar los tratos pendientes
+        ArrayList<Trato> tratosPendientes = new ArrayList<>(getJugadorTurno().getTratos().size());
+        for (Trato t : getJugadorTurno().getTratos()) {
+            if (!t.isAceptado()) {
+                tratosPendientes.add(t);
+            }
+        }
+
+        if (!tratosPendientes.isEmpty()) {
+            consola.imprimir(
+                """
+                %s, estos son los tratos que tienes pendientes de aceptar:
+                """.formatted(
+                        consola.fmt(getJugadorTurno().getNombre(), Color.Azul),
+                        consola.fmt(getJugadorTurno().getNombre(), Color.Azul)));
+            consola.imprimirLista(tratosPendientes);
+        }
     }
 
     @Override
-    public void bancarrota() {
+    public void bancarrota() throws ErrorFatalLogico {
         // Pedir confirmación
         String respuesta = consola.leer("Esta seguro de que quiere abandonar la partida? (y/N): ");
         if (respuesta.isBlank() || Character.toLowerCase(respuesta.trim().charAt(0)) != 'y') {
@@ -586,7 +609,12 @@ public class Juego implements Comando {
                 case "avatares"  -> consola.imprimir(consola.listar(jugadores, (j) -> j.getAvatar().listar()) + '\n');
                 case "casillas"  -> consola.imprimirLista(casillas);
                 case "enventa"   -> consola.imprimir(consola.listar(casillas, (c) -> c instanceof Propiedad && ((Propiedad) c).getPropietario() instanceof Banca ? c.listar() : null) + '\n');
-                case "tratos"    -> consola.imprimir(getJugadorTurno().getTratos().toString());
+                case "tratos"    -> {
+                    if (!jugando) {
+                        throw new ErrorComandoEstadoPartida("No se ha iniciado la partida");
+                    }
+                    consola.imprimirLista(getJugadorTurno().getTratos());
+                }
             }
             // @formatter:on
 
@@ -752,6 +780,7 @@ public class Juego implements Comando {
                 }
 
                 // trato nombre cambiar CANTIDAD por PROPIEDAD
+                // TODO?: trato nombre comprar PROPIEDAD por CANTIDAD
                 if (isNumeric(args[3])) {
                     Propiedad p = (Propiedad) Buscar.porNombre(args[5], casillas);
                     getJugadorTurno().crearTrato(jugador, Long.parseLong(args[3]), p);
@@ -759,6 +788,7 @@ public class Juego implements Comando {
                 }
 
                 // trato nombre cambiar PROPIEDAD por CANTIDAD
+                // TODO?: trato nombre vender PROPIEDAD por CANTIDAD
                 if (isNumeric(args[5])) {
                     Propiedad p = (Propiedad) Buscar.porNombre(args[3], casillas);
                     getJugadorTurno().crearTrato(jugador, p, Long.parseLong(args[5]));
@@ -838,7 +868,7 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void aceptar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna, ErrorFatalLogico {
+    public void aceptar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoNoEncontrado, ErrorComandoJugador {
         if (args.length != 2) {
             throw new ErrorComandoFormato(1, args.length - 1);
         }
@@ -846,7 +876,7 @@ public class Juego implements Comando {
     }
 
     @Override
-    public void eliminar(String[] args) throws ErrorComandoFormato {
+    public void eliminar(String[] args) throws ErrorComandoFormato, ErrorComandoNoEncontrado, ErrorComandoJugador {
         if (args.length != 2) {
             throw new ErrorComandoFormato(1, args.length - 1);
         }

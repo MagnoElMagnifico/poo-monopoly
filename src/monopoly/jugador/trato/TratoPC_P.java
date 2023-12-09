@@ -20,18 +20,23 @@ public class TratoPC_P extends Trato {
 
     @Override
     public String toString() {
+        // @formatter:off
         return """
+                {
                 %s
-                Cambiar %s y %s por %s
-                """.formatted(
-                super.toString(),
-                propInteresado.getNombreFmt(), Juego.consola.num(cantidad), propAceptador.getNombreFmt());
+                    trato: cambiar %s y %s por %s
+                }""".formatted(
+                    super.toString().indent(4),
+                    propInteresado.getNombreFmt(),
+                    Juego.consola.num(cantidad),
+                    propAceptador.getNombreFmt());
+        // @formatter:on
     }
 
     @Override
     public void aceptar() throws ErrorComandoFortuna, ErrorFatalLogico {
-        Jugador j1 = getInteresado();
-        Jugador j2 = getAceptador();
+        Jugador j1 = getJugadorPropone();
+        Jugador j2 = getJugadorAcepta();
 
         j1.cobrar(cantidad);
         j1.anadirPropiedad(propAceptador);

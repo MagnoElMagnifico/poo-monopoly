@@ -19,23 +19,20 @@ public class TratoP_C extends Trato {
     @Override
     public String toString() {
         return """
+                {
                 %s
-                Cambiar %s por %s
-                """.formatted(super.toString(), propiedad.getNombreFmt(), Juego.consola.num(cantidad));
+                    trato: cambiar %s por %s
+                }""".formatted(super.toString().indent(4), propiedad.getNombreFmt(), Juego.consola.num(cantidad));
     }
 
     @Override
     public void aceptar() throws ErrorComandoFortuna, ErrorFatalLogico {
-        Jugador j1 = getInteresado();
-        Jugador j2 = getAceptador();
+        getJugadorAcepta().cobrar(cantidad);
+        getJugadorAcepta().anadirPropiedad(propiedad);
+        propiedad.setPropietario(getJugadorAcepta());
 
-        j2.cobrar(cantidad);
-        j2.anadirPropiedad(propiedad);
-
-        propiedad.setPropietario(j2);
-
-        j1.ingresar(cantidad);
-        j2.quitarPropiedad(propiedad);
+        getJugadorPropone().ingresar(cantidad);
+        getJugadorAcepta().quitarPropiedad(propiedad);
 
         super.aceptar();
     }

@@ -141,7 +141,7 @@ public abstract class Propiedad extends Casilla {
         // Comprobar los tratos de no alquiler
         for (Trato t : jugadorTurno.getTratos()) {
             if (t instanceof TratoP_PNA
-                    && t.getAceptador().equals(jugadorTurno)
+                    && t.getJugadorAcepta().equals(jugadorTurno)
                     && ((TratoP_PNA) t).getTurnos() > 0
             ) {
                 ((TratoP_PNA) t).quitarTurno();
