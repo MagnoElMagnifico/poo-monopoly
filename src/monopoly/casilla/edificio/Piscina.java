@@ -23,6 +23,15 @@ public final class Piscina extends Edificio {
         }
     }
 
+    @Override
+    public Edificio clone() {
+        try {
+            return new Piscina(this.getSolar());
+        } catch (ErrorComandoEdificio e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static long getValor(Solar solar) {
         return (long) (0.4 * (float) solar.getPrecio());
     }

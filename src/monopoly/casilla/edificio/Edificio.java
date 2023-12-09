@@ -46,6 +46,9 @@ public abstract class Edificio implements Listable {
     }
 
     @Override
+    public abstract Edificio clone();
+
+    @Override
     public String toString() {
         try {
             // @formatter:off

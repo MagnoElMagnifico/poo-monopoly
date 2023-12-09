@@ -166,8 +166,7 @@ public class Jugador implements Listable, Buscar {
         describirTransaccion();
     }
 
-    public void construir(Edificio edificio) throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoEdificio {
-        // TODO: uso de una cantidad
+    public void construir(Edificio edificio, int cantidad) throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoEdificio {
         if (isEndeudado()) {
             throw new ErrorComandoFortuna("No puedes edificar si estás endeudado", this);
         }
@@ -188,14 +187,25 @@ public class Jugador implements Listable, Buscar {
             throw new ErrorComandoEdificio("El jugador tiene que tener el Monopolio o haber pasado más de 2 veces por la casilla para poder edificar");
         }
 
-        cobrar(edificio.getValor());
-        edificio.getSolar().edificar(edificio);
+        // Primero crear todos los edificios necesarios.
+        // De esta forma se llaman a los constructores que comprueban las restricciones.
+        // Si alguna de ellas no se cumple, no se cancela la transacción en el medio.
+        ArrayList<Edificio> edificios = new ArrayList<>(cantidad);
+        for (int i = 0; i < cantidad; i++) {
+            edificios.add(edificio.clone());
+        }
+
+        cobrar(edificio.getValor() * cantidad);
         estadisticas.anadirInversion(edificio.getValor());
+
+        for (Edificio e : edificios) {
+            edificio.getSolar().edificar(e);
+        }
 
         Juego.consola.imprimir("""
                 %s ha construido %d %s(s) en el solar %s por %s.
                 Ahora tiene una fortuna de %s.
-                """.formatted(nombre, 1, edificio.getClass().getSimpleName(), edificio.getSolar().getNombreFmt(), Juego.consola.num(edificio.getValor()), Juego.consola.num(fortuna)));
+                """.formatted(nombre, cantidad, edificio.getClass().getSimpleName(), edificio.getSolar().getNombreFmt(), Juego.consola.num(edificio.getValor()), Juego.consola.num(fortuna)));
         describirTransaccion();
     }
 

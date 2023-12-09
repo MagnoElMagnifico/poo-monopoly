@@ -23,6 +23,15 @@ public final class PistaDeporte extends Edificio {
         }
     }
 
+    @Override
+    public Edificio clone() {
+        try {
+            return new PistaDeporte(this.getSolar());
+        } catch (ErrorComandoEdificio e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static long getValor(Solar solar) {
         return (long) (1.15 * (float) solar.getPrecio());
     }

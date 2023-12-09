@@ -461,23 +461,24 @@ public class Juego implements Comando {
         }
 
         try {
-            Solar solar = (Solar) getJugadorTurno().getAvatar().getCasilla();
-
-            for (int i = 0; i < (args.length == 2 ? 1 : Integer.parseInt(args[2])); i++) {
-                Edificio edificio = switch (args[1]) {
-                    case "c", "casa", "casas" -> new Casa(solar);
-                    case "h", "hotel", "hoteles" -> new Hotel(solar);
-                    case "p", "piscina", "piscinas" -> new Piscina(solar);
-                    case "d", "pd", "pista", "pistas", "pistadeporte", "pistasdeporte" -> new PistaDeporte(solar);
-                    default ->
-                            throw new ErrorComandoFormato("\"%s\": no es un tipo de edificio válido".formatted(args[1]));
-                };
-
-                getJugadorTurno().construir(edificio);
-            }
+            Edificio edificio = getEdificioDesdeArgs(args);
+            getJugadorTurno().construir(edificio, args.length == 2 ? 1 : Integer.parseInt(args[2]));
         } catch (NumberFormatException e) {
             throw new ErrorComandoFormato("\"%s\": no es un número válido".formatted(args[2]));
         }
+    }
+
+    private Edificio getEdificioDesdeArgs(String[] args) throws ErrorComando {
+        Solar solar = (Solar) getJugadorTurno().getAvatar().getCasilla();
+
+        return switch (args[1]) {
+            case "c", "casa", "casas" -> new Casa(solar);
+            case "h", "hotel", "hoteles" -> new Hotel(solar);
+            case "p", "piscina", "piscinas" -> new Piscina(solar);
+            case "d", "pd", "pista", "pistas", "pistadeporte", "pistasdeporte" -> new PistaDeporte(solar);
+            default ->
+                    throw new ErrorComandoFormato("\"%s\": no es un tipo de edificio válido".formatted(args[1]));
+        };
     }
 
     @Override
