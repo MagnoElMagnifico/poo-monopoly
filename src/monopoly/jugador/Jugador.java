@@ -7,6 +7,7 @@ import monopoly.casilla.propiedad.Propiedad;
 import monopoly.casilla.propiedad.Solar;
 import monopoly.error.*;
 import monopoly.jugador.trato.*;
+import monopoly.utils.Buscar;
 import monopoly.utils.Consola;
 import monopoly.utils.Listable;
 
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
-public class Jugador implements Listable {
+public class Jugador implements Listable, Buscar {
     private final String nombre;
     private final Avatar avatar;
     private final HashSet<Propiedad> propiedades;
@@ -317,6 +318,7 @@ public class Jugador implements Listable {
         return acreedor;
     }
 
+    @Override
     public String getNombre() {
         return nombre;
     }
