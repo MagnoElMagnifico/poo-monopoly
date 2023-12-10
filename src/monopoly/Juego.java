@@ -615,6 +615,7 @@ public class Juego implements Comando {
                     }
                     consola.imprimirLista(getJugadorTurno().getTratos());
                 }
+                default -> throw new ErrorComandoFormato("\"%s\": Argumento inválido".formatted(args[1]));
             }
             // @formatter:on
 
