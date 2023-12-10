@@ -31,10 +31,10 @@ public final class CartaComunidad extends Carta {
             case 4 -> cantidad = 2_000_000L;
             case 6 -> cantidad = 500_000L;
             case 9 -> cantidad = 1_000_000L;
-            case 1 -> cantidad = -150_000L;
+            case 1 -> cantidad = -500_000L;
             case 5 -> cantidad = -1_000_000;
             case 8 -> {
-                long cantidadPorJugador = 250_000L;
+                long cantidadPorJugador = 200_000L;
                 jugadorTurno.cobrar(cantidadPorJugador * (juego.getJugadores().size() - 1), juego.getBanca());
 
                 // NOTA: el pago a otros jugadores no se considera una tasa.
