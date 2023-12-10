@@ -2,41 +2,65 @@ package monopoly.jugador.trato;
 
 import monopoly.casilla.propiedad.Propiedad;
 import monopoly.error.ErrorComandoFortuna;
+import monopoly.error.ErrorComandoJugador;
+import monopoly.error.ErrorComandoTrato;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
 
 public class TratoP_PNA extends Trato {
-    private final Propiedad propInteresado;
-    private final Propiedad propAceptador;
+    private final Propiedad propPropone;
+    private final Propiedad propAcepta;
     private final Propiedad propNoAlquiler;
     private int turnos;
 
-    public TratoP_PNA(Jugador interesado, Jugador benefactor, Propiedad propInteresado, Propiedad propAceptador, Propiedad propNoAlquiler, int turnos) {
-        super(interesado, benefactor);
-        this.propInteresado = propInteresado;
-        this.propAceptador = propAceptador;
+    public TratoP_PNA(Jugador jugPropone, Jugador jugAcepta, Propiedad propPropone, Propiedad propAcepta, Propiedad propNoAlquiler, int turnos) throws ErrorComandoTrato {
+        super(jugPropone, jugAcepta);
+
+        if (!propPropone.perteneceAJugador(jugPropone) || !propAcepta.perteneceAJugador(jugAcepta)) {
+            throw new ErrorComandoTrato("No puedes ofrecer un trato con propiedades que no os pertenecen.", jugPropone);
+        }
+
+        if (turnos <= 0) {
+            throw new ErrorComandoTrato("El número de turnos no puede ser negativo o 0", jugPropone);
+        }
+
+        this.propPropone = propPropone;
+        this.propAcepta = propAcepta;
         this.propNoAlquiler = propNoAlquiler;
         this.turnos = turnos;
     }
 
     @Override
     public String toString() {
+        // @formatter:off
         return """
+                {
                 %s
-                Cambiar %s por %s y no pagar alquiler en %s durante %d turnos.
-                """.formatted(super.toString(), propInteresado.getNombreFmt(), propAceptador.getNombreFmt(), propAceptador.getNombreFmt(), turnos);
+                    trato: cambiar %s por %s y no pagar alquiler en %s durante %d turnos.
+                }""".formatted(
+                        super.toString().indent(4),
+                        propPropone.getNombreFmt(),
+                        propAcepta.getNombreFmt(),
+                        propNoAlquiler.getNombreFmt(),
+                        turnos);
+        // @formatter:on
     }
 
     @Override
     public void aceptar() throws ErrorComandoFortuna, ErrorFatalLogico {
-        Jugador j1 = getInteresado();
-        Jugador j2 = getAceptador();
+        Jugador j1 = getJugadorPropone();
+        Jugador j2 = getJugadorAcepta();
 
-        j1.anadirPropiedad(propAceptador);
-        j2.anadirPropiedad(propInteresado);
+        j1.anadirPropiedad(propAcepta);
+        j2.anadirPropiedad(propPropone);
 
-        j1.quitarPropiedad(propInteresado);
-        j2.quitarPropiedad(propAceptador);
+        propAcepta.setPropietario(j1);
+        propPropone.setPropietario(j2);
+
+        j1.quitarPropiedad(propPropone);
+        j2.quitarPropiedad(propAcepta);
+
+        super.aceptar();
     }
 
     public Propiedad getPropNoAlquiler() {

@@ -42,7 +42,7 @@ public interface Comando {
     /**
      * Avanza las posiciones correspondientes cuando se usa el avatar Pelota
      */
-    void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal;
+    void siguiente() throws ErrorComandoEstadoPartida, ErrorComandoFortuna, ErrorComandoAvatar, ErrorFatal, ErrorComandoFormato;
 
     /**
      * Termina el turno del jugador actual
@@ -52,7 +52,7 @@ public interface Comando {
     /**
      * Declara al jugador actual en bancarrota
      */
-    void bancarrota();
+    void bancarrota() throws ErrorFatalLogico;
 
     /**
      * Añade un jugador a la partida
@@ -121,7 +121,7 @@ public interface Comando {
      *     aceptar { ID trato }
      * </pre>
      */
-    void aceptar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna, ErrorFatalLogico;
+    void aceptar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoNoEncontrado, ErrorComandoJugador;
 
     /**
      * Permite al jugador que propuso un trato, eliminarlo.
@@ -129,7 +129,7 @@ public interface Comando {
      *     eliminar { ID trato }
      * </pre>
      */
-    void eliminar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna;
+    void eliminar(String[] args) throws ErrorComandoFormato, ErrorComandoFortuna, ErrorComandoNoEncontrado, ErrorComandoJugador;
 
     /**
      * Muestra la información completa sobre el jugador, casilla o avatar dado

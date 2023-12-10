@@ -23,6 +23,11 @@ public final class Piscina extends Edificio {
         }
     }
 
+    @Override
+    public Piscina clonar() throws ErrorComandoEdificio {
+        return new Piscina(this.getSolar());
+    }
+
     public static long getValor(Solar solar) {
         return (long) (0.4 * (float) solar.getPrecio());
     }

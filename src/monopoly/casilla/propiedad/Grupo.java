@@ -6,6 +6,7 @@ import monopoly.casilla.edificio.*;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Banca;
 import monopoly.jugador.Jugador;
+import monopoly.utils.Buscar;
 
 import java.util.ArrayList;
 
@@ -14,7 +15,7 @@ import java.util.ArrayList;
  *
  * @see Casilla
  */
-public class Grupo {
+public class Grupo implements Buscar {
     /**
      * Este es un identificador único del grupo, dado por el orden de
      * declaración en el archivo de configuración de las casillas.
@@ -155,6 +156,7 @@ public class Grupo {
         return numero;
     }
 
+    @Override
     public String getNombre() {
         return nombre;
     }

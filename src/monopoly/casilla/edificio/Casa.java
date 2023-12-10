@@ -26,6 +26,11 @@ public final class Casa extends Edificio {
         }
     }
 
+    @Override
+    public Casa clonar() throws ErrorComandoEdificio {
+        return new Casa(this.getSolar());
+    }
+
     public static long getValor(Solar solar) {
         return (long) (0.6 * (float) solar.getPrecio());
     }

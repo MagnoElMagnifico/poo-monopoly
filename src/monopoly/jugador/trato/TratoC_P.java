@@ -3,37 +3,48 @@ package monopoly.jugador.trato;
 import monopoly.Juego;
 import monopoly.casilla.propiedad.Propiedad;
 import monopoly.error.ErrorComandoFortuna;
+import monopoly.error.ErrorComandoJugador;
+import monopoly.error.ErrorComandoTrato;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
 
 public class TratoC_P extends Trato {
-    private final Propiedad propiedad;
-    private final long cantidad;
+    private final Propiedad propAcepta;
+    private final long cantidadPropone;
 
-    public TratoC_P(Jugador interesado, Jugador aceptador, long cantidad, Propiedad propiedad) {
-        super(interesado, aceptador);
-        this.cantidad = cantidad;
-        this.propiedad = propiedad;
+    public TratoC_P(Jugador jugPropone, Jugador jugAcepta, long cantidadPropone, Propiedad propAcepta) throws ErrorComandoTrato {
+        super(jugPropone, jugAcepta);
+
+        if (jugPropone.getFortuna() < cantidadPropone) {
+            throw new ErrorComandoTrato("No tienes suficiente dinero para proponer el trato", jugPropone);
+        }
+
+        if (!propAcepta.perteneceAJugador(jugAcepta)) {
+            throw new ErrorComandoTrato("No puedes proponer un trato con propiedades que el jugador que acepta no posee", jugPropone);
+        }
+
+        this.cantidadPropone = cantidadPropone;
+        this.propAcepta = propAcepta;
     }
 
     @Override
     public String toString() {
         return """
+                {
                 %s
-                Cambiar %s por %s
-                """.formatted(super.toString(), Juego.consola.num(cantidad), propiedad.getNombreFmt());
+                    trato: cambiar %s por %s
+                }
+                """.formatted(super.toString(), Juego.consola.num(cantidadPropone), propAcepta.getNombreFmt());
     }
 
     @Override
     public void aceptar() throws ErrorComandoFortuna, ErrorFatalLogico {
-        Jugador j1 = getInteresado();
-        Jugador j2 = getAceptador();
+        getJugadorPropone().cobrar(cantidadPropone);
+        getJugadorPropone().anadirPropiedad(propAcepta);
+        propAcepta.setPropietario(getJugadorPropone());
 
-        j1.cobrar(cantidad);
-        j2.ingresar(cantidad);
-
-        j1.anadirPropiedad(propiedad);
-        j2.quitarPropiedad(propiedad);
+        getJugadorAcepta().ingresar(cantidadPropone);
+        getJugadorAcepta().quitarPropiedad(propAcepta);
 
         super.aceptar();
     }
