@@ -33,7 +33,11 @@ public class TratoP_C extends Trato {
     }
 
     @Override
-    public void aceptar() throws ErrorComandoFortuna, ErrorFatalLogico {
+    public void aceptar() throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoTrato {
+        if (!propPropone.perteneceAJugador(getJugadorPropone())) {
+            throw new ErrorComandoTrato("El trato ya no es válido", getJugadorPropone());
+        }
+
         getJugadorPropone().ingresar(cantidadAcepta);
         getJugadorPropone().quitarPropiedad(propPropone);
 

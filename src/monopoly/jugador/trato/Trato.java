@@ -1,6 +1,7 @@
 package monopoly.jugador.trato;
 
 import monopoly.error.ErrorComandoFortuna;
+import monopoly.error.ErrorComandoTrato;
 import monopoly.error.ErrorFatalLogico;
 import monopoly.jugador.Jugador;
 import monopoly.utils.Buscar;
@@ -56,7 +57,7 @@ public abstract class Trato implements Listable, Buscar {
     }
 
 
-    public void aceptar() throws ErrorComandoFortuna, ErrorFatalLogico {
+    public void aceptar() throws ErrorComandoFortuna, ErrorFatalLogico, ErrorComandoTrato {
         aceptado = true;
 
     }
