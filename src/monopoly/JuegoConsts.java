@@ -11,9 +11,9 @@ public interface JuegoConsts {
     int N_CARTAS_COMUNIDAD = 6;
     int N_IMPUESTOS = 2;
 
-    String CONFIG_CASILLAS = "src/casillas.txt";
-    String CONFIG_CARTAS = "src/cartas.txt";
-    String CONFIG_AYUDA = "src/ayuda.txt";
+    String CONFIG_CASILLAS = "config/casillas.txt";
+    String CONFIG_CARTAS = "config/cartas.txt";
+    String CONFIG_AYUDA = "config/ayuda.txt";
     String PROMPT = "$> ";
 
     char[] AVATARES_ID = {'A', 'B', 'C', 'D', 'E', 'F'};

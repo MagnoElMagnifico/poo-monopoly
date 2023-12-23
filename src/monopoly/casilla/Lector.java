@@ -13,6 +13,8 @@ import monopoly.jugador.Banca;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -56,9 +58,11 @@ public class Lector {
     private final ArrayList<CartaSuerte> cartasSuerte;
     private final long fortunaInicial;
     private final ArrayList<CasillaImpuesto> impuestos;
+
     // Información útil
     private int nSolares;
     private long sumaPrecioSolares;
+
     // Casillas especiales
     private CasillaSalida salida;
     private CasillaCarcel carcel;
@@ -117,15 +121,18 @@ public class Lector {
      * @throws ErrorFatalConfig Si no se encuentra el archivo.
      */
     private static Scanner abrirArchivo(String path) throws ErrorFatalConfig {
-        Scanner scanner;
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-        try {
-            scanner = new Scanner(new File(path));
-        } catch (FileNotFoundException e) {
-            throw new ErrorFatalConfig("No se ha encontrado", path, 0);
+        if (classLoader == null) {
+            classLoader = Class.class.getClassLoader();
         }
 
-        return scanner;
+        InputStream recurso = classLoader.getResourceAsStream(path);
+        if (recurso == null) {
+            throw new ErrorFatalConfig("No encontrado", path, 0);
+        }
+
+        return new Scanner(recurso);
     }
 
     /**
@@ -177,6 +184,13 @@ public class Lector {
 
     public Grupo getTransportes() {
         return transportes;
+    }
+
+    public String getMsgAyuda() throws ErrorFatalConfig {
+        try (Scanner scanner = abrirArchivo(JuegoConsts.CONFIG_AYUDA)) {
+            scanner.useDelimiter("\\A");
+            return scanner.next();
+        }
     }
 
     /**

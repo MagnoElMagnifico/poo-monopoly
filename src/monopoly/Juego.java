@@ -55,25 +55,21 @@ public class Juego implements Comando {
     private boolean jugando;
 
     public Juego() throws ErrorFatalConfig, ErrorFatalLogico {
-        try {
-            consola = new ConsolaNormal();
-            msgAyuda = Files.readString(Path.of(JuegoConsts.CONFIG_AYUDA));
+        consola = new ConsolaNormal();
 
-            banca = new Banca();
-            jugadores = new ArrayList<>(JuegoConsts.MAX_JUGADORES);
-            turno = 0;
-            jugando = false;
-            nAumentosPrecio = 1;
+        banca = new Banca();
+        jugadores = new ArrayList<>(JuegoConsts.MAX_JUGADORES);
+        turno = 0;
+        jugando = false;
+        nAumentosPrecio = 1;
 
-            Lector lector = new Lector(this);
-            casillas = lector.getCasillas();
-            grupos = lector.getGrupos();
-            carcel = lector.getCarcel();
-            salida = lector.getSalida();
-            fortunaInicial = lector.getFortunaInicial();
-        } catch (IOException e) {
-            throw new ErrorFatalConfig("Error abriendo el archivo de ayuda: " + e, JuegoConsts.CONFIG_AYUDA, 0);
-        }
+        Lector lector = new Lector(this);
+        msgAyuda = lector.getMsgAyuda();
+        casillas = lector.getCasillas();
+        grupos = lector.getGrupos();
+        carcel = lector.getCarcel();
+        salida = lector.getSalida();
+        fortunaInicial = lector.getFortunaInicial();
     }
 
     /**
