@@ -3,36 +3,49 @@
 Juego del Monopoly (con algunas modificaciones) para la clase de Programación
 Orientada a Objetos implementado en Java.
 
-# Comandos
+# Compilación
 
-## Comandos sin argumentos
+Puedes usar IntelliJ Idea para compilar el proyecto.
 
-- `jugador`
-- `lanzar dados`
-- `acabar turno`
-- `salir carcel`
-- `ver tablero`
-- `listar { jugadores | avatares | enventa }`
+A la hora de ejecutar, asegúrate de incluir en tu `classpath` la carpeta `src/config`.
 
-## Comandos con argumentos
+```sh
+mkdir build
+javac -d build src/monopoly/**/*.java
+java -cp build:src monopoly.Main
+```
 
-- `crear jugador <nombre> <tipo> [<avatar>]`
-- `comprar <casilla>`
-- `describir { jugador <jugador> | <casilla> }`
+Y para compilar todo a un archivo _jar_:
 
-# Formato
+```sh
+cd build
+cp -r ../src/config/ config
+echo -e "Main-Class: monopoly.Main\n" > manifest.mf
+jar -cfm Monopoly.jar manifest.mf config monopoly 
+```
 
-La clase `utilidades.Formatear` permite formatear `String`s de diferentes formas:
+En IntelliJ:
 
-- Añadir colores y estilos (método `con`)
-- Limitar a un tamaño (método `celda`)
-- Separar un número para indicar miles (método `num`)
+1. `Edit Configurations` (al lado del botón de ejecutar) > `+` > `Application`.
+2. En el campo de clase principal, escribe `monopoly.Main`.
+3. Al lado de `Build and run`, pulsa en `Modify options` > `Java` > `Modify classpath`.
+  En la nueva sección que aparezca, presiona `+` > `Include` y selecciona la carpeta
+  `src/config`.
 
-Se usarán los siguientes colores para indicar resultados de comandos:
+Y para crear el _jar_ con IntelliJ:
 
-- Rojo: un error ha ocurrido
-- Verde: todo ha sido exitoso
-- Azul: información
+1. `File` > `Proyect Structure` > `Artifacts`.
+2. Crea uno nuevo en `+` > `JAR` > `Empty`
+3. Puedes darle un nombre como `Monopoly.jar` y escoger el directorio de salida, `out`.
+4. Selecciona `Monopoly.jar` y abajo pulsa `Create Manifest`. Puedes seleccionar
+   la carpeta de `src`. Luego, en `Main-Class`, escribe `monopoly.Main`.
+5. `+` > `Module output` > `poo-monopoly` (o el nombre del proyecto) > `Ok`.
+6. `+` > `Directory content` y selecciona `src/config`.
+7. Abajo de todo, `Ok`.
+
+Para finalmente compilar el _jar_, `Build` > `Build Artifacts` y selecciona el
+que hemos creado. Se creará un archivo `.jar` en la carpeta que hemos
+especificado.
 
 # Estructura del proyecto
 
@@ -42,73 +55,6 @@ Se usarán los siguientes colores para indicar resultados de comandos:
 
 ![](diagrama-excepciones.png)
 
-Definidas en el paquete `monopoly`:
-
-- **Monopoly**: Crea el tablero y se encarga de procesar y ejecutar los
-  comandos.
-
-- **Tablero**: Crea las casillas, encargado de dibujar el tablero, contiene
-  a los jugadores, etc.
-
-- **Calculadora**: Clase encargada de calcular y asignar todos los precios de
-  las propiedades y alquileres.
-
------------------------------------------------------------
-
-- **Jugador**: Representa un jugador dentro del juego. Contiene las propiedades,
-  la fortuna, las estadísticas...
-
-- **Avatar**: Representa un jugador en una casilla del juego. Es el encargado de
-  mover el jugador a una casilla distinta.
-  - Coche
-  - Esfinge
-  - Sombrero
-  - Pelota
-  - Banca (especial)
-
------------------------------------------------------------
-
-- **Grupo** (x11): Representa un grupo de casillas. Si un jugador tiene todas las
-  casillas del grupo, se dice que tiene el Monopolio.
-
-- **Casilla** (x40): Representa una casilla del tablero y una propiedad (si aplica).
-  - **Propiedad** (se puede comprar)
-    - Solar (x22)
-    - Transporte (x4)
-      - Puerto
-      - Aeropuerto
-      - Ferrocarril
-      - Nave espacial
-    - Servicio (x4)
-      - Telecomunicaciones
-      - Eléctrico
-  - Impuestos (x2)
-  - Suerte (x3)
-  - Comunidad (x3)
-  - Especiales (x4): Carcel, Parking, Salida, IrACarcel (cada una de las esquinas)
-
-- **Edificación**: Modificaciones que se puede aplicar a los solares.
-  - Casa
-  - Hotel
-  - Piscina
-  - PistaDeporte
-  
------------------------------------------------------------
-
-Definidas en el paquete `monopoly.utils`:
-
-- **Dado**: Representa un lanzamiento de un dado
-- **Consola**: Clase de ayuda para escribir por pantalla con colores y distintos
-  formatos.
-- **Lector**: Clase de ayuda para leer los archivo de las casillas y cartas.
-- **PintorTablero**: Clase de ayuda al Tablero para hacer una representación
-  gráfica del mismo.
-
-## Funciones obligatorias de cada Clase
-
-- `toString()`: Información detallada de la clase
-- `listar()`: Información básica (en el futuro una interfaz)
-- `equals()`: Criterio de igualdad
 
 # Notas de estilo
 
@@ -119,7 +65,6 @@ estilo de Google].
 - Nombres de clases: `EjemploDeNombre` (PascalCase).
 - Nombres de variables (locales y atributos) y funciones: `ejemploDeNombre` (camelCase).
 - Nombres de constantes: `EJEMPLO_DE_NOMBRE` (UPPER_SNAKE_CASE).
-- Se prohíbe el uso de `import paquete.*;`.
 - Se incluyen siempre las llaves aunque solo haya una línea (las llaves van en
   la misma línea):
 
